@@ -1,0 +1,645 @@
+<!DOCTYPE html>
+<html lang="ja">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>LINE風チャットボットフォーム</title>
+<link href="https://fonts.googleapis.com/css2?family=Roboto:wght@400;500;700&display=swap" rel="stylesheet">
+<style>
+  /* 基本的なスタイルリセット */
+  *,
+  *::before,
+  *::after {
+    box-sizing: border-box;
+    margin: 0;
+    padding: 0;
+  }
+
+  body {
+    font-family: 'Roboto', "Helvetica Neue", "Segoe UI", "Hiragino Kaku Gothic ProN", "Hiragino Sans", Meiryo, Arial, sans-serif;
+    background-color: #8297ac; /* LINEのトークルーム背景色に近い色 */
+    display: flex;
+    justify-content: center;
+    align-items: center;
+    min-height: 100vh;
+    padding: 16px;
+    color: #333;
+  }
+
+  .chat-container {
+    width: 100%;
+    max-width: 420px; /* スマートフォンに近い幅 */
+    height: calc(100vh - 32px); /* 上下のpaddingを考慮 */
+    max-height: 700px; /* 最大の高さを設定 */
+    background-color: #ffffff;
+    border-radius: 16px; /* 角を丸くする */
+    box-shadow: 0 8px 24px rgba(0, 0, 0, 0.15);
+    display: flex;
+    flex-direction: column;
+    overflow: hidden;
+  }
+
+  .chat-header {
+    background-color: #06C755; /* LINEのヘッダーに近い緑色 */
+    color: white;
+    padding: 12px 16px;
+    text-align: center;
+    font-size: 1.1em;
+    font-weight: 500;
+    min-height: 56px; /* ヘッダーの最小高さ */
+    display: flex;
+    align-items: center;
+    justify-content: center; /* 中央揃え */
+  }
+
+  .chat-messages {
+    flex-grow: 1;
+    padding: 16px 12px;
+    overflow-y: auto; /* メッセージが多い場合にスクロール */
+    background-color: #e9ebee; /* LINEのチャット背景色に近い色 */
+    display: flex;
+    flex-direction: column;
+    gap: 10px; /* メッセージ間のスペース */
+  }
+
+  .message-wrapper {
+    display: flex;
+    width: 100%;
+  }
+
+  .bot-message-wrapper {
+    justify-content: flex-start;
+  }
+
+  .user-message-wrapper {
+    justify-content: flex-end;
+  }
+
+  .message {
+    max-width: 85%; /* 吹き出しの最大幅、選択肢ボタンを考慮 */
+    padding: 10px 14px;
+    border-radius: 18px; /* 吹き出しの角丸 */
+    line-height: 1.5;
+    word-wrap: break-word;
+    font-size: 0.95em;
+    box-shadow: 0 1px 2px rgba(0,0,0,0.1);
+  }
+
+  .bot-message {
+    background-color: #ffffff;
+    color: #212121;
+    border-bottom-left-radius: 4px; /* 左下の角を少し変える */
+  }
+
+  .user-message {
+    background-color: #8DE047; /* LINEの自分の吹き出しに近い色 */
+    color: #000000;
+    border-bottom-right-radius: 4px; /* 右下の角を少し変える */
+  }
+
+  .input-area {
+    display: flex;
+    align-items: center;
+    padding: 8px 12px;
+    background-color: #f5f5f5;
+    border-top: 1px solid #e0e0e0;
+    min-height: 56px; /* 入力エリアの最小高さ */
+  }
+
+  .input-area input[type="text"],
+  .input-area input[type="email"],
+  .input-area input[type="number"],
+  .input-area input[type="tel"], /* telタイプも追加 */
+  .input-area input[type="date"] { /* dateタイプも追加 */
+    flex-grow: 1;
+    padding: 10px 16px;
+    border: 1px solid #d0d0d0;
+    border-radius: 20px; /* 入力フィールドの角丸 */
+    margin-right: 8px;
+    font-size: 0.95em;
+    outline: none;
+  }
+
+  .input-area input[type="text"]:focus,
+  .input-area input[type="email"]:focus,
+  .input-area input[type="number"]:focus,
+  .input-area input[type="tel"]:focus,
+  .input-area input[type="date"]:focus {
+    border-color: #06C755;
+    box-shadow: 0 0 0 2px rgba(6, 199, 85, 0.2);
+  }
+
+  .input-area button#sendButton { /* IDセレクタで特異性を確保 */
+    padding: 10px 15px;
+    background-color: #06C755;
+    color: white;
+    border: none;
+    border-radius: 20px;
+    cursor: pointer;
+    font-size: 0.95em;
+    font-weight: 500;
+    transition: background-color 0.2s ease;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+  }
+  .input-area button#sendButton:hover {
+    background-color: #05a546;
+  }
+  .input-area button#sendButton:disabled {
+    background-color: #b0b0b0;
+    cursor: not-allowed;
+  }
+
+  /* 入力エラー時のスタイル */
+  .input-error {
+    border-color: #ff3b30 !important; /* エラー時は赤枠 */
+  }
+  .error-message {
+    color: #ff3b30;
+    font-size: 0.8em;
+    margin-top: 4px;
+    padding-left: 16px; /* エラーメッセージの位置調整 */
+  }
+
+  /* ローディングインジケーター */
+  .typing-indicator {
+    display: flex;
+    align-items: center;
+    padding: 8px 0;
+  }
+  .typing-indicator span {
+    height: 8px;
+    width: 8px;
+    background-color: #b0b0b0;
+    border-radius: 50%;
+    display: inline-block;
+    margin: 0 2px;
+    animation: bounce 1.4s infinite ease-in-out both;
+  }
+  .typing-indicator span:nth-child(1) { animation-delay: -0.32s; }
+  .typing-indicator span:nth-child(2) { animation-delay: -0.16s; }
+  @keyframes bounce {
+    0%, 80%, 100% { transform: scale(0); }
+    40% { transform: scale(1.0); }
+  }
+
+  /* 選択肢ボタンのスタイル */
+  .choices-container {
+    display: flex;
+    flex-direction: column;
+    gap: 8px;
+    margin-top: 8px;
+    max-height: 200px; /* 都道府県など選択肢が多い場合にスクロール */
+    overflow-y: auto;
+    padding-right: 5px; /* スクロールバーのためのスペース */
+    -webkit-overflow-scrolling: touch; /* iOSでの慣性スクロール */
+  }
+  .choice-button {
+    background-color: #fff;
+    border: 1px solid #06C755;
+    color: #06C755;
+    padding: 10px 12px;
+    border-radius: 16px;
+    cursor: pointer;
+    text-align: center;
+    font-size: 0.9em;
+    transition: background-color 0.2s, color 0.2s;
+    width: 100%; /* コンテナ幅に合わせる */
+    box-sizing: border-box;
+  }
+  .choice-button:hover {
+    background-color: #e6f8ee;
+  }
+  .choice-button.selected {
+    background-color: #06C755;
+    color: #fff;
+  }
+  .submit-choices-button { /* 複数選択の決定ボタン */
+    background-color: #007bff; /* やや目立つ色 */
+    color: white;
+    margin-top: 10px;
+    border-color: #007bff;
+  }
+  .submit-choices-button:hover {
+    background-color: #0056b3;
+  }
+</style>
+</head>
+<body>
+
+<div class="chat-container">
+  <div class="chat-header">
+    お問い合わせフォーム
+  </div>
+  <div class="chat-messages" id="chatMessages">
+    </div>
+  <div class="input-area">
+    <input type="text" id="userInput" placeholder="メッセージを入力...">
+    <button id="sendButton">
+      <svg xmlns="http://www.w3.org/2000/svg" width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" class="feather feather-send"><line x1="22" y1="2" x2="11" y2="13"></line><polygon points="22 2 15 22 11 13 2 9 22 2"></polygon></svg>
+    </button>
+  </div>
+</div>
+
+<script>
+  const chatMessages = document.getElementById('chatMessages');
+  const userInput = document.getElementById('userInput');
+  const sendButton = document.getElementById('sendButton');
+
+  // ★★★ Google Apps ScriptのウェブアプリURLに置き換えてください ★★★
+  const GAS_WEB_APP_URL = 'https://script.google.com/macros/s/AKfycbzaRxBsw02kVzyJj9EwWuE9uioPB3HlDfoEj1GvZcAH20AVYDKEYSSqag6cJxV1T9A5/exec';
+
+  let currentStep = 0;
+  let subStep = 0; // 名前の姓・名・セイ・メイなどのサブ質問用
+  const userResponses = {};
+  let isBotTyping = false;
+  let currentMultipleChoices = []; // 複数選択用の一時保存配列
+
+  // 都道府県のリスト
+  const prefectures = [
+    "北海道", "青森県", "岩手県", "宮城県", "秋田県", "山形県", "福島県",
+    "茨城県", "栃木県", "群馬県", "埼玉県", "千葉県", "東京都", "神奈川県",
+    "新潟県", "富山県", "石川県", "福井県", "山梨県", "長野県", "岐阜県",
+    "静岡県", "愛知県", "三重県", "滋賀県", "京都府", "大阪府", "兵庫県",
+    "奈良県", "和歌山県", "鳥取県", "島根県", "岡山県", "広島県", "山口県",
+    "徳島県", "香川県", "愛媛県", "高知県", "福岡県", "佐賀県", "長崎県",
+    "熊本県", "大分県", "宮崎県", "鹿児島県", "沖縄県"
+  ];
+
+  // 質問リスト
+  const questions = [
+    // Q1
+    { id: 1, item: "投資経験", question: "投資の経験はありますか？", answer_method: "single-choice", options: ["あり", "なし"], key: "investment_experience", validation: (v) => !!v, errorMessage: "選択してください。" },
+    // Q2
+    { id: 2, item: "投資経験_種類", question: "経験のある投資を教えてください（複数選択）", answer_method: "multiple-choice", options: ["株", "不動産投資", "投資信託(つみたてNISA等も含む)", "FX", "金", "仮想通貨", "拠出型年金(iDeCoや401K)", "積立型保険", "外貨"], key: "investment_experience_types", condition: { key: "investment_experience", value: "あり" }, validation: (v) => v && v.length > 0, errorMessage: "1つ以上選択してください。" },
+    // Q3
+    { id: 3, item: "検討状況", question: "続いて、不動産投資の検討状況を教えてください", answer_method: "single-choice", options: ["初めて", "2～3回目で色々と比較中", "最終的な検討段階で検証中", "長期検討中"], key: "real_estate_consideration_status", validation: (v) => !!v, errorMessage: "選択してください。" },
+    // Q4
+    { id: 4, item: "ポイント", question: "不動産投資で興味があるポイントはどれでしょうか？（複数選択）", answer_method: "multiple-choice", options: ["将来の不労所得", "節税効果", "相続税対策", "生命保険がわり", "運用コスト", "リスク", "利回り", "借換", "まだわからない"], key: "real_estate_interest_points", validation: (v) => v && v.length > 0, errorMessage: "1つ以上選択してください。" },
+    // Q5
+    { id: 5, item: "職業", question: "次に、ご職業を教えてください。", answer_method: "single-choice", options: ["会社員（上場企業）", "会社員（その他）", "公務員", "経営者", "士業（医師、看護師、弁護士、税理士など）", "自営業・その他"], key: "occupation", validation: (v) => !!v, errorMessage: "選択してください。" },
+    // Q6
+    { id: 6, item: "勤続年数", question: "勤続年数は何年でしょうか？", answer_method: "single-choice", options: ["半年未満", "1年未満", "2年未満", "3年未満", "3年以上"], key: "years_of_service", validation: (v) => !!v, errorMessage: "選択してください。" },
+    // Q7
+    { id: 7, item: "年収", question: "続いて、現在の年収を教えてください。", answer_method: "single-choice", options: ["0～399万", "400～499万", "500～599万", "600～699万", "700～799万", "800～899万", "900～999万", "1000～1099万", "1100～1199万", "1200～1299万", "1300～1399万", "1400～1499万", "1500～1999万", "2000～2499万", "2500～2999万", "3000～3999万", "4000～4999万", "5000万～1億未満", "1億以上"], key: "annual_income", validation: (v) => !!v, errorMessage: "選択してください。" },
+    // Q8
+    { id: 8, item: "自己資金", question: "次に、ご用意可能な自己資金を教えてください", answer_method: "single-choice", options: ["100万未満", "100～500万未満", "500～1000万未満", "1000～2000万未満", "2000万以上"], key: "self_funding", validation: (v) => !!v, errorMessage: "選択してください。" },
+    // Q9
+    { id: 9, item: "借入金額", question: "次に、現在の借入金額を教えてください。", answer_method: "single-choice", options: ["なし", "3000万未満", "3000～5000万未満", "5000～1億未満", "1億円〜"], key: "current_debt", validation: (v) => !!v, errorMessage: "選択してください。" },
+    // Q10
+    { id: 10, item: "性別", question: "まずは性別を教えてください。", answer_method: "single-choice", options: ["男性", "女性"], key: "gender", validation: (v) => !!v, errorMessage: "選択してください。" },
+    // Q11
+    { id: 11, item: "都道府県", question: "どちらの都道府県にお住まいですか？", answer_method: "single-choice", options: prefectures, key: "prefecture", validation: (v) => !!v, errorMessage: "選択してください。" },
+    // Q12
+    { id: 12, item: "年齢", question: "ご年齢を教えてください。", answer_method: "single-choice", options: ["20歳未満", "20～24歳", "25～29歳", "30～34歳", "35～39歳", "40～44歳", "45～49歳", "50～54歳", "55～59歳", "60～64歳", "65～69歳", "70歳以上"], key: "age_group_q12", validation: (v) => !!v, errorMessage: "選択してください。" },
+    // Q13
+    { id: 13, item: "名前", question: "まず、お名前を教えてください。", answer_method: "text-multi", sub_questions: [{label:"姓", key:"last_name"}, {label:"名", key:"first_name"}, {label:"セイ (全角カタカナ)", key:"last_name_kana"}, {label:"メイ (全角カタカナ)", key:"first_name_kana"}], key: "full_name_dummy", validation: (v, sub_key) => v && v.trim().length > 0, errorMessage: "入力してください。" },
+    // Q14
+    { id: 14, item: "電話番号", question: "次に電話番号を入力してください。(例: 09012345678)", answer_method: "text", type: "tel", key: "phone_number", validation: (v) => /^[0-9]{10,11}$/.test(v.replace(/-/g, "")), errorMessage: "有効な電話番号をハイフンなし半角数字で入力してください。" },
+    // Q15
+    { id: 15, item: "メールアドレス", question: "メールアドレスを入力してください！(例: user@example.com)", answer_method: "text", type: "email", key: "email_address", validation: (v) => /^[^\s@]+@[^\s@]+\.[^\s@]+$/.test(v), errorMessage: "有効なメールアドレスを入力してください。" },
+    // Q16
+    { id: 16, item: "相談希望日_第一希望", question: "【第一希望】ご相談希望日をお選び下さい (例: 2024/05/15)", answer_method: "text", type: "text", placeholder: "YYYY/MM/DD", key: "first_choice_date", validation: (v) => /^\d{4}\/(0?[1-9]|1[0-2])\/(0?[1-9]|[12][0-9]|3[01])$/.test(v) && !isNaN(new Date(v)), errorMessage: "YYYY/MM/DD形式で有効な日付を入力してください。" },
+    // Q17
+    { id: 17, item: "相談希望時間_第一希望", question: "【第一希望】ご相談希望時間をお選び下さい", answer_method: "single-choice", options: ["10：00～12：00", "12：00～14：00", "14：00～16：00", "16：00～18：00", "18：00～20：00", "20：00 以降", "その他の時間"], key: "first_choice_time", validation: (v) => !!v, errorMessage: "選択してください。" },
+    // Q18
+    { id: 18, item: "相談希望時間_第一希望_その他", question: "【第一希望】その他のご相談希望時間を入力ください", answer_method: "text", type: "text", key: "first_choice_time_other", condition: { key: "first_choice_time", value: "その他の時間" }, validation: (v) => v && v.trim().length > 0, errorMessage: "希望時間を入力してください。" },
+    // Q19
+    { id: 19, item: "相談希望日_第二希望", question: "【第二希望】ご相談希望日をお選び下さい (例: 2024/05/16)", answer_method: "text", type: "text", placeholder: "YYYY/MM/DD", key: "second_choice_date", validation: (v) => /^\d{4}\/(0?[1-9]|1[0-2])\/(0?[1-9]|[12][0-9]|3[01])$/.test(v) && !isNaN(new Date(v)), errorMessage: "YYYY/MM/DD形式で有効な日付を入力してください。" },
+    // Q20
+    { id: 20, item: "相談希望時間_第二希望", question: "【第二希望】ご相談希望時間をお選び下さい", answer_method: "single-choice", options: ["10：00～12：00", "12：00～14：00", "14：00～16：00", "16：00～18：00", "18：00～20：00", "20：00 以降", "その他の時間"], key: "second_choice_time", validation: (v) => !!v, errorMessage: "選択してください。" },
+    // Q21
+    { id: 21, item: "相談希望時間_第二希望_その他", question: "【第二希望】その他のご相談希望時間を入力ください", answer_method: "text", type: "text", key: "second_choice_time_other", condition: { key: "second_choice_time", value: "その他の時間" }, validation: (v) => v && v.trim().length > 0, errorMessage: "希望時間を入力してください。" },
+    // Q22
+    { id: 22, item: "J.P.RETURNSの認知", question: "最後に、J.P.RETURNSを知ったきっかけを教えてください（複数選択）", answer_method: "multiple-choice", options: ["ネット検索", "バナー広告", "マネーフォワード", "Facebook", "Instagram", "Twitter", "インベース（旧:モゲチェック）", "イエベスト", "知人紹介", "その他"], key: "jp_returns_awareness", validation: (v) => v && v.length > 0, errorMessage: "1つ以上選択してください。" },
+    // Q23
+    { id: 23, item: "J.P.RETURNSの認知_その他", question: "きっかけ「その他」の詳細を教えてください。", answer_method: "text", type: "text", key: "jp_returns_awareness_other", condition: { key: "jp_returns_awareness", includes: "その他" }, validation: (v) => v && v.trim().length > 0, errorMessage: "詳細を入力してください。" }
+  ];
+
+  // タイピングインジケーター表示
+  function showTypingIndicator() {
+    if (isBotTyping) return;
+    isBotTyping = true;
+    const indicatorWrapper = document.createElement('div');
+    indicatorWrapper.classList.add('message-wrapper', 'bot-message-wrapper', 'typing-indicator-wrapper');
+    indicatorWrapper.innerHTML = `
+      <div class="message bot-message typing-indicator">
+        <span></span><span></span><span></span>
+      </div>
+    `;
+    chatMessages.appendChild(indicatorWrapper);
+    scrollToBottom();
+  }
+
+  // タイピングインジケーター非表示
+  function hideTypingIndicator() {
+    const indicatorWrapper = chatMessages.querySelector('.typing-indicator-wrapper');
+    if (indicatorWrapper) {
+      indicatorWrapper.remove();
+    }
+    isBotTyping = false;
+  }
+
+  // メッセージをチャットに追加 (HTML許容フラグ追加)
+  function addMessage(messageText, sender, isHtml = false) {
+    hideTypingIndicator();
+    const messageWrapper = document.createElement('div');
+    messageWrapper.classList.add('message-wrapper', `${sender}-message-wrapper`);
+
+    const messageElement = document.createElement('div');
+    messageElement.classList.add('message', `${sender}-message`);
+    if (isHtml) {
+      messageElement.innerHTML = messageText; // HTMLとしてメッセージを挿入
+    } else {
+      messageElement.textContent = messageText; // テキストとしてメッセージを挿入
+    }
+    messageWrapper.appendChild(messageElement);
+    chatMessages.appendChild(messageWrapper);
+    scrollToBottom();
+    return messageElement; // ボタンなどのインタラクションのために要素を返す
+  }
+
+  // ボットのメッセージを追加 (Promiseを返すように変更)
+  function addBotMessage(messageText, isHtml = false) {
+    showTypingIndicator();
+    return new Promise(resolve => {
+      setTimeout(() => {
+        const msgElem = addMessage(messageText, 'bot', isHtml);
+        resolve(msgElem); // メッセージ要素をresolve
+      }, 600 + Math.random() * 400); // 少しランダムな遅延
+    });
+  }
+
+  // ユーザーのメッセージを追加
+  function addUserMessage(messageText) {
+    addMessage(messageText, 'user');
+  }
+
+  // チャットの最下部にスクロール
+  function scrollToBottom() {
+    chatMessages.scrollTop = chatMessages.scrollHeight;
+  }
+
+  // 次の質問を表示またはフォームを終了
+  function askQuestion() {
+    userInput.disabled = false;
+    sendButton.disabled = false;
+    userInput.style.display = 'flex'; // デフォルトでテキスト入力表示
+    sendButton.style.display = 'flex'; // デフォルトで送信ボタン表示
+    userInput.classList.remove('input-error');
+    removeErrorMessage();
+
+    // 条件に合致しない質問をスキップ
+    while (currentStep < questions.length) {
+        const q = questions[currentStep];
+        if (q.condition) {
+            const conditionKey = q.condition.key;
+            const conditionValue = q.condition.value; // 単一の値との比較用
+            const conditionIncludes = q.condition.includes; // 配列に特定の値が含まれるかの比較用
+
+            if (userResponses[conditionKey] !== undefined) { // 条件のキーに対する回答が存在する場合
+                if (conditionValue && userResponses[conditionKey] !== conditionValue) {
+                    currentStep++;
+                    continue; // 条件(value)に合致しないのでスキップ
+                }
+                if (conditionIncludes && (!Array.isArray(userResponses[conditionKey]) || !userResponses[conditionKey].includes(conditionIncludes))) {
+                    currentStep++;
+                    continue; // 条件(includes)に合致しないのでスキップ
+                }
+            } else { // 条件キーの回答がまだない場合 (通常は前の質問で回答されるはず)
+                currentStep++;
+                continue;
+            }
+        }
+        break; // 条件を満たすか、条件がない質問に到達
+    }
+
+
+    if (currentStep >= questions.length) { // 全ての質問が完了
+      addBotMessage("全ての情報をご入力いただき、ありがとうございました！内容を送信中です...");
+      userInput.disabled = true;
+      sendButton.disabled = true;
+      userInput.placeholder = "送信中...";
+      console.log("最終収集情報:", userResponses);
+      submitDataToGAS(); // Google Apps Scriptにデータを送信
+      return;
+    }
+
+    const currentQuestion = questions[currentStep];
+    let questionTextToShow = currentQuestion.question;
+
+    if (currentQuestion.answer_method === "text-multi") { // 名前のような複数項目入力
+        if (subStep < currentQuestion.sub_questions.length) {
+            questionTextToShow = currentQuestion.sub_questions[subStep].label + "を入力してください。";
+            userInput.type = currentQuestion.sub_questions[subStep].type || "text";
+            userInput.placeholder = currentQuestion.sub_questions[subStep].placeholder || `ここに入力`;
+        } else { // サブ質問が完了
+            subStep = 0; // サブステップをリセット
+            currentStep++; // 次のメインの質問へ
+            askQuestion(); // 再帰呼び出し
+            return;
+        }
+    } else { // 通常の質問
+        userInput.type = currentQuestion.type || "text";
+        userInput.placeholder = currentQuestion.placeholder || `ここに入力`;
+    }
+
+
+    addBotMessage(questionTextToShow).then(messageElement => { // メッセージ要素を受け取る
+      // 選択肢がある質問の場合、ボタンを表示
+      if (currentQuestion.answer_method === "single-choice" || currentQuestion.answer_method === "multiple-choice") {
+        userInput.style.display = 'none'; // テキスト入力欄を非表示
+        sendButton.style.display = 'none'; // 送信ボタンを非表示
+
+        const choicesContainer = document.createElement('div');
+        choicesContainer.className = 'choices-container';
+
+        currentQuestion.options.forEach(option => {
+          const button = document.createElement('button');
+          button.className = 'choice-button';
+          button.textContent = option;
+          button.dataset.value = option; // 選択値をdata属性に保持
+          choicesContainer.appendChild(button);
+
+          if (currentQuestion.answer_method === "single-choice") {
+            button.addEventListener('click', () => handleSingleChoiceClick(option, currentQuestion));
+          } else { // multiple-choice
+            button.addEventListener('click', () => toggleMultipleChoiceSelection(button, option));
+          }
+        });
+        messageElement.appendChild(choicesContainer); // ボットのメッセージ吹き出し内にボタンコンテナを追加
+
+        if (currentQuestion.answer_method === "multiple-choice") {
+          const submitBtn = document.createElement('button');
+          submitBtn.textContent = "これで決定";
+          submitBtn.className = 'choice-button submit-choices-button'; // スタイル適用
+          submitBtn.addEventListener('click', () => handleMultipleChoiceSubmit(currentQuestion));
+          messageElement.appendChild(submitBtn); // 決定ボタンも吹き出し内に追加
+          currentMultipleChoices = []; // 複数選択肢の選択状態をリセット
+        }
+      } else { // テキスト入力の場合
+        userInput.style.display = 'flex';
+        sendButton.style.display = 'flex';
+        userInput.value = ''; // 入力欄をクリア
+        userInput.focus();
+      }
+    });
+  }
+
+  // 単一選択肢の処理
+  function handleSingleChoiceClick(value, question) {
+    addUserMessage(value); // ユーザーの選択をチャットに表示
+    if (question.validation && !question.validation(value)) {
+        addBotMessage(question.errorMessage);
+        // ここで再度選択肢を表示するなどのリカバリ処理が必要な場合がある
+        return;
+    }
+    userResponses[question.key] = value; // 回答を保存
+    currentStep++;
+    setTimeout(askQuestion, 300); // 次の質問へ
+  }
+
+  // 複数選択肢の選択/解除
+  function toggleMultipleChoiceSelection(buttonElement, value) {
+    buttonElement.classList.toggle('selected'); // 選択状態のスタイルを切り替え
+    if (currentMultipleChoices.includes(value)) {
+      currentMultipleChoices = currentMultipleChoices.filter(item => item !== value); // 選択解除
+    } else {
+      currentMultipleChoices.push(value); // 選択
+    }
+  }
+
+  // 複数選択肢の決定処理
+  function handleMultipleChoiceSubmit(question) {
+    if (question.validation && !question.validation(currentMultipleChoices)) {
+        addBotMessage(question.errorMessage);
+        return;
+    }
+    if (currentMultipleChoices.length > 0) {
+        addUserMessage(currentMultipleChoices.join(', ')); // 選択された項目をまとめて表示
+    } else {
+        addUserMessage("(選択なし)"); // 何も選択されなかった場合
+    }
+    userResponses[question.key] = [...currentMultipleChoices]; // 回答を配列として保存
+    currentMultipleChoices = []; // 一時配列をリセット
+    currentStep++;
+    setTimeout(askQuestion, 300); // 次の質問へ
+  }
+
+
+  // テキスト入力の処理
+  function handleUserInput() {
+    const messageText = userInput.value.trim();
+    if (messageText === "" || userInput.disabled) return;
+
+    const currentQuestion = questions[currentStep];
+    let valueToStore = messageText;
+
+    // text-multi (名前など) の場合の処理
+    if (currentQuestion.answer_method === "text-multi") {
+        const subQ = currentQuestion.sub_questions[subStep];
+        if (subQ.validation && !subQ.validation(messageText)) { // サブ質問ごとのバリデーション
+            addBotMessage(subQ.errorMessage || currentQuestion.errorMessage);
+            userInput.classList.add('input-error');
+            displayErrorMessage(subQ.errorMessage || currentQuestion.errorMessage);
+            userInput.focus();
+            return;
+        }
+        userResponses[subQ.key] = messageText; // サブ質問のキーで保存
+        addUserMessage(`${subQ.label}: ${messageText}`); // ラベル付きでユーザーメッセージ表示
+        subStep++;
+    } else { // 通常のテキスト入力
+        if (currentQuestion.validation && !currentQuestion.validation(messageText)) {
+            addBotMessage(currentQuestion.errorMessage);
+            userInput.classList.add('input-error');
+            displayErrorMessage(currentQuestion.errorMessage);
+            userInput.focus();
+            return;
+        }
+        userResponses[currentQuestion.key] = messageText; // 回答を保存
+        addUserMessage(messageText); // ユーザーの入力をチャットに表示
+        currentStep++;
+    }
+
+    userInput.classList.remove('input-error');
+    removeErrorMessage();
+    userInput.value = ''; // 送信後にテキスト入力欄をクリア
+
+    setTimeout(askQuestion, 300); // 次の質問へ
+  }
+
+  // エラーメッセージ表示
+  function displayErrorMessage(message) {
+    removeErrorMessage(); // 既存のエラーメッセージを削除
+    const errorDiv = document.createElement('div');
+    errorDiv.classList.add('error-message');
+    errorDiv.textContent = message;
+    // input-area 内、userInput の後 (兄弟要素として) に挿入
+    userInput.parentNode.insertBefore(errorDiv, userInput.nextSibling);
+  }
+
+  // エラーメッセージ削除
+  function removeErrorMessage() {
+    const existingError = userInput.parentNode.querySelector('.error-message');
+    if (existingError) {
+      existingError.remove();
+    }
+  }
+
+  // Google Apps Scriptにデータを送信
+  function submitDataToGAS() {
+    if (!GAS_WEB_APP_URL || GAS_WEB_APP_URL === 'YOUR_GOOGLE_APPS_SCRIPT_WEB_APP_URL') {
+        addBotMessage("データ送信先URLが設定されていません。管理者にお問い合わせください。");
+        console.error("GAS_WEB_APP_URL is not set.");
+        return;
+    }
+    fetch(GAS_WEB_APP_URL, {
+      method: 'POST',
+      mode: 'no-cors', // シンプルなPOST。レスポンスはJS側で直接は読めない。
+      cache: 'no-cache',
+      headers: {
+        // 'Content-Type': 'application/json' // no-corsモードでは不要な場合があるが、GAS側でJSONを期待する場合は設定
+                                            // GAS側で e.postData.contents を使う場合は text/plain で送られることが多い
+      },
+      body: JSON.stringify(userResponses) // データをJSON文字列として送信
+    })
+    .then(response => { // no-corsモードではresponse.okやresponse.statusは常にfalse/0になることが多い
+      addBotMessage("お問い合わせありがとうございます。担当者より追ってご連絡いたします。");
+      userInput.placeholder = "送信完了";
+    })
+    .catch(error => {
+      console.error('Error sending data to Google Sheet:', error);
+      addBotMessage("エラーが発生し、データを送信できませんでした。お手数ですが、時間をおいて再度お試しください。");
+      userInput.placeholder = "送信失敗";
+      userInput.disabled = false; // 再試行できるようにする場合
+      sendButton.disabled = false;
+    });
+  }
+
+  // 送信ボタンのイベントリスナー
+  sendButton.addEventListener('click', handleUserInput);
+
+  // Enterキーでの入力処理
+  userInput.addEventListener('keypress', function(event) {
+    if (event.key === 'Enter') {
+      const currentQuestion = questions[currentStep];
+      // 選択肢が表示されている場合はEnterでの送信を無効化
+      if (currentQuestion && (currentQuestion.answer_method === "single-choice" || currentQuestion.answer_method === "multiple-choice")) {
+          event.preventDefault(); // Enterキーのデフォルト動作（フォーム送信など）を抑制
+          return;
+      }
+      event.preventDefault(); // Enterキーのデフォルト動作を抑制
+      handleUserInput();
+    }
+  });
+
+  // 初期メッセージと最初の質問の開始
+  setTimeout(() => {
+      addBotMessage("お問い合わせありがとうございます。いくつかの情報をお伺いします。");
+      setTimeout(askQuestion, 1200); // 最初の質問までの遅延
+  }, 500);
+
+</script>
+</body>
+</html>
