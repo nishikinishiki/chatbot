@@ -15,57 +15,69 @@
     padding: 0;
   }
 
-  body {
+  html, body {
+    height: 100%; /* htmlとbodyの高さを100%に */
+    overflow: hidden; /* bodyのスクロールを禁止 */
     font-family: 'Roboto', "Helvetica Neue", "Segoe UI", "Hiragino Kaku Gothic ProN", "Hiragino Sans", Meiryo, Arial, sans-serif;
-    background-color: #8297ac; /* LINEのトークルーム背景色に近い色 */
-    display: flex;
+    color: #333;
+  }
+
+  body {
+    background-color: #8297ac; /* 背景色をbodyに設定 */
+    display: flex; /* chat-containerを中央揃えするため */
     justify-content: center;
     align-items: center;
-    min-height: 100vh;
-    padding: 16px;
-    color: #333;
   }
 
   .chat-container {
     width: 100%;
-    max-width: 420px; /* スマートフォンに近い幅 */
-    height: calc(100vh - 32px); /* 上下のpaddingを考慮 */
-    max-height: 700px; /* 最大の高さを設定 */
+    height: 100vh; /* ビューポートの高さ全体を使用 */
+    max-width: 420px; /* PC表示時の最大幅は維持 */
     background-color: #ffffff;
-    border-radius: 16px; /* 角を丸くする */
-    box-shadow: 0 8px 24px rgba(0, 0, 0, 0.15);
+    border-radius: 16px; /* 角丸は維持（フルスクリーンでもデザインとしてあり得る） */
+    box-shadow: 0 8px 24px rgba(0, 0, 0, 0.15); /* 影も維持 */
     display: flex;
     flex-direction: column;
-    overflow: hidden;
+    overflow: hidden; /* chat-container自体のスクロールは不要 */
+  }
+  /* スマホなど幅が420px以下の場合は角丸と影をなくし、完全に画面にフィットさせる場合 */
+  @media (max-width: 420px) {
+    .chat-container {
+      border-radius: 0;
+      box-shadow: none;
+      max-width: 100%; /* スマホではmax-widthも100%に */
+    }
   }
 
+
   .chat-header {
-    background-color: #06C755; /* LINEのヘッダーに近い緑色 */
+    background-color: #06C755;
     color: white;
     padding: 12px 16px;
     text-align: center;
     font-size: 1.1em;
     font-weight: 500;
-    min-height: 56px; /* ヘッダーの最小高さ */
+    min-height: 56px;
     display: flex;
     align-items: center;
-    justify-content: center; /* 中央揃え */
+    justify-content: center;
+    flex-shrink: 0; /* ヘッダーが縮まないように */
   }
 
   .chat-messages {
-    flex-grow: 1;
+    flex-grow: 1; /* 利用可能なスペースをすべて使用 */
     padding: 16px 12px;
     overflow-y: auto; /* メッセージが多い場合にスクロール */
-    background-color: #e9ebee; /* LINEのチャット背景色に近い色 */
+    background-color: #e9ebee;
     display: flex;
     flex-direction: column;
-    gap: 10px; /* メッセージ間のスペース */
+    gap: 10px;
   }
 
   .message-wrapper {
     display: flex;
     width: 100%;
-    align-items: flex-end; /* アイコンと吹き出しの底を揃える */
+    align-items: flex-end;
   }
 
   .bot-message-wrapper {
@@ -78,9 +90,8 @@
     margin-right: 8px;
     background-size: cover;
     background-position: center;
-    flex-shrink: 0; /* アイコンが縮まないように */
-    /* 念のため背景色を設定 (画像読み込み失敗時など) */
-    background-color: #ddd;
+    flex-shrink: 0;
+    background-color: #ddd; /* 画像読み込み失敗時のフォールバック */
   }
 
   .user-message-wrapper {
@@ -88,29 +99,29 @@
   }
 
   .message {
-    max-width: calc(100% - 48px); /* アイコン分を考慮 (40px + margin 8px) */
+    max-width: calc(100% - 48px);
     padding: 10px 14px;
-    border-radius: 18px; /* 吹き出しの角丸 */
+    border-radius: 18px;
     line-height: 1.5;
     word-wrap: break-word;
-    font-size: 0.95em;
+    font-size: 0.95em; /* メッセージ自体のフォントサイズは維持 */
     box-shadow: 0 1px 2px rgba(0,0,0,0.1);
   }
-  .bot-message-wrapper .message { /* ボットメッセージの最大幅調整 */
-     max-width: calc(85% - 48px); /* 元の85%からアイコン幅を引く */
+  .bot-message-wrapper .message {
+     max-width: calc(85% - 48px);
   }
 
 
   .bot-message {
     background-color: #ffffff;
     color: #212121;
-    border-bottom-left-radius: 4px; /* 左下の角を少し変える */
+    border-bottom-left-radius: 4px;
   }
 
   .user-message {
-    background-color: #8DE047; /* LINEの自分の吹き出しに近い色 */
+    background-color: #8DE047;
     color: #000000;
-    border-bottom-right-radius: 4px; /* 右下の角を少し変える */
+    border-bottom-right-radius: 4px;
   }
 
   .input-area {
@@ -119,20 +130,21 @@
     padding: 8px 12px;
     background-color: #f5f5f5;
     border-top: 1px solid #e0e0e0;
-    min-height: 56px; /* 入力エリアの最小高さ */
+    min-height: 56px;
+    flex-shrink: 0; /* 入力エリアが縮まないように */
   }
 
   .input-area input[type="text"],
   .input-area input[type="email"],
   .input-area input[type="number"],
-  .input-area input[type="tel"], /* telタイプも追加 */
-  .input-area input[type="date"] { /* dateタイプも追加 */
+  .input-area input[type="tel"],
+  .input-area input[type="date"] {
     flex-grow: 1;
     padding: 10px 16px;
     border: 1px solid #d0d0d0;
-    border-radius: 20px; /* 入力フィールドの角丸 */
+    border-radius: 20px;
     margin-right: 8px;
-    font-size: 0.95em;
+    font-size: 16px; /* ★iOSでのズームを防ぐため16px以上に設定★ */
     outline: none;
   }
 
@@ -145,14 +157,14 @@
     box-shadow: 0 0 0 2px rgba(6, 199, 85, 0.2);
   }
 
-  .input-area button#sendButton { /* IDセレクタで特異性を確保 */
+  .input-area button#sendButton {
     padding: 10px 15px;
     background-color: #06C755;
     color: white;
     border: none;
     border-radius: 20px;
     cursor: pointer;
-    font-size: 0.95em;
+    font-size: 16px; /* ボタンのフォントサイズも調整（任意） */
     font-weight: 500;
     transition: background-color 0.2s ease;
     display: flex;
@@ -167,18 +179,16 @@
     cursor: not-allowed;
   }
 
-  /* 入力エラー時のスタイル */
   .input-error {
-    border-color: #ff3b30 !important; /* エラー時は赤枠 */
+    border-color: #ff3b30 !important;
   }
   .error-message {
     color: #ff3b30;
     font-size: 0.8em;
     margin-top: 4px;
-    padding-left: 16px; /* エラーメッセージの位置調整 */
+    padding-left: 16px;
   }
 
-  /* ローディングインジケーター */
   .typing-indicator {
     display: flex;
     align-items: center;
@@ -200,16 +210,15 @@
     40% { transform: scale(1.0); }
   }
 
-  /* 選択肢ボタンのスタイル */
   .choices-container {
     display: flex;
     flex-direction: column;
     gap: 8px;
     margin-top: 8px;
-    max-height: 200px; /* 都道府県など選択肢が多い場合にスクロール */
+    max-height: 200px;
     overflow-y: auto;
-    padding-right: 5px; /* スクロールバーのためのスペース */
-    -webkit-overflow-scrolling: touch; /* iOSでの慣性スクロール */
+    padding-right: 5px;
+    -webkit-overflow-scrolling: touch;
   }
   .choice-button {
     background-color: #fff;
@@ -219,26 +228,26 @@
     border-radius: 16px;
     cursor: pointer;
     text-align: center;
-    font-size: 0.9em;
+    font-size: 15px; /* 選択肢ボタンのフォントサイズも調整（16pxでも可） */
     transition: background-color 0.2s, color 0.2s;
-    width: 100%; /* コンテナ幅に合わせる */
+    width: 100%;
     box-sizing: border-box;
   }
-  .choice-button:hover:not(:disabled) { /* disabledでない場合のみhover効果 */
+  .choice-button:hover:not(:disabled) {
     background-color: #e6f8ee;
   }
   .choice-button.selected {
     background-color: #06C755;
     color: #fff;
   }
-  .choice-button:disabled { /* 無効化されたボタンのスタイル */
+  .choice-button:disabled {
     background-color: #f0f0f0;
     color: #aaa;
     border-color: #ddd;
     cursor: not-allowed;
   }
-  .submit-choices-button { /* 複数選択の決定ボタン */
-    background-color: #007bff; /* やや目立つ色 */
+  .submit-choices-button {
+    background-color: #007bff;
     color: white;
     margin-top: 10px;
     border-color: #007bff;
@@ -257,34 +266,31 @@
   <div class="chat-messages" id="chatMessages">
     </div>
   <div class="input-area">
-    <input type="text" id="userInput" placeholder="メッセージを入力...">
+    <input type="text" id="userInput" placeholder="ここに入力">
     <button id="sendButton">
       <svg xmlns="http://www.w3.org/2000/svg" width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" class="feather feather-send"><line x1="22" y1="2" x2="11" y2="13"></line><polygon points="22 2 15 22 11 13 2 9 22 2"></polygon></svg>
     </button>
   </div>
 </div>
 
+<script src="config.js"></script>
+
 <script>
   const chatMessages = document.getElementById('chatMessages');
   const userInput = document.getElementById('userInput');
   const sendButton = document.getElementById('sendButton');
 
-  // ★★★ Google Apps ScriptのウェブアプリURLに置き換えてください ★★★
-  const GAS_WEB_APP_URL = 'https://script.google.com/macros/s/AKfycbyX7vWqOR0QmlH9LHJYUBFnXI6C271wpk17eSKu_4akiFl61fD2vyxjWB2tDCrznyChxw/exec';
-  // ★★★ 質問者アイコンの画像URL (HTMLファイルと同じ階層にある場合) ★★★
-  const BOT_ICON_URL = 'images/icon.png'; // アップロードされたファイル名に合わせる
+  // GAS_WEB_APP_URL と BOT_ICON_URL は config.js から読み込まれる
 
   let currentStep = 0;
-  let subStep = 0; // 名前の姓・名・セイ・メイなどのサブ質問用
+  let subStep = 0;
   const userResponses = {};
   let isBotTyping = false;
-  let currentMultipleChoices = []; // 複数選択用の一時保存配列
-  let activeChoicesContainer = null; // 現在アクティブな選択肢コンテナ
+  let currentMultipleChoices = [];
+  let activeChoicesContainer = null;
 
-  // 全角カタカナのみを許可する正規表現 (長音記号「ー」と全角スペースも含む)
   const katakanaRegex = /^[ァ-ヶー　]+$/;
 
-  // 質問リスト (新しい仕様)
   const questions = [
     // Q1
     { id: 1, item: "職業", question: "ご職業を教えてください。", answer_method: "single-choice", options: ["会社員（上場企業）", "会社員（その他）", "公務員", "経営者", "士業（医師、看護師、弁護士、税理士など）", "自営業・その他"], key: "occupation_new", validation: (v) => !!v, errorMessage: "選択してください。" },
@@ -298,33 +304,34 @@
         {label:"名", key:"first_name_new", validation: (v) => v && v.trim().length > 0, errorMessage: "名を入力してください。"},
         {label:"セイ (全角カタカナ)", key:"last_name_kana_new", validation: (v) => v && katakanaRegex.test(v.trim()), errorMessage: "セイを全角カタカナで入力してください。"},
         {label:"メイ (全角カタカナ)", key:"first_name_kana_new", validation: (v) => v && katakanaRegex.test(v.trim()), errorMessage: "メイを全角カタカナで入力してください。"}
-      ], key: "full_name_dummy_new" }, // このkeyは実際には使われない
+      ], key: "full_name_dummy_new" },
     // Q5
     { id: 5, item: "電話番号", question: "電話番号を入力してください。(例: 09012345678)", answer_method: "text", type: "tel", key: "phone_number_new", validation: (v) => /^[0-9]{10,11}$/.test(v.replace(/-/g, "")), errorMessage: "有効な電話番号をハイフンなし半角数字で入力してください。" },
     // Q6
     { id: 6, item: "メールアドレス", question: "メールアドレスを入力してください！(例: user@example.com)", answer_method: "text", type: "email", key: "email_address_new", validation: (v) => /^[^\s@]+@[^\s@]+\.[^\s@]+$/.test(v), errorMessage: "有効なメールアドレスを入力してください。" },
     // Q7
     { id: 7, item: "面談希望", question: "ご面談を希望されますか？", answer_method: "single-choice", options: ["はい", "いいえ"], key: "interview_preference", validation: (v) => !!v, errorMessage: "選択してください。" },
-    // Q8 - 面談希望「はい」の場合
+    // Q8
     { id: 8, item: "相談希望日_第一希望", question: "【第一希望】ご相談希望日をお選びください (例: 2024/05/15)", answer_method: "text", type: "text", placeholder: "YYYY/MM/DD", key: "first_choice_date_new", condition: { key: "interview_preference", value: "はい" }, validation: (v) => /^\d{4}\/(0?[1-9]|1[0-2])\/(0?[1-9]|[12][0-9]|3[01])$/.test(v) && !isNaN(new Date(v)), errorMessage: "YYYY/MM/DD形式で有効な日付を入力してください。" },
-    // Q9 - 面談希望「はい」の場合
+    // Q9
     { id: 9, item: "相談希望時間_第一希望", question: "【第一希望】ご相談希望時間をお選びください", answer_method: "single-choice", options: ["10：00～12：00", "12：00～14：00", "14：00～16：00", "16：00～18：00", "18：00～20：00", "20：00 以降", "その他の時間"], key: "first_choice_time_new", condition: { key: "interview_preference", value: "はい" }, validation: (v) => !!v, errorMessage: "選択してください。" },
-    // Q10 - 面談希望「はい」かつ第一希望時間が「その他の時間」の場合
+    // Q10
     { id: 10, item: "相談希望時間_第一希望_その他", question: "【第一希望】その他のご相談希望時間を入力ください", answer_method: "text", type: "text", key: "first_choice_time_other_new", condition: { key: "first_choice_time_new", value: "その他の時間" }, validation: (v) => v && v.trim().length > 0, errorMessage: "希望時間を入力してください。" },
-    // Q11 - 面談希望「はい」の場合
+    // Q11
     { id: 11, item: "相談希望日_第二希望", question: "【第二希望】ご相談希望日をお選びください (例: 2024/05/16)", answer_method: "text", type: "text", placeholder: "YYYY/MM/DD", key: "second_choice_date_new", condition: { key: "interview_preference", value: "はい" }, validation: (v) => /^\d{4}\/(0?[1-9]|1[0-2])\/(0?[1-9]|[12][0-9]|3[01])$/.test(v) && !isNaN(new Date(v)), errorMessage: "YYYY/MM/DD形式で有効な日付を入力してください。" },
-    // Q12 - 面談希望「はい」の場合
+    // Q12
     { id: 12, item: "相談希望時間_第二希望", question: "【第二希望】ご相談希望時間をお選びください", answer_method: "single-choice", options: ["10：00～12：00", "12：00～14：00", "14：00～16：00", "16：00～18：00", "18：00～20：00", "20：00 以降", "その他の時間"], key: "second_choice_time_new", condition: { key: "interview_preference", value: "はい" }, validation: (v) => !!v, errorMessage: "選択してください。" },
-    // Q13 - 面談希望「はい」かつ第二希望時間が「その他の時間」の場合
+    // Q13
     { id: 13, item: "相談希望時間_第二希望_その他", question: "【第二希望】その他のご相談希望時間を入力ください", answer_method: "text", type: "text", key: "second_choice_time_other_new", condition: { key: "second_choice_time_new", value: "その他の時間" }, validation: (v) => v && v.trim().length > 0, errorMessage: "希望時間を入力してください。" },
-    // Q14 - 面談希望「いいえ」の場合
+    // Q14
     { id: 14, item: "質問要望", question: "ご質問・ご要望があれば記載ください", answer_method: "single-choice", options: ["なし", "その他（自由記述）"], key: "inquiry_text_new", condition: { key: "interview_preference", value: "いいえ" }, validation: (v) => !!v, errorMessage: "選択してください。" },
-    // Q15 - 面談希望「いいえ」かつ質問要望が「その他（自由記述）」の場合
+    // Q15
     { id: 15, item: "質問要望詳細", question: "ご質問・ご要望の詳細を自由にご記入ください。", answer_method: "text", type: "text", placeholder: "自由にご記入ください", key: "inquiry_text_detail_new", condition: { key: "inquiry_text_new", value: "その他（自由記述）" }, validation: (v) => v && v.trim().length > 0, errorMessage: "詳細を入力してください。" }
   ];
 
+  // JavaScriptの残りの部分は前回のコードと同じです
+  // typing indicator, message adding, choice handling, user input, GAS submission etc.
 
-  // タイピングインジケーター表示
   function showTypingIndicator() {
     if (isBotTyping) return;
     isBotTyping = true;
@@ -332,7 +339,10 @@
     indicatorWrapper.classList.add('message-wrapper', 'bot-message-wrapper', 'typing-indicator-wrapper');
     const botIconDiv = document.createElement('div');
     botIconDiv.className = 'bot-icon';
-    botIconDiv.style.backgroundImage = `url('${BOT_ICON_URL}')`;
+    // config.js から BOT_ICON_URL を使用
+    if (typeof BOT_ICON_URL !== 'undefined' && BOT_ICON_URL && BOT_ICON_URL !== 'YOUR_BOT_ICON_URL_HERE') {
+        botIconDiv.style.backgroundImage = `url('${BOT_ICON_URL}')`;
+    }
     indicatorWrapper.appendChild(botIconDiv);
     indicatorWrapper.insertAdjacentHTML('beforeend', `
       <div class="message bot-message typing-indicator">
@@ -343,7 +353,6 @@
     scrollToBottom();
   }
 
-  // タイピングインジケーター非表示
   function hideTypingIndicator() {
     const indicatorWrapper = chatMessages.querySelector('.typing-indicator-wrapper');
     if (indicatorWrapper) {
@@ -352,7 +361,6 @@
     isBotTyping = false;
   }
 
-  // メッセージをチャットに追加
   function addMessage(messageText, sender, isHtml = false) {
     hideTypingIndicator();
     const messageWrapper = document.createElement('div');
@@ -361,11 +369,12 @@
     if (sender === 'bot') {
       const botIconDiv = document.createElement('div');
       botIconDiv.className = 'bot-icon';
-      botIconDiv.style.backgroundImage = `url('${BOT_ICON_URL}')`;
-      // 画像読み込みエラー時のフォールバック
-      const img = new Image();
-      img.onerror = () => { botIconDiv.style.backgroundColor = '#ccc'; /* 例えばグレー背景 */ };
-      img.src = BOT_ICON_URL;
+      if (typeof BOT_ICON_URL !== 'undefined' && BOT_ICON_URL && BOT_ICON_URL !== 'YOUR_BOT_ICON_URL_HERE') {
+          botIconDiv.style.backgroundImage = `url('${BOT_ICON_URL}')`;
+          const img = new Image(); // 画像読み込みエラー時のフォールバック用
+          img.onerror = () => { botIconDiv.style.backgroundColor = '#ccc'; /* 例えばグレー背景 */ };
+          img.src = BOT_ICON_URL;
+      }
       messageWrapper.appendChild(botIconDiv);
     }
 
@@ -377,11 +386,10 @@
       messageElement.textContent = messageText;
     }
     messageWrapper.appendChild(messageElement);
-    chatMessages.appendChild(messageWrapper);
+    chatMessages.appendChild(messageWrapper); // メッセージ追加後にDOMに追加
     return messageElement;
   }
 
-  // ボットのメッセージを追加
   function addBotMessage(messageText, isHtml = false) {
     showTypingIndicator();
     return new Promise(resolve => {
@@ -392,18 +400,20 @@
     });
   }
 
-  // ユーザーのメッセージを追加
   function addUserMessage(messageText) {
     const msgElem = addMessage(messageText, 'user');
     msgElem.scrollIntoView({ behavior: "smooth", block: "end" });
   }
 
-  // チャットの最下部にスクロール
   function scrollToBottom() {
-    chatMessages.scrollTop = chatMessages.scrollHeight;
+    const lastMessage = chatMessages.lastElementChild;
+    if (lastMessage) {
+        lastMessage.scrollIntoView({ behavior: "smooth", block: "end" });
+    } else {
+        chatMessages.scrollTop = chatMessages.scrollHeight;
+    }
   }
 
-  // 古い選択肢ボタンを無効化
   function disableOldChoices() {
     if (activeChoicesContainer) {
       const buttons = activeChoicesContainer.querySelectorAll('.choice-button');
@@ -419,7 +429,6 @@
     });
   }
 
-  // 次の質問を表示またはフォームを終了
   function askQuestion() {
     disableOldChoices();
     userInput.disabled = false;
@@ -519,7 +528,6 @@
     });
   }
 
-  // 単一選択肢の処理
   function handleSingleChoiceClick(event, value, question) {
     const clickedButton = event.target;
     if (parseInt(clickedButton.dataset.questionId) !== questions[currentStep].id || clickedButton.disabled) {
@@ -538,7 +546,6 @@
     setTimeout(askQuestion, 300);
   }
 
-  // 複数選択肢の選択/解除
   function toggleMultipleChoiceSelection(event, buttonElement, value) {
     if (parseInt(buttonElement.dataset.questionId) !== questions[currentStep].id || buttonElement.disabled) {
         return;
@@ -551,7 +558,6 @@
     }
   }
 
-  // 複数選択肢の決定処理
   function handleMultipleChoiceSubmit(event, question) {
     const clickedButton = event.target;
     if (parseInt(clickedButton.dataset.questionId) !== questions[currentStep].id || clickedButton.disabled) {
@@ -571,7 +577,6 @@
     setTimeout(askQuestion, 300);
   }
 
-  // テキスト入力の処理
   function handleUserInput() {
     const messageText = userInput.value.trim();
     if (messageText === "" || userInput.disabled) return;
@@ -580,13 +585,12 @@
 
     if (currentQuestion.answer_method === "text-multi") {
         const subQ = currentQuestion.sub_questions[subStep];
-        // サブ質問ごとのバリデーションを呼び出す
         if (subQ.validation && !subQ.validation(messageText)) {
-            addBotMessage(subQ.errorMessage).then(msgElem => { // サブ質問のエラーメッセージを使用
+            addBotMessage(subQ.errorMessage).then(msgElem => {
                 msgElem.scrollIntoView({ behavior: "smooth", block: "end" });
             });
             userInput.classList.add('input-error');
-            displayErrorMessage(subQ.errorMessage); // サブ質問のエラーメッセージを使用
+            displayErrorMessage(subQ.errorMessage);
             userInput.focus();
             return;
         }
@@ -614,7 +618,6 @@
     setTimeout(askQuestion, 300);
   }
 
-  // エラーメッセージ表示
   function displayErrorMessage(message) {
     removeErrorMessage();
     const errorDiv = document.createElement('div');
@@ -623,7 +626,6 @@
     userInput.parentNode.insertBefore(errorDiv, userInput.nextSibling);
   }
 
-  // エラーメッセージ削除
   function removeErrorMessage() {
     const existingError = userInput.parentNode.querySelector('.error-message');
     if (existingError) {
@@ -631,13 +633,13 @@
     }
   }
 
-  // Google Apps Scriptにデータを送信
   function submitDataToGAS() {
-    if (!GAS_WEB_APP_URL || GAS_WEB_APP_URL === 'YOUR_GOOGLE_APPS_SCRIPT_WEB_APP_URL') {
-        addBotMessage("データ送信先URLが設定されていません。管理者にお問い合わせください。").then(msgElem => {
+    // GAS_WEB_APP_URL は config.js から読み込まれる
+    if (typeof GAS_WEB_APP_URL === 'undefined' || !GAS_WEB_APP_URL || GAS_WEB_APP_URL === 'YOUR_GOOGLE_APPS_SCRIPT_WEB_APP_URL_HERE') {
+        addBotMessage("データ送信先URLが正しく設定されていません。config.js を確認してください。").then(msgElem => {
             msgElem.scrollIntoView({ behavior: "smooth", block: "end" });
         });
-        console.error("GAS_WEB_APP_URL is not set.");
+        console.error("GAS_WEB_APP_URL is not set or is a placeholder in config.js.");
         return;
     }
     fetch(GAS_WEB_APP_URL, {
@@ -663,10 +665,7 @@
     });
   }
 
-  // 送信ボタンのイベントリスナー
   sendButton.addEventListener('click', handleUserInput);
-
-  // Enterキーでの入力処理
   userInput.addEventListener('keypress', function(event) {
     if (event.key === 'Enter') {
       const currentQuestion = questions[currentStep];
@@ -681,6 +680,9 @@
 
   // 初期メッセージと最初の質問の開始
   setTimeout(() => {
+      if (typeof BOT_ICON_URL === 'undefined' || BOT_ICON_URL === 'YOUR_BOT_ICON_URL_HERE') {
+          console.warn("BOT_ICON_URL is not set or is a placeholder in config.js. Default icon behavior will apply.");
+      }
       addBotMessage("お問い合わせありがとうございます。いくつかの情報をお伺いします。").then(msgElem => {
         msgElem.scrollIntoView({ behavior: "smooth", block: "end" });
         setTimeout(askQuestion, 1200);
