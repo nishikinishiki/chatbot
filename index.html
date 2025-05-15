@@ -228,38 +228,63 @@
     background-color: #f9f9f9;
     border-radius: 8px;
   }
-  .paired-input-group {
+  .paired-input-row {
     display: flex;
-    flex-direction: column;
-    gap: 5px;
+    align-items: center;
+    gap: 8px;
   }
-  .paired-input-group label {
+  .paired-input-row label {
     font-size: 0.9em;
     color: #555;
+    flex-shrink: 0;
+    margin-right: 5px;
+    width: 30px; /* ラベル幅をある程度固定（調整可能） */
+    text-align: right;
   }
-  .paired-input-group input[type="text"] {
+  .paired-input-row input[type="text"] {
+    flex-grow: 1;
     padding: 10px 12px;
     border: 1px solid #ccc;
     border-radius: 15px;
     font-size: 16px;
-    width: 100%;
     -webkit-appearance: none;
     appearance: none;
+    min-width: 0;
   }
-  .paired-input-container .paired-input-next-button {
-    margin-top: 10px;
+  .paired-input-row .paired-input-send-button {
+    padding: 0;
+    width: 40px; /* 送信ボタンの幅 */
+    height: 40px; /* 送信ボタンの高さ */
     background-color: #06C755;
     color: white;
-    border-color: #06C755;
+    border: none;
+    border-radius: 50%;
+    cursor: pointer;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    transition: background-color 0.2s ease;
+    flex-shrink: 0;
   }
-  .paired-input-container .paired-input-next-button:hover:not(:disabled) {
+  .paired-input-row .paired-input-send-button.placeholder { /* ★★★ 不可視のプレースホルダー用 ★★★ */
+    visibility: hidden;
+  }
+  .paired-input-row .paired-input-send-button svg {
+    width: 20px;
+    height: 20px;
+  }
+  .paired-input-row .paired-input-send-button:hover:not(:disabled) {
     background-color: #05a546;
+  }
+  .paired-input-row .paired-input-send-button:disabled {
+    background-color: #b0b0b0;
   }
   .paired-input-error {
     color: red;
     font-size: 0.8em;
     margin-top: 3px;
     text-align: left;
+    width: 100%;
   }
 
 
@@ -468,10 +493,10 @@
       ],
       key_group: "name_details"
     },
-    // Q5 - ★★★ 電話番号の例示を修正 ★★★
-    { id: 5, item: "電話番号", question: "電話番号を入力してください。(例: ０９０１２３４５６７８)", answer_method: "text", type: "tel", key: "phone_number_new", validation: (v) => /^[0-9]{10,11}$/.test(v.replace(/-/g, "")), errorMessage: "有効な電話番号をハイフンなし半角数字で入力してください。" },
-    // Q6 - ★★★ メールアドレスの例示を修正 ★★★
-    { id: 6, item: "メールアドレス", question: "メールアドレスを入力してください！(例: user＠example.com)", answer_method: "text", type: "email", key: "email_address_new", validation: (v) => /^[^\s@]+@[^\s@]+\.[^\s@]+$/.test(v), errorMessage: "有効なメールアドレスを入力してください。" },
+    // Q5
+    { id: 5, item: "電話番号", question: "電話番号を入力してください。(例: 090&shy;1234&shy;5678)", answer_method: "text", type: "tel", key: "phone_number_new", validation: (v) => /^[0-9]{10,11}$/.test(v.replace(/-/g, "")), errorMessage: "有効な電話番号をハイフンなし半角数字で入力してください。" },
+    // Q6
+    { id: 6, item: "メールアドレス", question: "メールアドレスを入力してください！(例: user@example.com)", answer_method: "text", type: "email", key: "email_address_new", validation: (v) => /^[^\s@]+@[^\s@]+\.[^\s@]+$/.test(v), errorMessage: "有効なメールアドレスを入力してください。" },
     // Q7
     { id: 7, item: "面談希望", question: "ご面談を希望されますか？", answer_method: "single-choice", options: ["はい", "いいえ"], key: "interview_preference", validation: (v) => !!v, errorMessage: "選択してください。" },
     // Q8 - 面談希望「はい」の場合
@@ -696,7 +721,7 @@
       activeChoicesWrapper = null;
     }
     if (activePairedInputWrapper) {
-        const nextButton = activePairedInputWrapper.querySelector('.paired-input-next-button');
+        const nextButton = activePairedInputWrapper.querySelector('.paired-input-send-button');
         if (nextButton) nextButton.disabled = true;
         const inputs = activePairedInputWrapper.querySelectorAll('input');
         inputs.forEach(input => input.disabled = true);
@@ -713,7 +738,7 @@
     const allOldPairedInputWrappers = chatMessages.querySelectorAll('.paired-input-area-wrapper');
      allOldPairedInputWrappers.forEach(wrapper => {
         if (wrapper !== activePairedInputWrapper) {
-            const nextButton = wrapper.querySelector('.paired-input-next-button');
+            const nextButton = wrapper.querySelector('.paired-input-send-button');
             if (nextButton) nextButton.disabled = true;
             const inputs = wrapper.querySelectorAll('input');
             inputs.forEach(input => input.disabled = true);
@@ -767,6 +792,7 @@
     setTimeout(() => scrollToBottom(), 0);
   }
 
+  // ★★★ ペア入力UI生成関数の修正 ★★★
   function displayPairedInputs(pairData, questionId) {
     normalInputArea.style.display = 'none';
     if (activePairedInputWrapper) activePairedInputWrapper.remove();
@@ -778,34 +804,52 @@
     const pairedInputContainer = document.createElement('div');
     pairedInputContainer.className = 'paired-input-container';
 
-    pairData.inputs.forEach((inputConfig, index) => {
-        const group = document.createElement('div');
-        group.className = 'paired-input-group';
-        const label = document.createElement('label');
-        label.htmlFor = `pairedInput-${questionId}-${subStep}-${index}`;
-        label.textContent = inputConfig.label;
-        const input = document.createElement('input');
-        input.type = inputConfig.type || "text";
-        input.id = `pairedInput-${questionId}-${subStep}-${index}`;
-        input.placeholder = inputConfig.placeholder || "";
-        input.dataset.key = inputConfig.key;
-        group.appendChild(label);
-        group.appendChild(input);
-        pairedInputContainer.appendChild(group);
-    });
+    // 姓の行
+    const lastNameRow = document.createElement('div');
+    lastNameRow.className = 'paired-input-row';
+    const lastNameLabel = document.createElement('label');
+    lastNameLabel.htmlFor = `pairedInput-${questionId}-${subStep}-0`;
+    lastNameLabel.textContent = pairData.inputs[0].label;
+    const lastNameInput = document.createElement('input');
+    lastNameInput.type = pairData.inputs[0].type || "text";
+    lastNameInput.id = `pairedInput-${questionId}-${subStep}-0`;
+    lastNameInput.placeholder = pairData.inputs[0].placeholder || "";
+    lastNameInput.dataset.key = pairData.inputs[0].key;
+    lastNameRow.appendChild(lastNameLabel);
+    lastNameRow.appendChild(lastNameInput);
+    // ★★★ 姓の行には送信ボタンの代わりのプレースホルダーを追加 ★★★
+    const placeholderButton = document.createElement('div');
+    placeholderButton.className = 'paired-input-send-button placeholder'; // スタイルで非表示にする
+    lastNameRow.appendChild(placeholderButton);
+    pairedInputContainer.appendChild(lastNameRow);
 
-    const nextButton = document.createElement('button');
-    nextButton.textContent = "次へ";
-    nextButton.className = 'choice-button paired-input-next-button';
-    nextButton.dataset.questionId = questionId;
-    nextButton.addEventListener('click', () => handlePairedInputSubmit(pairData, questionId));
+    // 名の行（送信ボタン付き）
+    const firstNameRow = document.createElement('div');
+    firstNameRow.className = 'paired-input-row';
+    const firstNameLabel = document.createElement('label');
+    firstNameLabel.htmlFor = `pairedInput-${questionId}-${subStep}-1`;
+    firstNameLabel.textContent = pairData.inputs[1].label;
+    const firstNameInput = document.createElement('input');
+    firstNameInput.type = pairData.inputs[1].type || "text";
+    firstNameInput.id = `pairedInput-${questionId}-${subStep}-1`;
+    firstNameInput.placeholder = pairData.inputs[1].placeholder || "";
+    firstNameInput.dataset.key = pairData.inputs[1].key;
 
-    pairedInputContainer.appendChild(nextButton);
+    const sendPairedButton = document.createElement('button');
+    sendPairedButton.className = 'paired-input-send-button';
+    sendPairedButton.dataset.questionId = questionId;
+    sendPairedButton.innerHTML = `<svg xmlns="http://www.w3.org/2000/svg" width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" class="feather feather-send"><line x1="22" y1="2" x2="11" y2="13"></line><polygon points="22 2 15 22 11 13 2 9 22 2"></polygon></svg>`;
+    sendPairedButton.addEventListener('click', () => handlePairedInputSubmit(pairData, questionId));
+
+    firstNameRow.appendChild(firstNameLabel);
+    firstNameRow.appendChild(firstNameInput);
+    firstNameRow.appendChild(sendPairedButton);
+    pairedInputContainer.appendChild(firstNameRow);
+
     pairedInputAreaWrapper.appendChild(pairedInputContainer);
     chatMessages.appendChild(pairedInputAreaWrapper);
     setTimeout(() => scrollToBottom(), 0);
-    const firstPairedInput = pairedInputContainer.querySelector('input');
-    if(firstPairedInput) firstPairedInput.focus();
+    if(lastNameInput) lastNameInput.focus();
   }
 
 
@@ -929,37 +973,34 @@
         return;
     }
 
-    let questionTextToShow = currentQuestion.question; // メインの質問文（text-pair用）
+    let questionTextToShow = currentQuestion.question;
 
     if (currentQuestion.answer_method === "text-pair") {
-        // ★★★ text-pair のメイン質問 (question) が null でない場合に最初に表示 ★★★
         const displayNextPair = () => {
             if (subStep < currentQuestion.pairs.length) {
                 const currentPairData = currentQuestion.pairs[subStep];
-                addBotMessage(currentPairData.prompt).then(() => { // ペアごとのプロンプトを表示
+                addBotMessage(currentPairData.prompt).then(() => {
                     displayPairedInputs(currentPairData, currentQuestion.id);
                 });
-            } else { // すべてのペアが完了
+            } else {
                 subStep = 0;
-                completedEffectiveQuestions += currentQuestion.pairs.length;
                 currentStep++;
                 askQuestion();
             }
         };
 
-        if (subStep === 0 && questionTextToShow) { // 最初のペアで、かつメインの質問文がある場合
+        if (subStep === 0 && questionTextToShow) {
              addBotMessage(questionTextToShow).then(() => {
                 setTimeout(() => scrollToBottom(), 0);
                 displayNextPair();
              });
-        } else { // メインの質問がない、または2番目以降のペア
+        } else {
             displayNextPair();
         }
         return;
     }
 
 
-    // text-multi は廃止
     if (currentQuestion.answer_method !== "single-choice" && currentQuestion.answer_method !== "multiple-choice") {
         userInput.type = currentQuestion.type || "text";
         userInput.placeholder = currentQuestion.placeholder || `ここに入力`;
@@ -993,21 +1034,23 @@
             setTimeout(() => scrollToBottom(), 0);
         });
         inputs.forEach((inputEl, index) => {
-            // ★★★ バリデーションに応じてエラークラスを付与 ★★★
-            let isValidField = true;
-            if (inputConfig.key.includes("kana")) { // カナのバリデーション
-                isValidField = values[index] && katakanaRegex.test(values[index]);
-            } else { // 通常の空チェック
-                isValidField = values[index] && values[index].length > 0;
+            let isValidForThisField = true;
+            const inputKey = inputEl.dataset.key;
+            // const currentPairInputConfig = pairData.inputs.find(conf => conf.key === inputKey); // これは不要かも
+
+            if (inputKey.includes("kana")) {
+                isValidForThisField = values[index] && katakanaRegex.test(values[index]);
+            } else {
+                isValidForThisField = values[index] && values[index].length > 0;
             }
-            if (!isValidField) {
+
+            if (!isValidForThisField) {
                  inputEl.classList.add('input-error');
             } else {
                 inputEl.classList.remove('input-error');
             }
         });
-        // フォーカスは最初のエラーか、最初のフィールドに
-        const firstErrorInput = Array.from(inputs).find(input => !input.value.trim() || (input.dataset.key.includes("kana") && !katakanaRegex.test(input.value.trim())));
+        const firstErrorInput = Array.from(inputs).find(input => input.classList.contains('input-error'));
         if (firstErrorInput) firstErrorInput.focus();
         else inputs[0].focus();
         return;
