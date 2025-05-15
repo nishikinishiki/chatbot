@@ -238,7 +238,7 @@
     color: #555;
     flex-shrink: 0;
     margin-right: 5px;
-    width: 30px; /* ラベル幅をある程度固定（調整可能） */
+    width: 30px;
     text-align: right;
   }
   .paired-input-row input[type="text"] {
@@ -253,8 +253,8 @@
   }
   .paired-input-row .paired-input-send-button {
     padding: 0;
-    width: 40px; /* 送信ボタンの幅 */
-    height: 40px; /* 送信ボタンの高さ */
+    width: 40px;
+    height: 40px;
     background-color: #06C755;
     color: white;
     border: none;
@@ -266,7 +266,7 @@
     transition: background-color 0.2s ease;
     flex-shrink: 0;
   }
-  .paired-input-row .paired-input-send-button.placeholder { /* ★★★ 不可視のプレースホルダー用 ★★★ */
+  .paired-input-row .paired-input-send-button.placeholder {
     visibility: hidden;
   }
   .paired-input-row .paired-input-send-button svg {
@@ -462,18 +462,18 @@
   const katakanaRegex = /^[ァ-ヶー　]+$/;
   const questions = [
     // Q1
-    { id: 1, item: "職業", question: "ご職業を教えてください。", answer_method: "single-choice", options: ["会社員（上場企業）", "会社員（その他）", "公務員", "経営者", "士業（医師、看護師、弁護士、税理士など）", "自営業・その他"], key: "occupation_new", validation: (v) => !!v, errorMessage: "選択してください。" },
+    { id: 1, item: "職業", question: "まずはじめに、ご職業を教えてください。", answer_method: "single-choice", options: ["会社員（上場企業）", "会社員（その他）", "公務員", "経営者", "士業（医師、看護師、弁護士、税理士など）", "自営業・その他"], key: "occupation_new", validation: (v) => !!v, errorMessage: "選択してください。" },
     // Q2
-    { id: 2, item: "年収", question: "現在の年収を教えてください。", answer_method: "single-choice", options: ["0～399万", "400～499万", "500～599万", "600～699万", "700～799万", "800～899万", "900～999万", "1000～1099万", "1100～1199万", "1200～1299万", "1300～1399万", "1400～1499万", "1500～1999万", "2000～2499万", "2500～2999万", "3000～3999万", "4000～4999万", "5000万～1億未満", "1億以上"], key: "annual_income_new", validation: (v) => !!v, errorMessage: "選択してください。" },
+    { id: 2, item: "年収", question: "続いて、現在の年収を教えてください。", answer_method: "single-choice", options: ["0～399万", "400～499万", "500～599万", "600～699万", "700～799万", "800～899万", "900～999万", "1000～1099万", "1100～1199万", "1200～1299万", "1300～1399万", "1400～1499万", "1500～1999万", "2000～2499万", "2500～2999万", "3000～3999万", "4000～4999万", "5000万～1億未満", "1億以上"], key: "annual_income_new", validation: (v) => !!v, errorMessage: "選択してください。" },
     // Q3
-    { id: 3, item: "年齢", question: "ご年齢を教えてください。", answer_method: "single-choice", options: ["20歳未満", "20～24歳", "25～29歳", "30～34歳", "35～39歳", "40～44歳", "45～49歳", "50～54歳", "55～59歳", "60～64歳", "65～69歳", "70歳以上"], key: "age_group_new", validation: (v) => !!v, errorMessage: "選択してください。" },
+    { id: 3, item: "年齢", question: "ご年齢はおいくつでしょうか。", answer_method: "single-choice", options: ["20歳未満", "20～24歳", "25～29歳", "30～34歳", "35～39歳", "40～44歳", "45～49歳", "50～54歳", "55～59歳", "60～64歳", "65～69歳", "70歳以上"], key: "age_group_new", validation: (v) => !!v, errorMessage: "選択してください。" },
     // Q4 - 名前入力 (text-pair)
     { id: 4, item: "名前",
-      question: null,
+      question: "ありがとうございます！", // メインの導入メッセージ
       answer_method: "text-pair",
       pairs: [
         {
-          prompt: "まず、お名前を入力してください。",
+          prompt: "お名前を入力してください。", // 変更後のプロンプト
           inputs: [
             { label: "姓", key: "last_name_new", placeholder: "例：山田", type: "text" },
             { label: "名", key: "first_name_new", placeholder: "例：太郎", type: "text" }
@@ -482,7 +482,7 @@
           combinedErrorMessage: "姓と名の両方を入力してください。"
         },
         {
-          prompt: "続いて、フリガナを全角カタカナで入力してください。",
+          prompt: "続いて、フリガナを全角カタカナで入力してください。", // 変更後のプロンプト
           inputs: [
             { label: "セイ", key: "last_name_kana_new", placeholder: "例：ヤマダ", type: "text" },
             { label: "メイ", key: "first_name_kana_new", placeholder: "例：タロウ", type: "text" }
@@ -493,14 +493,21 @@
       ],
       key_group: "name_details"
     },
-    // Q5
-    { id: 5, item: "電話番号", question: "電話番号を入力してください。(例: 090&shy;1234&shy;5678)", answer_method: "text", type: "tel", key: "phone_number_new", validation: (v) => /^[0-9]{10,11}$/.test(v.replace(/-/g, "")), errorMessage: "有効な電話番号をハイフンなし半角数字で入力してください。" },
+    // Q5 - ★★★ 電話番号の質問に pre_message を追加 ★★★
+    { id: 5, item: "電話番号",
+      pre_message_1: "ありがとうございます", // 1つ目の事前メッセージ
+      pre_message_2: "残り3問です！",        // 2つ目の事前メッセージ
+      question: "電話番号を入力してください。(例: 09012345678)", // 例示からソフトハイフン削除
+      answer_method: "text", type: "tel", key: "phone_number_new", validation: (v) => /^[0-9]{10,11}$/.test(v.replace(/-/g, "")), errorMessage: "有効な電話番号をハイフンなし半角数字で入力してください。" },
     // Q6
     { id: 6, item: "メールアドレス", question: "メールアドレスを入力してください！(例: user@example.com)", answer_method: "text", type: "email", key: "email_address_new", validation: (v) => /^[^\s@]+@[^\s@]+\.[^\s@]+$/.test(v), errorMessage: "有効なメールアドレスを入力してください。" },
     // Q7
     { id: 7, item: "面談希望", question: "ご面談を希望されますか？", answer_method: "single-choice", options: ["はい", "いいえ"], key: "interview_preference", validation: (v) => !!v, errorMessage: "選択してください。" },
     // Q8 - 面談希望「はい」の場合
-    { id: 8, item: "相談希望日_第一希望", question: "【第一希望】ご相談希望日をお選びください (例: 2024/05/15)", answer_method: "text", type: "text", placeholder: "YYYY/MM/DD", key: "first_choice_date_new", condition: { key: "interview_preference", value: "はい" }, validation: (v) => /^\d{4}\/(0?[1-9]|1[0-2])\/(0?[1-9]|[12][0-9]|3[01])$/.test(v) && !isNaN(new Date(v)), errorMessage: "YYYY/MM/DD形式で有効な日付を入力してください。" },
+    { id: 8, item: "相談希望日_第一希望",
+      pre_message: "ご面談をご希望いただきありがとうございます！",
+      question: "まず【第一希望】ご相談希望日をお選びください (例: 2024/05/15)",
+      answer_method: "text", type: "text", placeholder: "YYYY/MM/DD", key: "first_choice_date_new", condition: { key: "interview_preference", value: "はい" }, validation: (v) => /^\d{4}\/(0?[1-9]|1[0-2])\/(0?[1-9]|[12][0-9]|3[01])$/.test(v) && !isNaN(new Date(v)), errorMessage: "YYYY/MM/DD形式で有効な日付を入力してください。" },
     // Q9 - 面談希望「はい」の場合
     { id: 9, item: "相談希望時間_第一希望", question: "【第一希望】ご相談希望時間をお選びください", answer_method: "single-choice", options: ["10：00～12：00", "12：00～14：00", "14：00～16：00", "16：00～18：00", "18：00～20：00", "20：00 以降", "その他の時間"], key: "first_choice_time_new", condition: { key: "interview_preference", value: "はい" }, validation: (v) => !!v, errorMessage: "選択してください。" },
     // Q10 - 面談希望「はい」かつ第一希望時間が「その他の時間」の場合
@@ -512,11 +519,14 @@
     // Q13 - 面談希望「はい」かつ第二希望時間が「その他の時間」の場合
     { id: 13, item: "相談希望時間_第二希望_その他", question: "【第二希望】その他のご相談希望時間を入力ください", answer_method: "text", type: "text", key: "second_choice_time_other_new", condition: { key: "second_choice_time_new", value: "その他の時間" }, validation: (v) => v && v.trim().length > 0, errorMessage: "希望時間を入力してください。" },
     // Q14
-    { id: 14, item: "質問要望", question: "ご質問・ご要望があれば記載ください", answer_method: "single-choice", options: ["なし", "その他（自由記述）"], key: "inquiry_text_new", validation: (v) => !!v, errorMessage: "選択してください。" },
+    { id: 14, item: "質問要望", question: "最後に、ご質問・ご要望があれば記載ください。", answer_method: "single-choice", options: ["なし", "その他（自由記述）"], key: "inquiry_text_new", validation: (v) => !!v, errorMessage: "選択してください。" },
     // Q15 - 質問要望が「その他（自由記述）」の場合
     { id: 15, item: "質問要望詳細", question: "ご質問・ご要望の詳細を自由にご記入ください。", answer_method: "text", type: "text", placeholder: "自由にご記入ください", key: "inquiry_text_detail_new", condition: { key: "inquiry_text_new", value: "その他（自由記述）" }, validation: (v) => v && v.trim().length > 0, errorMessage: "詳細を入力してください。" },
     // Q16 - 最終同意
-    { id: 16, item: "最終同意", question: "個人情報のお取り扱いをご確認の上、「同意して送信」を押してください。", answer_method: "final-consent",
+    { id: 16, item: "最終同意",
+      pre_message: "ご回答ありがとうございました！", // ★★★ 事前メッセージ追加 ★★★
+      question: "個人情報のお取り扱いをご確認の上、「同意して送信」を押してください。",
+      answer_method: "final-consent",
       privacy_policy_link_text: "個人情報のお取り扱い", privacy_policy_url: "https://jpreturns.com/privacypolicy/",
       gift_terms_link_text: "えらべるデジタルギフトプレゼント条件",
       gift_terms_popup_content: `<h3>えらべるデジタルギフトプレゼント条件</h3>
@@ -792,7 +802,6 @@
     setTimeout(() => scrollToBottom(), 0);
   }
 
-  // ★★★ ペア入力UI生成関数の修正 ★★★
   function displayPairedInputs(pairData, questionId) {
     normalInputArea.style.display = 'none';
     if (activePairedInputWrapper) activePairedInputWrapper.remove();
@@ -817,9 +826,8 @@
     lastNameInput.dataset.key = pairData.inputs[0].key;
     lastNameRow.appendChild(lastNameLabel);
     lastNameRow.appendChild(lastNameInput);
-    // ★★★ 姓の行には送信ボタンの代わりのプレースホルダーを追加 ★★★
     const placeholderButton = document.createElement('div');
-    placeholderButton.className = 'paired-input-send-button placeholder'; // スタイルで非表示にする
+    placeholderButton.className = 'paired-input-send-button placeholder';
     lastNameRow.appendChild(placeholderButton);
     pairedInputContainer.appendChild(lastNameRow);
 
@@ -934,7 +942,7 @@
   }
 
 
-  function askQuestion() {
+  async function askQuestion() {
     disableOldUIElements();
     userInput.disabled = false;
     sendButton.disabled = false;
@@ -968,20 +976,34 @@
 
     const currentQuestion = questions[currentStep];
 
+    // ★★★ 事前メッセージの処理を askQuestion の先頭に移動 ★★★
+    if (currentQuestion.pre_message) {
+        await addBotMessage(currentQuestion.pre_message);
+        setTimeout(() => scrollToBottom(), 0);
+    }
+    if (currentQuestion.pre_message_1) { // 電話番号の質問用
+        await addBotMessage(currentQuestion.pre_message_1);
+        setTimeout(() => scrollToBottom(), 0);
+        if (currentQuestion.pre_message_2) {
+            await addBotMessage(currentQuestion.pre_message_2);
+            setTimeout(() => scrollToBottom(), 0);
+        }
+    }
+
+
     if (currentQuestion.answer_method === "final-consent") {
-        setupFinalConsentScreen(currentQuestion);
+        setupFinalConsentScreen(currentQuestion); // メインの質問文はここで表示
         return;
     }
 
     let questionTextToShow = currentQuestion.question;
 
     if (currentQuestion.answer_method === "text-pair") {
-        const displayNextPair = () => {
+        const displayNextPair = async () => {
             if (subStep < currentQuestion.pairs.length) {
                 const currentPairData = currentQuestion.pairs[subStep];
-                addBotMessage(currentPairData.prompt).then(() => {
-                    displayPairedInputs(currentPairData, currentQuestion.id);
-                });
+                await addBotMessage(currentPairData.prompt);
+                displayPairedInputs(currentPairData, currentQuestion.id);
             } else {
                 subStep = 0;
                 currentStep++;
@@ -989,13 +1011,12 @@
             }
         };
 
-        if (subStep === 0 && questionTextToShow) {
-             addBotMessage(questionTextToShow).then(() => {
-                setTimeout(() => scrollToBottom(), 0);
-                displayNextPair();
-             });
-        } else {
-            displayNextPair();
+        if (subStep === 0 && questionTextToShow) { // メインの質問文がある場合 (名前入力用)
+             await addBotMessage(questionTextToShow);
+             setTimeout(() => scrollToBottom(), 0);
+             await displayNextPair();
+        } else { // メインの質問文がない、または2番目以降のペア
+            await displayNextPair();
         }
         return;
     }
@@ -1007,21 +1028,20 @@
     }
 
 
-    addBotMessage(questionTextToShow).then(messageElement => {
-      setTimeout(() => scrollToBottom(), 0);
-      if (currentQuestion.answer_method === "single-choice" || currentQuestion.answer_method === "multiple-choice") {
-        displayChoicesOutsideBubble(currentQuestion);
-      } else {
-        normalInputArea.style.display = 'flex';
-        userInput.style.display = 'flex';
-        sendButton.style.display = 'flex';
-        userInput.value = '';
-        userInput.focus();
-      }
-    });
+    await addBotMessage(questionTextToShow); // 通常の質問文表示
+    setTimeout(() => scrollToBottom(), 0);
+    if (currentQuestion.answer_method === "single-choice" || currentQuestion.answer_method === "multiple-choice") {
+      displayChoicesOutsideBubble(currentQuestion);
+    } else {
+      normalInputArea.style.display = 'flex';
+      userInput.style.display = 'flex';
+      sendButton.style.display = 'flex';
+      userInput.value = '';
+      userInput.focus();
+    }
   }
 
-  function handlePairedInputSubmit(pairData, questionId) {
+  async function handlePairedInputSubmit(pairData, questionId) {
     if (!activePairedInputWrapper) return;
     const inputs = activePairedInputWrapper.querySelectorAll('input');
     const values = Array.from(inputs).map(input => input.value.trim());
@@ -1030,13 +1050,11 @@
     if (existingErrorMsg) existingErrorMsg.remove();
 
     if (pairData.combinedValidation && !pairData.combinedValidation(values[0], values[1])) {
-        addBotMessage(pairData.combinedErrorMessage, false, true).then(() => {
-            setTimeout(() => scrollToBottom(), 0);
-        });
+        await addBotMessage(pairData.combinedErrorMessage, false, true);
+        setTimeout(() => scrollToBottom(), 0);
         inputs.forEach((inputEl, index) => {
             let isValidForThisField = true;
             const inputKey = inputEl.dataset.key;
-            // const currentPairInputConfig = pairData.inputs.find(conf => conf.key === inputKey); // これは不要かも
 
             if (inputKey.includes("kana")) {
                 isValidForThisField = values[index] && katakanaRegex.test(values[index]);
@@ -1071,9 +1089,8 @@
     const currentMainQuestion = questions[currentStep];
     if (subStep < currentMainQuestion.pairs.length) {
         const nextPairData = currentMainQuestion.pairs[subStep];
-        addBotMessage(nextPairData.prompt).then(() => {
-             displayPairedInputs(nextPairData, currentMainQuestion.id);
-        });
+        await addBotMessage(nextPairData.prompt);
+        displayPairedInputs(nextPairData, currentMainQuestion.id);
     } else {
         subStep = 0;
         completedEffectiveQuestions += currentMainQuestion.pairs.length;
@@ -1084,16 +1101,15 @@
   }
 
 
-  function handleSingleChoiceClick(event, value, question) {
+  async function handleSingleChoiceClick(event, value, question) {
     const clickedButton = event.target;
     if (parseInt(clickedButton.dataset.questionId) !== questions[currentStep].id || clickedButton.disabled) {
         return;
     }
     addUserMessage(value);
     if (question.validation && !question.validation(value)) {
-        addBotMessage(question.errorMessage, false, true).then(msgElem => {
-            setTimeout(() => scrollToBottom(), 0);
-        });
+        await addBotMessage(question.errorMessage, false, true);
+        setTimeout(() => scrollToBottom(), 0);
         return;
     }
     userResponses[question.key] = value;
@@ -1103,7 +1119,7 @@
     setTimeout(askQuestion, 300);
   }
 
-  function toggleMultipleChoiceSelection(event, buttonElement, value) {
+  async function toggleMultipleChoiceSelection(event, buttonElement, value) {
     if (parseInt(buttonElement.dataset.questionId) !== questions[currentStep].id || buttonElement.disabled) {
         return;
     }
@@ -1115,15 +1131,14 @@
     }
   }
 
-  function handleMultipleChoiceSubmit(event, question) {
+  async function handleMultipleChoiceSubmit(event, question) {
     const clickedButton = event.target;
     if (parseInt(clickedButton.dataset.questionId) !== questions[currentStep].id || clickedButton.disabled) {
         return;
     }
     if (question.validation && !question.validation(currentMultipleChoices)) {
-        addBotMessage(question.errorMessage, false, true).then(msgElem => {
-            setTimeout(() => scrollToBottom(), 0);
-        });
+        await addBotMessage(question.errorMessage, false, true);
+        setTimeout(() => scrollToBottom(), 0);
         return;
     }
     addUserMessage(currentMultipleChoices.length > 0 ? currentMultipleChoices.join(', ') : "(選択なし)");
@@ -1135,15 +1150,14 @@
     setTimeout(askQuestion, 300);
   }
 
-  function handleUserInput() {
+  async function handleUserInput() {
     const messageText = userInput.value.trim();
     if (messageText === "" || userInput.disabled) return;
 
     const currentQuestion = questions[currentStep];
     if (currentQuestion.validation && !currentQuestion.validation(messageText)) {
-        addBotMessage(currentQuestion.errorMessage, false, true).then(msgElem => {
-            setTimeout(() => scrollToBottom(), 0);
-        });
+        await addBotMessage(currentQuestion.errorMessage, false, true);
+        setTimeout(() => scrollToBottom(), 0);
         userInput.classList.add('input-error');
         displayErrorMessage(currentQuestion.errorMessage);
         userInput.focus();
@@ -1179,14 +1193,12 @@
     }
   }
 
-  function submitDataToGAS() {
-    addBotMessage("情報を送信中...").then(msgElem => {
-        setTimeout(() => scrollToBottom(), 0);
-    });
+  async function submitDataToGAS() {
+    await addBotMessage("情報を送信中...");
+    setTimeout(() => scrollToBottom(), 0);
     if (typeof GAS_WEB_APP_URL === 'undefined' || !GAS_WEB_APP_URL || GAS_WEB_APP_URL === 'YOUR_GOOGLE_APPS_SCRIPT_WEB_APP_URL_HERE') {
-        addBotMessage("データ送信先URLが正しく設定されていません。config.js を確認してください。", false, true).then(msgElem => {
-            setTimeout(() => scrollToBottom(), 0);
-        });
+        await addBotMessage("データ送信先URLが正しく設定されていません。config.js を確認してください。", false, true);
+        setTimeout(() => scrollToBottom(), 0);
         console.error("GAS_WEB_APP_URL is not set or is a placeholder in config.js.");
         return;
     }
@@ -1196,25 +1208,22 @@
       cache: 'no-cache',
       body: JSON.stringify(userResponses)
     })
-    .then(() => {
-      addBotMessage("お問い合わせいただきありがとうございました！後ほど担当よりご連絡いたします。").then(msgElem => {
-            setTimeout(() => scrollToBottom(), 0);
-            return addBotMessage("お問い合わせはお電話でも受け付けております。");
-      }).then(msgElem2 => {
-            setTimeout(() => scrollToBottom(), 0);
-            return addBotMessage("電話番号：0120-147-104<br>営業時間：10:00～22:00", true);
-      }).then(msgElem3 => {
-            setTimeout(() => scrollToBottom(), 0);
-      });
+    .then(async () => {
+      await addBotMessage("お問い合わせいただきありがとうございました！後ほど担当よりご連絡いたします。");
+      setTimeout(() => scrollToBottom(), 0);
+      await addBotMessage("お問い合わせはお電話でも受け付けております。");
+      setTimeout(() => scrollToBottom(), 0);
+      await addBotMessage("電話番号：0120147104<br>営業時間：10:00～22:00", true); // ★★★ ソフトハイフン削除 ★★★
+      setTimeout(() => scrollToBottom(), 0);
+
       normalInputArea.style.display = 'none';
       completedEffectiveQuestions++;
       updateProgressBar();
     })
-    .catch(error => {
+    .catch(async (error) => {
       console.error('Error sending data to Google Sheet:', error);
-      addBotMessage("エラーが発生し、データを送信できませんでした。お手数ですが、時間をおいて再度お試しください。", false, true).then(msgElem => {
-            setTimeout(() => scrollToBottom(), 0);
-      });
+      await addBotMessage("エラーが発生し、データを送信できませんでした。お手数ですが、時間をおいて再度お試しください。", false, true);
+      setTimeout(() => scrollToBottom(), 0);
       const finalSubmitBtn = document.getElementById('dynamicFinalSubmitButton');
       if (finalSubmitBtn) finalSubmitBtn.disabled = false;
       const finalCheckbox = document.getElementById('dynamicGiftTermsConsentCheckbox');
@@ -1244,19 +1253,19 @@
     }
   });
 
-  setTimeout(() => {
-      updateProgressBar();
-      if (typeof BOT_ICON_URL === 'undefined' || BOT_ICON_URL === 'YOUR_BOT_ICON_URL_HERE') {
-          console.warn("BOT_ICON_URL is not set or is a placeholder in config.js. Default icon behavior will apply.");
-      }
-      addBotMessage("J.P.Returnsにお問い合わせいただきありがとうございます！").then(msgElem1 => {
-        setTimeout(() => scrollToBottom(), 0);
-        return addBotMessage("30秒程度の簡単な質問をさせてください。");
-      }).then(msgElem2 => {
-        setTimeout(() => scrollToBottom(), 0);
-        setTimeout(askQuestion, 1200);
-      });
-  }, 500);
+  async function initializeChat() {
+    updateProgressBar();
+    if (typeof BOT_ICON_URL === 'undefined' || BOT_ICON_URL === 'YOUR_BOT_ICON_URL_HERE') {
+        console.warn("BOT_ICON_URL is not set or is a placeholder in config.js. Default icon behavior will apply.");
+    }
+    await addBotMessage("J.P.Returnsにお問い合わせいただきありがとうございます！");
+    setTimeout(() => scrollToBottom(), 0);
+    await addBotMessage("30秒程度の簡単な質問をさせてください。");
+    setTimeout(() => scrollToBottom(), 0);
+    setTimeout(askQuestion, 1200);
+  }
+
+  setTimeout(initializeChat, 500);
 
 </script>
 </body>
