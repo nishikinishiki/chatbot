@@ -153,7 +153,7 @@
 
   .choices-container {
     display: grid;
-    grid-template-columns: repeat(2, 1fr); /* デフォルトを2列に */
+    grid-template-columns: repeat(2, 1fr);
     gap: 8px;
     width: 100%;
     max-width: 380px;
@@ -162,10 +162,6 @@
     overflow-y: auto;
     -webkit-overflow-scrolling: touch;
   }
-  /* .choices-container.force-single-column { // このクラスはJSで条件に応じて付与する想定だったが、現状は常に2列
-    grid-template-columns: 1fr;
-    max-width: 200px;
-  } */
 
 
   .choice-button {
@@ -325,7 +321,7 @@
 
 <div class="chat-container">
   <div class="chat-header">
-    <div class="chat-header-title">お問い合わせフォーム</div>
+    <div class="chat-header-title">J.P.Returns お問い合わせ担当</div>
     <div class="progress-bar-container">
       <div class="progress-bar" id="progressBar"></div>
     </div>
@@ -477,7 +473,7 @@
   ];
 
   // JavaScriptの主要な関数群はここに続きます
-  // ... (updateProgressBar, showTypingIndicator, hideTypingIndicator, addMessage, addBotMessage, addUserMessage, scrollToBottom, disableOldChoices, displayChoicesOutsideBubble, setupFinalConsentScreen, askQuestion, handleSingleChoiceClick, toggleMultipleChoiceSelection, handleMultipleChoiceSubmit, handleUserInput, displayErrorMessage, removeErrorMessage, submitDataToGAS, イベントリスナー, 初期化処理)
+  // (updateProgressBar, showTypingIndicator, hideTypingIndicator, addMessage, addBotMessage, addUserMessage, scrollToBottom, disableOldChoices, displayChoicesOutsideBubble, setupFinalConsentScreen, askQuestion, handleSingleChoiceClick, toggleMultipleChoiceSelection, handleMultipleChoiceSubmit, handleUserInput, displayErrorMessage, removeErrorMessage, submitDataToGAS, イベントリスナー, 初期化処理)
 
 
   function updateProgressBar() {
@@ -523,7 +519,7 @@
       </div>
     `);
     chatMessages.appendChild(indicatorWrapper);
-    scrollToBottom();
+    // scrollToBottom(); // メッセージ表示後にスクロールするためここでは呼ばない
   }
 
   function hideTypingIndicator() {
@@ -579,15 +575,21 @@
 
   function addUserMessage(messageText) {
     const msgElem = addMessage(messageText, 'user');
-    msgElem.scrollIntoView({ behavior: "smooth", block: "end" });
+    // ユーザーメッセージ追加後すぐにスクロール
+    setTimeout(() => scrollToBottom(), 0);
   }
 
   function scrollToBottom() {
-    const lastElement = chatMessages.lastElementChild;
-    if (lastElement) {
-        lastElement.scrollIntoView({ behavior: "smooth", block: "end" });
-    }
+    // chatMessages.scrollTop = chatMessages.scrollHeight; // 古い方法
+    // 最後の要素が表示されるように、少し遅延させてスクロールする
+    setTimeout(() => {
+        const lastElement = chatMessages.lastElementChild;
+        if (lastElement) {
+            lastElement.scrollIntoView({ behavior: "smooth", block: "end", inline: "nearest" });
+        }
+    }, 100); // 100msの遅延。必要に応じて調整。
   }
+
 
   function disableOldChoices() {
     if (activeChoicesWrapper) {
@@ -597,7 +599,7 @@
     }
     const allOldChoiceWrappers = chatMessages.querySelectorAll('.choices-area-wrapper');
     allOldChoiceWrappers.forEach(wrapper => {
-        if (wrapper !== activeChoicesWrapper) { // Ensure current active wrapper is not disabled prematurely
+        if (wrapper !== activeChoicesWrapper) {
              const buttons = wrapper.querySelectorAll('.choice-button');
              buttons.forEach(button => button.disabled = true);
         }
@@ -611,11 +613,11 @@
 
     const choicesAreaWrapper = document.createElement('div');
     choicesAreaWrapper.className = 'choices-area-wrapper';
-    activeChoicesWrapper = choicesAreaWrapper; 
+    activeChoicesWrapper = choicesAreaWrapper;
 
     const choicesContainer = document.createElement('div');
     choicesContainer.className = 'choices-container';
-    // ★★★ 選択肢が2つの場合でもデフォルトで2列にするため、force-single-columnの条件を削除 ★★★
+    // ★★★ 選択肢が2つの場合でもデフォルトで2列にするため、force-single-columnのクラス付与ロジックを削除 ★★★
     // if (question.options.length <= 2) {
     //     // choicesContainer.classList.add('force-single-column'); // この行をコメントアウトまたは削除
     // }
@@ -651,7 +653,7 @@
 
     choicesAreaWrapper.appendChild(choicesContainer);
     chatMessages.appendChild(choicesAreaWrapper);
-    choicesAreaWrapper.scrollIntoView({ behavior: "smooth", block: "end" });
+    setTimeout(() => scrollToBottom(), 0); // 選択肢表示後すぐにスクロール
   }
 
   function setupFinalConsentScreen(question) {
@@ -673,31 +675,30 @@
     consentMessageBubble.innerHTML = question.question.replace(question.privacy_policy_link_text, privacyPolicyLinkHTML);
     consentMessageWrapper.appendChild(consentMessageBubble);
     chatMessages.appendChild(consentMessageWrapper);
-    consentMessageWrapper.scrollIntoView({ behavior: "smooth", block: "end" });
-
+    // setTimeout(() => scrollToBottom(), 0); // メッセージ表示後すぐにスクロール
 
     const checkboxAreaWrapper = document.createElement('div');
-    checkboxAreaWrapper.className = 'choices-area-wrapper'; // 他の選択肢と同じラッパーを使用
+    checkboxAreaWrapper.className = 'choices-area-wrapper';
     const checkboxArea = document.createElement('div');
-    checkboxArea.className = 'final-consent-checkbox-area'; // 専用スタイルを適用
+    checkboxArea.className = 'final-consent-checkbox-area';
 
     const checkbox = document.createElement('input');
     checkbox.type = 'checkbox';
-    checkbox.id = 'dynamicGiftTermsConsentCheckbox'; // 動的にIDを付与
+    checkbox.id = 'dynamicGiftTermsConsentCheckbox';
 
     const label = document.createElement('label');
-    label.htmlFor = checkbox.id; // checkboxのIDと紐付け
+    label.htmlFor = checkbox.id;
     const giftLink = document.createElement('a');
     giftLink.href = "#";
     giftLink.textContent = question.gift_terms_link_text;
-    giftLink.id = 'dynamicGiftTermsLink'; // 動的にIDを付与
+    giftLink.id = 'dynamicGiftTermsLink';
     giftLink.addEventListener('click', (e) => {
         e.preventDefault();
         modalBody.innerHTML = question.gift_terms_popup_content;
         giftTermsModal.style.display = 'flex';
     });
     label.appendChild(giftLink);
-    label.append(" について同意します。"); // テキストノードとして追加
+    label.append(" について同意します。");
     const noteSpan = document.createElement('span');
     noteSpan.style.display = 'block';
     noteSpan.style.fontSize = '0.9em';
@@ -709,33 +710,33 @@
     checkboxArea.appendChild(label);
     checkboxAreaWrapper.appendChild(checkboxArea)
     chatMessages.appendChild(checkboxAreaWrapper);
-    checkboxAreaWrapper.scrollIntoView({ behavior: "smooth", block: "end" });
+    // setTimeout(() => scrollToBottom(), 0); // チェックボックス表示後すぐにスクロール
 
     const submitButtonAreaWrapper = document.createElement('div');
-    submitButtonAreaWrapper.className = 'choices-area-wrapper'; // 他の選択肢ボタンと同じラッパーを使用
+    submitButtonAreaWrapper.className = 'choices-area-wrapper';
     const finalSubmitButton = document.createElement('button');
-    finalSubmitButton.className = 'choice-button submit-choices-button'; // 通常の選択肢ボタンのスタイルを流用
+    finalSubmitButton.className = 'choice-button submit-choices-button';
     finalSubmitButton.textContent = question.submit_button_text;
-    finalSubmitButton.id = 'dynamicFinalSubmitButton'; // 動的にIDを付与
-    finalSubmitButton.disabled = true; // ★初期状態は無効
+    finalSubmitButton.id = 'dynamicFinalSubmitButton';
+    finalSubmitButton.disabled = true;
 
-    checkbox.addEventListener('change', () => { // ★イベントリスナーをcheckboxに直接設定
+    checkbox.addEventListener('change', () => {
         finalSubmitButton.disabled = !checkbox.checked;
     });
 
     finalSubmitButton.addEventListener('click', () => {
         if (checkbox.checked) {
             userResponses[question.key] = true;
-            disableOldChoices(); // 古い選択肢（もしあれば）を無効化
-            addBotMessage("ありがとうございます。情報を送信します。");
-            submitDataToGAS();
-            finalSubmitButton.disabled = true; // 送信後はボタンを無効化
-            checkbox.disabled = true; // チェックボックスも無効化
+            disableOldChoices();
+            // ★★★ 「ありがとうございます。情報を送信します。」を削除 ★★★
+            submitDataToGAS(); // 「情報を送信中...」はsubmitDataToGAS内で表示
+            finalSubmitButton.disabled = true;
+            checkbox.disabled = true;
         }
     });
     submitButtonAreaWrapper.appendChild(finalSubmitButton);
     chatMessages.appendChild(submitButtonAreaWrapper);
-    submitButtonAreaWrapper.scrollIntoView({ behavior: "smooth", block: "end" });
+    setTimeout(() => scrollToBottom(), 0); // 最終同意ボタン表示後すぐにスクロール
   }
 
 
@@ -763,7 +764,9 @@
     }
 
     if (currentStep >= questions.length) {
-      addBotMessage("全ての情報をご入力いただき、ありがとうございました！");
+      addBotMessage("全ての情報をご入力いただき、ありがとうございました！").then(msgElem => {
+          setTimeout(() => scrollToBottom(), 0);
+      });
       userInput.disabled = true;
       sendButton.disabled = true;
       normalInputArea.style.display = 'none';
@@ -798,7 +801,7 @@
     }
 
     addBotMessage(questionTextToShow).then(messageElement => {
-      messageElement.scrollIntoView({ behavior: "smooth", block: "end" });
+      setTimeout(() => scrollToBottom(), 0); // メッセージ表示後すぐにスクロール
       if (currentQuestion.answer_method === "single-choice" || currentQuestion.answer_method === "multiple-choice") {
         displayChoicesOutsideBubble(currentQuestion);
       } else {
@@ -819,7 +822,7 @@
     addUserMessage(value);
     if (question.validation && !question.validation(value)) {
         addBotMessage(question.errorMessage, false, true).then(msgElem => {
-            msgElem.scrollIntoView({ behavior: "smooth", block: "end" });
+            setTimeout(() => scrollToBottom(), 0);
         });
         return;
     }
@@ -849,7 +852,7 @@
     }
     if (question.validation && !question.validation(currentMultipleChoices)) {
         addBotMessage(question.errorMessage, false, true).then(msgElem => {
-            msgElem.scrollIntoView({ behavior: "smooth", block: "end" });
+            setTimeout(() => scrollToBottom(), 0);
         });
         return;
     }
@@ -872,7 +875,7 @@
         const subQ = currentQuestion.sub_questions[subStep];
         if (subQ.validation && !subQ.validation(messageText)) {
             addBotMessage(subQ.errorMessage, false, true).then(msgElem => {
-                msgElem.scrollIntoView({ behavior: "smooth", block: "end" });
+                setTimeout(() => scrollToBottom(), 0);
             });
             userInput.classList.add('input-error');
             displayErrorMessage(subQ.errorMessage);
@@ -885,7 +888,7 @@
     } else {
         if (currentQuestion.validation && !currentQuestion.validation(messageText)) {
             addBotMessage(currentQuestion.errorMessage, false, true).then(msgElem => {
-                msgElem.scrollIntoView({ behavior: "smooth", block: "end" });
+                setTimeout(() => scrollToBottom(), 0);
             });
             userInput.classList.add('input-error');
             displayErrorMessage(currentQuestion.errorMessage);
@@ -920,10 +923,12 @@
   }
 
   function submitDataToGAS() {
-    addBotMessage("情報を送信中...");
+    addBotMessage("情報を送信中...").then(msgElem => { // 送信中メッセージ
+        setTimeout(() => scrollToBottom(), 0);
+    });
     if (typeof GAS_WEB_APP_URL === 'undefined' || !GAS_WEB_APP_URL || GAS_WEB_APP_URL === 'YOUR_GOOGLE_APPS_SCRIPT_WEB_APP_URL_HERE') {
         addBotMessage("データ送信先URLが正しく設定されていません。config.js を確認してください。", false, true).then(msgElem => {
-            msgElem.scrollIntoView({ behavior: "smooth", block: "end" });
+            setTimeout(() => scrollToBottom(), 0);
         });
         console.error("GAS_WEB_APP_URL is not set or is a placeholder in config.js.");
         return;
@@ -935,8 +940,9 @@
       body: JSON.stringify(userResponses)
     })
     .then(() => {
-      addBotMessage("データが送信されました。ありがとうございました！").then(msgElem => {
-            msgElem.scrollIntoView({ behavior: "smooth", block: "end" });
+      // ★★★ 完了メッセージを変更 ★★★
+      addBotMessage("お問い合わせいただきありがとうございました！後ほど担当よりご連絡いたします。").then(msgElem => {
+            setTimeout(() => scrollToBottom(), 0);
       });
       normalInputArea.style.display = 'none';
       completedEffectiveQuestions++;
@@ -945,7 +951,7 @@
     .catch(error => {
       console.error('Error sending data to Google Sheet:', error);
       addBotMessage("エラーが発生し、データを送信できませんでした。お手数ですが、時間をおいて再度お試しください。", false, true).then(msgElem => {
-            msgElem.scrollIntoView({ behavior: "smooth", block: "end" });
+            setTimeout(() => scrollToBottom(), 0);
       });
       const finalSubmitBtn = document.getElementById('dynamicFinalSubmitButton');
       if (finalSubmitBtn) finalSubmitBtn.disabled = false;
@@ -981,13 +987,12 @@
       if (typeof BOT_ICON_URL === 'undefined' || BOT_ICON_URL === 'YOUR_BOT_ICON_URL_HERE') {
           console.warn("BOT_ICON_URL is not set or is a placeholder in config.js. Default icon behavior will apply.");
       }
-      // ★★★ 初期メッセージを修正 ★★★
       addBotMessage("J.P.Returnsにお問い合わせいただきありがとうございます！").then(msgElem1 => {
-        msgElem1.scrollIntoView({ behavior: "smooth", block: "end" });
-        return addBotMessage("30秒程度の簡単な質問をさせてください。"); // 2つ目のメッセージ
+        setTimeout(() => scrollToBottom(), 0); // 1つ目のメッセージ後
+        return addBotMessage("30秒程度の簡単な質問をさせてください。");
       }).then(msgElem2 => {
-        msgElem2.scrollIntoView({ behavior: "smooth", block: "end" });
-        setTimeout(askQuestion, 1200); // 最初の質問までの遅延
+        setTimeout(() => scrollToBottom(), 0); // 2つ目のメッセージ後
+        setTimeout(askQuestion, 1200);
       });
   }, 500);
 
