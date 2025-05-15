@@ -5,7 +5,6 @@
 <meta name="viewport" content="width=device-width, initial-scale=1.0">
 <title>お問い合わせ｜マンション投資のジェイピーリターンズ株式会社</title>
 <meta name="description" content="初めてでも安心！年収600万円からのマンション投資。無料個別相談実施中。J.P.Returnsのマンション投資で叶える堅実な家賃収入。あなたに寄り添うコンサルティングをご提供します。">
-<link rel="icon" href="images/favicon.png" type="image/png">
 <link href="https://fonts.googleapis.com/css2?family=Roboto:wght@400;500;700&display=swap" rel="stylesheet">
 <style>
   /* 基本的なスタイルリセット */
@@ -202,7 +201,7 @@
     justify-content: center;
     margin-top: 8px;
   }
-  .submit-choices-button {
+  .submit-choices-button { /* 複数選択の決定ボタン */
     background-color: #007bff;
     color: white;
     border-color: #007bff;
@@ -210,6 +209,59 @@
   .submit-choices-button:hover:not(:disabled) {
     background-color: #0056b3;
   }
+
+  /* ペア入力用のスタイル */
+  .paired-input-area-wrapper {
+    width: 100%;
+    display: flex;
+    justify-content: center;
+    margin-top: 8px;
+    margin-bottom: 8px;
+  }
+  .paired-input-container {
+    display: flex;
+    flex-direction: column;
+    gap: 10px;
+    width: 100%;
+    max-width: 380px;
+    padding: 10px;
+    background-color: #f9f9f9;
+    border-radius: 8px;
+  }
+  .paired-input-group {
+    display: flex;
+    flex-direction: column;
+    gap: 5px;
+  }
+  .paired-input-group label {
+    font-size: 0.9em;
+    color: #555;
+  }
+  .paired-input-group input[type="text"] {
+    padding: 10px 12px;
+    border: 1px solid #ccc;
+    border-radius: 15px;
+    font-size: 16px;
+    width: 100%;
+    -webkit-appearance: none;
+    appearance: none;
+  }
+  /* ★★★ ペア入力の「次へ」ボタンの色を緑に ★★★ */
+  .paired-input-container .paired-input-next-button {
+    margin-top: 10px;
+    background-color: #06C755; /* 緑色 */
+    color: white;
+    border-color: #06C755; /* 緑色 */
+  }
+  .paired-input-container .paired-input-next-button:hover:not(:disabled) {
+    background-color: #05a546; /* 少し濃い緑色 */
+  }
+  .paired-input-error {
+    color: red;
+    font-size: 0.8em;
+    margin-top: 5px;
+  }
+
 
   .final-consent-message-area {
     margin-top: 10px;
@@ -353,6 +405,19 @@
 <script src="config.js"></script>
 
 <script>
+  // ★★★ ファビコンを動的に設定 ★★★
+  if (typeof FAVICON_URL !== 'undefined' && FAVICON_URL) {
+    const faviconLink = document.createElement('link');
+    faviconLink.rel = 'icon';
+    faviconLink.href = FAVICON_URL;
+    // type属性は、画像の拡張子に基づいて設定することもできますが、
+    // 一般的なPNGやICOであれば、ブラウザが自動判別することが多いです。
+    // 必要であれば、FAVICON_URLの拡張子を見てtypeを出し分けてください。
+    // 例: if (FAVICON_URL.endsWith('.png')) faviconLink.type = 'image/png';
+    document.head.appendChild(faviconLink);
+  }
+
+
   const chatMessages = document.getElementById('chatMessages');
   const userInput = document.getElementById('userInput');
   const sendButton = document.getElementById('sendButton');
@@ -370,31 +435,68 @@
   let isBotTyping = false;
   let currentMultipleChoices = [];
   let activeChoicesWrapper = null;
+  let activePairedInputWrapper = null;
   let completedEffectiveQuestions = 0;
 
   const katakanaRegex = /^[ァ-ヶー　]+$/;
   const questions = [
-    // Q1-Q15 は前回同様
+    // Q1
     { id: 1, item: "職業", question: "ご職業を教えてください。", answer_method: "single-choice", options: ["会社員（上場企業）", "会社員（その他）", "公務員", "経営者", "士業（医師、看護師、弁護士、税理士など）", "自営業・その他"], key: "occupation_new", validation: (v) => !!v, errorMessage: "選択してください。" },
+    // Q2
     { id: 2, item: "年収", question: "現在の年収を教えてください。", answer_method: "single-choice", options: ["0～399万", "400～499万", "500～599万", "600～699万", "700～799万", "800～899万", "900～999万", "1000～1099万", "1100～1199万", "1200～1299万", "1300～1399万", "1400～1499万", "1500～1999万", "2000～2499万", "2500～2999万", "3000～3999万", "4000～4999万", "5000万～1億未満", "1億以上"], key: "annual_income_new", validation: (v) => !!v, errorMessage: "選択してください。" },
+    // Q3
     { id: 3, item: "年齢", question: "ご年齢を教えてください。", answer_method: "single-choice", options: ["20歳未満", "20～24歳", "25～29歳", "30～34歳", "35～39歳", "40～44歳", "45～49歳", "50～54歳", "55～59歳", "60～64歳", "65～69歳", "70歳以上"], key: "age_group_new", validation: (v) => !!v, errorMessage: "選択してください。" },
-    { id: 4, item: "名前", question: "お名前を教えてください。", answer_method: "text-multi", sub_questions: [
-        {label:"姓", key:"last_name_new", validation: (v) => v && v.trim().length > 0, errorMessage: "姓を入力してください。"},
-        {label:"名", key:"first_name_new", validation: (v) => v && v.trim().length > 0, errorMessage: "名を入力してください。"},
-        {label:"セイ (全角カタカナ)", key:"last_name_kana_new", validation: (v) => v && katakanaRegex.test(v.trim()), errorMessage: "セイを全角カタカナで入力してください。"},
-        {label:"メイ (全角カタカナ)", key:"first_name_kana_new", validation: (v) => v && katakanaRegex.test(v.trim()), errorMessage: "メイを全角カタカナで入力してください。"}
-      ], key: "full_name_dummy_new" },
+    // Q4 - 名前入力 (text-pair)
+    { id: 4, item: "名前",
+      question: "お名前を教えてください。", // ★★★ メインの導入メッセージ ★★★
+      answer_method: "text-pair",
+      pairs: [
+        {
+          // ★★★ プロンプト文言変更 ★★★
+          prompt: "まず、お名前（姓・名）を入力してください。",
+          inputs: [
+            { label: "姓", key: "last_name_new", placeholder: "例：山田", type: "text" },
+            { label: "名", key: "first_name_new", placeholder: "例：太郎", type: "text" }
+          ],
+          combinedValidation: (v1, v2) => (v1 && v1.trim().length > 0) && (v2 && v2.trim().length > 0),
+          combinedErrorMessage: "姓と名の両方を入力してください。"
+        },
+        {
+          // ★★★ プロンプト文言変更 ★★★
+          prompt: "次に、フリガナを全角カタカナで入力してください。",
+          inputs: [
+            { label: "セイ", key: "last_name_kana_new", placeholder: "例：ヤマダ", type: "text" },
+            { label: "メイ", key: "first_name_kana_new", placeholder: "例：タロウ", type: "text" }
+          ],
+          combinedValidation: (v1, v2) => (v1 && katakanaRegex.test(v1.trim())) && (v2 && katakanaRegex.test(v2.trim())),
+          combinedErrorMessage: "セイとメイの両方を全角カタカナで入力してください。"
+        }
+      ],
+      key_group: "name_details"
+    },
+    // Q5
     { id: 5, item: "電話番号", question: "電話番号を入力してください。(例: 09012345678)", answer_method: "text", type: "tel", key: "phone_number_new", validation: (v) => /^[0-9]{10,11}$/.test(v.replace(/-/g, "")), errorMessage: "有効な電話番号をハイフンなし半角数字で入力してください。" },
+    // Q6
     { id: 6, item: "メールアドレス", question: "メールアドレスを入力してください！(例: user@example.com)", answer_method: "text", type: "email", key: "email_address_new", validation: (v) => /^[^\s@]+@[^\s@]+\.[^\s@]+$/.test(v), errorMessage: "有効なメールアドレスを入力してください。" },
+    // Q7
     { id: 7, item: "面談希望", question: "ご面談を希望されますか？", answer_method: "single-choice", options: ["はい", "いいえ"], key: "interview_preference", validation: (v) => !!v, errorMessage: "選択してください。" },
+    // Q8 - 面談希望「はい」の場合
     { id: 8, item: "相談希望日_第一希望", question: "【第一希望】ご相談希望日をお選びください (例: 2024/05/15)", answer_method: "text", type: "text", placeholder: "YYYY/MM/DD", key: "first_choice_date_new", condition: { key: "interview_preference", value: "はい" }, validation: (v) => /^\d{4}\/(0?[1-9]|1[0-2])\/(0?[1-9]|[12][0-9]|3[01])$/.test(v) && !isNaN(new Date(v)), errorMessage: "YYYY/MM/DD形式で有効な日付を入力してください。" },
+    // Q9 - 面談希望「はい」の場合
     { id: 9, item: "相談希望時間_第一希望", question: "【第一希望】ご相談希望時間をお選びください", answer_method: "single-choice", options: ["10：00～12：00", "12：00～14：00", "14：00～16：00", "16：00～18：00", "18：00～20：00", "20：00 以降", "その他の時間"], key: "first_choice_time_new", condition: { key: "interview_preference", value: "はい" }, validation: (v) => !!v, errorMessage: "選択してください。" },
+    // Q10 - 面談希望「はい」かつ第一希望時間が「その他の時間」の場合
     { id: 10, item: "相談希望時間_第一希望_その他", question: "【第一希望】その他のご相談希望時間を入力ください", answer_method: "text", type: "text", key: "first_choice_time_other_new", condition: { key: "first_choice_time_new", value: "その他の時間" }, validation: (v) => v && v.trim().length > 0, errorMessage: "希望時間を入力してください。" },
+    // Q11 - 面談希望「はい」の場合
     { id: 11, item: "相談希望日_第二希望", question: "【第二希望】ご相談希望日をお選びください (例: 2024/05/16)", answer_method: "text", type: "text", placeholder: "YYYY/MM/DD", key: "second_choice_date_new", condition: { key: "interview_preference", value: "はい" }, validation: (v) => /^\d{4}\/(0?[1-9]|1[0-2])\/(0?[1-9]|[12][0-9]|3[01])$/.test(v) && !isNaN(new Date(v)), errorMessage: "YYYY/MM/DD形式で有効な日付を入力してください。" },
+    // Q12 - 面談希望「はい」の場合
     { id: 12, item: "相談希望時間_第二希望", question: "【第二希望】ご相談希望時間をお選びください", answer_method: "single-choice", options: ["10：00～12：00", "12：00～14：00", "14：00～16：00", "16：00～18：00", "18：00～20：00", "20：00 以降", "その他の時間"], key: "second_choice_time_new", condition: { key: "interview_preference", value: "はい" }, validation: (v) => !!v, errorMessage: "選択してください。" },
+    // Q13 - 面談希望「はい」かつ第二希望時間が「その他の時間」の場合
     { id: 13, item: "相談希望時間_第二希望_その他", question: "【第二希望】その他のご相談希望時間を入力ください", answer_method: "text", type: "text", key: "second_choice_time_other_new", condition: { key: "second_choice_time_new", value: "その他の時間" }, validation: (v) => v && v.trim().length > 0, errorMessage: "希望時間を入力してください。" },
-    { id: 14, item: "質問要望", question: "ご質問・ご要望があれば記載ください", answer_method: "single-choice", options: ["なし", "その他（自由記述）"], key: "inquiry_text_new", condition: { key: "interview_preference", value: "いいえ" }, validation: (v) => !!v, errorMessage: "選択してください。" },
+    // Q14 - ★★★ 条件を削除 (面談希望「はい」の後にも表示されるように) ★★★
+    { id: 14, item: "質問要望", question: "ご質問・ご要望があれば記載ください", answer_method: "single-choice", options: ["なし", "その他（自由記述）"], key: "inquiry_text_new", validation: (v) => !!v, errorMessage: "選択してください。" },
+    // Q15 - 質問要望が「その他（自由記述）」の場合
     { id: 15, item: "質問要望詳細", question: "ご質問・ご要望の詳細を自由にご記入ください。", answer_method: "text", type: "text", placeholder: "自由にご記入ください", key: "inquiry_text_detail_new", condition: { key: "inquiry_text_new", value: "その他（自由記述）" }, validation: (v) => v && v.trim().length > 0, errorMessage: "詳細を入力してください。" },
+    // Q16 - 最終同意
     { id: 16, item: "最終同意", question: "個人情報のお取り扱いをご確認の上、「同意して送信」を押してください。", answer_method: "final-consent",
       privacy_policy_link_text: "個人情報のお取り扱い", privacy_policy_url: "https://jpreturns.com/privacypolicy/",
       gift_terms_link_text: "えらべるデジタルギフトプレゼント条件",
@@ -477,7 +579,7 @@
   ];
 
   // JavaScriptの主要な関数群はここに続きます
-  // (updateProgressBar, showTypingIndicator, hideTypingIndicator, addMessage, addBotMessage, addUserMessage, scrollToBottom, disableOldChoices, displayChoicesOutsideBubble, setupFinalConsentScreen, askQuestion, handleSingleChoiceClick, toggleMultipleChoiceSelection, handleMultipleChoiceSubmit, handleUserInput, displayErrorMessage, removeErrorMessage, submitDataToGAS, イベントリスナー, 初期化処理)
+  // (updateProgressBar, showTypingIndicator, hideTypingIndicator, addMessage, addBotMessage, addUserMessage, scrollToBottom, disableOldUIElements, displayChoicesOutsideBubble, displayPairedInputs, setupFinalConsentScreen, askQuestion, handlePairedInputSubmit, handleSingleChoiceClick, toggleMultipleChoiceSelection, handleMultipleChoiceSubmit, handleUserInput, displayErrorMessage, removeErrorMessage, submitDataToGAS, イベントリスナー, 初期化処理)
 
 
   function updateProgressBar() {
@@ -497,7 +599,9 @@
                 continue;
             }
         }
-        if (q.answer_method === 'text-multi') {
+        if (q.answer_method === 'text-pair') {
+            count += q.pairs.length;
+        } else if (q.answer_method === 'text-multi') {
             count += q.sub_questions.length;
         } else {
             count++;
@@ -523,7 +627,6 @@
       </div>
     `);
     chatMessages.appendChild(indicatorWrapper);
-    // scrollToBottom(); // メッセージ表示後にスクロールするためここでは呼ばない
   }
 
   function hideTypingIndicator() {
@@ -579,35 +682,50 @@
 
   function addUserMessage(messageText) {
     const msgElem = addMessage(messageText, 'user');
-    // ユーザーメッセージ追加後すぐにスクロール
     setTimeout(() => scrollToBottom(), 0);
   }
 
   function scrollToBottom() {
-    // chatMessages.scrollTop = chatMessages.scrollHeight; // 古い方法
-    // 最後の要素が表示されるように、少し遅延させてスクロールする
     setTimeout(() => {
         const lastElement = chatMessages.lastElementChild;
         if (lastElement) {
             lastElement.scrollIntoView({ behavior: "smooth", block: "end", inline: "nearest" });
         }
-    }, 100); // 100msの遅延。必要に応じて調整。
+    }, 100);
   }
 
 
-  function disableOldChoices() {
+  function disableOldUIElements() {
     if (activeChoicesWrapper) {
       const buttons = activeChoicesWrapper.querySelectorAll('.choice-button');
       buttons.forEach(button => button.disabled = true);
       activeChoicesWrapper = null;
     }
+    if (activePairedInputWrapper) {
+        const nextButton = activePairedInputWrapper.querySelector('.paired-input-next-button');
+        if (nextButton) nextButton.disabled = true;
+        const inputs = activePairedInputWrapper.querySelectorAll('input');
+        inputs.forEach(input => input.disabled = true);
+        activePairedInputWrapper = null;
+    }
+
     const allOldChoiceWrappers = chatMessages.querySelectorAll('.choices-area-wrapper');
     allOldChoiceWrappers.forEach(wrapper => {
-        if (wrapper !== activeChoicesWrapper) { // Ensure current active wrapper is not disabled prematurely
+        if (wrapper !== activeChoicesWrapper) {
              const buttons = wrapper.querySelectorAll('.choice-button');
              buttons.forEach(button => button.disabled = true);
         }
     });
+    const allOldPairedInputWrappers = chatMessages.querySelectorAll('.paired-input-area-wrapper');
+     allOldPairedInputWrappers.forEach(wrapper => {
+        if (wrapper !== activePairedInputWrapper) {
+            const nextButton = wrapper.querySelector('.paired-input-next-button');
+            if (nextButton) nextButton.disabled = true;
+            const inputs = wrapper.querySelectorAll('input');
+            inputs.forEach(input => input.disabled = true);
+        }
+    });
+
     const finalSubmitBtn = document.getElementById('dynamicFinalSubmitButton');
     if (finalSubmitBtn) finalSubmitBtn.disabled = true;
   }
@@ -621,11 +739,6 @@
 
     const choicesContainer = document.createElement('div');
     choicesContainer.className = 'choices-container';
-    // ★★★ 選択肢が2つの場合でもデフォルトで2列にするため、force-single-columnのクラス付与ロジックを削除 ★★★
-    // if (question.options.length <= 2) {
-    //     // choicesContainer.classList.add('force-single-column'); // この行をコメントアウトまたは削除
-    // }
-
 
     question.options.forEach(option => {
       const button = document.createElement('button');
@@ -657,8 +770,51 @@
 
     choicesAreaWrapper.appendChild(choicesContainer);
     chatMessages.appendChild(choicesAreaWrapper);
-    setTimeout(() => scrollToBottom(), 0); // 選択肢表示後すぐにスクロール
+    setTimeout(() => scrollToBottom(), 0);
   }
+
+  function displayPairedInputs(pairData, questionId) {
+    normalInputArea.style.display = 'none';
+    if (activePairedInputWrapper) activePairedInputWrapper.remove();
+
+    const pairedInputAreaWrapper = document.createElement('div');
+    pairedInputAreaWrapper.className = 'paired-input-area-wrapper';
+    activePairedInputWrapper = pairedInputAreaWrapper;
+
+    const pairedInputContainer = document.createElement('div');
+    pairedInputContainer.className = 'paired-input-container';
+
+    pairData.inputs.forEach((inputConfig, index) => {
+        const group = document.createElement('div');
+        group.className = 'paired-input-group';
+        const label = document.createElement('label');
+        label.htmlFor = `pairedInput-${questionId}-${subStep}-${index}`;
+        label.textContent = inputConfig.label;
+        const input = document.createElement('input');
+        input.type = inputConfig.type || "text";
+        input.id = `pairedInput-${questionId}-${subStep}-${index}`;
+        input.placeholder = inputConfig.placeholder || "";
+        input.dataset.key = inputConfig.key;
+        group.appendChild(label);
+        group.appendChild(input);
+        pairedInputContainer.appendChild(group);
+    });
+
+    const nextButton = document.createElement('button');
+    nextButton.textContent = "次へ";
+    // ★★★ 「次へ」ボタンのクラス名を修正して緑色にする ★★★
+    nextButton.className = 'choice-button paired-input-next-button'; // submit-choices-button から choice-button に変更
+    nextButton.dataset.questionId = questionId;
+    nextButton.addEventListener('click', () => handlePairedInputSubmit(pairData, questionId));
+
+    pairedInputContainer.appendChild(nextButton);
+    pairedInputAreaWrapper.appendChild(pairedInputContainer);
+    chatMessages.appendChild(pairedInputAreaWrapper);
+    setTimeout(() => scrollToBottom(), 0);
+    const firstPairedInput = pairedInputContainer.querySelector('input');
+    if(firstPairedInput) firstPairedInput.focus();
+  }
+
 
   function setupFinalConsentScreen(question) {
     normalInputArea.style.display = 'none';
@@ -679,7 +835,6 @@
     consentMessageBubble.innerHTML = question.question.replace(question.privacy_policy_link_text, privacyPolicyLinkHTML);
     consentMessageWrapper.appendChild(consentMessageBubble);
     chatMessages.appendChild(consentMessageWrapper);
-    // setTimeout(() => scrollToBottom(), 0); // メッセージ表示後すぐにスクロール
 
     const checkboxAreaWrapper = document.createElement('div');
     checkboxAreaWrapper.className = 'choices-area-wrapper';
@@ -714,7 +869,6 @@
     checkboxArea.appendChild(label);
     checkboxAreaWrapper.appendChild(checkboxArea)
     chatMessages.appendChild(checkboxAreaWrapper);
-    // setTimeout(() => scrollToBottom(), 0); // チェックボックス表示後すぐにスクロール
 
     const submitButtonAreaWrapper = document.createElement('div');
     submitButtonAreaWrapper.className = 'choices-area-wrapper';
@@ -731,21 +885,20 @@
     finalSubmitButton.addEventListener('click', () => {
         if (checkbox.checked) {
             userResponses[question.key] = true;
-            disableOldChoices();
-            // ★★★ 「ありがとうございます。情報を送信します。」を削除 ★★★
-            submitDataToGAS(); // 「情報を送信中...」はsubmitDataToGAS内で表示
+            disableOldUIElements();
+            submitDataToGAS();
             finalSubmitButton.disabled = true;
             checkbox.disabled = true;
         }
     });
     submitButtonAreaWrapper.appendChild(finalSubmitButton);
     chatMessages.appendChild(submitButtonAreaWrapper);
-    setTimeout(() => scrollToBottom(), 0); // 最終同意ボタン表示後すぐにスクロール
+    setTimeout(() => scrollToBottom(), 0);
   }
 
 
   function askQuestion() {
-    disableOldChoices();
+    disableOldUIElements();
     userInput.disabled = false;
     sendButton.disabled = false;
     normalInputArea.style.display = 'flex';
@@ -755,13 +908,21 @@
 
     while (currentStep < questions.length) {
         const q = questions[currentStep];
+        // ★★★ 条件分岐のロジックを修正 ★★★
         if (q.condition) {
             const conditionKey = q.condition.key;
             const conditionValue = q.condition.value;
-            if (userResponses[conditionKey] === undefined || userResponses[conditionKey] !== conditionValue) {
+            // 条件キーに対する回答が存在し、かつその値が期待値と異なる場合のみスキップ
+            if (userResponses.hasOwnProperty(conditionKey) && userResponses[conditionKey] !== conditionValue) {
                 currentStep++;
-                updateProgressBar();
+                updateProgressBar(); // スキップ時もプログレス更新
                 continue;
+            }
+            // 条件キーに対する回答がまだない場合は、その質問は表示する (スキップしない)
+            // (ただし、その質問が依存する前の質問がまだなら、それは表示されない)
+            if (!userResponses.hasOwnProperty(conditionKey) && q.condition.value) {
+                // このケースは通常、前の質問で分岐が決まるはずなので、
+                // ここでスキップするかどうかは設計次第。今回は表示する方向で進める。
             }
         }
         break;
@@ -779,14 +940,32 @@
     }
 
     const currentQuestion = questions[currentStep];
-    let questionTextToShow = currentQuestion.question;
 
     if (currentQuestion.answer_method === "final-consent") {
         setupFinalConsentScreen(currentQuestion);
         return;
     }
 
+    if (currentQuestion.answer_method === "text-pair") {
+        addBotMessage(currentQuestion.question).then(() => {
+            setTimeout(() => scrollToBottom(), 0);
+            if (subStep < currentQuestion.pairs.length) {
+                const currentPairData = currentQuestion.pairs[subStep];
+                addBotMessage(currentPairData.prompt).then(() => {
+                    displayPairedInputs(currentPairData, currentQuestion.id);
+                });
+            } else {
+                subStep = 0;
+                completedEffectiveQuestions += currentQuestion.pairs.length;
+                currentStep++;
+                askQuestion();
+            }
+        });
+        return;
+    }
 
+
+    let questionTextToShow = currentQuestion.question;
     if (currentQuestion.answer_method === "text-multi") {
         if (subStep < currentQuestion.sub_questions.length) {
             questionTextToShow = currentQuestion.sub_questions[subStep].label + "を入力してください。";
@@ -799,13 +978,14 @@
             askQuestion();
             return;
         }
-    } else {
+    } else if (currentQuestion.answer_method !== "single-choice" && currentQuestion.answer_method !== "multiple-choice") {
         userInput.type = currentQuestion.type || "text";
         userInput.placeholder = currentQuestion.placeholder || `ここに入力`;
     }
 
+
     addBotMessage(questionTextToShow).then(messageElement => {
-      setTimeout(() => scrollToBottom(), 0); // メッセージ表示後すぐにスクロール
+      setTimeout(() => scrollToBottom(), 0);
       if (currentQuestion.answer_method === "single-choice" || currentQuestion.answer_method === "multiple-choice") {
         displayChoicesOutsideBubble(currentQuestion);
       } else {
@@ -817,6 +997,50 @@
       }
     });
   }
+
+  function handlePairedInputSubmit(pairData, questionId) {
+    if (!activePairedInputWrapper) return;
+    const inputs = activePairedInputWrapper.querySelectorAll('input'); // type指定を緩める
+    const values = Array.from(inputs).map(input => input.value.trim());
+
+    const existingErrorMsg = activePairedInputWrapper.querySelector('.paired-input-error');
+    if (existingErrorMsg) existingErrorMsg.remove();
+
+    if (pairData.combinedValidation && !pairData.combinedValidation(values[0], values[1])) {
+        const errorMsgDiv = document.createElement('div');
+        errorMsgDiv.className = 'paired-input-error';
+        errorMsgDiv.textContent = pairData.combinedErrorMessage;
+        activePairedInputWrapper.querySelector('.paired-input-container').appendChild(errorMsgDiv);
+        inputs[0].focus();
+        return;
+    }
+
+    let userMessageText = "";
+    pairData.inputs.forEach((inputConfig, index) => {
+        userResponses[inputConfig.key] = values[index];
+        userMessageText += `${inputConfig.label}: ${values[index]}${index < pairData.inputs.length -1 ? ', ' : ''}`;
+    });
+    addUserMessage(userMessageText);
+
+    activePairedInputWrapper.remove();
+    activePairedInputWrapper = null;
+
+    subStep++;
+    const currentMainQuestion = questions[currentStep];
+    if (subStep < currentMainQuestion.pairs.length) {
+        const nextPairData = currentMainQuestion.pairs[subStep];
+        addBotMessage(nextPairData.prompt).then(() => {
+             displayPairedInputs(nextPairData, currentMainQuestion.id);
+        });
+    } else {
+        subStep = 0;
+        completedEffectiveQuestions += currentMainQuestion.pairs.length;
+        currentStep++;
+        normalInputArea.style.display = 'flex';
+        askQuestion();
+    }
+  }
+
 
   function handleSingleChoiceClick(event, value, question) {
     const clickedButton = event.target;
@@ -831,7 +1055,7 @@
         return;
     }
     userResponses[question.key] = value;
-    disableOldChoices();
+    disableOldUIElements();
     completedEffectiveQuestions++;
     currentStep++;
     setTimeout(askQuestion, 300);
@@ -863,7 +1087,7 @@
     addUserMessage(currentMultipleChoices.length > 0 ? currentMultipleChoices.join(', ') : "(選択なし)");
     userResponses[question.key] = [...currentMultipleChoices];
     currentMultipleChoices = [];
-    disableOldChoices();
+    disableOldUIElements();
     completedEffectiveQuestions++;
     currentStep++;
     setTimeout(askQuestion, 300);
@@ -874,7 +1098,6 @@
     if (messageText === "" || userInput.disabled) return;
 
     const currentQuestion = questions[currentStep];
-
     if (currentQuestion.answer_method === "text-multi") {
         const subQ = currentQuestion.sub_questions[subStep];
         if (subQ.validation && !subQ.validation(messageText)) {
@@ -916,18 +1139,18 @@
     const errorDiv = document.createElement('div');
     errorDiv.classList.add('error-message');
     errorDiv.textContent = message;
-    userInput.parentNode.insertBefore(errorDiv, userInput.nextSibling);
+    normalInputArea.appendChild(errorDiv);
   }
 
   function removeErrorMessage() {
-    const existingError = userInput.parentNode.querySelector('.error-message');
+    const existingError = normalInputArea.querySelector('.error-message');
     if (existingError) {
       existingError.remove();
     }
   }
 
   function submitDataToGAS() {
-    addBotMessage("情報を送信中...").then(msgElem => { // 送信中メッセージ
+    addBotMessage("情報を送信中...").then(msgElem => {
         setTimeout(() => scrollToBottom(), 0);
     });
     if (typeof GAS_WEB_APP_URL === 'undefined' || !GAS_WEB_APP_URL || GAS_WEB_APP_URL === 'YOUR_GOOGLE_APPS_SCRIPT_WEB_APP_URL_HERE') {
@@ -944,7 +1167,6 @@
       body: JSON.stringify(userResponses)
     })
     .then(() => {
-      // ★★★ 完了メッセージを変更 ★★★
       addBotMessage("お問い合わせいただきありがとうございました！後ほど担当よりご連絡いたします。").then(msgElem => {
             setTimeout(() => scrollToBottom(), 0);
       });
@@ -968,7 +1190,7 @@
   userInput.addEventListener('keypress', function(event) {
     if (event.key === 'Enter') {
       const currentQuestion = questions[currentStep];
-      if (currentQuestion && (currentQuestion.answer_method === "single-choice" || currentQuestion.answer_method === "multiple-choice" || currentQuestion.answer_method === "final-consent")) {
+      if (currentQuestion && (currentQuestion.answer_method === "single-choice" || currentQuestion.answer_method === "multiple-choice" || currentQuestion.answer_method === "final-consent" || currentQuestion.answer_method === "text-pair")) {
           event.preventDefault();
           return;
       }
@@ -992,10 +1214,10 @@
           console.warn("BOT_ICON_URL is not set or is a placeholder in config.js. Default icon behavior will apply.");
       }
       addBotMessage("J.P.Returnsにお問い合わせいただきありがとうございます！").then(msgElem1 => {
-        setTimeout(() => scrollToBottom(), 0); // 1つ目のメッセージ後
+        setTimeout(() => scrollToBottom(), 0);
         return addBotMessage("30秒程度の簡単な質問をさせてください。");
       }).then(msgElem2 => {
-        setTimeout(() => scrollToBottom(), 0); // 2つ目のメッセージ後
+        setTimeout(() => scrollToBottom(), 0);
         setTimeout(askQuestion, 1200);
       });
   }, 500);
