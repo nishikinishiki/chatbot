@@ -201,7 +201,7 @@
     justify-content: center;
     margin-top: 8px;
   }
-  .submit-choices-button { /* 複数選択の決定ボタン */
+  .submit-choices-button {
     background-color: #007bff;
     color: white;
     border-color: #007bff;
@@ -246,20 +246,20 @@
     -webkit-appearance: none;
     appearance: none;
   }
-  /* ★★★ ペア入力の「次へ」ボタンの色を緑に ★★★ */
   .paired-input-container .paired-input-next-button {
     margin-top: 10px;
-    background-color: #06C755; /* 緑色 */
+    background-color: #06C755;
     color: white;
-    border-color: #06C755; /* 緑色 */
+    border-color: #06C755;
   }
   .paired-input-container .paired-input-next-button:hover:not(:disabled) {
-    background-color: #05a546; /* 少し濃い緑色 */
+    background-color: #05a546;
   }
-  .paired-input-error {
+  .paired-input-error { /* ★★★ ペア入力エラーメッセージのスタイル ★★★ */
     color: red;
     font-size: 0.8em;
-    margin-top: 5px;
+    margin-top: 3px; /* 少し詰める */
+    text-align: left; /* 左寄せ */
   }
 
 
@@ -365,11 +365,13 @@
   .input-error {
     border-color: #ff3b30 !important;
   }
-  .error-message {
-    color: #ff3b30;
+  .error-message { /* 通常の入力エリアのエラーメッセージ */
+    color: red;
     font-size: 0.8em;
     margin-top: 4px;
     padding-left: 16px;
+    width: 100%; /* エリア内で幅を取るように */
+    text-align: left;
   }
 </style>
 </head>
@@ -405,18 +407,12 @@
 <script src="config.js"></script>
 
 <script>
-  // ★★★ ファビコンを動的に設定 ★★★
   if (typeof FAVICON_URL !== 'undefined' && FAVICON_URL) {
     const faviconLink = document.createElement('link');
     faviconLink.rel = 'icon';
     faviconLink.href = FAVICON_URL;
-    // type属性は、画像の拡張子に基づいて設定することもできますが、
-    // 一般的なPNGやICOであれば、ブラウザが自動判別することが多いです。
-    // 必要であれば、FAVICON_URLの拡張子を見てtypeを出し分けてください。
-    // 例: if (FAVICON_URL.endsWith('.png')) faviconLink.type = 'image/png';
     document.head.appendChild(faviconLink);
   }
-
 
   const chatMessages = document.getElementById('chatMessages');
   const userInput = document.getElementById('userInput');
@@ -448,12 +444,11 @@
     { id: 3, item: "年齢", question: "ご年齢を教えてください。", answer_method: "single-choice", options: ["20歳未満", "20～24歳", "25～29歳", "30～34歳", "35～39歳", "40～44歳", "45～49歳", "50～54歳", "55～59歳", "60～64歳", "65～69歳", "70歳以上"], key: "age_group_new", validation: (v) => !!v, errorMessage: "選択してください。" },
     // Q4 - 名前入力 (text-pair)
     { id: 4, item: "名前",
-      question: "お名前を教えてください。", // ★★★ メインの導入メッセージ ★★★
+      question: "お名前を教えてください。",
       answer_method: "text-pair",
       pairs: [
         {
-          // ★★★ プロンプト文言変更 ★★★
-          prompt: "まず、お名前（姓・名）を入力してください。",
+          prompt: "まず、お名前を入力してください。", // ★★★ 文言変更 ★★★
           inputs: [
             { label: "姓", key: "last_name_new", placeholder: "例：山田", type: "text" },
             { label: "名", key: "first_name_new", placeholder: "例：太郎", type: "text" }
@@ -462,8 +457,7 @@
           combinedErrorMessage: "姓と名の両方を入力してください。"
         },
         {
-          // ★★★ プロンプト文言変更 ★★★
-          prompt: "次に、フリガナを全角カタカナで入力してください。",
+          prompt: "次に、フリガナを全角カタカナで入力してください。", // ★★★ 文言変更 ★★★
           inputs: [
             { label: "セイ", key: "last_name_kana_new", placeholder: "例：ヤマダ", type: "text" },
             { label: "メイ", key: "first_name_kana_new", placeholder: "例：タロウ", type: "text" }
@@ -492,7 +486,7 @@
     { id: 12, item: "相談希望時間_第二希望", question: "【第二希望】ご相談希望時間をお選びください", answer_method: "single-choice", options: ["10：00～12：00", "12：00～14：00", "14：00～16：00", "16：00～18：00", "18：00～20：00", "20：00 以降", "その他の時間"], key: "second_choice_time_new", condition: { key: "interview_preference", value: "はい" }, validation: (v) => !!v, errorMessage: "選択してください。" },
     // Q13 - 面談希望「はい」かつ第二希望時間が「その他の時間」の場合
     { id: 13, item: "相談希望時間_第二希望_その他", question: "【第二希望】その他のご相談希望時間を入力ください", answer_method: "text", type: "text", key: "second_choice_time_other_new", condition: { key: "second_choice_time_new", value: "その他の時間" }, validation: (v) => v && v.trim().length > 0, errorMessage: "希望時間を入力してください。" },
-    // Q14 - ★★★ 条件を削除 (面談希望「はい」の後にも表示されるように) ★★★
+    // Q14 - ★★★ 条件を削除し、常に表示されるように変更 ★★★
     { id: 14, item: "質問要望", question: "ご質問・ご要望があれば記載ください", answer_method: "single-choice", options: ["なし", "その他（自由記述）"], key: "inquiry_text_new", validation: (v) => !!v, errorMessage: "選択してください。" },
     // Q15 - 質問要望が「その他（自由記述）」の場合
     { id: 15, item: "質問要望詳細", question: "ご質問・ご要望の詳細を自由にご記入ください。", answer_method: "text", type: "text", placeholder: "自由にご記入ください", key: "inquiry_text_detail_new", condition: { key: "inquiry_text_new", value: "その他（自由記述）" }, validation: (v) => v && v.trim().length > 0, errorMessage: "詳細を入力してください。" },
@@ -602,6 +596,7 @@
         if (q.answer_method === 'text-pair') {
             count += q.pairs.length;
         } else if (q.answer_method === 'text-multi') {
+            // text-multi は廃止されたが、念のため残す
             count += q.sub_questions.length;
         } else {
             count++;
@@ -802,8 +797,7 @@
 
     const nextButton = document.createElement('button');
     nextButton.textContent = "次へ";
-    // ★★★ 「次へ」ボタンのクラス名を修正して緑色にする ★★★
-    nextButton.className = 'choice-button paired-input-next-button'; // submit-choices-button から choice-button に変更
+    nextButton.className = 'choice-button paired-input-next-button';
     nextButton.dataset.questionId = questionId;
     nextButton.addEventListener('click', () => handlePairedInputSubmit(pairData, questionId));
 
@@ -903,35 +897,31 @@
     sendButton.disabled = false;
     normalInputArea.style.display = 'flex';
     userInput.classList.remove('input-error');
-    removeErrorMessage();
+    removeErrorMessage('paired'); // ペア入力のエラーも消す
+    removeErrorMessage(); // 通常入力のエラーも消す
     updateProgressBar();
 
     while (currentStep < questions.length) {
         const q = questions[currentStep];
-        // ★★★ 条件分岐のロジックを修正 ★★★
         if (q.condition) {
             const conditionKey = q.condition.key;
             const conditionValue = q.condition.value;
-            // 条件キーに対する回答が存在し、かつその値が期待値と異なる場合のみスキップ
             if (userResponses.hasOwnProperty(conditionKey) && userResponses[conditionKey] !== conditionValue) {
                 currentStep++;
-                updateProgressBar(); // スキップ時もプログレス更新
+                updateProgressBar();
                 continue;
             }
-            // 条件キーに対する回答がまだない場合は、その質問は表示する (スキップしない)
-            // (ただし、その質問が依存する前の質問がまだなら、それは表示されない)
-            if (!userResponses.hasOwnProperty(conditionKey) && q.condition.value) {
-                // このケースは通常、前の質問で分岐が決まるはずなので、
-                // ここでスキップするかどうかは設計次第。今回は表示する方向で進める。
-            }
+            // ★★★ 「面談希望: いいえ」の後に「質問要望」に進むためのロジック調整 ★★★
+            // 「質問要望」(ID:14) は condition を持たないように変更したので、
+            // このループで interview_preference が "いいえ" の場合、
+            // ID 8～13 (面談日時関連) がスキップされ、次にID 14 が評価されるはず。
         }
         break;
     }
 
     if (currentStep >= questions.length) {
-      addBotMessage("全ての情報をご入力いただき、ありがとうございました！").then(msgElem => {
-          setTimeout(() => scrollToBottom(), 0);
-      });
+      // 通常はfinal-consentでGAS送信後に完了メッセージ
+      // addBotMessage("全ての情報をご入力いただき、ありがとうございました！"); // submitDataToGAS内で処理
       userInput.disabled = true;
       sendButton.disabled = true;
       normalInputArea.style.display = 'none';
@@ -947,14 +937,14 @@
     }
 
     if (currentQuestion.answer_method === "text-pair") {
-        addBotMessage(currentQuestion.question).then(() => {
+        addBotMessage(currentQuestion.question).then(() => { // メインの質問「お名前を教えてください。」を表示
             setTimeout(() => scrollToBottom(), 0);
             if (subStep < currentQuestion.pairs.length) {
                 const currentPairData = currentQuestion.pairs[subStep];
-                addBotMessage(currentPairData.prompt).then(() => {
+                addBotMessage(currentPairData.prompt).then(() => { // ペアごとのプロンプトを表示
                     displayPairedInputs(currentPairData, currentQuestion.id);
                 });
-            } else {
+            } else { // すべてのペアが完了 (通常はありえない、handlePairedInputSubmitで進む)
                 subStep = 0;
                 completedEffectiveQuestions += currentQuestion.pairs.length;
                 currentStep++;
@@ -966,19 +956,9 @@
 
 
     let questionTextToShow = currentQuestion.question;
-    if (currentQuestion.answer_method === "text-multi") {
-        if (subStep < currentQuestion.sub_questions.length) {
-            questionTextToShow = currentQuestion.sub_questions[subStep].label + "を入力してください。";
-            userInput.type = currentQuestion.sub_questions[subStep].type || "text";
-            userInput.placeholder = currentQuestion.sub_questions[subStep].placeholder || `ここに入力`;
-        } else {
-            subStep = 0;
-            completedEffectiveQuestions += currentQuestion.sub_questions.length;
-            currentStep++;
-            askQuestion();
-            return;
-        }
-    } else if (currentQuestion.answer_method !== "single-choice" && currentQuestion.answer_method !== "multiple-choice") {
+    // text-multi は廃止されたので、そのロジックは削除
+    if (currentQuestion.answer_method !== "single-choice" && currentQuestion.answer_method !== "multiple-choice") {
+        // 通常のテキスト入力の場合
         userInput.type = currentQuestion.type || "text";
         userInput.placeholder = currentQuestion.placeholder || `ここに入力`;
     }
@@ -988,7 +968,7 @@
       setTimeout(() => scrollToBottom(), 0);
       if (currentQuestion.answer_method === "single-choice" || currentQuestion.answer_method === "multiple-choice") {
         displayChoicesOutsideBubble(currentQuestion);
-      } else {
+      } else { // text
         normalInputArea.style.display = 'flex';
         userInput.style.display = 'flex';
         sendButton.style.display = 'flex';
@@ -1000,7 +980,7 @@
 
   function handlePairedInputSubmit(pairData, questionId) {
     if (!activePairedInputWrapper) return;
-    const inputs = activePairedInputWrapper.querySelectorAll('input'); // type指定を緩める
+    const inputs = activePairedInputWrapper.querySelectorAll('input');
     const values = Array.from(inputs).map(input => input.value.trim());
 
     const existingErrorMsg = activePairedInputWrapper.querySelector('.paired-input-error');
@@ -1010,10 +990,19 @@
         const errorMsgDiv = document.createElement('div');
         errorMsgDiv.className = 'paired-input-error';
         errorMsgDiv.textContent = pairData.combinedErrorMessage;
+        // ★★★ エラーメッセージを input group の後ではなく、コンテナの最後に ★★★
         activePairedInputWrapper.querySelector('.paired-input-container').appendChild(errorMsgDiv);
-        inputs[0].focus();
+        inputs.forEach(input => { // エラーのあるフィールドにスタイルを適用する場合
+            if (!input.value.trim()) input.classList.add('input-error'); // 例: 空の場合
+        });
+        if (values[0].trim().length === 0) inputs[0].focus();
+        else if (values[1].trim().length === 0) inputs[1].focus();
+        else inputs[0].focus(); // デフォルト
         return;
     }
+    // エラーがなければエラークラスを削除
+    inputs.forEach(input => input.classList.remove('input-error'));
+
 
     let userMessageText = "";
     pairData.inputs.forEach((inputConfig, index) => {
@@ -1022,8 +1011,9 @@
     });
     addUserMessage(userMessageText);
 
-    activePairedInputWrapper.remove();
-    activePairedInputWrapper = null;
+    // activePairedInputWrapper.remove(); // 次のペアまたは質問に進む前に削除
+    // activePairedInputWrapper = null;
+    disableOldUIElements(); // ★★★ UI要素を無効化 ★★★
 
     subStep++;
     const currentMainQuestion = questions[currentStep];
@@ -1093,48 +1083,35 @@
     setTimeout(askQuestion, 300);
   }
 
-  function handleUserInput() {
+  function handleUserInput() { // 通常の単一テキスト入力用
     const messageText = userInput.value.trim();
     if (messageText === "" || userInput.disabled) return;
 
     const currentQuestion = questions[currentStep];
-    if (currentQuestion.answer_method === "text-multi") {
-        const subQ = currentQuestion.sub_questions[subStep];
-        if (subQ.validation && !subQ.validation(messageText)) {
-            addBotMessage(subQ.errorMessage, false, true).then(msgElem => {
-                setTimeout(() => scrollToBottom(), 0);
-            });
-            userInput.classList.add('input-error');
-            displayErrorMessage(subQ.errorMessage);
-            userInput.focus();
-            return;
-        }
-        userResponses[subQ.key] = messageText;
-        addUserMessage(`${subQ.label}: ${messageText}`);
-        subStep++;
-    } else {
-        if (currentQuestion.validation && !currentQuestion.validation(messageText)) {
-            addBotMessage(currentQuestion.errorMessage, false, true).then(msgElem => {
-                setTimeout(() => scrollToBottom(), 0);
-            });
-            userInput.classList.add('input-error');
-            displayErrorMessage(currentQuestion.errorMessage);
-            userInput.focus();
-            return;
-        }
-        userResponses[currentQuestion.key] = messageText;
-        addUserMessage(messageText);
-        completedEffectiveQuestions++;
-        currentStep++;
+    // text-pair は別のハンドラで処理されるので、ここでは text-multi と通常の text を処理
+    // text-multi は廃止したので、通常の text のみ
+    if (currentQuestion.validation && !currentQuestion.validation(messageText)) {
+        addBotMessage(currentQuestion.errorMessage, false, true).then(msgElem => {
+            setTimeout(() => scrollToBottom(), 0);
+        });
+        userInput.classList.add('input-error');
+        displayErrorMessage(currentQuestion.errorMessage); // 通常入力エリアのエラー表示
+        userInput.focus();
+        return;
     }
+    userResponses[currentQuestion.key] = messageText;
+    addUserMessage(messageText);
+    completedEffectiveQuestions++;
+    currentStep++;
+
 
     userInput.classList.remove('input-error');
-    removeErrorMessage();
+    removeErrorMessage(); // 通常入力エリアのエラー削除
     userInput.value = '';
     setTimeout(askQuestion, 300);
   }
 
-  function displayErrorMessage(message) {
+  function displayErrorMessage(message) { // 通常入力エリア用
     removeErrorMessage();
     const errorDiv = document.createElement('div');
     errorDiv.classList.add('error-message');
@@ -1142,10 +1119,13 @@
     normalInputArea.appendChild(errorDiv);
   }
 
-  function removeErrorMessage() {
-    const existingError = normalInputArea.querySelector('.error-message');
-    if (existingError) {
-      existingError.remove();
+  function removeErrorMessage(type = 'normal') { // type パラメータ追加
+    if (type === 'paired' && activePairedInputWrapper) {
+        const existingError = activePairedInputWrapper.querySelector('.paired-input-error');
+        if (existingError) existingError.remove();
+    } else if (type === 'normal') {
+        const existingError = normalInputArea.querySelector('.error-message');
+        if (existingError) existingError.remove();
     }
   }
 
@@ -1168,6 +1148,13 @@
     })
     .then(() => {
       addBotMessage("お問い合わせいただきありがとうございました！後ほど担当よりご連絡いたします。").then(msgElem => {
+            setTimeout(() => scrollToBottom(), 0);
+            // ★★★ 追加メッセージ ★★★
+            return addBotMessage("お問い合わせはお電話でも受け付けております。");
+      }).then(msgElem2 => {
+            setTimeout(() => scrollToBottom(), 0);
+            return addBotMessage("電話番号：0120-147-104<br>営業時間：10:00～22:00", true); // HTMLとして改行
+      }).then(msgElem3 => {
             setTimeout(() => scrollToBottom(), 0);
       });
       normalInputArea.style.display = 'none';
