@@ -16,58 +16,74 @@
   }
 
   html, body {
-    height: 100%; /* htmlとbodyの高さを100%に */
-    overflow: hidden; /* bodyのスクロールを禁止 */
+    height: 100%;
+    overflow: hidden;
     font-family: 'Roboto', "Helvetica Neue", "Segoe UI", "Hiragino Kaku Gothic ProN", "Hiragino Sans", Meiryo, Arial, sans-serif;
     color: #333;
   }
 
   body {
-    background-color: #8297ac; /* 背景色をbodyに設定 */
-    display: flex; /* chat-containerを中央揃えするため */
+    background-color: #8297ac;
+    display: flex;
     justify-content: center;
     align-items: center;
   }
 
   .chat-container {
     width: 100%;
-    height: 100vh; /* ビューポートの高さ全体を使用 */
-    max-width: 420px; /* PC表示時の最大幅は維持 */
+    height: 100vh;
+    max-width: 420px;
     background-color: #ffffff;
-    border-radius: 16px; /* 角丸は維持（フルスクリーンでもデザインとしてあり得る） */
-    box-shadow: 0 8px 24px rgba(0, 0, 0, 0.15); /* 影も維持 */
+    border-radius: 16px;
+    box-shadow: 0 8px 24px rgba(0, 0, 0, 0.15);
     display: flex;
     flex-direction: column;
-    overflow: hidden; /* chat-container自体のスクロールは不要 */
+    overflow: hidden;
   }
-  /* スマホなど幅が420px以下の場合は角丸と影をなくし、完全に画面にフィットさせる場合 */
   @media (max-width: 420px) {
     .chat-container {
       border-radius: 0;
       box-shadow: none;
-      max-width: 100%; /* スマホではmax-widthも100%に */
+      max-width: 100%;
     }
   }
-
 
   .chat-header {
     background-color: #06C755;
     color: white;
-    padding: 12px 16px;
+    padding: 10px 16px;
     text-align: center;
     font-size: 1.1em;
     font-weight: 500;
-    min-height: 56px;
     display: flex;
+    flex-direction: column;
     align-items: center;
     justify-content: center;
-    flex-shrink: 0; /* ヘッダーが縮まないように */
+    flex-shrink: 0;
+  }
+  .chat-header-title {
+    margin-bottom: 5px;
+  }
+  .progress-bar-container {
+    width: 80%;
+    height: 8px;
+    background-color: #00823f;
+    border-radius: 4px;
+    overflow: hidden;
+  }
+  .progress-bar {
+    width: 0%;
+    height: 100%;
+    background-color: #ffffff;
+    border-radius: 4px;
+    transition: width 0.3s ease-in-out;
   }
 
+
   .chat-messages {
-    flex-grow: 1; /* 利用可能なスペースをすべて使用 */
+    flex-grow: 1;
     padding: 16px 12px;
-    overflow-y: auto; /* メッセージが多い場合にスクロール */
+    overflow-y: auto;
     background-color: #e9ebee;
     display: flex;
     flex-direction: column;
@@ -91,7 +107,7 @@
     background-size: cover;
     background-position: center;
     flex-shrink: 0;
-    background-color: #ddd; /* 画像読み込み失敗時のフォールバック */
+    background-color: #ddd;
   }
 
   .user-message-wrapper {
@@ -104,19 +120,22 @@
     border-radius: 18px;
     line-height: 1.5;
     word-wrap: break-word;
-    font-size: 0.95em; /* メッセージ自体のフォントサイズは維持 */
+    font-size: 0.95em;
     box-shadow: 0 1px 2px rgba(0,0,0,0.1);
   }
   .bot-message-wrapper .message {
      max-width: calc(85% - 48px);
   }
 
-
   .bot-message {
     background-color: #ffffff;
     color: #212121;
     border-bottom-left-radius: 4px;
   }
+  .bot-message.error-text {
+    color: red;
+  }
+
 
   .user-message {
     background-color: #8DE047;
@@ -124,114 +143,45 @@
     border-bottom-right-radius: 4px;
   }
 
-  .input-area {
+  .choices-area-wrapper {
+    width: 100%;
     display: flex;
-    align-items: center;
-    padding: 8px 12px;
-    background-color: #f5f5f5;
-    border-top: 1px solid #e0e0e0;
-    min-height: 56px;
-    flex-shrink: 0; /* 入力エリアが縮まないように */
-  }
-
-  .input-area input[type="text"],
-  .input-area input[type="email"],
-  .input-area input[type="number"],
-  .input-area input[type="tel"],
-  .input-area input[type="date"] {
-    flex-grow: 1;
-    padding: 10px 16px;
-    border: 1px solid #d0d0d0;
-    border-radius: 20px;
-    margin-right: 8px;
-    font-size: 16px; /* ★iOSでのズームを防ぐため16px以上に設定★ */
-    outline: none;
-  }
-
-  .input-area input[type="text"]:focus,
-  .input-area input[type="email"]:focus,
-  .input-area input[type="number"]:focus,
-  .input-area input[type="tel"]:focus,
-  .input-area input[type="date"]:focus {
-    border-color: #06C755;
-    box-shadow: 0 0 0 2px rgba(6, 199, 85, 0.2);
-  }
-
-  .input-area button#sendButton {
-    padding: 10px 15px;
-    background-color: #06C755;
-    color: white;
-    border: none;
-    border-radius: 20px;
-    cursor: pointer;
-    font-size: 16px; /* ボタンのフォントサイズも調整（任意） */
-    font-weight: 500;
-    transition: background-color 0.2s ease;
-    display: flex;
-    align-items: center;
     justify-content: center;
-  }
-  .input-area button#sendButton:hover {
-    background-color: #05a546;
-  }
-  .input-area button#sendButton:disabled {
-    background-color: #b0b0b0;
-    cursor: not-allowed;
-  }
-
-  .input-error {
-    border-color: #ff3b30 !important;
-  }
-  .error-message {
-    color: #ff3b30;
-    font-size: 0.8em;
-    margin-top: 4px;
-    padding-left: 16px;
-  }
-
-  .typing-indicator {
-    display: flex;
-    align-items: center;
-    padding: 8px 0;
-  }
-  .typing-indicator span {
-    height: 8px;
-    width: 8px;
-    background-color: #b0b0b0;
-    border-radius: 50%;
-    display: inline-block;
-    margin: 0 2px;
-    animation: bounce 1.4s infinite ease-in-out both;
-  }
-  .typing-indicator span:nth-child(1) { animation-delay: -0.32s; }
-  .typing-indicator span:nth-child(2) { animation-delay: -0.16s; }
-  @keyframes bounce {
-    0%, 80%, 100% { transform: scale(0); }
-    40% { transform: scale(1.0); }
+    margin-top: 8px;
+    margin-bottom: 8px;
   }
 
   .choices-container {
-    display: flex;
-    flex-direction: column;
+    display: grid;
+    grid-template-columns: repeat(2, 1fr); /* デフォルトを2列に */
     gap: 8px;
-    margin-top: 8px;
-    max-height: 200px;
+    width: 100%;
+    max-width: 380px;
+    padding: 0 5px;
+    max-height: 220px;
     overflow-y: auto;
-    padding-right: 5px;
     -webkit-overflow-scrolling: touch;
   }
+  /* .choices-container.force-single-column { // このクラスはJSで条件に応じて付与する想定だったが、現状は常に2列
+    grid-template-columns: 1fr;
+    max-width: 200px;
+  } */
+
+
   .choice-button {
     background-color: #fff;
     border: 1px solid #06C755;
     color: #06C755;
-    padding: 10px 12px;
+    padding: 10px 8px;
     border-radius: 16px;
     cursor: pointer;
     text-align: center;
-    font-size: 15px; /* 選択肢ボタンのフォントサイズも調整（16pxでも可） */
+    font-size: 0.85em;
     transition: background-color 0.2s, color 0.2s;
     width: 100%;
     box-sizing: border-box;
+    word-break: keep-all;
+    white-space: normal;
   }
   .choice-button:hover:not(:disabled) {
     background-color: #e6f8ee;
@@ -246,14 +196,128 @@
     border-color: #ddd;
     cursor: not-allowed;
   }
+  .submit-choices-button-wrapper {
+    grid-column: 1 / -1;
+    display: flex;
+    justify-content: center;
+    margin-top: 8px;
+  }
   .submit-choices-button {
     background-color: #007bff;
     color: white;
-    margin-top: 10px;
     border-color: #007bff;
   }
   .submit-choices-button:hover:not(:disabled) {
     background-color: #0056b3;
+  }
+
+  .final-consent-message-area {
+    margin-top: 10px;
+  }
+  .final-consent-checkbox-area {
+    font-size: 0.8em;
+    margin-top: 10px;
+    margin-bottom: 10px;
+    text-align: left;
+    padding: 0 10px;
+  }
+  .final-consent-checkbox-area input[type="checkbox"] {
+    margin-right: 5px;
+    vertical-align: middle;
+  }
+  .final-consent-checkbox-area label {
+    vertical-align: middle;
+  }
+  .final-consent-checkbox-area a {
+    color: #007bff;
+    text-decoration: underline;
+  }
+
+  .modal-overlay {
+    position: fixed; top: 0; left: 0; width: 100%; height: 100%;
+    background-color: rgba(0, 0, 0, 0.6); display: none;
+    justify-content: center; align-items: center; z-index: 1000;
+  }
+  .modal-content {
+    background-color: white; padding: 25px; border-radius: 8px;
+    width: 90%; max-width: 500px; max-height: 80vh; overflow-y: auto;
+    position: relative; box-shadow: 0 5px 15px rgba(0,0,0,0.3);
+  }
+  .modal-close-button {
+    position: absolute; top: 10px; right: 15px; font-size: 1.8em;
+    font-weight: bold; cursor: pointer; border: none; background: none; color: #888;
+  }
+  .modal-close-button:hover { color: #000; }
+  .modal-content h3 { margin-top: 0; margin-bottom: 15px; font-size: 1.2em; }
+  .modal-content p, .modal-content li { font-size: 0.85em; line-height: 1.6; margin-bottom: 10px; }
+
+
+  .input-area {
+    display: flex;
+    align-items: center;
+    padding: 8px 12px;
+    background-color: #f5f5f5;
+    border-top: 1px solid #e0e0e0;
+    min-height: 56px;
+    flex-shrink: 0;
+  }
+  .input-area input[type="text"],
+  .input-area input[type="email"],
+  .input-area input[type="number"],
+  .input-area input[type="tel"],
+  .input-area input[type="date"] {
+    flex-grow: 1;
+    padding: 10px 16px;
+    border: 1px solid #d0d0d0;
+    border-radius: 20px;
+    margin-right: 8px;
+    font-size: 16px;
+    outline: none;
+    -webkit-appearance: none;
+    appearance: none;
+  }
+  .input-area input[type="text"]:focus,
+  .input-area input[type="email"]:focus,
+  .input-area input[type="number"]:focus,
+  .input-area input[type="tel"]:focus,
+  .input-area input[type="date"]:focus {
+    border-color: #06C755;
+    box-shadow: 0 0 0 2px rgba(6, 199, 85, 0.2);
+  }
+  .input-area button#sendButton {
+    padding: 0;
+    width: 40px;
+    height: 40px;
+    background-color: #06C755;
+    color: white;
+    border: none;
+    border-radius: 50%;
+    cursor: pointer;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    transition: background-color 0.2s ease;
+    flex-shrink: 0;
+  }
+  .input-area button#sendButton svg {
+    width: 20px;
+    height: 20px;
+  }
+  .input-area button#sendButton:hover {
+    background-color: #05a546;
+  }
+  .input-area button#sendButton:disabled {
+    background-color: #b0b0b0;
+    cursor: not-allowed;
+  }
+  .input-error {
+    border-color: #ff3b30 !important;
+  }
+  .error-message {
+    color: #ff3b30;
+    font-size: 0.8em;
+    margin-top: 4px;
+    padding-left: 16px;
   }
 </style>
 </head>
@@ -261,17 +325,30 @@
 
 <div class="chat-container">
   <div class="chat-header">
-    お問い合わせフォーム
+    <div class="chat-header-title">お問い合わせフォーム</div>
+    <div class="progress-bar-container">
+      <div class="progress-bar" id="progressBar"></div>
+    </div>
   </div>
   <div class="chat-messages" id="chatMessages">
     </div>
-  <div class="input-area">
+  <div class="input-area" id="normalInputArea">
     <input type="text" id="userInput" placeholder="ここに入力">
     <button id="sendButton">
       <svg xmlns="http://www.w3.org/2000/svg" width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" class="feather feather-send"><line x1="22" y1="2" x2="11" y2="13"></line><polygon points="22 2 15 22 11 13 2 9 22 2"></polygon></svg>
     </button>
   </div>
+  </div>
+
+<div class="modal-overlay" id="giftTermsModal">
+  <div class="modal-content">
+    <button class="modal-close-button" id="modalCloseButton">&times;</button>
+    <h3 id="modalTitle">えらべるデジタルギフトプレゼント条件</h3>
+    <div id="modalBody">
+      </div>
+  </div>
 </div>
+
 
 <script src="config.js"></script>
 
@@ -279,58 +356,155 @@
   const chatMessages = document.getElementById('chatMessages');
   const userInput = document.getElementById('userInput');
   const sendButton = document.getElementById('sendButton');
+  const progressBar = document.getElementById('progressBar');
+  const normalInputArea = document.getElementById('normalInputArea');
 
-  // GAS_WEB_APP_URL と BOT_ICON_URL は config.js から読み込まれる
+  const giftTermsModal = document.getElementById('giftTermsModal');
+  const modalCloseButton = document.getElementById('modalCloseButton');
+  const modalBody = document.getElementById('modalBody');
+
 
   let currentStep = 0;
   let subStep = 0;
   const userResponses = {};
   let isBotTyping = false;
   let currentMultipleChoices = [];
-  let activeChoicesContainer = null;
+  let activeChoicesWrapper = null;
+  let completedEffectiveQuestions = 0;
 
   const katakanaRegex = /^[ァ-ヶー　]+$/;
-
   const questions = [
-    // Q1
+    // Q1-Q15 は前回同様
     { id: 1, item: "職業", question: "ご職業を教えてください。", answer_method: "single-choice", options: ["会社員（上場企業）", "会社員（その他）", "公務員", "経営者", "士業（医師、看護師、弁護士、税理士など）", "自営業・その他"], key: "occupation_new", validation: (v) => !!v, errorMessage: "選択してください。" },
-    // Q2
     { id: 2, item: "年収", question: "現在の年収を教えてください。", answer_method: "single-choice", options: ["0～399万", "400～499万", "500～599万", "600～699万", "700～799万", "800～899万", "900～999万", "1000～1099万", "1100～1199万", "1200～1299万", "1300～1399万", "1400～1499万", "1500～1999万", "2000～2499万", "2500～2999万", "3000～3999万", "4000～4999万", "5000万～1億未満", "1億以上"], key: "annual_income_new", validation: (v) => !!v, errorMessage: "選択してください。" },
-    // Q3
     { id: 3, item: "年齢", question: "ご年齢を教えてください。", answer_method: "single-choice", options: ["20歳未満", "20～24歳", "25～29歳", "30～34歳", "35～39歳", "40～44歳", "45～49歳", "50～54歳", "55～59歳", "60～64歳", "65～69歳", "70歳以上"], key: "age_group_new", validation: (v) => !!v, errorMessage: "選択してください。" },
-    // Q4
     { id: 4, item: "名前", question: "お名前を教えてください。", answer_method: "text-multi", sub_questions: [
         {label:"姓", key:"last_name_new", validation: (v) => v && v.trim().length > 0, errorMessage: "姓を入力してください。"},
         {label:"名", key:"first_name_new", validation: (v) => v && v.trim().length > 0, errorMessage: "名を入力してください。"},
         {label:"セイ (全角カタカナ)", key:"last_name_kana_new", validation: (v) => v && katakanaRegex.test(v.trim()), errorMessage: "セイを全角カタカナで入力してください。"},
         {label:"メイ (全角カタカナ)", key:"first_name_kana_new", validation: (v) => v && katakanaRegex.test(v.trim()), errorMessage: "メイを全角カタカナで入力してください。"}
       ], key: "full_name_dummy_new" },
-    // Q5
     { id: 5, item: "電話番号", question: "電話番号を入力してください。(例: 09012345678)", answer_method: "text", type: "tel", key: "phone_number_new", validation: (v) => /^[0-9]{10,11}$/.test(v.replace(/-/g, "")), errorMessage: "有効な電話番号をハイフンなし半角数字で入力してください。" },
-    // Q6
     { id: 6, item: "メールアドレス", question: "メールアドレスを入力してください！(例: user@example.com)", answer_method: "text", type: "email", key: "email_address_new", validation: (v) => /^[^\s@]+@[^\s@]+\.[^\s@]+$/.test(v), errorMessage: "有効なメールアドレスを入力してください。" },
-    // Q7
     { id: 7, item: "面談希望", question: "ご面談を希望されますか？", answer_method: "single-choice", options: ["はい", "いいえ"], key: "interview_preference", validation: (v) => !!v, errorMessage: "選択してください。" },
-    // Q8
     { id: 8, item: "相談希望日_第一希望", question: "【第一希望】ご相談希望日をお選びください (例: 2024/05/15)", answer_method: "text", type: "text", placeholder: "YYYY/MM/DD", key: "first_choice_date_new", condition: { key: "interview_preference", value: "はい" }, validation: (v) => /^\d{4}\/(0?[1-9]|1[0-2])\/(0?[1-9]|[12][0-9]|3[01])$/.test(v) && !isNaN(new Date(v)), errorMessage: "YYYY/MM/DD形式で有効な日付を入力してください。" },
-    // Q9
     { id: 9, item: "相談希望時間_第一希望", question: "【第一希望】ご相談希望時間をお選びください", answer_method: "single-choice", options: ["10：00～12：00", "12：00～14：00", "14：00～16：00", "16：00～18：00", "18：00～20：00", "20：00 以降", "その他の時間"], key: "first_choice_time_new", condition: { key: "interview_preference", value: "はい" }, validation: (v) => !!v, errorMessage: "選択してください。" },
-    // Q10
     { id: 10, item: "相談希望時間_第一希望_その他", question: "【第一希望】その他のご相談希望時間を入力ください", answer_method: "text", type: "text", key: "first_choice_time_other_new", condition: { key: "first_choice_time_new", value: "その他の時間" }, validation: (v) => v && v.trim().length > 0, errorMessage: "希望時間を入力してください。" },
-    // Q11
     { id: 11, item: "相談希望日_第二希望", question: "【第二希望】ご相談希望日をお選びください (例: 2024/05/16)", answer_method: "text", type: "text", placeholder: "YYYY/MM/DD", key: "second_choice_date_new", condition: { key: "interview_preference", value: "はい" }, validation: (v) => /^\d{4}\/(0?[1-9]|1[0-2])\/(0?[1-9]|[12][0-9]|3[01])$/.test(v) && !isNaN(new Date(v)), errorMessage: "YYYY/MM/DD形式で有効な日付を入力してください。" },
-    // Q12
     { id: 12, item: "相談希望時間_第二希望", question: "【第二希望】ご相談希望時間をお選びください", answer_method: "single-choice", options: ["10：00～12：00", "12：00～14：00", "14：00～16：00", "16：00～18：00", "18：00～20：00", "20：00 以降", "その他の時間"], key: "second_choice_time_new", condition: { key: "interview_preference", value: "はい" }, validation: (v) => !!v, errorMessage: "選択してください。" },
-    // Q13
     { id: 13, item: "相談希望時間_第二希望_その他", question: "【第二希望】その他のご相談希望時間を入力ください", answer_method: "text", type: "text", key: "second_choice_time_other_new", condition: { key: "second_choice_time_new", value: "その他の時間" }, validation: (v) => v && v.trim().length > 0, errorMessage: "希望時間を入力してください。" },
-    // Q14
     { id: 14, item: "質問要望", question: "ご質問・ご要望があれば記載ください", answer_method: "single-choice", options: ["なし", "その他（自由記述）"], key: "inquiry_text_new", condition: { key: "interview_preference", value: "いいえ" }, validation: (v) => !!v, errorMessage: "選択してください。" },
-    // Q15
-    { id: 15, item: "質問要望詳細", question: "ご質問・ご要望の詳細を自由にご記入ください。", answer_method: "text", type: "text", placeholder: "自由にご記入ください", key: "inquiry_text_detail_new", condition: { key: "inquiry_text_new", value: "その他（自由記述）" }, validation: (v) => v && v.trim().length > 0, errorMessage: "詳細を入力してください。" }
+    { id: 15, item: "質問要望詳細", question: "ご質問・ご要望の詳細を自由にご記入ください。", answer_method: "text", type: "text", placeholder: "自由にご記入ください", key: "inquiry_text_detail_new", condition: { key: "inquiry_text_new", value: "その他（自由記述）" }, validation: (v) => v && v.trim().length > 0, errorMessage: "詳細を入力してください。" },
+    { id: 16, item: "最終同意", question: "個人情報のお取り扱いをご確認の上、「同意して送信」を押してください。", answer_method: "final-consent",
+      privacy_policy_link_text: "個人情報のお取り扱い", privacy_policy_url: "https://jpreturns.com/privacypolicy/",
+      gift_terms_link_text: "えらべるデジタルギフトプレゼント条件",
+      gift_terms_popup_content: `<h3>えらべるデジタルギフトプレゼント条件</h3>
+        <p>【個別面談・Web面談をお申込みのお客様】<br>プレゼントは、web面談で20,000円、オフライン個別相談で50,000円相当のえらべるデジタルギフトを予定しております。面談でえらべるデジタルギフトプレゼントは以下の条件を満たした方が対象となります。なお、web面談、個別相談とは当社のコンサルタントと当社オフィスもしくは当社オフィス外、ウェブ通信にて対面し、当社サービスの十分な説明とお客様についての十分な（数回にわたり）情報を相互に交換したことを指します。<br>また、えらべるデジタルギフトではAmazonギフトカード、PayPayポイント、楽天ポイント（期間限定ポイント※）からご希望の1種のみを選択いただけます。<br>ご希望のポイントは、フォームの「ご質問・ご要望」欄に記入ください。お申し込み時にご記入がない場合は、Amazonギフトカードをプレゼントいたします。お申し込み完了後の変更は原則受け付けておりませんので、予めご了承ください。<br>※獲得いただけるポイントは期間限定ポイントになり、有効期限はポイント獲得後、6ヶ月間です。</p>
+        <p><strong>プレゼント条件</strong><br>下記のすべての項⽬を満たしている⽅が対象になります。<br>
+        世帯で初めて「J.P.リターンズ」のサービスを利⽤（セミナー受講、プライベートセミナー、⾯談、資料請求、動画セミナー）する⽅<br>
+        予約申込後、90⽇以内に個別相談を完了された⽅（本⼈確認必須。Web⾯談の場合、カメラON、お顔が⾒える状態で⾯談をお願いします。）<br>
+        ⾯談(web以外も含め)に3回以上ご参加いただいた⽅<br>
+        ※お客様のご状況や提案状況に応じて、複数回の⾯談を実施する場合がございます。<br>
+        上場企業、それに準ずる企業（＝資本⾦1億円以上）、またはそのグループ会社にお勤めの⽅、もしくは医師、公務員、看護師、薬剤師として現在お勤めの⽅<br>
+        年収700万円以上の方<br>
+        勤続年数が2年以上かつ25歳以上50歳未満の方<br>
+        ※主婦、パートの⽅は配偶者の年収が700万円以上の場合、「年収700万円以上の⽅」と判断する場合もございます。<br>
+        フォームよりお申込後、メールでお送りした属性アンケートにご回答頂いた内容、もしくは、営業担当がヒアリングした内容が上記の年収、勤続年数などの条件を満たした⽅<br>
+        事前に「社会健康保険証」をご提出いただいた方(データ送付・もしくは画面にて提示)<br>
+        WebカメラやFacetime等、テレビ通話を通じて対面で面談が出来る方（お顔を隠さず、Face to Faceで面談できる方）<br>
+        当社提携金融機関の融資が受けられる方（ローン審査通過が必須）<br>
+        ⾯談前の電話及び⾯談中の質問事項にすべてお答えいただけた⽅<br>
+        ※ご融資に必要な質問事項、および当社のサービス提供にあたり必要な質問事項を含む<br>
+        現在の社会環境の中で、前向きに購⼊を検討されている⽅</p>
+        <p><strong>プレゼント対象外</strong><br>
+        ご本人以外の面談の場合<br>
+        1世帯で2回以上の申込みの場合<br>
+        虚偽、重複、悪戯、迷惑行為、不正申込、連絡が取れない方、個別面談を受けられない方<br>
+        当社で行なっている他キャンペーンに応募したことがある方<br>
+        同業他社にお勤めの方<br>
+        無職、学生、フリーター・パート・アルバイト、契約・派遣社員の方<br>
+        現在の借り入れ状況や相談内容等によりサービスの提供が出来ない場合<br>
+        自営業の方、既に住宅ローンがある、疾病などの御理由により、ローンが組めない場合（ローンのご提案が難しい場合）<br>
+        Web参加されても途中退席される方<br>
+        (web以外も含め)ご面談が複数回になる場合がある事をご了承いただけない場合<br>
+        十分な面談時間が取れない場合(1回の面談につき、1～2時間程度)<br>
+        ⾯談中、明らかに当社コンサルタントと対話する姿勢でない場合<br>
+        お申込後、事前に「社会健康保険証」をデータ送付頂けない方（または、当日、画面にて呈示頂けない方）<br>
+        お申込後の事前の内容確認およびご融資に必要な質問事項に対して情報を秘匿される等、ご提案へ⾮協⼒的と判断される⽅<br>
+        過度に⾯談スケジュールのキャンセルや変更等をされる他、営業担当者からの連絡に対してご連絡が繋がらない等、営業担当者からの情報提供に対し協⼒的でないと判断される場合<br>
+        不動産購入に対して決裁権がご自身にない場合またはご相談が必要な場合、決裁権のある方またはご相談者（配偶者等）同席での面談を別途実施出来ると確認できない方<br>
+        当社の提案を全て聴いていただけた上で、不動産購⼊に対して決裁権がご⾃⾝にあり、ご⾃⾝だけで判断できると確認できない⽅<br>
+        不動産投資に興味がないなど特典⽬当てと当社が判断した場合<br>
+        初回の⾯談から30⽇以上次回の⾯談⽇程がとれない場合<br>
+        えらべるデジタルギフトのプレゼント対象は2024年5月15日以降申し込みの方に限ります。（2024年5月14日以前に申し込みの方はAmaonギフトカード）</p>
+        <p><strong>【ご⾯談についての注意事項】</strong><br>
+        今現在、不動産投資を検討されていない⽅は、お申し込みをご遠慮ください。<br>
+        以下に当てはまる場合に関してはご⾯談をお断り・キャンセルさせていただく可能性がございます。予めご了承の上でお申し込みください。<br>
+        情報収集のみを⽬的とされる等、不動産を活⽤した資産形成やマンション経営を検討されていないと判断される場合<br>
+        当社で取り扱いの無い投資⼿法やサービスをご希望される場合<br>
+        ※投資条件（取り扱いエリア・物件種別・平均利回りなど）に当てはまらない場合<br>
+         ※ご希望される内容が、当社の商品やサービスにマッチしない場合<br>
+        具体的な話やシミュレーションのご提⽰が不要という⽅<br>
+        現在の不動産市況・ご⾃⾝の所得状況と乖離のある要求をされる⽅<br>
+        現在の借り⼊れ状況や相談内容等によりサービスの提供が出来ない、ローンのご提案が難しい場合<br>
+        客観的に「ポイントのみが⽬当て」と判断される⾔動や⾏動をされる⽅</p>
+        <p><strong>【その他注意事項】</strong><br>
+        本キャンペーンはJ.P.RETURNS株式会社による提供です。本キャンペーンについてのお問い合わせはAmaon・PayPay・楽天でお受けしておりません。J.P.RETURNS株式会社 キャンペーン事務局（03‐5962‐9450）までお願いいたします。<br>
+        Amazon、Amazon.co.jpおよびそれらのロゴはAmazon.com,Inc.またはその関連会社の商標です。<br>
+        PayPay ギフトカードで付与。PayPay/PayPay カード公式ストアでも利用可能です。出金・譲渡不可になります。<br>
+        お申し込み前に、必ずページ内に記載の「取り扱い商品の特徴」をご確認ください。<br>
+        上記条件を全て満たしていなくても、ご成約後、特典を進呈する場合があります。なお、この場合、付与決定までは「付与保留」の取り扱いとさせていただきますので、ご了承ください。<br>
+        （例）<br>
+        ・現⾦で投資⽤不動産をご購⼊いただけた⽅<br>
+        ・頭⾦として現⾦をお⽀払いいただくことにより、投資⽤不動産をご購⼊いただけた⽅<br>
+        ・年収700万円未満または勤続2年未満でも、当社提携の⾦融機関から融資を受け、投資⽤不動産をご購⼊いただけた⽅</p>
+        <p><strong>当社の取り扱い商品の特徴</strong><br>
+        取り扱いエリア<br>
+        ⼊居率や家賃の相場が⾼い【東京・神奈川エリア】の中古区分物件を中⼼に、築年数や駅距離などの条件の良いものをセレクトし、お客様にご提案しています。<br>
+        ※⼀部、⼤阪エリア物件の取り扱いあり<br>
+        物件ラインナップ<br>
+        お客様のニーズにお応えするために、低価格⾼利回り物件からファミリータイプ物件まで、様々な物件を取り扱っています。<br>
+        ＜価格帯＞1,000万〜5,000万円程度<br>
+        ＜平均利回り＞4%前後</p>
+        <p><strong>ご注意</strong><br>
+        キャンペーン参加等により被った一切の損害について、当社は責任を負わないものとします。<br>
+        当社は、諸事情等により、予告なく本キャンペーンの内容の全部または一部を変更したり、本キャンペーンの適正な運用を確保するために必要と判断した措置を講じることができたり、本キャンペーンを早期に終了したりすることができるものとします。<br>
+        当社の意に沿わない場合、お断りの理由については一切お答えが出来ませんのでご了承ください。<br>
+        現物でのギフトカードの贈呈はございません。 特典はメールにてお渡し致します（当社指定の⽅法による）。特典付与のタイミングは⾯談から90⽇後頃を想定しております。</p>`,
+      submit_button_text: "同意して送信",
+      key: "final_consent_given"
+    }
   ];
 
-  // JavaScriptの残りの部分は前回のコードと同じです
-  // typing indicator, message adding, choice handling, user input, GAS submission etc.
+  // JavaScriptの主要な関数群はここに続きます
+  // ... (updateProgressBar, showTypingIndicator, hideTypingIndicator, addMessage, addBotMessage, addUserMessage, scrollToBottom, disableOldChoices, displayChoicesOutsideBubble, setupFinalConsentScreen, askQuestion, handleSingleChoiceClick, toggleMultipleChoiceSelection, handleMultipleChoiceSubmit, handleUserInput, displayErrorMessage, removeErrorMessage, submitDataToGAS, イベントリスナー, 初期化処理)
+
+
+  function updateProgressBar() {
+    const totalQuestions = countTotalEffectiveQuestions(userResponses);
+    const progress = totalQuestions > 0 ? (completedEffectiveQuestions / totalQuestions) * 100 : 0;
+    progressBar.style.width = Math.min(progress, 100) + '%';
+  }
+
+  function countTotalEffectiveQuestions(currentResponses) {
+    let count = 0;
+    let tempResponses = {...currentResponses};
+
+    for (let i = 0; i < questions.length; i++) {
+        const q = questions[i];
+        if (q.condition) {
+            if (tempResponses[q.condition.key] === undefined || tempResponses[q.condition.key] !== q.condition.value) {
+                continue;
+            }
+        }
+        if (q.answer_method === 'text-multi') {
+            count += q.sub_questions.length;
+        } else {
+            count++;
+        }
+    }
+    return count || 1;
+  }
 
   function showTypingIndicator() {
     if (isBotTyping) return;
@@ -339,7 +513,6 @@
     indicatorWrapper.classList.add('message-wrapper', 'bot-message-wrapper', 'typing-indicator-wrapper');
     const botIconDiv = document.createElement('div');
     botIconDiv.className = 'bot-icon';
-    // config.js から BOT_ICON_URL を使用
     if (typeof BOT_ICON_URL !== 'undefined' && BOT_ICON_URL && BOT_ICON_URL !== 'YOUR_BOT_ICON_URL_HERE') {
         botIconDiv.style.backgroundImage = `url('${BOT_ICON_URL}')`;
     }
@@ -361,7 +534,7 @@
     isBotTyping = false;
   }
 
-  function addMessage(messageText, sender, isHtml = false) {
+  function addMessage(messageText, sender, isHtml = false, isError = false) {
     hideTypingIndicator();
     const messageWrapper = document.createElement('div');
     messageWrapper.classList.add('message-wrapper', `${sender}-message-wrapper`);
@@ -371,8 +544,8 @@
       botIconDiv.className = 'bot-icon';
       if (typeof BOT_ICON_URL !== 'undefined' && BOT_ICON_URL && BOT_ICON_URL !== 'YOUR_BOT_ICON_URL_HERE') {
           botIconDiv.style.backgroundImage = `url('${BOT_ICON_URL}')`;
-          const img = new Image(); // 画像読み込みエラー時のフォールバック用
-          img.onerror = () => { botIconDiv.style.backgroundColor = '#ccc'; /* 例えばグレー背景 */ };
+          const img = new Image();
+          img.onerror = () => { botIconDiv.style.backgroundColor = '#ccc'; };
           img.src = BOT_ICON_URL;
       }
       messageWrapper.appendChild(botIconDiv);
@@ -380,21 +553,25 @@
 
     const messageElement = document.createElement('div');
     messageElement.classList.add('message', `${sender}-message`);
+    if (isError && sender === 'bot') {
+        messageElement.classList.add('error-text');
+    }
+
     if (isHtml) {
       messageElement.innerHTML = messageText;
     } else {
       messageElement.textContent = messageText;
     }
     messageWrapper.appendChild(messageElement);
-    chatMessages.appendChild(messageWrapper); // メッセージ追加後にDOMに追加
+    chatMessages.appendChild(messageWrapper);
     return messageElement;
   }
 
-  function addBotMessage(messageText, isHtml = false) {
+  function addBotMessage(messageText, isHtml = false, isError = false) {
     showTypingIndicator();
     return new Promise(resolve => {
       setTimeout(() => {
-        const msgElem = addMessage(messageText, 'bot', isHtml);
+        const msgElem = addMessage(messageText, 'bot', isHtml, isError);
         resolve(msgElem);
       }, 600 + Math.random() * 400);
     });
@@ -406,37 +583,170 @@
   }
 
   function scrollToBottom() {
-    const lastMessage = chatMessages.lastElementChild;
-    if (lastMessage) {
-        lastMessage.scrollIntoView({ behavior: "smooth", block: "end" });
-    } else {
-        chatMessages.scrollTop = chatMessages.scrollHeight;
+    const lastElement = chatMessages.lastElementChild;
+    if (lastElement) {
+        lastElement.scrollIntoView({ behavior: "smooth", block: "end" });
     }
   }
 
   function disableOldChoices() {
-    if (activeChoicesContainer) {
-      const buttons = activeChoicesContainer.querySelectorAll('.choice-button');
+    if (activeChoicesWrapper) {
+      const buttons = activeChoicesWrapper.querySelectorAll('.choice-button');
       buttons.forEach(button => button.disabled = true);
-      activeChoicesContainer = null;
+      activeChoicesWrapper = null;
     }
-    const allOldChoices = chatMessages.querySelectorAll('.choices-container');
-    allOldChoices.forEach(container => {
-        if (container !== activeChoicesContainer) {
-            const buttons = container.querySelectorAll('.choice-button');
-            buttons.forEach(button => button.disabled = true);
+    const allOldChoiceWrappers = chatMessages.querySelectorAll('.choices-area-wrapper');
+    allOldChoiceWrappers.forEach(wrapper => {
+        if (wrapper !== activeChoicesWrapper) { // Ensure current active wrapper is not disabled prematurely
+             const buttons = wrapper.querySelectorAll('.choice-button');
+             buttons.forEach(button => button.disabled = true);
         }
     });
+    const finalSubmitBtn = document.getElementById('dynamicFinalSubmitButton');
+    if (finalSubmitBtn) finalSubmitBtn.disabled = true;
   }
+
+  function displayChoicesOutsideBubble(question) {
+    normalInputArea.style.display = 'none';
+
+    const choicesAreaWrapper = document.createElement('div');
+    choicesAreaWrapper.className = 'choices-area-wrapper';
+    activeChoicesWrapper = choicesAreaWrapper; 
+
+    const choicesContainer = document.createElement('div');
+    choicesContainer.className = 'choices-container';
+    // ★★★ 選択肢が2つの場合でもデフォルトで2列にするため、force-single-columnの条件を削除 ★★★
+    // if (question.options.length <= 2) {
+    //     // choicesContainer.classList.add('force-single-column'); // この行をコメントアウトまたは削除
+    // }
+
+
+    question.options.forEach(option => {
+      const button = document.createElement('button');
+      button.className = 'choice-button';
+      button.textContent = option;
+      button.dataset.value = option;
+      button.dataset.questionId = question.id;
+      choicesContainer.appendChild(button);
+
+      if (question.answer_method === "single-choice") {
+        button.addEventListener('click', (event) => handleSingleChoiceClick(event, option, question));
+      } else {
+        button.addEventListener('click', (event) => toggleMultipleChoiceSelection(event, button, option));
+      }
+    });
+
+    if (question.answer_method === "multiple-choice") {
+      const submitButtonWrapper = document.createElement('div');
+      submitButtonWrapper.className = 'submit-choices-button-wrapper';
+      const submitBtn = document.createElement('button');
+      submitBtn.textContent = "これで決定";
+      submitBtn.className = 'choice-button submit-choices-button';
+      submitBtn.dataset.questionId = question.id;
+      submitBtn.addEventListener('click', (event) => handleMultipleChoiceSubmit(event, question));
+      submitButtonWrapper.appendChild(submitBtn);
+      choicesContainer.appendChild(submitButtonWrapper);
+      currentMultipleChoices = [];
+    }
+
+    choicesAreaWrapper.appendChild(choicesContainer);
+    chatMessages.appendChild(choicesAreaWrapper);
+    choicesAreaWrapper.scrollIntoView({ behavior: "smooth", block: "end" });
+  }
+
+  function setupFinalConsentScreen(question) {
+    normalInputArea.style.display = 'none';
+
+    const consentMessageWrapper = document.createElement('div');
+    consentMessageWrapper.classList.add('message-wrapper', 'bot-message-wrapper', 'final-consent-message-area');
+
+    const botIconDiv = document.createElement('div');
+    botIconDiv.className = 'bot-icon';
+    if (typeof BOT_ICON_URL !== 'undefined' && BOT_ICON_URL && BOT_ICON_URL !== 'YOUR_BOT_ICON_URL_HERE') {
+        botIconDiv.style.backgroundImage = `url('${BOT_ICON_URL}')`;
+    }
+    consentMessageWrapper.appendChild(botIconDiv);
+
+    const consentMessageBubble = document.createElement('div');
+    consentMessageBubble.classList.add('message', 'bot-message');
+    const privacyPolicyLinkHTML = `<a href="${question.privacy_policy_url}" target="_blank" rel="noopener noreferrer">${question.privacy_policy_link_text}</a>`;
+    consentMessageBubble.innerHTML = question.question.replace(question.privacy_policy_link_text, privacyPolicyLinkHTML);
+    consentMessageWrapper.appendChild(consentMessageBubble);
+    chatMessages.appendChild(consentMessageWrapper);
+    consentMessageWrapper.scrollIntoView({ behavior: "smooth", block: "end" });
+
+
+    const checkboxAreaWrapper = document.createElement('div');
+    checkboxAreaWrapper.className = 'choices-area-wrapper'; // 他の選択肢と同じラッパーを使用
+    const checkboxArea = document.createElement('div');
+    checkboxArea.className = 'final-consent-checkbox-area'; // 専用スタイルを適用
+
+    const checkbox = document.createElement('input');
+    checkbox.type = 'checkbox';
+    checkbox.id = 'dynamicGiftTermsConsentCheckbox'; // 動的にIDを付与
+
+    const label = document.createElement('label');
+    label.htmlFor = checkbox.id; // checkboxのIDと紐付け
+    const giftLink = document.createElement('a');
+    giftLink.href = "#";
+    giftLink.textContent = question.gift_terms_link_text;
+    giftLink.id = 'dynamicGiftTermsLink'; // 動的にIDを付与
+    giftLink.addEventListener('click', (e) => {
+        e.preventDefault();
+        modalBody.innerHTML = question.gift_terms_popup_content;
+        giftTermsModal.style.display = 'flex';
+    });
+    label.appendChild(giftLink);
+    label.append(" について同意します。"); // テキストノードとして追加
+    const noteSpan = document.createElement('span');
+    noteSpan.style.display = 'block';
+    noteSpan.style.fontSize = '0.9em';
+    noteSpan.style.color = '#555';
+    noteSpan.textContent = '※お申し込み完了後のポイント変更は原則受け付けておりません。予めご了承ください。';
+    label.appendChild(noteSpan);
+
+    checkboxArea.appendChild(checkbox);
+    checkboxArea.appendChild(label);
+    checkboxAreaWrapper.appendChild(checkboxArea)
+    chatMessages.appendChild(checkboxAreaWrapper);
+    checkboxAreaWrapper.scrollIntoView({ behavior: "smooth", block: "end" });
+
+    const submitButtonAreaWrapper = document.createElement('div');
+    submitButtonAreaWrapper.className = 'choices-area-wrapper'; // 他の選択肢ボタンと同じラッパーを使用
+    const finalSubmitButton = document.createElement('button');
+    finalSubmitButton.className = 'choice-button submit-choices-button'; // 通常の選択肢ボタンのスタイルを流用
+    finalSubmitButton.textContent = question.submit_button_text;
+    finalSubmitButton.id = 'dynamicFinalSubmitButton'; // 動的にIDを付与
+    finalSubmitButton.disabled = true; // ★初期状態は無効
+
+    checkbox.addEventListener('change', () => { // ★イベントリスナーをcheckboxに直接設定
+        finalSubmitButton.disabled = !checkbox.checked;
+    });
+
+    finalSubmitButton.addEventListener('click', () => {
+        if (checkbox.checked) {
+            userResponses[question.key] = true;
+            disableOldChoices(); // 古い選択肢（もしあれば）を無効化
+            addBotMessage("ありがとうございます。情報を送信します。");
+            submitDataToGAS();
+            finalSubmitButton.disabled = true; // 送信後はボタンを無効化
+            checkbox.disabled = true; // チェックボックスも無効化
+        }
+    });
+    submitButtonAreaWrapper.appendChild(finalSubmitButton);
+    chatMessages.appendChild(submitButtonAreaWrapper);
+    submitButtonAreaWrapper.scrollIntoView({ behavior: "smooth", block: "end" });
+  }
+
 
   function askQuestion() {
     disableOldChoices();
     userInput.disabled = false;
     sendButton.disabled = false;
-    userInput.style.display = 'flex';
-    sendButton.style.display = 'flex';
+    normalInputArea.style.display = 'flex';
     userInput.classList.remove('input-error');
     removeErrorMessage();
+    updateProgressBar();
 
     while (currentStep < questions.length) {
         const q = questions[currentStep];
@@ -445,6 +755,7 @@
             const conditionValue = q.condition.value;
             if (userResponses[conditionKey] === undefined || userResponses[conditionKey] !== conditionValue) {
                 currentStep++;
+                updateProgressBar();
                 continue;
             }
         }
@@ -452,19 +763,22 @@
     }
 
     if (currentStep >= questions.length) {
-      addBotMessage("全ての情報をご入力いただき、ありがとうございました！内容を送信中です...").then(msgElem => {
-        msgElem.scrollIntoView({ behavior: "smooth", block: "end" });
-      });
+      addBotMessage("全ての情報をご入力いただき、ありがとうございました！");
       userInput.disabled = true;
       sendButton.disabled = true;
-      userInput.placeholder = "送信中...";
-      console.log("最終収集情報:", userResponses);
-      submitDataToGAS();
+      normalInputArea.style.display = 'none';
+      updateProgressBar();
       return;
     }
 
     const currentQuestion = questions[currentStep];
     let questionTextToShow = currentQuestion.question;
+
+    if (currentQuestion.answer_method === "final-consent") {
+        setupFinalConsentScreen(currentQuestion);
+        return;
+    }
+
 
     if (currentQuestion.answer_method === "text-multi") {
         if (subStep < currentQuestion.sub_questions.length) {
@@ -473,6 +787,7 @@
             userInput.placeholder = currentQuestion.sub_questions[subStep].placeholder || `ここに入力`;
         } else {
             subStep = 0;
+            completedEffectiveQuestions += currentQuestion.sub_questions.length;
             currentStep++;
             askQuestion();
             return;
@@ -483,47 +798,15 @@
     }
 
     addBotMessage(questionTextToShow).then(messageElement => {
+      messageElement.scrollIntoView({ behavior: "smooth", block: "end" });
       if (currentQuestion.answer_method === "single-choice" || currentQuestion.answer_method === "multiple-choice") {
-        userInput.style.display = 'none';
-        sendButton.style.display = 'none';
-
-        const choicesContainer = document.createElement('div');
-        choicesContainer.className = 'choices-container';
-        choicesContainer.dataset.questionIdForButtons = currentQuestion.id;
-        activeChoicesContainer = choicesContainer;
-
-        currentQuestion.options.forEach(option => {
-          const button = document.createElement('button');
-          button.className = 'choice-button';
-          button.textContent = option;
-          button.dataset.value = option;
-          button.dataset.questionId = currentQuestion.id;
-          choicesContainer.appendChild(button);
-
-          if (currentQuestion.answer_method === "single-choice") {
-            button.addEventListener('click', (event) => handleSingleChoiceClick(event, option, currentQuestion));
-          } else {
-            button.addEventListener('click', (event) => toggleMultipleChoiceSelection(event, button, option));
-          }
-        });
-        messageElement.appendChild(choicesContainer);
-
-        if (currentQuestion.answer_method === "multiple-choice") {
-          const submitBtn = document.createElement('button');
-          submitBtn.textContent = "これで決定";
-          submitBtn.className = 'choice-button submit-choices-button';
-          submitBtn.dataset.questionId = currentQuestion.id;
-          submitBtn.addEventListener('click', (event) => handleMultipleChoiceSubmit(event, currentQuestion));
-          messageElement.appendChild(submitBtn);
-          currentMultipleChoices = [];
-        }
-        choicesContainer.scrollIntoView({ behavior: "smooth", block: "end" });
+        displayChoicesOutsideBubble(currentQuestion);
       } else {
+        normalInputArea.style.display = 'flex';
         userInput.style.display = 'flex';
         sendButton.style.display = 'flex';
         userInput.value = '';
         userInput.focus();
-        messageElement.scrollIntoView({ behavior: "smooth", block: "end" });
       }
     });
   }
@@ -535,13 +818,14 @@
     }
     addUserMessage(value);
     if (question.validation && !question.validation(value)) {
-        addBotMessage(question.errorMessage).then(msgElem => {
+        addBotMessage(question.errorMessage, false, true).then(msgElem => {
             msgElem.scrollIntoView({ behavior: "smooth", block: "end" });
         });
         return;
     }
     userResponses[question.key] = value;
     disableOldChoices();
+    completedEffectiveQuestions++;
     currentStep++;
     setTimeout(askQuestion, 300);
   }
@@ -564,7 +848,7 @@
         return;
     }
     if (question.validation && !question.validation(currentMultipleChoices)) {
-        addBotMessage(question.errorMessage).then(msgElem => {
+        addBotMessage(question.errorMessage, false, true).then(msgElem => {
             msgElem.scrollIntoView({ behavior: "smooth", block: "end" });
         });
         return;
@@ -573,6 +857,7 @@
     userResponses[question.key] = [...currentMultipleChoices];
     currentMultipleChoices = [];
     disableOldChoices();
+    completedEffectiveQuestions++;
     currentStep++;
     setTimeout(askQuestion, 300);
   }
@@ -586,7 +871,7 @@
     if (currentQuestion.answer_method === "text-multi") {
         const subQ = currentQuestion.sub_questions[subStep];
         if (subQ.validation && !subQ.validation(messageText)) {
-            addBotMessage(subQ.errorMessage).then(msgElem => {
+            addBotMessage(subQ.errorMessage, false, true).then(msgElem => {
                 msgElem.scrollIntoView({ behavior: "smooth", block: "end" });
             });
             userInput.classList.add('input-error');
@@ -599,7 +884,7 @@
         subStep++;
     } else {
         if (currentQuestion.validation && !currentQuestion.validation(messageText)) {
-            addBotMessage(currentQuestion.errorMessage).then(msgElem => {
+            addBotMessage(currentQuestion.errorMessage, false, true).then(msgElem => {
                 msgElem.scrollIntoView({ behavior: "smooth", block: "end" });
             });
             userInput.classList.add('input-error');
@@ -609,6 +894,7 @@
         }
         userResponses[currentQuestion.key] = messageText;
         addUserMessage(messageText);
+        completedEffectiveQuestions++;
         currentStep++;
     }
 
@@ -634,9 +920,9 @@
   }
 
   function submitDataToGAS() {
-    // GAS_WEB_APP_URL は config.js から読み込まれる
+    addBotMessage("情報を送信中...");
     if (typeof GAS_WEB_APP_URL === 'undefined' || !GAS_WEB_APP_URL || GAS_WEB_APP_URL === 'YOUR_GOOGLE_APPS_SCRIPT_WEB_APP_URL_HERE') {
-        addBotMessage("データ送信先URLが正しく設定されていません。config.js を確認してください。").then(msgElem => {
+        addBotMessage("データ送信先URLが正しく設定されていません。config.js を確認してください。", false, true).then(msgElem => {
             msgElem.scrollIntoView({ behavior: "smooth", block: "end" });
         });
         console.error("GAS_WEB_APP_URL is not set or is a placeholder in config.js.");
@@ -649,19 +935,22 @@
       body: JSON.stringify(userResponses)
     })
     .then(() => {
-      addBotMessage("データが送信されました。担当者より追ってご連絡いたします。").then(msgElem => {
+      addBotMessage("データが送信されました。ありがとうございました！").then(msgElem => {
             msgElem.scrollIntoView({ behavior: "smooth", block: "end" });
       });
-      userInput.placeholder = "送信完了";
+      normalInputArea.style.display = 'none';
+      completedEffectiveQuestions++;
+      updateProgressBar();
     })
     .catch(error => {
       console.error('Error sending data to Google Sheet:', error);
-      addBotMessage("エラーが発生し、データを送信できませんでした。お手数ですが、時間をおいて再度お試しください。").then(msgElem => {
+      addBotMessage("エラーが発生し、データを送信できませんでした。お手数ですが、時間をおいて再度お試しください。", false, true).then(msgElem => {
             msgElem.scrollIntoView({ behavior: "smooth", block: "end" });
       });
-      userInput.placeholder = "送信失敗";
-      userInput.disabled = false;
-      sendButton.disabled = false;
+      const finalSubmitBtn = document.getElementById('dynamicFinalSubmitButton');
+      if (finalSubmitBtn) finalSubmitBtn.disabled = false;
+      const finalCheckbox = document.getElementById('dynamicGiftTermsConsentCheckbox');
+      if (finalCheckbox) finalCheckbox.disabled = false;
     });
   }
 
@@ -669,7 +958,7 @@
   userInput.addEventListener('keypress', function(event) {
     if (event.key === 'Enter') {
       const currentQuestion = questions[currentStep];
-      if (currentQuestion && (currentQuestion.answer_method === "single-choice" || currentQuestion.answer_method === "multiple-choice")) {
+      if (currentQuestion && (currentQuestion.answer_method === "single-choice" || currentQuestion.answer_method === "multiple-choice" || currentQuestion.answer_method === "final-consent")) {
           event.preventDefault();
           return;
       }
@@ -678,14 +967,27 @@
     }
   });
 
-  // 初期メッセージと最初の質問の開始
+  modalCloseButton.addEventListener('click', () => {
+    giftTermsModal.style.display = 'none';
+  });
+  window.addEventListener('click', (event) => {
+    if (event.target == giftTermsModal) {
+      giftTermsModal.style.display = 'none';
+    }
+  });
+
   setTimeout(() => {
+      updateProgressBar();
       if (typeof BOT_ICON_URL === 'undefined' || BOT_ICON_URL === 'YOUR_BOT_ICON_URL_HERE') {
           console.warn("BOT_ICON_URL is not set or is a placeholder in config.js. Default icon behavior will apply.");
       }
-      addBotMessage("お問い合わせありがとうございます。いくつかの情報をお伺いします。").then(msgElem => {
-        msgElem.scrollIntoView({ behavior: "smooth", block: "end" });
-        setTimeout(askQuestion, 1200);
+      // ★★★ 初期メッセージを修正 ★★★
+      addBotMessage("J.P.Returnsにお問い合わせいただきありがとうございます！").then(msgElem1 => {
+        msgElem1.scrollIntoView({ behavior: "smooth", block: "end" });
+        return addBotMessage("30秒程度の簡単な質問をさせてください。"); // 2つ目のメッセージ
+      }).then(msgElem2 => {
+        msgElem2.scrollIntoView({ behavior: "smooth", block: "end" });
+        setTimeout(askQuestion, 1200); // 最初の質問までの遅延
       });
   }, 500);
 
