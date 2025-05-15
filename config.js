@@ -7,11 +7,9 @@ const GAS_WEB_APP_URL = 'https://script.google.com/macros/s/AKfycbyX7vWqOR0QmlH9
 
 // 2. 質問者アイコンの画像URL
 // 例: 'images/やったー (1).png' (HTMLファイルからの相対パスでimagesフォルダ内にある場合)
-// 例: 'やったー (1).png' (HTMLファイルと同じ階層に画像を置く場合)
 // 例: 'https://あなたのユーザー名.github.io/リポジトリ名/images/やったー (1).png' (絶対パス)
 const BOT_ICON_URL = 'images/icon.png';
 
 // 3. ファビコンの画像URL
 // 例: 'images/favicon.png' (HTMLファイルからの相対パスでimagesフォルダ内にある場合)
-// 例: 'favicon.png' (HTMLファイルと同じ階層に画像を置く場合)
 const FAVICON_URL = 'images/favicon.png'; 
