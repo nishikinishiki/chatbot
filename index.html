@@ -228,8 +228,8 @@
     margin-top: 0; 
     margin-bottom: 0; 
     background-color: #f9f9f9; 
-    padding-top: 8px; 
-    padding-bottom: 8px; 
+    padding-top: 6px; /* ★変更: 8px から 6px に */   
+    padding-bottom: 6px; /* ★変更: 8px から 6px に */
   }
   .paired-input-container {
     display: flex;
@@ -478,8 +478,11 @@
   ];
 
   const additionalQuestions = [
-    { id: 7, item: "面談希望", question: "ご面談を希望されますか？", answer_method: "single-choice", options: ["はい", "いいえ"], key: "interview_preference", validation: (v) => !!v, errorMessage: "選択してください。" },
-    { id: 8, item: "相談希望日_第一希望", pre_message: "ご面談をご希望いただきありがとうございます！", question: "まず【第一希望】ご相談希望日をお選びください (例: 2024/05/15)", answer_method: "text", type: "text", placeholder: "YYYY/MM/DD", key: "first_choice_date_new", condition: { key: "interview_preference", value: "はい" }, validation: (v) => /^\d{4}\/(0?[1-9]|1[0-2])\/(0?[1-9]|[12][0-9]|3[01])$/.test(v) && !isNaN(new Date(v)), errorMessage: "YYYY/MM/DD形式で有効な日付を入力してください。" },
+    // ★変更: 元のID 7 (面談希望) は promptForAdditionalQuestions で処理されるため削除
+    // 元のID 8 が最初の質問になる
+    { id: 8, item: "相談希望日_第一希望", pre_message: "ご面談をご希望いただきありがとうございます！", question: "まず【第一希望】ご相談希望日をお選びください (例: 2024/05/15)", answer_method: "text", type: "text", placeholder: "YYYY/MM/DD", key: "first_choice_date_new", 
+      condition: { key: "interview_preference", value: "はい" }, // この interview_preference は additionalUserResponses にセットされる
+      validation: (v) => /^\d{4}\/(0?[1-9]|1[0-2])\/(0?[1-9]|[12][0-9]|3[01])$/.test(v) && !isNaN(new Date(v)), errorMessage: "YYYY/MM/DD形式で有効な日付を入力してください。" },
     { id: 9, item: "相談希望時間_第一希望", question: "【第一希望】ご相談希望時間をお選びください", answer_method: "single-choice", options: ["10：00～12：00", "12：00～14：00", "14：00～16：00", "16：00～18：00", "18：00～20：00", "20：00 以降", "その他の時間"], key: "first_choice_time_new", condition: { key: "interview_preference", value: "はい" }, validation: (v) => !!v, errorMessage: "選択してください。" },
     { id: 10, item: "相談希望時間_第一希望_その他", question: "【第一希望】その他のご相談希望時間を入力ください", answer_method: "text", type: "text", key: "first_choice_time_other_new", condition: { key: "first_choice_time_new", value: "その他の時間" }, validation: (v) => v && v.trim().length > 0, errorMessage: "希望時間を入力してください。" },
     { id: 11, item: "相談希望日_第二希望", question: "【第二希望】ご相談希望日をお選びください (例: 2024/05/16)", answer_method: "text", type: "text", placeholder: "YYYY/MM/DD", key: "second_choice_date_new", condition: { key: "interview_preference", value: "はい" }, validation: (v) => /^\d{4}\/(0?[1-9]|1[0-2])\/(0?[1-9]|[12][0-9]|3[01])$/.test(v) && !isNaN(new Date(v)), errorMessage: "YYYY/MM/DD形式で有効な日付を入力してください。" },
@@ -793,7 +796,9 @@
         if (q.condition) {
             const conditionKey = q.condition.key;
             const conditionValue = q.condition.value;
-            if (currentResponseSet.hasOwnProperty(conditionKey) && currentResponseSet[conditionKey] !== conditionValue) {
+            // ★ condition のチェック対象を additionalUserResponses に変更 (追加質問フローの場合)
+            const responseSetForCondition = (q.condition.checkInInitialFlow && currentFlow === 'additional') ? userResponses : currentResponseSet;
+            if (responseSetForCondition[conditionKey] === undefined || responseSetForCondition[conditionKey] !== conditionValue) {
                 currentStep++;
                 continue;
             }
@@ -1035,7 +1040,7 @@
     }
 
     const payload = { ...dataToSend }; 
-    payload["Session ID"] = currentSessionId; // ★ キー名を "Session ID" に変更
+    payload["Session ID"] = currentSessionId; 
     if (isAdditional) {
       payload.isAdditionalData = true; 
     }
@@ -1071,11 +1076,13 @@
   }
 
   async function promptForAdditionalQuestions() {
+    // ★変更: メッセージと選択肢の更新
+    await addBotMessage("さらに、面談を受けていただくとポイント5万円分のプレゼント対象となります！");
     const question = {
-      id: "ask_additional", 
-      question: "続けて、ご面談の希望日時についてもお伺いしてよろしいでしょうか？",
+      id: "ask_if_wants_interview", // ID変更 (任意)
+      question: "不動産投資に関するご面談を希望されますか？",
       answer_method: "single-choice",
-      options: ["はい、答える", "いいえ、結構です"]
+      options: ["はい", "いいえ"] // 選択肢変更
     };
     await addBotMessage(question.question);
     
@@ -1096,14 +1103,20 @@
           addUserMessage(optionText);
           dynamicInputPlaceholder.innerHTML = '';
           dynamicInputPlaceholder.style.display = 'none';
-          if (optionText === "はい、答える") {
+          if (optionText === "はい") { // ★変更: 選択肢のテキストに合わせる
+              additionalUserResponses['interview_preference'] = "はい"; // ★追加: 回答を保存
               await addBotMessage("ありがとうございます。では、面談希望についてお伺いします。");
-              startAdditionalQuestions();
-          } else {
+              startAdditionalQuestionsFlow(); // ★変更: 関数名変更
+          } else { // いいえの場合
+              additionalUserResponses['interview_preference'] = "いいえ"; // ★追加: 回答を保存
               await addBotMessage("承知いたしました。お問い合わせありがとうございました。");
-              await addBotMessage("お問い合わせはお電話でも受け付けております。");
-              await addBotMessage("電話番号：0120147104<br>営業時間：10:00～22:00", true);
-              inputMethodWrapper.style.display = 'none';
+              // 「いいえ」でも面談希望の有無は送信する
+              await submitDataToGAS(additionalUserResponses, true); 
+              // その後のメッセージは submitDataToGAS の成功コールバックで処理される想定だが、
+              // ここで直接終了メッセージを出しても良い
+              // await addBotMessage("お問い合わせはお電話でも受け付けております。");
+              // await addBotMessage("電話番号：0120147104<br>営業時間：10:00～22:00", true);
+              // inputMethodWrapper.style.display = 'none';
           }
       });
       choicesContainer.appendChild(button);
@@ -1113,13 +1126,14 @@
     scrollToBottom();
   }
 
-  function startAdditionalQuestions() {
+  // ★変更: 関数名を startAdditionalQuestionsFlow に変更
+  function startAdditionalQuestionsFlow() {
     currentFlow = 'additional';
     questions = additionalQuestions; 
     currentStep = 0;
     completedEffectiveQuestions = 0; 
     progressBar.style.width = '0%'; 
-    // progressBar.parentElement.style.display = 'block'; // もし非表示にしていたら再表示
+    // additionalUserResponses['interview_preference'] = "はい"; // promptForAdditionalQuestions で設定済み
     askQuestion();
   }
 
