@@ -83,7 +83,7 @@
 
   .chat-messages {
     flex-grow: 1;
-    padding: 16px 12px;
+    padding: 16px 12px; 
     overflow-y: auto;
     background-color: #e9ebee;
     display: flex;
@@ -125,7 +125,7 @@
     box-shadow: 0 1px 2px rgba(0,0,0,0.1);
   }
   .bot-message-wrapper .message {
-     max-width: calc(85% - 48px);
+      max-width: calc(85% - 48px);
   }
 
   .bot-message {
@@ -144,12 +144,25 @@
     border-bottom-right-radius: 4px;
   }
 
+  /* ★ 新しい入力メソッドラッパーのスタイル ★ */
+  #inputMethodWrapper {
+    padding: 8px 12px;
+    background-color: #f5f5f5;
+    border-top: 1px solid #e0e0e0;
+    min-height: 56px; /* 通常入力エリアの高さに合わせる */
+    flex-shrink: 0;
+    display: flex; /* 中身をflexにするため */
+    flex-direction: column; /* 中身が縦に並ぶように */
+    justify-content: center; /* 中身を中央寄せ（主に高さ方向） */
+  }
+
   .choices-area-wrapper {
     width: 100%;
     display: flex;
     justify-content: center;
-    margin-top: 8px;
-    margin-bottom: 8px;
+    /* margin-top: 8px; /* #inputMethodWrapper に吸収 */
+    /* margin-bottom: 8px; /* #inputMethodWrapper に吸収 */
+    /* padding: 8px 0; /* 上下のパディング調整 */
   }
 
   .choices-container {
@@ -158,7 +171,7 @@
     gap: 8px;
     width: 100%;
     max-width: 380px;
-    padding: 0 5px;
+    padding: 0 5px; /* 左右のパディングを少し確保 */
     max-height: 220px;
     overflow-y: auto;
     -webkit-overflow-scrolling: touch;
@@ -212,21 +225,24 @@
 
   /* ペア入力用のスタイル */
   .paired-input-area-wrapper {
-    width: 100%;
+    margin-left: -12px;  /* #inputMethodWrapper の左パディング(12px)を打ち消す */
+    margin-right: -12px; /* #inputMethodWrapper の右パディング(12px)を打ち消す */
+    width: calc(100% + 24px); /* ネガティブマージン分、幅を広げる */
     display: flex;
-    justify-content: center;
-    margin-top: 8px;
-    margin-bottom: 8px;
+    justify-content: center; 
+    margin-top: 0; /* #inputMethodWrapperのpaddingがあるので0に */
+    margin-bottom: 0; 
+    background-color: #f9f9f9; 
+    padding-top: 8px; /* #inputMethodWrapperのpadding-topと合わせて調整 */   
+    padding-bottom: 8px; /* #inputMethodWrapperのpadding-bottomと合わせて調整 */
   }
   .paired-input-container {
     display: flex;
     flex-direction: column;
     gap: 10px;
-    width: 100%;
-    max-width: 380px;
-    padding: 10px;
-    background-color: #f9f9f9;
-    border-radius: 8px;
+    width: 100%; 
+    max-width: 380px; 
+    padding: 10px; 
   }
   .paired-input-row {
     display: flex;
@@ -289,14 +305,14 @@
 
 
   .final-consent-message-area {
-    margin-top: 10px;
+    /* margin-top: 10px; /* #inputMethodWrapper に吸収 */
   }
   .final-consent-checkbox-area {
     font-size: 0.8em;
-    margin-top: 10px;
-    margin-bottom: 10px;
+    /* margin-top: 10px; /* #inputMethodWrapper に吸収 */
+    /* margin-bottom: 10px; /* #inputMethodWrapper に吸収 */
     text-align: left;
-    padding: 0 10px;
+    padding: 0 10px; /* 左右のパディングを少し確保 */
   }
   .final-consent-checkbox-area input[type="checkbox"] {
     margin-right: 5px;
@@ -329,14 +345,11 @@
   .modal-content p, .modal-content li { font-size: 0.85em; line-height: 1.6; margin-bottom: 10px; }
 
 
-  .input-area {
+  .input-area { /* これは #normalInputArea のスタイル */
     display: flex;
     align-items: center;
-    padding: 8px 12px;
-    background-color: #f5f5f5;
-    border-top: 1px solid #e0e0e0;
-    min-height: 56px;
-    flex-shrink: 0;
+    width: 100%; /* #inputMethodWrapper の子として幅100% */
+    /* padding, background-color, border-top, min-height は #inputMethodWrapper に移行 */
   }
   .input-area input[type="text"],
   .input-area input[type="email"],
@@ -390,11 +403,11 @@
   .input-error {
     border-color: #ff3b30 !important;
   }
-  .error-message { /* 通常の入力エリアのエラーメッセージ */
+  .error-message { 
     color: red;
     font-size: 0.8em;
     margin-top: 4px;
-    padding-left: 16px;
+    padding-left: 0; /* #normalInputArea の直下なので調整 */
     width: 100%;
     text-align: left;
   }
@@ -411,13 +424,16 @@
   </div>
   <div class="chat-messages" id="chatMessages">
     </div>
-  <div class="input-area" id="normalInputArea">
-    <input type="text" id="userInput" placeholder="ここに入力">
-    <button id="sendButton">
-      <svg xmlns="http://www.w3.org/2000/svg" width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" class="feather feather-send"><line x1="22" y1="2" x2="11" y2="13"></line><polygon points="22 2 15 22 11 13 2 9 22 2"></polygon></svg>
-    </button>
+  <div id="inputMethodWrapper">
+    <div class="input-area" id="normalInputArea" style="display: flex;"> <input type="text" id="userInput" placeholder="ここに入力">
+      <button id="sendButton">
+        <svg xmlns="http://www.w3.org/2000/svg" width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" class="feather feather-send"><line x1="22" y1="2" x2="11" y2="13"></line><polygon points="22 2 15 22 11 13 2 9 22 2"></polygon></svg>
+      </button>
+    </div>
+    <div id="dynamicInputPlaceholder" style="display: none;">
+        </div>
   </div>
-  </div>
+</div>
 
 <div class="modal-overlay" id="giftTermsModal">
   <div class="modal-content">
@@ -432,18 +448,17 @@
 <script src="config.js"></script>
 
 <script>
-  if (typeof FAVICON_URL !== 'undefined' && FAVICON_URL) {
-    const faviconLink = document.createElement('link');
-    faviconLink.rel = 'icon';
-    faviconLink.href = FAVICON_URL;
-    document.head.appendChild(faviconLink);
-  }
+  // config.js で FAVICON_URL と BOT_ICON_URL, GAS_WEB_APP_URL が定義されていることを期待
 
   const chatMessages = document.getElementById('chatMessages');
-  const userInput = document.getElementById('userInput');
-  const sendButton = document.getElementById('sendButton');
+  const userInput = document.getElementById('userInput'); // 通常入力欄のinput
+  const sendButton = document.getElementById('sendButton'); // 通常入力欄のbutton
   const progressBar = document.getElementById('progressBar');
-  const normalInputArea = document.getElementById('normalInputArea');
+  
+  // ★ 入力メソッド関連の要素を取得 ★
+  const inputMethodWrapper = document.getElementById('inputMethodWrapper');
+  const normalInputArea = document.getElementById('normalInputArea'); // 通常入力エリアのDIV
+  const dynamicInputPlaceholder = document.getElementById('dynamicInputPlaceholder'); // 動的UI用プレースホルダー
 
   const giftTermsModal = document.getElementById('giftTermsModal');
   const modalCloseButton = document.getElementById('modalCloseButton');
@@ -451,15 +466,15 @@
 
 
   let currentStep = 0;
-  let subStep = 0;
+  let subStep = 0; // text-pair の中のステップ
   const userResponses = {};
   let isBotTyping = false;
-  let currentMultipleChoices = [];
-  let activeChoicesWrapper = null;
-  let activePairedInputWrapper = null;
+  let currentMultipleChoices = []; // multiple-choice 用
+  let activeChoicesWrapper = null; // 現在アクティブな選択肢ボタンのラッパー
+  let activePairedInputWrapper = null; // 現在アクティブなペア入力のラッパー
   let completedEffectiveQuestions = 0;
 
-  const katakanaRegex = /^[ァ-ヶー　]+$/;
+  const katakanaRegex = /^[ァ-ヶー　]+$/; // 全角カタカナ（スペース含む）の正規表現
   const questions = [
     // Q1
     { id: 1, item: "職業", question: "まずはじめに、ご職業を教えてください。", answer_method: "single-choice", options: ["会社員（上場企業）", "会社員（その他）", "公務員", "経営者", "士業（医師、看護師、弁護士、税理士など）", "自営業・その他"], key: "occupation_new", validation: (v) => !!v, errorMessage: "選択してください。" },
@@ -469,11 +484,11 @@
     { id: 3, item: "年齢", question: "ご年齢はおいくつでしょうか。", answer_method: "single-choice", options: ["20歳未満", "20～24歳", "25～29歳", "30～34歳", "35～39歳", "40～44歳", "45～49歳", "50～54歳", "55～59歳", "60～64歳", "65～69歳", "70歳以上"], key: "age_group_new", validation: (v) => !!v, errorMessage: "選択してください。" },
     // Q4 - 名前入力 (text-pair)
     { id: 4, item: "名前",
-      question: "ありがとうございます！",
+      question: "ありがとうございます！", // ペア入力の最初のメッセージ
       answer_method: "text-pair",
       pairs: [
         {
-          prompt: "お名前を入力してください。",
+          prompt: "お名前を入力してください。", // 1つ目のペアのプロンプト
           inputs: [
             { label: "姓", key: "last_name_new", placeholder: "例：山田", type: "text" },
             { label: "名", key: "first_name_new", placeholder: "例：太郎", type: "text" }
@@ -482,7 +497,7 @@
           combinedErrorMessage: "姓と名の両方を入力してください。"
         },
         {
-          prompt: "続いて、フリガナを全角カタカナで入力してください。",
+          prompt: "続いて、フリガナを全角カタカナで入力してください。", // 2つ目のペアのプロンプト
           inputs: [
             { label: "セイ", key: "last_name_kana_new", placeholder: "例：ヤマダ", type: "text" },
             { label: "メイ", key: "first_name_kana_new", placeholder: "例：タロウ", type: "text" }
@@ -491,7 +506,7 @@
           combinedErrorMessage: "セイとメイの両方を全角カタカナで入力してください。"
         }
       ],
-      key_group: "name_details"
+      key_group: "name_details" // グループ化キー（未使用だが将来的に使えるかも）
     },
     // Q5
     { id: 5, item: "電話番号",
@@ -574,7 +589,7 @@
         情報収集のみを⽬的とされる等、不動産を活⽤した資産形成やマンション経営を検討されていないと判断される場合<br>
         当社で取り扱いの無い投資⼿法やサービスをご希望される場合<br>
         ※投資条件（取り扱いエリア・物件種別・平均利回りなど）に当てはまらない場合<br>
-         ※ご希望される内容が、当社の商品やサービスにマッチしない場合<br>
+         ※ご希望される内容が、当社の商品やサービスにマッチしない場合<br>
         具体的な話やシミュレーションのご提⽰が不要という⽅<br>
         現在の不動産市況・ご⾃⾝の所得状況と乖離のある要求をされる⽅<br>
         現在の借り⼊れ状況や相談内容等によりサービスの提供が出来ない、ローンのご提案が難しい場合<br>
@@ -607,10 +622,6 @@
     }
   ];
 
-  // JavaScriptの主要な関数群はここに続きます
-  // (updateProgressBar, showTypingIndicator, hideTypingIndicator, addMessage, addBotMessage, addUserMessage, scrollToBottom, disableOldUIElements, displayChoicesOutsideBubble, displayPairedInputs, setupFinalConsentScreen, askQuestion, handlePairedInputSubmit, handleSingleChoiceClick, toggleMultipleChoiceSelection, handleMultipleChoiceSubmit, handleUserInput, displayErrorMessage, removeErrorMessage, submitDataToGAS, イベントリスナー, 初期化処理)
-
-
   function updateProgressBar() {
     const totalQuestions = countTotalEffectiveQuestions(userResponses);
     const progress = totalQuestions > 0 ? (completedEffectiveQuestions / totalQuestions) * 100 : 0;
@@ -630,7 +641,7 @@
         }
         if (q.answer_method === 'text-pair') {
             count += q.pairs.length;
-        } else if (q.answer_method === 'text-multi') { // 古い形式、現在はtext-pairに移行
+        } else if (q.answer_method === 'text-multi') { 
             count += q.sub_questions.length;
         } else {
             count++;
@@ -656,6 +667,7 @@
       </div>
     `);
     chatMessages.appendChild(indicatorWrapper);
+    scrollToBottom(); 
   }
 
   function hideTypingIndicator() {
@@ -711,60 +723,50 @@
 
   function addUserMessage(messageText) {
     const msgElem = addMessage(messageText, 'user');
-    setTimeout(() => scrollToBottom(), 0);
+    scrollToBottom(); 
   }
 
   function scrollToBottom() {
-    setTimeout(() => {
-        const lastElement = chatMessages.lastElementChild;
-        if (lastElement) {
-            lastElement.scrollIntoView({ behavior: "smooth", block: "end", inline: "nearest" });
-        }
-    }, 100);
+    requestAnimationFrame(() => {
+        chatMessages.scrollTop = chatMessages.scrollHeight;
+    });
   }
 
-
   function disableOldUIElements() {
+    // ★ 既存のUI無効化処理は、dynamicInputPlaceholder内の要素に対して行うように変更の可能性あり
+    //    または、placeholderの中身をクリアするタイミングで実質無効化される
     if (activeChoicesWrapper) {
-      const buttons = activeChoicesWrapper.querySelectorAll('.choice-button');
-      buttons.forEach(button => button.disabled = true);
-      activeChoicesWrapper = null;
+        const buttons = activeChoicesWrapper.querySelectorAll('.choice-button');
+        buttons.forEach(button => button.disabled = true);
+        // activeChoicesWrapper.remove(); // placeholderをクリアするので不要になるかも
+        activeChoicesWrapper = null;
     }
     if (activePairedInputWrapper) {
         const nextButton = activePairedInputWrapper.querySelector('.paired-input-send-button');
         if (nextButton) nextButton.disabled = true;
         const inputs = activePairedInputWrapper.querySelectorAll('input');
         inputs.forEach(input => input.disabled = true);
+        // activePairedInputWrapper.remove(); // placeholderをクリアするので不要になるかも
         activePairedInputWrapper = null;
     }
-
-    const allOldChoiceWrappers = chatMessages.querySelectorAll('.choices-area-wrapper');
-    allOldChoiceWrappers.forEach(wrapper => {
-        if (wrapper !== activeChoicesWrapper) {
-             const buttons = wrapper.querySelectorAll('.choice-button');
-             buttons.forEach(button => button.disabled = true);
-        }
+    // 古いメッセージ内のボタンはそのまま無効化
+    const allOldChoiceWrappersInMessages = chatMessages.querySelectorAll('.choices-area-wrapper');
+    allOldChoiceWrappersInMessages.forEach(wrapper => {
+        const buttons = wrapper.querySelectorAll('.choice-button');
+        buttons.forEach(button => button.disabled = true);
     });
-    const allOldPairedInputWrappers = chatMessages.querySelectorAll('.paired-input-area-wrapper');
-     allOldPairedInputWrappers.forEach(wrapper => {
-        if (wrapper !== activePairedInputWrapper) {
-            const nextButton = wrapper.querySelector('.paired-input-send-button');
-            if (nextButton) nextButton.disabled = true;
-            const inputs = wrapper.querySelectorAll('input');
-            inputs.forEach(input => input.disabled = true);
-        }
-    });
-
-    const finalSubmitBtn = document.getElementById('dynamicFinalSubmitButton');
+    const finalSubmitBtn = document.getElementById('dynamicFinalSubmitButton'); // これは placeholder 内に生成される想定
     if (finalSubmitBtn) finalSubmitBtn.disabled = true;
   }
 
   function displayChoicesOutsideBubble(question) {
     normalInputArea.style.display = 'none';
+    dynamicInputPlaceholder.style.display = 'block'; // または 'grid' など、choices-container に適した display
+    dynamicInputPlaceholder.innerHTML = ''; // 以前のUIをクリア
 
     const choicesAreaWrapper = document.createElement('div');
     choicesAreaWrapper.className = 'choices-area-wrapper';
-    activeChoicesWrapper = choicesAreaWrapper;
+    activeChoicesWrapper = choicesAreaWrapper; // ★ activeChoicesWrapper の管理は継続
 
     const choicesContainer = document.createElement('div');
     choicesContainer.className = 'choices-container';
@@ -774,12 +776,12 @@
       button.className = 'choice-button';
       button.textContent = option;
       button.dataset.value = option;
-      button.dataset.questionId = question.id;
+      button.dataset.questionId = question.id; // 質問IDを保持
       choicesContainer.appendChild(button);
 
       if (question.answer_method === "single-choice") {
         button.addEventListener('click', (event) => handleSingleChoiceClick(event, option, question));
-      } else {
+      } else { // multiple-choice
         button.addEventListener('click', (event) => toggleMultipleChoiceSelection(event, button, option));
       }
     });
@@ -790,30 +792,30 @@
       const submitBtn = document.createElement('button');
       submitBtn.textContent = "これで決定";
       submitBtn.className = 'choice-button submit-choices-button';
-      submitBtn.dataset.questionId = question.id;
+      submitBtn.dataset.questionId = question.id; // 質問IDを保持
       submitBtn.addEventListener('click', (event) => handleMultipleChoiceSubmit(event, question));
       submitButtonWrapper.appendChild(submitBtn);
       choicesContainer.appendChild(submitButtonWrapper);
-      currentMultipleChoices = [];
+      currentMultipleChoices = []; // 選択肢をリセット
     }
 
     choicesAreaWrapper.appendChild(choicesContainer);
-    chatMessages.appendChild(choicesAreaWrapper);
-    setTimeout(() => scrollToBottom(), 0);
+    dynamicInputPlaceholder.appendChild(choicesAreaWrapper); // ★ placeholder に追加
+    scrollToBottom(); 
   }
 
   function displayPairedInputs(pairData, questionId) {
     normalInputArea.style.display = 'none';
-    if (activePairedInputWrapper) activePairedInputWrapper.remove();
+    dynamicInputPlaceholder.style.display = 'block'; // 表示
+    dynamicInputPlaceholder.innerHTML = ''; // クリア
 
     const pairedInputAreaWrapper = document.createElement('div');
     pairedInputAreaWrapper.className = 'paired-input-area-wrapper';
-    activePairedInputWrapper = pairedInputAreaWrapper;
+    activePairedInputWrapper = pairedInputAreaWrapper; // ★ activePairedInputWrapper の管理は継続
 
     const pairedInputContainer = document.createElement('div');
     pairedInputContainer.className = 'paired-input-container';
 
-    // 姓の行
     const lastNameRow = document.createElement('div');
     lastNameRow.className = 'paired-input-row';
     const lastNameLabel = document.createElement('label');
@@ -826,12 +828,11 @@
     lastNameInput.dataset.key = pairData.inputs[0].key;
     lastNameRow.appendChild(lastNameLabel);
     lastNameRow.appendChild(lastNameInput);
-    const placeholderButton = document.createElement('div');
+    const placeholderButton = document.createElement('div'); 
     placeholderButton.className = 'paired-input-send-button placeholder';
     lastNameRow.appendChild(placeholderButton);
     pairedInputContainer.appendChild(lastNameRow);
 
-    // 名の行（送信ボタン付き）
     const firstNameRow = document.createElement('div');
     firstNameRow.className = 'paired-input-row';
     const firstNameLabel = document.createElement('label');
@@ -845,7 +846,7 @@
 
     const sendPairedButton = document.createElement('button');
     sendPairedButton.className = 'paired-input-send-button';
-    sendPairedButton.dataset.questionId = questionId;
+    sendPairedButton.dataset.questionId = questionId; // 質問IDを保持
     sendPairedButton.innerHTML = `<svg xmlns="http://www.w3.org/2000/svg" width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" class="feather feather-send"><line x1="22" y1="2" x2="11" y2="13"></line><polygon points="22 2 15 22 11 13 2 9 22 2"></polygon></svg>`;
     sendPairedButton.addEventListener('click', () => handlePairedInputSubmit(pairData, questionId));
 
@@ -855,34 +856,36 @@
     pairedInputContainer.appendChild(firstNameRow);
 
     pairedInputAreaWrapper.appendChild(pairedInputContainer);
-    chatMessages.appendChild(pairedInputAreaWrapper);
-    setTimeout(() => scrollToBottom(), 0);
+    dynamicInputPlaceholder.appendChild(pairedInputAreaWrapper); // ★ placeholder に追加
+    scrollToBottom(); 
     if(lastNameInput) lastNameInput.focus();
   }
 
-
   function setupFinalConsentScreen(question) {
     normalInputArea.style.display = 'none';
+    dynamicInputPlaceholder.style.display = 'block'; // 表示
+    dynamicInputPlaceholder.innerHTML = ''; // クリア
 
+    // 同意メッセージはチャットメッセージとして表示
     const consentMessageWrapper = document.createElement('div');
     consentMessageWrapper.classList.add('message-wrapper', 'bot-message-wrapper', 'final-consent-message-area');
-
     const botIconDiv = document.createElement('div');
     botIconDiv.className = 'bot-icon';
     if (typeof BOT_ICON_URL !== 'undefined' && BOT_ICON_URL && BOT_ICON_URL !== 'YOUR_BOT_ICON_URL_HERE') {
         botIconDiv.style.backgroundImage = `url('${BOT_ICON_URL}')`;
     }
     consentMessageWrapper.appendChild(botIconDiv);
-
     const consentMessageBubble = document.createElement('div');
     consentMessageBubble.classList.add('message', 'bot-message');
     const privacyPolicyLinkHTML = `<a href="${question.privacy_policy_url}" target="_blank" rel="noopener noreferrer">${question.privacy_policy_link_text}</a>`;
     consentMessageBubble.innerHTML = question.question.replace(question.privacy_policy_link_text, privacyPolicyLinkHTML);
     consentMessageWrapper.appendChild(consentMessageBubble);
-    chatMessages.appendChild(consentMessageWrapper);
+    chatMessages.appendChild(consentMessageWrapper); // ★ 同意メッセージはチャットログへ
 
-    const checkboxAreaWrapper = document.createElement('div');
-    checkboxAreaWrapper.className = 'choices-area-wrapper';
+    // チェックボックスとボタンは dynamicInputPlaceholder へ
+    const consentControlsWrapper = document.createElement('div'); // ラッパーを追加してスタイリングしやすくする
+    consentControlsWrapper.style.padding = "8px 0"; // 上下の余白を少し設ける
+
     const checkboxArea = document.createElement('div');
     checkboxArea.className = 'final-consent-checkbox-area';
 
@@ -912,15 +915,15 @@
 
     checkboxArea.appendChild(checkbox);
     checkboxArea.appendChild(label);
-    checkboxAreaWrapper.appendChild(checkboxArea)
-    chatMessages.appendChild(checkboxAreaWrapper);
+    consentControlsWrapper.appendChild(checkboxArea);
 
-    const submitButtonAreaWrapper = document.createElement('div');
-    submitButtonAreaWrapper.className = 'choices-area-wrapper';
+    const submitButtonAreaWrapper = document.createElement('div'); 
+    submitButtonAreaWrapper.className = 'choices-area-wrapper'; // ボタン中央寄せのため流用
+    submitButtonAreaWrapper.style.marginTop = '10px'; // チェックボックスとの間隔
     const finalSubmitButton = document.createElement('button');
-    finalSubmitButton.className = 'choice-button submit-choices-button';
+    finalSubmitButton.className = 'choice-button submit-choices-button'; 
     finalSubmitButton.textContent = question.submit_button_text;
-    finalSubmitButton.id = 'dynamicFinalSubmitButton';
+    finalSubmitButton.id = 'dynamicFinalSubmitButton'; // IDはユニークに
     finalSubmitButton.disabled = true;
 
     checkbox.addEventListener('change', () => {
@@ -930,26 +933,29 @@
     finalSubmitButton.addEventListener('click', () => {
         if (checkbox.checked) {
             userResponses[question.key] = true;
-            disableOldUIElements();
+            // disableOldUIElements(); // placeholderがクリアされるので不要かも
+            dynamicInputPlaceholder.innerHTML = ''; // UIをクリア
+            dynamicInputPlaceholder.style.display = 'none'; // 非表示
+            normalInputArea.style.display = 'none'; // 通常入力も非表示のまま
             submitDataToGAS();
-            finalSubmitButton.disabled = true;
-            checkbox.disabled = true;
+            // finalSubmitButton.disabled = true; // クリアされるので不要
+            // checkbox.disabled = true; // クリアされるので不要
         }
     });
     submitButtonAreaWrapper.appendChild(finalSubmitButton);
-    chatMessages.appendChild(submitButtonAreaWrapper);
-    setTimeout(() => scrollToBottom(), 0);
+    consentControlsWrapper.appendChild(submitButtonAreaWrapper);
+    dynamicInputPlaceholder.appendChild(consentControlsWrapper); // ★ placeholder に追加
+    scrollToBottom();
   }
 
 
   async function askQuestion() {
-    disableOldUIElements();
-    userInput.disabled = false;
-    sendButton.disabled = false;
-    normalInputArea.style.display = 'flex';
+    // disableOldUIElements(); // 新しいUI表示前にplaceholderがクリアされるので、ここでは不要かも
+    userInput.disabled = false; // 通常入力欄の制御
+    sendButton.disabled = false; // 通常入力欄の制御
     userInput.classList.remove('input-error');
-    removeErrorMessage('paired');
-    removeErrorMessage();
+    removeErrorMessage(); // 通常入力エリアのエラーメッセージをクリア
+
     updateProgressBar();
 
     while (currentStep < questions.length) {
@@ -959,90 +965,79 @@
             const conditionValue = q.condition.value;
             if (userResponses.hasOwnProperty(conditionKey) && userResponses[conditionKey] !== conditionValue) {
                 currentStep++;
-                updateProgressBar();
+                updateProgressBar(); 
                 continue;
             }
         }
-        break;
+        break; 
     }
 
     if (currentStep >= questions.length) {
       userInput.disabled = true;
       sendButton.disabled = true;
       normalInputArea.style.display = 'none';
-      updateProgressBar();
+      dynamicInputPlaceholder.style.display = 'none';
+      dynamicInputPlaceholder.innerHTML = '';
+      updateProgressBar(); 
       return;
     }
 
     const currentQuestion = questions[currentStep];
 
-    // ★★★ 事前メッセージの処理を修正 ★★★
-    if (currentQuestion.pre_message) { // 汎用的な事前メッセージ
+    if (currentQuestion.pre_message) {
         await addBotMessage(currentQuestion.pre_message);
-        setTimeout(() => scrollToBottom(), 0);
     }
-    if (currentQuestion.pre_message_1) { // 電話番号の質問用
+    if (currentQuestion.pre_message_1) {
         await addBotMessage(currentQuestion.pre_message_1);
-        setTimeout(() => scrollToBottom(), 0);
         if (currentQuestion.pre_message_2) {
             await addBotMessage(currentQuestion.pre_message_2);
-            setTimeout(() => scrollToBottom(), 0);
         }
     }
+    
+    // ★ UI表示切り替え ★
+    normalInputArea.style.display = 'none';
+    dynamicInputPlaceholder.innerHTML = ''; // 動的エリアをクリア
+    dynamicInputPlaceholder.style.display = 'none';
 
-
-    if (currentQuestion.answer_method === "final-consent") {
-        setupFinalConsentScreen(currentQuestion); // メインの質問文はここで表示
-        return;
-    }
-
-    let questionTextToShow = currentQuestion.question;
 
     if (currentQuestion.answer_method === "text-pair") {
         const displayNextPair = async () => {
             if (subStep < currentQuestion.pairs.length) {
                 const currentPairData = currentQuestion.pairs[subStep];
-                await addBotMessage(currentPairData.prompt);
-                displayPairedInputs(currentPairData, currentQuestion.id);
+                await addBotMessage(currentPairData.prompt); // ボットの質問メッセージ
+                displayPairedInputs(currentPairData, currentQuestion.id); // UIをplaceholderに表示
             } else {
-                subStep = 0;
+                subStep = 0; 
                 currentStep++;
-                askQuestion();
+                askQuestion(); 
             }
         };
-
-        if (subStep === 0 && questionTextToShow) {
-             await addBotMessage(questionTextToShow);
-             setTimeout(() => scrollToBottom(), 0);
-             await displayNextPair();
-        } else {
-            await displayNextPair();
+        if (subStep === 0 && currentQuestion.question) { // text-pair全体の最初のメッセージ
+             await addBotMessage(currentQuestion.question);
         }
-        return;
+        await displayNextPair();
+        return; 
     }
+    
+    await addBotMessage(currentQuestion.question); // ボットの質問メッセージ
 
-
-    if (currentQuestion.answer_method !== "single-choice" && currentQuestion.answer_method !== "multiple-choice") {
-        userInput.type = currentQuestion.type || "text";
-        userInput.placeholder = currentQuestion.placeholder || `ここに入力`;
-    }
-
-
-    await addBotMessage(questionTextToShow); // 通常の質問文表示
-    setTimeout(() => scrollToBottom(), 0);
     if (currentQuestion.answer_method === "single-choice" || currentQuestion.answer_method === "multiple-choice") {
       displayChoicesOutsideBubble(currentQuestion);
-    } else {
-      normalInputArea.style.display = 'flex';
-      userInput.style.display = 'flex';
-      sendButton.style.display = 'flex';
-      userInput.value = '';
+    } else if (currentQuestion.answer_method === "final-consent") {
+      setupFinalConsentScreen(currentQuestion);
+    } else { // 通常のテキスト入力 (text, email, tel, date, number)
+      normalInputArea.style.display = 'flex'; // 通常入力エリアを表示
+      dynamicInputPlaceholder.style.display = 'none'; // 動的エリアは非表示
+      userInput.type = currentQuestion.type || "text";
+      userInput.placeholder = currentQuestion.placeholder || `ここに入力`;
+      userInput.value = ''; 
       userInput.focus();
     }
+    scrollToBottom();
   }
 
   async function handlePairedInputSubmit(pairData, questionId) {
-    if (!activePairedInputWrapper) return;
+    if (!activePairedInputWrapper) return; 
     const inputs = activePairedInputWrapper.querySelectorAll('input');
     const values = Array.from(inputs).map(input => input.value.trim());
 
@@ -1050,31 +1045,24 @@
     if (existingErrorMsg) existingErrorMsg.remove();
 
     if (pairData.combinedValidation && !pairData.combinedValidation(values[0], values[1])) {
-        await addBotMessage(pairData.combinedErrorMessage, false, true);
-        setTimeout(() => scrollToBottom(), 0);
+        await addBotMessage(pairData.combinedErrorMessage, false, true); 
         inputs.forEach((inputEl, index) => {
             let isValidForThisField = true;
             const inputKey = inputEl.dataset.key;
-
             if (inputKey.includes("kana")) {
                 isValidForThisField = values[index] && katakanaRegex.test(values[index]);
             } else {
                 isValidForThisField = values[index] && values[index].length > 0;
             }
-
-            if (!isValidForThisField) {
-                 inputEl.classList.add('input-error');
-            } else {
-                inputEl.classList.remove('input-error');
-            }
+            if (!isValidForThisField) inputEl.classList.add('input-error');
+            else inputEl.classList.remove('input-error');
         });
         const firstErrorInput = Array.from(inputs).find(input => input.classList.contains('input-error'));
         if (firstErrorInput) firstErrorInput.focus();
-        else inputs[0].focus();
+        else inputs[0].focus(); 
         return;
     }
-    inputs.forEach(input => input.classList.remove('input-error'));
-
+    inputs.forEach(input => input.classList.remove('input-error')); 
 
     let userMessageText = "";
     pairData.inputs.forEach((inputConfig, index) => {
@@ -1083,20 +1071,22 @@
     });
     addUserMessage(userMessageText);
 
-    disableOldUIElements();
+    // disableOldUIElements(); // placeholderがクリアされるので不要
+    // activePairedInputWrapper.remove(); // placeholderがクリアされるので不要
+    activePairedInputWrapper = null;
+
 
     subStep++;
-    const currentMainQuestion = questions[currentStep];
+    const currentMainQuestion = questions[currentStep]; 
     if (subStep < currentMainQuestion.pairs.length) {
         const nextPairData = currentMainQuestion.pairs[subStep];
         await addBotMessage(nextPairData.prompt);
-        displayPairedInputs(nextPairData, currentMainQuestion.id);
+        displayPairedInputs(nextPairData, currentMainQuestion.id); // 次のペアを表示
     } else {
-        subStep = 0;
-        completedEffectiveQuestions += currentMainQuestion.pairs.length;
-        currentStep++;
-        normalInputArea.style.display = 'flex';
-        askQuestion();
+        subStep = 0; 
+        completedEffectiveQuestions += currentMainQuestion.pairs.length; 
+        currentStep++; 
+        askQuestion(); // 次のメイン質問へ
     }
   }
 
@@ -1108,15 +1098,19 @@
     }
     addUserMessage(value);
     if (question.validation && !question.validation(value)) {
-        await addBotMessage(question.errorMessage, false, true);
-        setTimeout(() => scrollToBottom(), 0);
-        return;
+      await addBotMessage(question.errorMessage, false, true);
+      return;
     }
     userResponses[question.key] = value;
-    disableOldUIElements();
+    
+    // UIをクリアして次の質問へ
+    dynamicInputPlaceholder.innerHTML = '';
+    dynamicInputPlaceholder.style.display = 'none';
+    activeChoicesWrapper = null;
+
     completedEffectiveQuestions++;
     currentStep++;
-    setTimeout(askQuestion, 300);
+    setTimeout(askQuestion, 300); 
   }
 
   async function toggleMultipleChoiceSelection(event, buttonElement, value) {
@@ -1137,110 +1131,106 @@
         return;
     }
     if (question.validation && !question.validation(currentMultipleChoices)) {
-        await addBotMessage(question.errorMessage, false, true);
-        setTimeout(() => scrollToBottom(), 0);
-        return;
+      await addBotMessage(question.errorMessage, false, true);
+      return;
     }
     addUserMessage(currentMultipleChoices.length > 0 ? currentMultipleChoices.join(', ') : "(選択なし)");
-    userResponses[question.key] = [...currentMultipleChoices];
-    currentMultipleChoices = [];
-    disableOldUIElements();
+    userResponses[question.key] = [...currentMultipleChoices]; 
+    currentMultipleChoices = []; 
+    
+    // UIをクリアして次の質問へ
+    dynamicInputPlaceholder.innerHTML = '';
+    dynamicInputPlaceholder.style.display = 'none';
+    activeChoicesWrapper = null;
+
     completedEffectiveQuestions++;
     currentStep++;
-    setTimeout(askQuestion, 300);
+    setTimeout(askQuestion, 300); 
   }
 
-  async function handleUserInput() {
+  async function handleUserInput() { // 通常のテキスト入力用
     const messageText = userInput.value.trim();
     if (messageText === "" || userInput.disabled) return;
 
     const currentQuestion = questions[currentStep];
     if (currentQuestion.validation && !currentQuestion.validation(messageText)) {
-        await addBotMessage(currentQuestion.errorMessage, false, true);
-        setTimeout(() => scrollToBottom(), 0);
-        userInput.classList.add('input-error');
-        displayErrorMessage(currentQuestion.errorMessage);
-        userInput.focus();
-        return;
+      await addBotMessage(currentQuestion.errorMessage, false, true);
+      userInput.classList.add('input-error');
+      displayErrorMessage(currentQuestion.errorMessage); 
+      userInput.focus();
+      return;
     }
     userResponses[currentQuestion.key] = messageText;
     addUserMessage(messageText);
     completedEffectiveQuestions++;
     currentStep++;
 
-
     userInput.classList.remove('input-error');
-    removeErrorMessage();
-    userInput.value = '';
-    setTimeout(askQuestion, 300);
+    removeErrorMessage(); 
+    userInput.value = ''; 
+    setTimeout(askQuestion, 300); 
   }
 
-  function displayErrorMessage(message) {
-    removeErrorMessage();
+  function displayErrorMessage(message) { // 通常入力エリア用
+    removeErrorMessage(); 
     const errorDiv = document.createElement('div');
     errorDiv.classList.add('error-message');
     errorDiv.textContent = message;
-    normalInputArea.appendChild(errorDiv);
+    // normalInputArea の input の下にエラーメッセージを挿入
+    userInput.parentNode.insertBefore(errorDiv, userInput.nextSibling);
   }
 
-  function removeErrorMessage(type = 'normal') {
-    if (type === 'paired' && activePairedInputWrapper) {
-        const existingError = activePairedInputWrapper.querySelector('.paired-input-error');
-        if (existingError) existingError.remove();
-    } else if (type === 'normal') {
-        const existingError = normalInputArea.querySelector('.error-message');
-        if (existingError) existingError.remove();
-    }
+  function removeErrorMessage() { // 通常入力エリア用
+    const existingError = normalInputArea.querySelector('.error-message');
+    if (existingError) existingError.remove();
   }
 
   async function submitDataToGAS() {
     await addBotMessage("情報を送信中...");
-    setTimeout(() => scrollToBottom(), 0);
     if (typeof GAS_WEB_APP_URL === 'undefined' || !GAS_WEB_APP_URL || GAS_WEB_APP_URL === 'YOUR_GOOGLE_APPS_SCRIPT_WEB_APP_URL_HERE') {
         await addBotMessage("データ送信先URLが正しく設定されていません。config.js を確認してください。", false, true);
-        setTimeout(() => scrollToBottom(), 0);
         console.error("GAS_WEB_APP_URL is not set or is a placeholder in config.js.");
+        // 送信失敗時は再度送信できるようにUIを戻す（同意画面の場合）
+        const q = questions.find(q => q.answer_method === 'final-consent');
+        if(q) setupFinalConsentScreen(q); // 再度同意画面を表示
         return;
     }
     fetch(GAS_WEB_APP_URL, {
       method: 'POST',
-      mode: 'no-cors',
+      mode: 'no-cors', 
       cache: 'no-cache',
-      body: JSON.stringify(userResponses)
+      body: JSON.stringify(userResponses) 
     })
-    .then(async () => {
+    .then(async () => { 
       await addBotMessage("お問い合わせいただきありがとうございました！後ほど担当よりご連絡いたします。");
-      setTimeout(() => scrollToBottom(), 0);
       await addBotMessage("お問い合わせはお電話でも受け付けております。");
-      setTimeout(() => scrollToBottom(), 0);
       await addBotMessage("電話番号：0120147104<br>営業時間：10:00～22:00", true);
-      setTimeout(() => scrollToBottom(), 0);
-
-      normalInputArea.style.display = 'none';
-      completedEffectiveQuestions++;
-      updateProgressBar();
+      
+      normalInputArea.style.display = 'none'; 
+      dynamicInputPlaceholder.style.display = 'none';
+      dynamicInputPlaceholder.innerHTML = '';
+      completedEffectiveQuestions++; 
+      updateProgressBar(); 
     })
-    .catch(async (error) => {
+    .catch(async (error) => { 
       console.error('Error sending data to Google Sheet:', error);
       await addBotMessage("エラーが発生し、データを送信できませんでした。お手数ですが、時間をおいて再度お試しください。", false, true);
-      setTimeout(() => scrollToBottom(), 0);
-      const finalSubmitBtn = document.getElementById('dynamicFinalSubmitButton');
-      if (finalSubmitBtn) finalSubmitBtn.disabled = false;
-      const finalCheckbox = document.getElementById('dynamicGiftTermsConsentCheckbox');
-      if (finalCheckbox) finalCheckbox.disabled = false;
+      const q = questions.find(q => q.answer_method === 'final-consent');
+      if(q && userResponses[q.key]) setupFinalConsentScreen(q); // 再度同意画面を表示
     });
   }
 
+  // イベントリスナー (通常入力エリアのものは変更なし)
   sendButton.addEventListener('click', handleUserInput);
   userInput.addEventListener('keypress', function(event) {
     if (event.key === 'Enter') {
-      const currentQuestion = questions[currentStep];
-      if (currentQuestion && (currentQuestion.answer_method === "single-choice" || currentQuestion.answer_method === "multiple-choice" || currentQuestion.answer_method === "final-consent" || currentQuestion.answer_method === "text-pair")) {
-          event.preventDefault();
-          return;
+      // 現在表示されているのが normalInputArea の場合のみ Enter で送信
+      if (normalInputArea.style.display === 'flex' || normalInputArea.style.display === '') {
+         event.preventDefault(); 
+         handleUserInput();
+      } else {
+        event.preventDefault(); // 他のUI表示中はEnterを無効化
       }
-      event.preventDefault();
-      handleUserInput();
     }
   });
 
@@ -1254,15 +1244,19 @@
   });
 
   async function initializeChat() {
-    updateProgressBar();
+    updateProgressBar(); 
     if (typeof BOT_ICON_URL === 'undefined' || BOT_ICON_URL === 'YOUR_BOT_ICON_URL_HERE') {
         console.warn("BOT_ICON_URL is not set or is a placeholder in config.js. Default icon behavior will apply.");
     }
+    if (typeof FAVICON_URL !== 'undefined' && FAVICON_URL) {
+        const faviconLink = document.createElement('link');
+        faviconLink.rel = 'icon';
+        faviconLink.href = FAVICON_URL;
+        document.head.appendChild(faviconLink);
+    }
     await addBotMessage("J.P.Returnsにお問い合わせいただきありがとうございます！");
-    setTimeout(() => scrollToBottom(), 0);
     await addBotMessage("30秒程度の簡単な質問をさせてください。");
-    setTimeout(() => scrollToBottom(), 0);
-    setTimeout(askQuestion, 1200);
+    setTimeout(askQuestion, 1200); 
   }
 
   setTimeout(initializeChat, 500);
