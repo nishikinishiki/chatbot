@@ -469,11 +469,11 @@
     { id: 3, item: "年齢", question: "ご年齢はおいくつでしょうか。", answer_method: "single-choice", options: ["20歳未満", "20～24歳", "25～29歳", "30～34歳", "35～39歳", "40～44歳", "45～49歳", "50～54歳", "55～59歳", "60～64歳", "65～69歳", "70歳以上"], key: "age_group_new", validation: (v) => !!v, errorMessage: "選択してください。" },
     // Q4 - 名前入力 (text-pair)
     { id: 4, item: "名前",
-      question: "ありがとうございます！", // メインの導入メッセージ
+      question: "ありがとうございます！",
       answer_method: "text-pair",
       pairs: [
         {
-          prompt: "お名前を入力してください。", // 変更後のプロンプト
+          prompt: "お名前を入力してください。",
           inputs: [
             { label: "姓", key: "last_name_new", placeholder: "例：山田", type: "text" },
             { label: "名", key: "first_name_new", placeholder: "例：太郎", type: "text" }
@@ -482,7 +482,7 @@
           combinedErrorMessage: "姓と名の両方を入力してください。"
         },
         {
-          prompt: "続いて、フリガナを全角カタカナで入力してください。", // 変更後のプロンプト
+          prompt: "続いて、フリガナを全角カタカナで入力してください。",
           inputs: [
             { label: "セイ", key: "last_name_kana_new", placeholder: "例：ヤマダ", type: "text" },
             { label: "メイ", key: "first_name_kana_new", placeholder: "例：タロウ", type: "text" }
@@ -493,11 +493,11 @@
       ],
       key_group: "name_details"
     },
-    // Q5 - ★★★ 電話番号の質問に pre_message を追加 ★★★
+    // Q5
     { id: 5, item: "電話番号",
-      pre_message_1: "ありがとうございます", // 1つ目の事前メッセージ
-      pre_message_2: "残り3問です！",        // 2つ目の事前メッセージ
-      question: "電話番号を入力してください。(例: 09012345678)", // 例示からソフトハイフン削除
+      pre_message_1: "ありがとうございます",
+      pre_message_2: "残り3問です！",
+      question: "電話番号を入力してください。(例: 09012345678)",
       answer_method: "text", type: "tel", key: "phone_number_new", validation: (v) => /^[0-9]{10,11}$/.test(v.replace(/-/g, "")), errorMessage: "有効な電話番号をハイフンなし半角数字で入力してください。" },
     // Q6
     { id: 6, item: "メールアドレス", question: "メールアドレスを入力してください！(例: user@example.com)", answer_method: "text", type: "email", key: "email_address_new", validation: (v) => /^[^\s@]+@[^\s@]+\.[^\s@]+$/.test(v), errorMessage: "有効なメールアドレスを入力してください。" },
@@ -524,7 +524,7 @@
     { id: 15, item: "質問要望詳細", question: "ご質問・ご要望の詳細を自由にご記入ください。", answer_method: "text", type: "text", placeholder: "自由にご記入ください", key: "inquiry_text_detail_new", condition: { key: "inquiry_text_new", value: "その他（自由記述）" }, validation: (v) => v && v.trim().length > 0, errorMessage: "詳細を入力してください。" },
     // Q16 - 最終同意
     { id: 16, item: "最終同意",
-      pre_message: "ご回答ありがとうございました！", // ★★★ 事前メッセージ追加 ★★★
+      pre_message: "ご回答ありがとうございました！",
       question: "個人情報のお取り扱いをご確認の上、「同意して送信」を押してください。",
       answer_method: "final-consent",
       privacy_policy_link_text: "個人情報のお取り扱い", privacy_policy_url: "https://jpreturns.com/privacypolicy/",
@@ -976,8 +976,8 @@
 
     const currentQuestion = questions[currentStep];
 
-    // ★★★ 事前メッセージの処理を askQuestion の先頭に移動 ★★★
-    if (currentQuestion.pre_message) {
+    // ★★★ 事前メッセージの処理を修正 ★★★
+    if (currentQuestion.pre_message) { // 汎用的な事前メッセージ
         await addBotMessage(currentQuestion.pre_message);
         setTimeout(() => scrollToBottom(), 0);
     }
@@ -1011,11 +1011,11 @@
             }
         };
 
-        if (subStep === 0 && questionTextToShow) { // メインの質問文がある場合 (名前入力用)
+        if (subStep === 0 && questionTextToShow) {
              await addBotMessage(questionTextToShow);
              setTimeout(() => scrollToBottom(), 0);
              await displayNextPair();
-        } else { // メインの質問文がない、または2番目以降のペア
+        } else {
             await displayNextPair();
         }
         return;
@@ -1213,7 +1213,7 @@
       setTimeout(() => scrollToBottom(), 0);
       await addBotMessage("お問い合わせはお電話でも受け付けております。");
       setTimeout(() => scrollToBottom(), 0);
-      await addBotMessage("電話番号：0120147104<br>営業時間：10:00～22:00", true); // ★★★ ソフトハイフン削除 ★★★
+      await addBotMessage("電話番号：0120147104<br>営業時間：10:00～22:00", true);
       setTimeout(() => scrollToBottom(), 0);
 
       normalInputArea.style.display = 'none';
