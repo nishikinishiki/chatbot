@@ -2,7 +2,8 @@
 <html lang="ja">
 <head>
 <meta charset="UTF-8">
-<meta name="viewport" content="width=device-width, initial-scale=1.0, viewport-fit=cover"> <title>お問い合わせ｜マンション投資のジェイピーリターンズ株式会社</title>
+<meta name="viewport" content="width=device-width, initial-scale=1.0, viewport-fit=cover">
+<title>お問い合わせ｜マンション投資のジェイピーリターンズ株式会社</title>
 <meta name="description" content="初めてでも安心！年収600万円からのマンション投資。無料個別相談実施中。J.P.Returnsのマンション投資で叶える堅実な家賃収入。あなたに寄り添うコンサルティングをご提供します。">
 <link href="https://fonts.googleapis.com/css2?family=Roboto:wght@400;500;700&display=swap" rel="stylesheet">
 <style>
@@ -17,7 +18,6 @@
 
   html, body {
     height: 100%;
-    /* overflow: hidden; ★変更: JavaScriptで高さを制御するため、bodyのoverflowはautoに */
     overflow: auto; 
     font-family: 'Roboto', "Helvetica Neue", "Segoe UI", "Hiragino Kaku Gothic ProN", "Hiragino Sans", Meiryo, Arial, sans-serif;
     color: #333;
@@ -28,28 +28,25 @@
     display: flex;
     justify-content: center;
     align-items: center;
-    /* ★追加: iOSでのスクロールバウンスを防ぐ (限定的効果) */
     overscroll-behavior-y: contain;
   }
 
   .chat-container {
     width: 100%;
-    /* height: 100vh; ★変更: JavaScriptで動的に設定 */
     max-width: 420px;
     background-color: #ffffff;
     border-radius: 16px;
     box-shadow: 0 8px 24px rgba(0, 0, 0, 0.15);
     display: flex;
     flex-direction: column;
-    overflow: hidden; /* chat-container自体は内部スクロールを許容しない */
+    overflow: hidden; 
   }
   @media (max-width: 420px) {
     .chat-container {
       border-radius: 0;
       box-shadow: none;
       max-width: 100%;
-      /* ★追加: モバイルでは画面いっぱいに広がるように */
-      min-height: 100%; /* JavaScriptでの高さ設定と合わせて調整 */
+      min-height: 100%; 
     }
   }
 
@@ -65,7 +62,6 @@
     align-items: center;
     justify-content: center;
     flex-shrink: 0;
-    /* ★追加: iOSのセーフエリア対応 (上部) */
     padding-top: calc(10px + env(safe-area-inset-top));
   }
   .chat-header-title {
@@ -90,12 +86,12 @@
   .chat-messages {
     flex-grow: 1;
     padding: 16px 12px; 
-    overflow-y: auto; /* ここでメッセージエリアのスクロールを許可 */
+    overflow-y: auto; 
     background-color: #e9ebee;
     display: flex;
     flex-direction: column;
     gap: 10px;
-    -webkit-overflow-scrolling: touch; /* iOSでの慣性スクロール */
+    -webkit-overflow-scrolling: touch; 
   }
 
   .message-wrapper {
@@ -160,7 +156,6 @@
     display: flex; 
     flex-direction: column; 
     justify-content: center; 
-    /* ★追加: iOSのセーフエリア対応 (下部) */
     padding-bottom: calc(8px + env(safe-area-inset-bottom));
   }
 
@@ -429,6 +424,76 @@
     width: 100%;
     text-align: left;
   }
+
+  /* --- Calendar Styles --- */
+  .calendar-container {
+    background-color: #fff;
+    border-radius: 8px;
+    padding: 10px;
+    box-shadow: 0 2px 10px rgba(0,0,0,0.1);
+    width: 100%;
+    max-width: 320px; /* カレンダーの最大幅 */
+    margin: 0 auto; /* 中央寄せ */
+  }
+  .calendar-header {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    margin-bottom: 10px;
+  }
+  .calendar-header button {
+    background: none;
+    border: none;
+    font-size: 1.2em;
+    cursor: pointer;
+    padding: 5px 10px;
+    color: #06C755;
+  }
+  .calendar-header button:hover {
+    color: #05a546;
+  }
+  .calendar-month-year {
+    font-weight: 500;
+    font-size: 1.1em;
+  }
+  .calendar-grid {
+    display: grid;
+    grid-template-columns: repeat(7, 1fr);
+    gap: 2px;
+    text-align: center;
+  }
+  .calendar-day-name, .calendar-day {
+    padding: 8px 0;
+    font-size: 0.85em;
+  }
+  .calendar-day-name {
+    font-weight: 500;
+    color: #777;
+  }
+  .calendar-day {
+    cursor: pointer;
+    border-radius: 50%;
+    transition: background-color 0.2s;
+  }
+  .calendar-day:hover:not(.disabled):not(.empty) {
+    background-color: #e6f8ee;
+  }
+  .calendar-day.selected {
+    background-color: #06C755;
+    color: white;
+  }
+  .calendar-day.today {
+    font-weight: bold;
+    border: 1px solid #06C755;
+  }
+  .calendar-day.disabled, .calendar-day.empty {
+    cursor: default;
+    color: #ccc;
+  }
+  .calendar-day.empty {
+    background-color: transparent !important; /* 空のセルはホバー効果なし */
+  }
+
 </style>
 </head>
 <body>
@@ -466,6 +531,8 @@
 
 
 <script src="config.js"></script> <script>
+  // ...(既存のJavaScriptコードはここに続く)...
+  // ただし、以下の変更点を反映
   const chatMessages = document.getElementById('chatMessages');
   const userInput = document.getElementById('userInput'); 
   const sendButton = document.getElementById('sendButton'); 
@@ -511,17 +578,22 @@
   ];
 
   const additionalQuestions = [
-    { id: 101, item: "相談希望日_第一希望", question: "【第一希望】<br>ご相談希望日をお選びください (例: 2024/05/15)", isHtmlQuestion: true, answer_method: "text", type: "text", placeholder: "YYYY/MM/DD", key: "first_choice_date_new", 
+    // ★変更: answer_method を "calendar" に変更
+    { id: 101, item: "相談希望日_第一希望", question: "【第一希望】<br>ご相談希望日をお選びください", isHtmlQuestion: true, answer_method: "calendar", key: "first_choice_date_new", 
       condition: { key: "interview_preference", value: "はい" }, 
-      validation: (v) => /^\d{4}\/(0?[1-9]|1[0-2])\/(0?[1-9]|[12][0-9]|3[01])$/.test(v) && !isNaN(new Date(v)), errorMessage: "YYYY/MM/DD形式で有効な日付を入力してください。" },
+      validation: (v) => /^\d{4}\/(0?[1-9]|1[0-2])\/(0?[1-9]|[12][0-9]|3[01])$/.test(v) && !isNaN(new Date(v)), errorMessage: "YYYY/MM/DD形式で有効な日付を入力してください。" }, // validationは残すが、カレンダー選択が主
     { id: 102, item: "相談希望時間_第一希望", question: "【第一希望】<br>ご相談希望時間をお選びください", isHtmlQuestion: true, answer_method: "single-choice", options: ["10：00～12：00", "12：00～14：00", "14：00～16：00", "16：00～18：00", "18：00～20：00", "20：00 以降", "その他の時間"], key: "first_choice_time_new", condition: { key: "interview_preference", value: "はい" }, validation: (v) => !!v, errorMessage: "選択してください。" },
     { id: 103, item: "相談希望時間_第一希望_その他", question: "【第一希望】その他のご相談希望時間を入力ください", answer_method: "text", type: "text", key: "first_choice_time_other_new", condition: { key: "first_choice_time_new", value: "その他の時間" }, validation: (v) => v && v.trim().length > 0, errorMessage: "希望時間を入力してください。" },
-    { id: 104, item: "相談希望日_第二希望", question: "【第二希望】<br>ご相談希望日をお選びください (例: 2024/05/16)", isHtmlQuestion: true, answer_method: "text", type: "text", placeholder: "YYYY/MM/DD", key: "second_choice_date_new", condition: { key: "interview_preference", value: "はい" }, validation: (v) => /^\d{4}\/(0?[1-9]|1[0-2])\/(0?[1-9]|[12][0-9]|3[01])$/.test(v) && !isNaN(new Date(v)), errorMessage: "YYYY/MM/DD形式で有効な日付を入力してください。" },
+    // ★変更: answer_method を "calendar" に変更
+    { id: 104, item: "相談希望日_第二希望", question: "【第二希望】<br>ご相談希望日をお選びください", isHtmlQuestion: true, answer_method: "calendar", key: "second_choice_date_new", 
+      condition: { key: "interview_preference", value: "はい" }, 
+      validation: (v) => /^\d{4}\/(0?[1-9]|1[0-2])\/(0?[1-9]|[12][0-9]|3[01])$/.test(v) && !isNaN(new Date(v)), errorMessage: "YYYY/MM/DD形式で有効な日付を入力してください。" },
     { id: 105, item: "相談希望時間_第二希望", question: "【第二希望】<br>ご相談希望時間をお選びください", isHtmlQuestion: true, answer_method: "single-choice", options: ["10：00～12：00", "12：00～14：00", "14：00～16：00", "16：00～18：00", "18：00～20：00", "20：00 以降", "その他の時間"], key: "second_choice_time_new", condition: { key: "interview_preference", value: "はい" }, validation: (v) => !!v, errorMessage: "選択してください。" },
     { id: 106, item: "相談希望時間_第二希望_その他", question: "【第二希望】その他のご相談希望時間を入力ください", answer_method: "text", type: "text", key: "second_choice_time_other_new", condition: { key: "second_choice_time_new", value: "その他の時間" }, validation: (v) => v && v.trim().length > 0, errorMessage: "希望時間を入力してください。" }
   ];
   
   let questions = initialQuestions; 
+  let currentCalendarDate = new Date(); // カレンダー表示用の現在日付
 
   function generateSessionId() {
     return Date.now().toString(36) + Math.random().toString(36).substring(2, 15);
@@ -642,6 +714,11 @@
         inputs.forEach(input => input.disabled = true);
         activePairedInputWrapper = null;
     }
+    const activeCalendar = dynamicInputPlaceholder.querySelector('.calendar-container');
+    if (activeCalendar) {
+        // カレンダー内のボタンなどを無効化する処理 (必要に応じて)
+        activeCalendar.querySelectorAll('button, .calendar-day').forEach(el => el.onclick = null);
+    }
     const finalSubmitBtn = document.getElementById('dynamicFinalSubmitButton');
     if (finalSubmitBtn) finalSubmitBtn.disabled = true;
   }
@@ -759,6 +836,113 @@
     scrollToBottom(); 
     if(lastNameInput) lastNameInput.focus();
   }
+
+  // --- Calendar Functions ---
+  function displayCalendar(question) {
+    normalInputArea.style.display = 'none';
+    dynamicInputPlaceholder.style.display = 'block';
+    dynamicInputPlaceholder.innerHTML = ''; // Clear previous content
+
+    const calendarContainer = document.createElement('div');
+    calendarContainer.className = 'calendar-container';
+
+    renderCalendar(calendarContainer, currentCalendarDate, question);
+    dynamicInputPlaceholder.appendChild(calendarContainer);
+    scrollToBottom();
+  }
+
+  function renderCalendar(container, dateToDisplay, question) {
+    container.innerHTML = ''; // Clear previous calendar
+
+    const year = dateToDisplay.getFullYear();
+    const month = dateToDisplay.getMonth(); // 0-11
+
+    const header = document.createElement('div');
+    header.className = 'calendar-header';
+
+    const prevButton = document.createElement('button');
+    prevButton.innerHTML = '&lt;'; // <
+    prevButton.onclick = () => {
+      currentCalendarDate.setMonth(month - 1);
+      renderCalendar(container, currentCalendarDate, question);
+    };
+
+    const monthYearDisplay = document.createElement('span');
+    monthYearDisplay.className = 'calendar-month-year';
+    monthYearDisplay.textContent = `${year}年 ${month + 1}月`;
+
+    const nextButton = document.createElement('button');
+    nextButton.innerHTML = '&gt;'; // >
+    nextButton.onclick = () => {
+      currentCalendarDate.setMonth(month + 1);
+      renderCalendar(container, currentCalendarDate, question);
+    };
+
+    header.appendChild(prevButton);
+    header.appendChild(monthYearDisplay);
+    header.appendChild(nextButton);
+    container.appendChild(header);
+
+    const grid = document.createElement('div');
+    grid.className = 'calendar-grid';
+
+    const daysOfWeek = ['日', '月', '火', '水', '木', '金', '土'];
+    daysOfWeek.forEach(day => {
+      const dayNameCell = document.createElement('div');
+      dayNameCell.className = 'calendar-day-name';
+      dayNameCell.textContent = day;
+      grid.appendChild(dayNameCell);
+    });
+
+    const firstDayOfMonth = new Date(year, month, 1).getDay(); // 0 (Sun) - 6 (Sat)
+    const daysInMonth = new Date(year, month + 1, 0).getDate();
+    const today = new Date();
+    today.setHours(0,0,0,0); // 時刻情報をリセットして日付のみで比較
+
+    for (let i = 0; i < firstDayOfMonth; i++) {
+      const emptyCell = document.createElement('div');
+      emptyCell.className = 'calendar-day empty';
+      grid.appendChild(emptyCell);
+    }
+
+    for (let day = 1; day <= daysInMonth; day++) {
+      const dayCell = document.createElement('div');
+      dayCell.className = 'calendar-day';
+      dayCell.textContent = day;
+      const currentDate = new Date(year, month, day);
+      currentDate.setHours(0,0,0,0);
+
+
+      if (currentDate < today) { // 過去日は無効化
+        dayCell.classList.add('disabled');
+      } else {
+        dayCell.onclick = () => {
+          const selectedDateStr = `${year}/${String(month + 1).padStart(2, '0')}/${String(day).padStart(2, '0')}`;
+          handleDateSelection(selectedDateStr, question);
+        };
+      }
+      if (currentDate.getTime() === today.getTime()) {
+        dayCell.classList.add('today');
+      }
+      grid.appendChild(dayCell);
+    }
+    container.appendChild(grid);
+  }
+
+  async function handleDateSelection(dateStr, question) {
+    addUserMessage(dateStr); // ユーザーの選択をチャットに表示
+    
+    const currentResponseSet = (currentFlow === 'initial') ? userResponses : additionalUserResponses;
+    currentResponseSet[question.key] = dateStr;
+
+    dynamicInputPlaceholder.innerHTML = ''; // カレンダーをクリア
+    dynamicInputPlaceholder.style.display = 'none';
+    
+    completedEffectiveQuestions++;
+    currentStep++;
+    setTimeout(askQuestion, 300);
+  }
+
 
   function setupFinalConsentScreen(question) { 
     normalInputArea.style.display = 'none';
@@ -923,6 +1107,8 @@
       displayChoicesOutsideBubble(currentQuestion);
     } else if (currentQuestion.answer_method === "final-consent") {
       setupFinalConsentScreen(currentQuestion); 
+    } else if (currentQuestion.answer_method === "calendar") { // ★カレンダー表示
+      displayCalendar(currentQuestion);
     } else {  
       normalInputArea.style.display = 'flex'; 
       dynamicInputPlaceholder.style.display = 'none'; 
@@ -1015,27 +1201,24 @@
     activeChoicesWrapper = null;
 
     completedEffectiveQuestions++;
-    // ★プログレスバー更新ロジック: ID14「質問要望」の回答後
     if (currentFlow === 'initial' && question.id === 14) {
-        // ID14の回答後、ID15がスキップされるかチェック
         const question15 = initialQuestions.find(q => q.id === 15);
         let isQuestion15Skipped = true;
         if (question15 && question15.condition) {
             if (userResponses[question15.condition.key] === question15.condition.value) {
-                isQuestion15Skipped = false; // ID15はスキップされない
+                isQuestion15Skipped = false; 
             }
         }
-        if (isQuestion15Skipped) { // ID15がスキップされるなら、ID14回答時点で初期フローの実質的な入力完了
-            const initialQuestionsForBar = initialQuestions.filter(q => q.id !== 16); // 最終同意は除く
+        if (isQuestion15Skipped) { 
+            const initialQuestionsForBar = initialQuestions.filter(q => q.id !== 16); 
             const totalInitialStepsForBar = countTotalEffectiveQuestions(initialQuestionsForBar, userResponses);
-            // completedEffectiveQuestions が totalInitialStepsForBar 以上なら100%
             if (completedEffectiveQuestions >= totalInitialStepsForBar) {
                  progressBar.style.width = '100%';
-            } else { // 通常はありえないが念のため
+            } else { 
                 updateProgressBar();
             }
         } else {
-            updateProgressBar(); // ID15に進む場合は通常更新
+            updateProgressBar(); 
         }
     } else {
         updateProgressBar();
@@ -1103,13 +1286,12 @@
     addUserMessage(messageText);
     completedEffectiveQuestions++;
 
-    // ★プログレスバー更新ロジック: ID15「質問要望詳細」の回答後
     if (currentFlow === 'initial' && currentQuestion.id === 15) {
-        const initialQuestionsForBar = initialQuestions.filter(q => q.id !== 16); // 最終同意は除く
+        const initialQuestionsForBar = initialQuestions.filter(q => q.id !== 16); 
         const totalInitialStepsForBar = countTotalEffectiveQuestions(initialQuestionsForBar, userResponses);
         if (completedEffectiveQuestions >= totalInitialStepsForBar) {
-             progressBar.style.width = '100%';
-        } else { // 通常はありえないが念のため
+            progressBar.style.width = '100%';
+        } else { 
             updateProgressBar();
         }
     } else {
