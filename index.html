@@ -2,8 +2,7 @@
 <html lang="ja">
 <head>
 <meta charset="UTF-8">
-<meta name="viewport" content="width=device-width, initial-scale=1.0">
-<title>お問い合わせ｜マンション投資のジェイピーリターンズ株式会社</title>
+<meta name="viewport" content="width=device-width, initial-scale=1.0, viewport-fit=cover"> <title>お問い合わせ｜マンション投資のジェイピーリターンズ株式会社</title>
 <meta name="description" content="初めてでも安心！年収600万円からのマンション投資。無料個別相談実施中。J.P.Returnsのマンション投資で叶える堅実な家賃収入。あなたに寄り添うコンサルティングをご提供します。">
 <link href="https://fonts.googleapis.com/css2?family=Roboto:wght@400;500;700&display=swap" rel="stylesheet">
 <style>
@@ -18,7 +17,8 @@
 
   html, body {
     height: 100%;
-    overflow: hidden;
+    /* overflow: hidden; ★変更: JavaScriptで高さを制御するため、bodyのoverflowはautoに */
+    overflow: auto; 
     font-family: 'Roboto', "Helvetica Neue", "Segoe UI", "Hiragino Kaku Gothic ProN", "Hiragino Sans", Meiryo, Arial, sans-serif;
     color: #333;
   }
@@ -28,24 +28,28 @@
     display: flex;
     justify-content: center;
     align-items: center;
+    /* ★追加: iOSでのスクロールバウンスを防ぐ (限定的効果) */
+    overscroll-behavior-y: contain;
   }
 
   .chat-container {
     width: 100%;
-    height: 100vh;
+    /* height: 100vh; ★変更: JavaScriptで動的に設定 */
     max-width: 420px;
     background-color: #ffffff;
     border-radius: 16px;
     box-shadow: 0 8px 24px rgba(0, 0, 0, 0.15);
     display: flex;
     flex-direction: column;
-    overflow: hidden;
+    overflow: hidden; /* chat-container自体は内部スクロールを許容しない */
   }
   @media (max-width: 420px) {
     .chat-container {
       border-radius: 0;
       box-shadow: none;
       max-width: 100%;
+      /* ★追加: モバイルでは画面いっぱいに広がるように */
+      min-height: 100%; /* JavaScriptでの高さ設定と合わせて調整 */
     }
   }
 
@@ -61,6 +65,8 @@
     align-items: center;
     justify-content: center;
     flex-shrink: 0;
+    /* ★追加: iOSのセーフエリア対応 (上部) */
+    padding-top: calc(10px + env(safe-area-inset-top));
   }
   .chat-header-title {
     margin-bottom: 5px;
@@ -84,11 +90,12 @@
   .chat-messages {
     flex-grow: 1;
     padding: 16px 12px; 
-    overflow-y: auto;
+    overflow-y: auto; /* ここでメッセージエリアのスクロールを許可 */
     background-color: #e9ebee;
     display: flex;
     flex-direction: column;
     gap: 10px;
+    -webkit-overflow-scrolling: touch; /* iOSでの慣性スクロール */
   }
 
   .message-wrapper {
@@ -153,6 +160,8 @@
     display: flex; 
     flex-direction: column; 
     justify-content: center; 
+    /* ★追加: iOSのセーフエリア対応 (下部) */
+    padding-bottom: calc(8px + env(safe-area-inset-bottom));
   }
 
   .choices-area-wrapper {
@@ -210,7 +219,7 @@
     justify-content: center;
     margin-top: 8px;
   }
-  .submit-choices-button { /* 汎用的な決定ボタン（青） */
+  .submit-choices-button { 
     background-color: #007bff;
     color: white;
     border-color: #007bff;
@@ -218,9 +227,8 @@
   .submit-choices-button:hover:not(:disabled) {
     background-color: #0056b3;
   }
-  /* ★最終同意ボタンのスタイルを緑色に★ */
   .final-consent-submit-button {
-    background-color: #06C755; /* Green */
+    background-color: #06C755; 
     color: white;
     border-color: #05a546; 
   }
@@ -228,8 +236,6 @@
     background-color: #05a546; 
   }
 
-
-  /* ペア入力用のスタイル (ユーザー指定のCSSを適用) */
   .paired-input-area-wrapper {
     margin-left: -12px;  
     margin-right: -12px; 
@@ -243,10 +249,10 @@
   .paired-input-container {
     display: flex;
     flex-direction: column;
-    gap: 5px; /* ユーザー指定 */
+    gap: 5px; 
     width: 100%; 
     max-width: 380px; 
-    padding: 8px 0; /* 上下のパディングをコンテナに設定 */
+    padding: 8px 0; 
   }
   .paired-input-row {
     display: flex;
@@ -349,6 +355,20 @@
     align-items: center;
     width: 100%; 
   }
+  .input-icon-container {
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    width: 24px; 
+    margin-right: 8px; 
+  }
+  .input-icon-container svg {
+    width: 20px; 
+    height: 20px;
+    stroke: #555; 
+    fill: none; 
+  }
+
   .input-area input[type="text"],
   .input-area input[type="email"],
   .input-area input[type="number"],
@@ -424,6 +444,7 @@
   </div>
   <div id="inputMethodWrapper">
     <div class="input-area" id="normalInputArea" style="display: flex;">
+      <span id="inputIconContainer" class="input-icon-container"></span> 
       <input type="text" id="userInput" placeholder="ここに入力">
       <button id="sendButton">
         <svg xmlns="http://www.w3.org/2000/svg" width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" class="feather feather-send"><line x1="22" y1="2" x2="11" y2="13"></line><polygon points="22 2 15 22 11 13 2 9 22 2"></polygon></svg>
@@ -453,6 +474,8 @@
   const inputMethodWrapper = document.getElementById('inputMethodWrapper');
   const normalInputArea = document.getElementById('normalInputArea'); 
   const dynamicInputPlaceholder = document.getElementById('dynamicInputPlaceholder'); 
+  const inputIconContainer = document.getElementById('inputIconContainer'); 
+
 
   const giftTermsModal = document.getElementById('giftTermsModal');
   const modalCloseButton = document.getElementById('modalCloseButton');
@@ -469,7 +492,6 @@
   let activeChoicesWrapper = null; 
   let activePairedInputWrapper = null; 
   let completedEffectiveQuestions = 0;
-  let totalEffectiveQuestions = 0; 
 
   const katakanaRegex = /^[ァ-ヶー　]+$/;
 
@@ -478,16 +500,14 @@
     { id: 2, item: "年収", question: "続いて、現在の年収を教えてください。", answer_method: "single-choice", options: ["0～399万", "400～499万", "500～599万", "600～699万", "700～799万", "800～899万", "900～999万", "1000～1099万", "1100～1199万", "1200～1299万", "1300～1399万", "1400～1499万", "1500～1999万", "2000～2499万", "2500～2999万", "3000～3999万", "4000～4999万", "5000万～1億未満", "1億以上"], key: "annual_income_new", validation: (v) => !!v, errorMessage: "選択してください。" },
     { id: 3, item: "年齢", question: "ご年齢はおいくつでしょうか。", answer_method: "single-choice", options: ["20歳未満", "20～24歳", "25～29歳", "30～34歳", "35～39歳", "40～44歳", "45～49歳", "50～54歳", "55～59歳", "60～64歳", "65～69歳", "70歳以上"], key: "age_group_new", validation: (v) => !!v, errorMessage: "選択してください。" },
     { id: 4, item: "名前", question: "ありがとうございます！", answer_method: "text-pair", pairs: [
-        // ★変更: placeholder の「例：」を削除
         { prompt: "お名前を入力してください。", inputs: [ { label: "姓", key: "last_name_new", placeholder: "山田", type: "text" }, { label: "名", key: "first_name_new", placeholder: "太郎", type: "text" } ], combinedValidation: (v1, v2) => (v1 && v1.trim().length > 0) && (v2 && v2.trim().length > 0), combinedErrorMessage: "姓と名の両方を入力してください。" },
         { prompt: "続いて、フリガナを全角カタカナで入力してください。", inputs: [ { label: "セイ", key: "last_name_kana_new", placeholder: "ヤマダ", type: "text" }, { label: "メイ", key: "first_name_kana_new", placeholder: "タロウ", type: "text" } ], combinedValidation: (v1, v2) => (v1 && katakanaRegex.test(v1.trim())) && (v2 && katakanaRegex.test(v2.trim())), combinedErrorMessage: "セイとメイの両方を全角カタカナで入力してください。" }
       ], key_group: "name_details" },
-    // ★変更: question と placeholder を修正
     { id: 5, item: "電話番号", pre_message_1: "ありがとうございます", pre_message_2: "残り3問です！", question: "電話番号を入力してください。", placeholder: "09012345678", answer_method: "text", type: "tel", key: "phone_number_new", validation: (v) => /^[0-9]{10,11}$/.test(v.replace(/-/g, "")), errorMessage: "有効な電話番号をハイフンなし半角数字で入力してください。" },
     { id: 6, item: "メールアドレス", question: "メールアドレスを入力してください！", placeholder: "user@example.com", answer_method: "text", type: "email", key: "email_address_new", validation: (v) => /^[^\s@]+@[^\s@]+\.[^\s@]+$/.test(v), errorMessage: "有効なメールアドレスを入力してください。" },
     { id: 14, item: "質問要望", question: "最後に、ご質問・ご要望があれば記載ください。", answer_method: "single-choice", options: ["なし", "その他（自由記述）"], key: "inquiry_text_new", validation: (v) => !!v, errorMessage: "選択してください。" },
     { id: 15, item: "質問要望詳細", question: "ご質問・ご要望の詳細を自由にご記入ください。", answer_method: "text", type: "text", placeholder: "自由にご記入ください", key: "inquiry_text_detail_new", condition: { key: "inquiry_text_new", value: "その他（自由記述）" }, validation: (v) => v && v.trim().length > 0, errorMessage: "詳細を入力してください。" },
-    { id: 16, item: "最終同意", question: "個人情報のお取り扱いをご確認の上、「同意して送信」を押してください。", answer_method: "final-consent", privacy_policy_link_text: "個人情報のお取り扱い", privacy_policy_url: "https://jpreturns.com/privacypolicy/", gift_terms_link_text: "えらべるデジタルギフトプレゼント条件", gift_terms_popup_content: `<h3>えらべるデジタルギフトプレゼント条件</h3> <p>【個別面談・Web面談をお申込みのお客様】<br>プレゼントは、web面談で20,000円、オフライン個別相談で50,000円相当のえらべるデジタルギフトを予定しております。面談でえらべるデジタルギフトプレゼントは以下の条件を満たした方が対象となります。なお、web面談、個別相談とは当社のコンサルタントと当社オフィスもしくは当社オフィス外、ウェブ通信にて対面し、当社サービスの十分な説明とお客様についての十分な（数回にわたり）情報を相互に交換したことを指します。<br>また、えらべるデジタルギフトではAmazonギフトカード、PayPayポイント、楽天ポイント（期間限定ポイント※）からご希望の1種のみを選択いただけます。<br>ご希望のポイントは、フォームの「ご質問・ご要望」欄に記入ください。お申し込み時にご記入がない場合は、Amazonギフトカードをプレゼントいたします。お申し込み完了後の変更は原則受け付けておりませんので、予めご了承ください。<br>※獲得いただけるポイントは期間限定ポイントになり、有効期限はポイント獲得後、6ヶ月間です。</p><p><strong>プレゼント条件</strong><br>下記のすべての項⽬を満たしている⽅が対象になります。<br>世帯で初めて「J.P.リターンズ」のサービスを利⽤（セミナー受講、プライベートセミナー、⾯談、資料請求、動画セミナー）する⽅<br>予約申込後、90⽇以内に個別相談を完了された⽅（本⼈確認必須。Web⾯談の場合、カメラON、お顔が⾒える状態で⾯談をお願いします。）<br>⾯談(web以外も含め)に3回以上ご参加いただいた⽅<br>※お客様のご状況や提案状況に応じて、複数回の⾯談を実施する場合がございます。<br>上場企業、それに準ずる企業（＝資本⾦1億円以上）、またはそのグループ会社にお勤めの⽅、もしくは医師、公務員、看護師、薬剤師として現在お勤めの⽅<br>年収700万円以上の方<br>勤続年数が2年以上かつ25歳以上50歳未満の方<br>※主婦、パートの⽅は配偶者の年収が700万円以上の場合、「年収700万円以上の⽅」と判断する場合もございます。<br>フォームよりお申込後、メールでお送りした属性アンケートにご回答頂いた内容、もしくは、営業担当がヒアリングした内容が上記の年収、勤続年数などの条件を満たした⽅<br>事前に「社会健康保険証」をご提出いただいた方(データ送付・もしくは画面にて提示)<br>WebカメラやFacetime等、テレビ通話を通じて対面で面談が出来る方（お顔を隠さず、Face to Faceで面談できる方）<br>当社提携金融機関の融資が受けられる方（ローン審査通過が必須）<br>⾯談前の電話及び⾯談中の質問事項にすべてお答えいただけた⽅<br>※ご融資に必要な質問事項、および当社のサービス提供にあたり必要な質問事項を含む<br>現在の社会環境の中で、前向きに購⼊を検討されている⽅</p><p><strong>プレゼント対象外</strong><br>ご本人以外の面談の場合<br>1世帯で2回以上の申込みの場合<br>虚偽、重複、悪戯、迷惑行為、不正申込、連絡が取れない方、個別面談を受けられない方<br>当社で行なっている他キャンペーンに応募したことがある方<br>同業他社にお勤めの方<br>無職、学生、フリーター・パート・アルバイト、契約・派遣社員の方<br>現在の借り入れ状況や相談内容等によりサービスの提供が出来ない場合<br>自営業の方、既に住宅ローンがある、疾病などの御理由により、ローンが組めない場合（ローンのご提案が難しい場合）<br>Web参加されても途中退席される方<br>(web以外も含め)ご面談が複数回になる場合がある事をご了承いただけない場合<br>十分な面談時間が取れない場合(1回の面談につき、1～2時間程度)<br>⾯談中、明らかに当社コンサルタントと対話する姿勢でない場合<br>お申込後、事前に「社会健康保険証」をデータ送付頂けない方（または、当日、画面にて呈示頂けない方）<br>お申込後の事前の内容確認およびご融資に必要な質問事項に対して情報を秘匿される等、ご提案へ⾮協⼒的と判断される⽅<br>過度に⾯談スケジュールのキャンセルや変更等をされる他、営業担当者からの連絡に対してご連絡が繋がらない等、営業担当者からの情報提供に対し協⼒的でないと判断される場合<br>不動産購入に対して決裁権がご自身にない場合またはご相談が必要な場合、決裁権のある方またはご相談者（配偶者等）同席での面談を別途実施出来ると確認できない方<br>当社の提案を全て聴いていただけた上で、不動産購⼊に対して決裁権がご⾃⾝にあり、ご⾃⾝だけで判断できると確認できない⽅<br>不動産投資に興味がないなど特典⽬当てと当社が判断した場合<br>初回の⾯談から30⽇以上次回の⾯談⽇程がとれない場合<br>えらべるデジタルギフトのプレゼント対象は2024年5月15日以降申し込みの方に限ります。（2024年5月14日以前に申し込みの方はAmaonギフトカード）</p><p><strong>【ご⾯談についての注意事項】</strong><br>今現在、不動産投資を検討されていない⽅は、お申し込みをご遠慮ください。<br>以下に当てはまる場合に関してはご⾯談をお断り・キャンセルさせていただく可能性がございます。予めご了承の上でお申し込みください。<br>情報収集のみを⽬的とされる等、不動産を活⽤した資産形成やマンション経営を検討されていないと判断される場合<br>当社で取り扱いの無い投資⼿法やサービスをご希望される場合<br>※投資条件（取り扱いエリア・物件種別・平均利回りなど）に当てはまらない場合<br>※ご希望される内容が、当社の商品やサービスにマッチしない場合<br>具体的な話やシミュレーションのご提⽰が不要という⽅<br>現在の不動産市況・ご⾃⾝の所得状況と乖離のある要求をされる⽅<br>現在の借り⼊れ状況や相談内容等によりサービスの提供が出来ない、ローンのご提案が難しい場合<br>客観的に「ポイントのみが⽬当て」と判断される⾔動や⾏動をされる⽅</p><p><strong>【その他注意事項】</strong><br>本キャンペーンはJ.P.RETURNS株式会社による提供です。本キャンペーンについてのお問い合わせはAmaon・PayPay・楽天でお受けしておりません。J.P.RETURNS株式会社 キャンペーン事務局（03‐5962‐9450）までお願いいたします。<br>Amazon、Amazon.co.jpおよびそれらのロゴはAmazon.com,Inc.またはその関連会社の商標です。<br>PayPay ギフトカードで付与。PayPay/PayPay カード公式ストアでも利用可能です。出金・譲渡不可になります。<br>お申し込み前に、必ずページ内に記載の「取り扱い商品の特徴」をご確認ください。<br>上記条件を全て満たしていなくても、ご成約後、特典を進呈する場合があります。なお、この場合、付与決定までは「付与保留」の取り扱いとさせていただきますので、ご了承ください。<br>（例）<br>・現⾦で投資⽤不動産をご購⼊いただけた⽅<br>・頭⾦として現⾦をお⽀払いいただくことにより、投資⽤不動産をご購⼊いただけた⽅<br>・年収700万円未満または勤続2年未満でも、当社提携の⾦融機関から融資を受け、投資⽤不動産をご購⼊いただけた⽅</p><p><strong>当社の取り扱い商品の特徴</strong><br>取り扱いエリア<br>⼊居率や家賃の相場が⾼い【東京・神奈川エリア】の中古区分物件を中⼼に、築年数や駅距離などの条件の良いものをセレクトし、お客様にご提案しています。<br>※⼀部、⼤阪エリア物件の取り扱いあり<br>物件ラインナップ<br>お客様のニーズにお応えするために、低価格⾼利回り物件からファミリータイプ物件まで、様々な物件を取り扱っています。<br>＜価格帯＞1,000万〜5,000万円程度<br>＜平均利回り＞4%前後</p><p><strong>ご注意</strong><br>キャンペーン参加等により被った一切の損害について、当社は責任を負わないものとします。<br>当社は、諸事情等により、予告なく本キャンペーンの内容の全部または一部を変更したり、本キャンペーンの適正な運用を確保するために必要と判断した措置を講じることができたり、本キャンペーンを早期に終了したりすることができるものとします。<br>当社の意に沿わない場合、お断りの理由については一切お答えが出来ませんのでご了承ください。<br>現物でのギフトカードの贈呈はございません。 特典はメールにてお渡し致します（当社指定の⽅法による）。特典付与のタイミングは⾯談から90⽇後頃を想定しております。</p>`, submit_button_text: "同意して送信", key: "final_consent_given" }
+    { id: 16, item: "最終同意", pre_message: "ご回答ありがとうございました！", question: "個人情報のお取り扱いをご確認の上、「同意して送信」を押してください。", answer_method: "final-consent", privacy_policy_link_text: "個人情報のお取り扱い", privacy_policy_url: "https://jpreturns.com/privacypolicy/", gift_terms_link_text: "えらべるデジタルギフトプレゼント条件", gift_terms_popup_content: `<h3>えらべるデジタルギフトプレゼント条件</h3> <p>【個別面談・Web面談をお申込みのお客様】<br>プレゼントは、web面談で20,000円、オフライン個別相談で50,000円相当のえらべるデジタルギフトを予定しております。面談でえらべるデジタルギフトプレゼントは以下の条件を満たした方が対象となります。なお、web面談、個別相談とは当社のコンサルタントと当社オフィスもしくは当社オフィス外、ウェブ通信にて対面し、当社サービスの十分な説明とお客様についての十分な（数回にわたり）情報を相互に交換したことを指します。<br>また、えらべるデジタルギフトではAmazonギフトカード、PayPayポイント、楽天ポイント（期間限定ポイント※）からご希望の1種のみを選択いただけます。<br>ご希望のポイントは、フォームの「ご質問・ご要望」欄に記入ください。お申し込み時にご記入がない場合は、Amazonギフトカードをプレゼントいたします。お申し込み完了後の変更は原則受け付けておりませんので、予めご了承ください。<br>※獲得いただけるポイントは期間限定ポイントになり、有効期限はポイント獲得後、6ヶ月間です。</p><p><strong>プレゼント条件</strong><br>下記のすべての項⽬を満たしている⽅が対象になります。<br>世帯で初めて「J.P.リターンズ」のサービスを利⽤（セミナー受講、プライベートセミナー、⾯談、資料請求、動画セミナー）する⽅<br>予約申込後、90⽇以内に個別相談を完了された⽅（本⼈確認必須。Web⾯談の場合、カメラON、お顔が⾒える状態で⾯談をお願いします。）<br>⾯談(web以外も含め)に3回以上ご参加いただいた⽅<br>※お客様のご状況や提案状況に応じて、複数回の⾯談を実施する場合がございます。<br>上場企業、それに準ずる企業（＝資本⾦1億円以上）、またはそのグループ会社にお勤めの⽅、もしくは医師、公務員、看護師、薬剤師として現在お勤めの⽅<br>年収700万円以上の方<br>勤続年数が2年以上かつ25歳以上50歳未満の方<br>※主婦、パートの⽅は配偶者の年収が700万円以上の場合、「年収700万円以上の⽅」と判断する場合もございます。<br>フォームよりお申込後、メールでお送りした属性アンケートにご回答頂いた内容、もしくは、営業担当がヒアリングした内容が上記の年収、勤続年数などの条件を満たした⽅<br>事前に「社会健康保険証」をご提出いただいた方(データ送付・もしくは画面にて提示)<br>WebカメラやFacetime等、テレビ通話を通じて対面で面談が出来る方（お顔を隠さず、Face to Faceで面談できる方）<br>当社提携金融機関の融資が受けられる方（ローン審査通過が必須）<br>⾯談前の電話及び⾯談中の質問事項にすべてお答えいただけた⽅<br>※ご融資に必要な質問事項、および当社のサービス提供にあたり必要な質問事項を含む<br>現在の社会環境の中で、前向きに購⼊を検討されている⽅</p><p><strong>プレゼント対象外</strong><br>ご本人以外の面談の場合<br>1世帯で2回以上の申込みの場合<br>虚偽、重複、悪戯、迷惑行為、不正申込、連絡が取れない方、個別面談を受けられない方<br>当社で行なっている他キャンペーンに応募したことがある方<br>同業他社にお勤めの方<br>無職、学生、フリーター・パート・アルバイト、契約・派遣社員の方<br>現在の借り入れ状況や相談内容等によりサービスの提供が出来ない場合<br>自営業の方、既に住宅ローンがある、疾病などの御理由により、ローンが組めない場合（ローンのご提案が難しい場合）<br>Web参加されても途中退席される方<br>(web以外も含め)ご面談が複数回になる場合がある事をご了承いただけない場合<br>十分な面談時間が取れない場合(1回の面談につき、1～2時間程度)<br>⾯談中、明らかに当社コンサルタントと対話する姿勢でない場合<br>お申込後、事前に「社会健康保険証」をデータ送付頂けない方（または、当日、画面にて呈示頂けない方）<br>お申込後の事前の内容確認およびご融資に必要な質問事項に対して情報を秘匿される等、ご提案へ⾮協⼒的と判断される⽅<br>過度に⾯談スケジュールのキャンセルや変更等をされる他、営業担当者からの連絡に対してご連絡が繋がらない等、営業担当者からの情報提供に対し協⼒的でないと判断される場合<br>不動産購入に対して決裁権がご自身にない場合またはご相談が必要な場合、決裁権のある方またはご相談者（配偶者等）同席での面談を別途実施出来ると確認できない方<br>当社の提案を全て聴いていただけた上で、不動産購⼊に対して決裁権がご⾃⾝にあり、ご⾃⾝だけで判断できると確認できない⽅<br>不動産投資に興味がないなど特典⽬当てと当社が判断した場合<br>初回の⾯談から30⽇以上次回の⾯談⽇程がとれない場合<br>えらべるデジタルギフトのプレゼント対象は2024年5月15日以降申し込みの方に限ります。（2024年5月14日以前に申し込みの方はAmaonギフトカード）</p><p><strong>【ご⾯談についての注意事項】</strong><br>今現在、不動産投資を検討されていない⽅は、お申し込みをご遠慮ください。<br>以下に当てはまる場合に関してはご⾯談をお断り・キャンセルさせていただく可能性がございます。予めご了承の上でお申し込みください。<br>情報収集のみを⽬的とされる等、不動産を活⽤した資産形成やマンション経営を検討されていないと判断される場合<br>当社で取り扱いの無い投資⼿法やサービスをご希望される場合<br>※投資条件（取り扱いエリア・物件種別・平均利回りなど）に当てはまらない場合<br>※ご希望される内容が、当社の商品やサービスにマッチしない場合<br>具体的な話やシミュレーションのご提⽰が不要という⽅<br>現在の不動産市況・ご⾃⾝の所得状況と乖離のある要求をされる⽅<br>現在の借り⼊れ状況や相談内容等によりサービスの提供が出来ない、ローンのご提案が難しい場合<br>客観的に「ポイントのみが⽬当て」と判断される⾔動や⾏動をされる⽅</p><p><strong>【その他注意事項】</strong><br>本キャンペーンはJ.P.RETURNS株式会社による提供です。本キャンペーンについてのお問い合わせはAmaon・PayPay・楽天でお受けしておりません。J.P.RETURNS株式会社 キャンペーン事務局（03‐5962‐9450）までお願いいたします。<br>Amazon、Amazon.co.jpおよびそれらのロゴはAmazon.com,Inc.またはその関連会社の商標です。<br>PayPay ギフトカードで付与。PayPay/PayPay カード公式ストアでも利用可能です。出金・譲渡不可になります。<br>お申し込み前に、必ずページ内に記載の「取り扱い商品の特徴」をご確認ください。<br>上記条件を全て満たしていなくても、ご成約後、特典を進呈する場合があります。なお、この場合、付与決定までは「付与保留」の取り扱いとさせていただきますので、ご了承ください。<br>（例）<br>・現⾦で投資⽤不動産をご購⼊いただけた⽅<br>・頭⾦として現⾦をお⽀払いいただくことにより、投資⽤不動産をご購⼊いただけた⽅<br>・年収700万円未満または勤続2年未満でも、当社提携の⾦融機関から融資を受け、投資⽤不動産をご購⼊いただけた⽅</p><p><strong>当社の取り扱い商品の特徴</strong><br>取り扱いエリア<br>⼊居率や家賃の相場が⾼い【東京・神奈川エリア】の中古区分物件を中⼼に、築年数や駅距離などの条件の良いものをセレクトし、お客様にご提案しています。<br>※⼀部、⼤阪エリア物件の取り扱いあり<br>物件ラインナップ<br>お客様のニーズにお応えするために、低価格⾼利回り物件からファミリータイプ物件まで、様々な物件を取り扱っています。<br>＜価格帯＞1,000万〜5,000万円程度<br>＜平均利回り＞4%前後</p><p><strong>ご注意</strong><br>キャンペーン参加等により被った一切の損害について、当社は責任を負わないものとします。<br>当社は、諸事情等により、予告なく本キャンペーンの内容の全部または一部を変更したり、本キャンペーンの適正な運用を確保するために必要と判断した措置を講じることができたり、本キャンペーンを早期に終了したりすることができるものとします。<br>当社の意に沿わない場合、お断りの理由については一切お答えが出来ませんのでご了承ください。<br>現物でのギフトカードの贈呈はございません。 特典はメールにてお渡し致します（当社指定の⽅法による）。特典付与のタイミングは⾯談から90⽇後頃を想定しております。</p>`, submit_button_text: "同意して送信", key: "final_consent_given" }
   ];
 
   const additionalQuestions = [
@@ -508,10 +528,26 @@
   }
 
   function updateProgressBar() {
-    const currentQuestionsArray = (currentFlow === 'initial') ? initialQuestions : additionalQuestions;
-    totalEffectiveQuestions = countTotalEffectiveQuestions(currentQuestionsArray, (currentFlow === 'initial' ? userResponses : additionalUserResponses));
-    const progress = totalEffectiveQuestions > 0 ? (completedEffectiveQuestions / totalEffectiveQuestions) * 100 : 0;
-    progressBar.style.width = Math.min(progress, 100) + '%';
+    let currentQuestionsForProgress = [];
+    let responsesForProgress = {};
+    let isInitialFlowForBar = (currentFlow === 'initial');
+
+    if (isInitialFlowForBar) {
+        currentQuestionsForProgress = initialQuestions.filter(q => q.id !== 16); 
+        responsesForProgress = userResponses;
+    } else if (currentFlow === 'additional') {
+        currentQuestionsForProgress = additionalQuestions;
+        responsesForProgress = additionalUserResponses;
+    } else {
+        progressBar.style.width = '0%';
+        return;
+    }
+
+    let totalStepsForBar = countTotalEffectiveQuestions(currentQuestionsForProgress, responsesForProgress);
+    let completedStepsForBar = completedEffectiveQuestions;
+    
+    const progress = totalStepsForBar > 0 ? (completedStepsForBar / totalStepsForBar) * 100 : 0;
+    progressBar.style.width = Math.min(progress, 100) + '%';
   }
 
   function countTotalEffectiveQuestions(questionsArray, currentResponseSet) {
@@ -699,7 +735,6 @@
     sendPairedButton.innerHTML = `<svg xmlns="http://www.w3.org/2000/svg" width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" class="feather feather-send"><line x1="22" y1="2" x2="11" y2="13"></line><polygon points="22 2 15 22 11 13 2 9 22 2"></polygon></svg>`;
     sendPairedButton.addEventListener('click', () => handlePairedInputSubmit(pairData, questionId));
 
-    // ★ Enterキーでの送信処理を追加 (名またはメイの入力フィールド)
     firstNameInput.addEventListener('keypress', function(event) {
         if (event.key === 'Enter') {
             event.preventDefault(); 
@@ -741,7 +776,7 @@
     const consentMessageBubble = document.createElement('div'); 
     consentMessageBubble.classList.add('message', 'bot-message');
     const privacyPolicyLinkHTML = `<a href="${question.privacy_policy_url}" target="_blank" rel="noopener noreferrer">${question.privacy_policy_link_text}</a>`;
-    consentMessageBubble.innerHTML = question.question.replace(question.privacy_policy_link_text, privacyPolicyLinkHTML);
+    consentMessageBubble.innerHTML = question.question.replace(question.privacy_policy_link_text, privacyPolicyLinkHTML); 
     consentMessageWrapper.appendChild(consentMessageBubble);
     chatMessages.appendChild(consentMessageWrapper); 
 
@@ -781,7 +816,6 @@
     submitButtonAreaWrapper.className = 'choices-area-wrapper'; 
     submitButtonAreaWrapper.style.marginTop = '10px'; 
     const finalSubmitButton = document.createElement('button'); 
-    // ★変更: 最終同意ボタンのクラスを変更
     finalSubmitButton.className = 'choice-button final-consent-submit-button'; 
     finalSubmitButton.textContent = question.submit_button_text;
     finalSubmitButton.id = 'dynamicFinalSubmitButton'; 
@@ -795,6 +829,8 @@
         if (checkbox.checked) {
             if (currentFlow === 'initial') {
                 userResponses[question.key] = true;
+                completedEffectiveQuestions++; 
+                updateProgressBar(); 
                 dynamicInputPlaceholder.innerHTML = ''; 
                 dynamicInputPlaceholder.style.display = 'none'; 
                 await submitDataToGAS(userResponses, false); 
@@ -833,9 +869,9 @@
     }
 
     if (currentStep >= currentQuestionsArray.length) {
-      if (currentFlow === 'initial') {
-        // 初期フロー完了、この後 submitDataToGAS が呼ばれ、追加質問確認へ
-      } else if (currentFlow === 'additional') {
+      if (currentFlow === 'initial' && !userResponses.final_consent_given) { 
+      } else if (currentFlow === 'initial' && userResponses.final_consent_given) {
+      } else if (currentFlow === 'additional') {
         await submitDataToGAS(additionalUserResponses, true); 
       }
       userInput.disabled = true;
@@ -848,12 +884,12 @@
 
     const currentQuestion = currentQuestionsArray[currentStep];
 
-    // ★変更: id:16 (最終同意) の pre_message は削除済みなので、この条件分岐は不要になる
-    // if (currentQuestion.pre_message) await addBotMessage(currentQuestion.pre_message);
-    if (currentQuestion.pre_message_1) { // こちらはID:5 (電話番号) の pre_message 用
+    if (currentQuestion.pre_message_1) { 
         await addBotMessage(currentQuestion.pre_message_1);
         if (currentQuestion.pre_message_2) await addBotMessage(currentQuestion.pre_message_2);
-    }
+    } else if (currentQuestion.pre_message) { 
+        await addBotMessage(currentQuestion.pre_message);
+    }
     
     normalInputArea.style.display = 'none';
     dynamicInputPlaceholder.innerHTML = ''; 
@@ -863,6 +899,9 @@
         const displayNextPair = async () => {
             if (subStep < currentQuestion.pairs.length) {
                 const currentPairData = currentQuestion.pairs[subStep];
+                if (subStep === 0 && currentQuestion.question) {
+                    await addBotMessage(currentQuestion.question);
+                }
                 await addBotMessage(currentPairData.prompt); 
                 displayPairedInputs(currentPairData, currentQuestion.id); 
             } else {
@@ -872,25 +911,30 @@
                 askQuestion(); 
             }
         };
-        if (subStep === 0 && currentQuestion.question) { 
-             await addBotMessage(currentQuestion.question);
-        }
         await displayNextPair();
         return; 
     }
     
-    // ★変更: isHtmlQuestion プロパティをチェックして isHtml 引数を渡す
-    await addBotMessage(currentQuestion.question, currentQuestion.isHtmlQuestion || false); 
+    if (currentQuestion.answer_method !== "final-consent" && currentQuestion.question) {
+      await addBotMessage(currentQuestion.question, currentQuestion.isHtmlQuestion || false); 
+    }
 
     if (currentQuestion.answer_method === "single-choice" || currentQuestion.answer_method === "multiple-choice") {
       displayChoicesOutsideBubble(currentQuestion);
     } else if (currentQuestion.answer_method === "final-consent") {
       setupFinalConsentScreen(currentQuestion); 
-    } else { 
+    } else {  
       normalInputArea.style.display = 'flex'; 
       dynamicInputPlaceholder.style.display = 'none'; 
+      
+      inputIconContainer.innerHTML = ''; 
+      if (currentQuestion.type === 'tel') {
+        inputIconContainer.innerHTML = `<svg xmlns="http://www.w3.org/2000/svg" width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" class="feather feather-phone"><path d="M22 16.92v3a2 2 0 0 1-2.18 2 19.79 19.79 0 0 1-8.63-3.07 19.5 19.5 0 0 1-6-6 19.79 19.79 0 0 1-3.07-8.67A2 2 0 0 1 4.11 2h3a2 2 0 0 1 2 1.72 12.84 12.84 0 0 0 .7 2.81 2 2 0 0 1-.45 2.11L8.09 9.91a16 16 0 0 0 6 6l1.27-1.27a2 2 0 0 1 2.11-.45 12.84 12.84 0 0 0 2.81.7A2 2 0 0 1 22 16.92z"></path></svg>`;
+      } else if (currentQuestion.type === 'email') {
+        inputIconContainer.innerHTML = `<svg xmlns="http://www.w3.org/2000/svg" width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" class="feather feather-mail"><path d="M4 4h16c1.1 0 2 .9 2 2v12c0 1.1-.9 2-2 2H4c-1.1 0-2-.9-2-2V6c0-1.1.9-2 2-2z"></path><polyline points="22,6 12,13 2,6"></polyline></svg>`;
+      }
+
       userInput.type = currentQuestion.type || "text";
-      // ★変更: プレースホルダーを質問オブジェクトから設定
       userInput.placeholder = currentQuestion.placeholder || `ここに入力`;
       userInput.value = ''; 
       userInput.focus();
@@ -941,7 +985,7 @@
     const currentMainQuestion = currentQuestionsArray[currentStep]; 
     if (subStep < currentMainQuestion.pairs.length) {
         const nextPairData = currentMainQuestion.pairs[subStep];
-        await addBotMessage(nextPairData.prompt);
+        await addBotMessage(nextPairData.prompt); 
         displayPairedInputs(nextPairData, currentMainQuestion.id); 
     } else {
         subStep = 0; 
@@ -971,6 +1015,32 @@
     activeChoicesWrapper = null;
 
     completedEffectiveQuestions++;
+    // ★プログレスバー更新ロジック: ID14「質問要望」の回答後
+    if (currentFlow === 'initial' && question.id === 14) {
+        // ID14の回答後、ID15がスキップされるかチェック
+        const question15 = initialQuestions.find(q => q.id === 15);
+        let isQuestion15Skipped = true;
+        if (question15 && question15.condition) {
+            if (userResponses[question15.condition.key] === question15.condition.value) {
+                isQuestion15Skipped = false; // ID15はスキップされない
+            }
+        }
+        if (isQuestion15Skipped) { // ID15がスキップされるなら、ID14回答時点で初期フローの実質的な入力完了
+            const initialQuestionsForBar = initialQuestions.filter(q => q.id !== 16); // 最終同意は除く
+            const totalInitialStepsForBar = countTotalEffectiveQuestions(initialQuestionsForBar, userResponses);
+            // completedEffectiveQuestions が totalInitialStepsForBar 以上なら100%
+            if (completedEffectiveQuestions >= totalInitialStepsForBar) {
+                 progressBar.style.width = '100%';
+            } else { // 通常はありえないが念のため
+                updateProgressBar();
+            }
+        } else {
+            updateProgressBar(); // ID15に進む場合は通常更新
+        }
+    } else {
+        updateProgressBar();
+    }
+
     currentStep++;
     setTimeout(askQuestion, 300); 
   }
@@ -1009,6 +1079,7 @@
     activeChoicesWrapper = null;
 
     completedEffectiveQuestions++;
+    updateProgressBar();
     currentStep++;
     setTimeout(askQuestion, 300); 
   }
@@ -1031,6 +1102,19 @@
     currentResponseSet[currentQuestion.key] = messageText; 
     addUserMessage(messageText);
     completedEffectiveQuestions++;
+
+    // ★プログレスバー更新ロジック: ID15「質問要望詳細」の回答後
+    if (currentFlow === 'initial' && currentQuestion.id === 15) {
+        const initialQuestionsForBar = initialQuestions.filter(q => q.id !== 16); // 最終同意は除く
+        const totalInitialStepsForBar = countTotalEffectiveQuestions(initialQuestionsForBar, userResponses);
+        if (completedEffectiveQuestions >= totalInitialStepsForBar) {
+             progressBar.style.width = '100%';
+        } else { // 通常はありえないが念のため
+            updateProgressBar();
+        }
+    } else {
+        updateProgressBar();
+    }
     currentStep++;
 
     userInput.classList.remove('input-error');
@@ -1059,7 +1143,7 @@
         console.error("GAS_WEB_APP_URL is not set or is a placeholder in config.js.");
         if (!isAdditional) { 
             const q = initialQuestions.find(q => q.answer_method === 'final-consent');
-            if(q) setupFinalConsentScreen(q);
+            if(q) setupFinalConsentScreen(q); 
         } else { 
             await addBotMessage("送信に失敗しました。お手数ですが、最初からやり直してください。");
             inputMethodWrapper.style.display = 'none';
@@ -1084,7 +1168,6 @@
         await addBotMessage("お問い合わせいただきありがとうございました！");
         promptForAdditionalQuestions();
       } else {
-        // ★変更: 追加情報送信後のメッセージ
         await addBotMessage("全ての情報を承りました。ご回答ありがとうございました！後ほど担当の営業よりご連絡いたします。");
         await addBotMessage("お問い合わせはお電話でも受け付けております。");
         await addBotMessage("電話番号：0120147104<br>営業時間：10:00～22:00", true);
@@ -1096,7 +1179,7 @@
       await addBotMessage("エラーが発生し、データを送信できませんでした。お手数ですが、時間をおいて再度お試しください。", false, true);
       if (!isAdditional) {
           const q = initialQuestions.find(q => q.answer_method === 'final-consent');
-          if(q && userResponses[q.key]) setupFinalConsentScreen(q);
+          if(q && userResponses[q.key]) setupFinalConsentScreen(q); 
       } else {
           await addBotMessage("面談希望日時の送信に失敗しました。");
           inputMethodWrapper.style.display = 'none';
@@ -1105,7 +1188,6 @@
   }
 
   async function promptForAdditionalQuestions() {
-    // ★変更: メッセージを2つに分ける、「ポイント5万円分」を赤色に
     await addBotMessage("さらに、面談を受けていただくと<span style='color: red;'>ポイント5万円分</span>のプレゼント対象となります！", true); 
     const question = {
       id: "ask_if_wants_interview", 
@@ -1134,12 +1216,10 @@
           dynamicInputPlaceholder.style.display = 'none';
           if (optionText === "はい") { 
               additionalUserResponses['interview_preference'] = "はい"; 
-              // ★変更: 「はい」選択時のメッセージ
               await addBotMessage("ありがとうございます！では、ご面談日時についてお伺いします。"); 
               startAdditionalQuestionsFlow(); 
-          } else { // いいえの場合
+          } else { 
               additionalUserResponses['interview_preference'] = "いいえ"; 
-              // ★変更: 「いいえ」選択時のメッセージ
               await addBotMessage("承知いたしました！"); 
               await submitDataToGAS(additionalUserResponses, true); 
           }
@@ -1182,6 +1262,16 @@
   });
 
   async function initializeChat() {
+    function adjustChatHeight() {
+      const chatContainer = document.querySelector('.chat-container');
+      if (chatContainer) {
+        chatContainer.style.height = window.innerHeight + 'px';
+      }
+    }
+    window.addEventListener('resize', adjustChatHeight);
+    window.addEventListener('orientationchange', adjustChatHeight);
+    adjustChatHeight(); 
+
     currentSessionId = generateSessionId(); 
     currentFlow = 'initial';
     questions = initialQuestions;
@@ -1192,7 +1282,7 @@
     Object.keys(additionalUserResponses).forEach(key => delete additionalUserResponses[key]);
 
     updateProgressBar(); 
-    if (typeof BOT_ICON_URL === 'undefined' || BOT_ICON_URL === 'YOUR_BOT_ICON_URL_HERE') {
+    if (typeof BOT_ICON_URL !== 'undefined' && BOT_ICON_URL && BOT_ICON_URL !== 'YOUR_BOT_ICON_URL_HERE') {
         console.warn("BOT_ICON_URL is not set or is a placeholder in config.js. Default icon behavior will apply.");
     }
     if (typeof FAVICON_URL !== 'undefined' && FAVICON_URL) {
