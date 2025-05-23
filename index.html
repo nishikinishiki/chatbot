@@ -40,13 +40,14 @@
     display: flex;
     flex-direction: column;
     overflow: hidden; 
+    /* 高さはJavaScriptで調整 */
   }
   @media (max-width: 420px) {
     .chat-container {
       border-radius: 0;
       box-shadow: none;
       max-width: 100%;
-      min-height: 100%; 
+      height: 100%; 
     }
   }
 
@@ -111,7 +112,7 @@
     background-size: cover;
     background-position: center;
     flex-shrink: 0;
-    background-color: #ddd;
+    background-color: #ddd; 
   }
 
   .user-message-wrapper {
@@ -264,51 +265,35 @@
     text-align: right;
   }
   .paired-input-row input[type="text"] {
-    flex-grow: 1;
-    padding: 10px 12px;
-    border: 1px solid #ccc;
-    border-radius: 15px;
-    font-size: 16px;
-    -webkit-appearance: none;
-    appearance: none;
-    min-width: 0;
+    flex-grow: 1; padding: 10px 12px; border: 1px solid #ccc; 
+    border-radius: 15px; font-size: 16px; -webkit-appearance: none; appearance: none; min-width: 0;
+    background-color: #fff; 
+    transition: border-color 0.2s ease-in-out, box-shadow 0.2s ease-in-out, background-color 0.2s ease-in-out;
+    outline: none; 
   }
+  .paired-input-row input[type="text"]:hover {
+    border-color: #a0a0a0; 
+  }
+  .paired-input-row input[type="text"]:focus {
+    outline: none !important; 
+    border-color: #06C755 !important; 
+    box-shadow: 0 0 0 2px rgba(6, 199, 85, 0.2) !important; 
+  }
+  .paired-input-row input.input-error { /* Completedクラスは削除 */
+    border-color: #ff3b30 !important; 
+    background-color: #fff0f0; 
+  }
+
   .paired-input-row .paired-input-send-button {
-    padding: 0;
-    width: 40px;
-    height: 40px;
-    background-color: #06C755;
-    color: white;
-    border: none;
-    border-radius: 50%;
-    cursor: pointer;
-    display: flex;
-    align-items: center;
-    justify-content: center;
-    transition: background-color 0.2s ease;
-    flex-shrink: 0;
+    padding: 0; width: 40px; height: 40px; background-color: #b0b0b0; color: white;
+    border: none; border-radius: 50%; cursor: not-allowed; display: flex;
+    align-items: center; justify-content: center; transition: background-color 0.2s ease; flex-shrink: 0;
   }
-  .paired-input-row .paired-input-send-button.placeholder {
-    visibility: hidden;
-  }
-  .paired-input-row .paired-input-send-button svg {
-    width: 20px;
-    height: 20px;
-  }
-  .paired-input-row .paired-input-send-button:hover:not(:disabled) {
-    background-color: #05a546;
-  }
-  .paired-input-row .paired-input-send-button:disabled {
-    background-color: #b0b0b0;
-  }
-  .paired-input-error {
-    color: red;
-    font-size: 0.8em;
-    margin-top: 3px;
-    text-align: left;
-    width: 100%;
-    padding-left: 10px; 
-  }
+  .paired-input-row .paired-input-send-button.enabled { background-color: #06C755; cursor: pointer; }
+  .paired-input-row .paired-input-send-button.enabled:hover { background-color: #05a546; }
+  .paired-input-row .paired-input-send-button.placeholder { visibility: hidden; }
+  .paired-input-row .paired-input-send-button svg { width: 20px; height: 20px; }
+  .paired-input-error { color: red; font-size: 0.8em; margin-top: 3px; text-align: left; width: 100%; padding-left: 10px; }
 
   .final-consent-checkbox-area {
     font-size: 0.8em;
@@ -338,8 +323,18 @@
     position: relative; box-shadow: 0 5px 15px rgba(0,0,0,0.3);
   }
   .modal-close-button {
-    position: absolute; top: 10px; right: 15px; font-size: 1.8em;
-    font-weight: bold; cursor: pointer; border: none; background: none; color: #888;
+    position: sticky; 
+    top: 10px; 
+    float: right; 
+    margin-right: -10px; 
+    margin-top: -10px; 
+    font-size: 1.8em;
+    font-weight: bold;
+    cursor: pointer;
+    border: none;
+    background: none;
+    color: #888;
+    z-index: 1001; 
   }
   .modal-close-button:hover { color: #000; }
   .modal-content h3 { margin-top: 0; margin-bottom: 15px; font-size: 1.2em; }
@@ -369,130 +364,97 @@
   .input-area input[type="number"],
   .input-area input[type="tel"],
   .input-area input[type="date"] {
-    flex-grow: 1;
-    padding: 10px 16px;
-    border: 1px solid #d0d0d0;
-    border-radius: 20px;
-    margin-right: 8px;
-    font-size: 16px;
-    outline: none;
-    -webkit-appearance: none;
-    appearance: none;
+    flex-grow: 1; padding: 10px 16px; border: 1px solid #d0d0d0; 
+    border-radius: 20px; margin-right: 8px; font-size: 16px; 
+    -webkit-appearance: none; appearance: none;
+    background-color: #fff; 
+    transition: border-color 0.2s ease-in-out, box-shadow 0.2s ease-in-out, background-color 0.2s ease-in-out;
+    outline: none; 
+  }
+  .input-area input[type="text"]:hover,
+  .input-area input[type="email"]:hover,
+  .input-area input[type="tel"]:hover,
+  .input-area input[type="date"]:hover { /* :hover を date にも適用 */
+    border-color: #a0a0a0; 
   }
   .input-area input[type="text"]:focus,
   .input-area input[type="email"]:focus,
   .input-area input[type="number"]:focus,
   .input-area input[type="tel"]:focus,
   .input-area input[type="date"]:focus {
-    border-color: #06C755;
-    box-shadow: 0 0 0 2px rgba(6, 199, 85, 0.2);
+    outline: none !important; 
+    border-color: #06C755 !important; 
+    box-shadow: 0 0 0 2px rgba(6, 199, 85, 0.2) !important; 
   }
-  .input-area button#sendButton {
-    padding: 0;
-    width: 40px;
-    height: 40px;
-    background-color: #06C755;
-    color: white;
-    border: none;
-    border-radius: 50%;
-    cursor: pointer;
-    display: flex;
-    align-items: center;
-    justify-content: center;
-    transition: background-color 0.2s ease;
-    flex-shrink: 0;
-  }
-  .input-area button#sendButton svg {
-    width: 20px;
-    height: 20px;
-  }
-  .input-area button#sendButton:hover {
-    background-color: #05a546;
-  }
-  .input-area button#sendButton:disabled {
-    background-color: #b0b0b0;
-    cursor: not-allowed;
-  }
-  .input-error {
-    border-color: #ff3b30 !important;
-  }
-  .error-message { 
-    color: red;
-    font-size: 0.8em;
-    margin-top: 4px;
-    padding-left: 0; 
-    width: 100%;
-    text-align: left;
+  /* .input-area input.input-completed は削除 */
+  .input-area input.input-error {
+    border-color: #ff3b30 !important; 
+    background-color: #fff0f0; 
   }
 
-  /* --- Calendar Styles --- */
+  .input-area button#sendButton {
+    padding: 0; width: 40px; height: 40px; background-color: #b0b0b0; color: white;
+    border: none; border-radius: 50%; cursor: not-allowed; display: flex;
+    align-items: center; justify-content: center; transition: background-color 0.2s ease; flex-shrink: 0;
+  }
+  .input-area button#sendButton.enabled { background-color: #06C755; cursor: pointer; }
+  .input-area button#sendButton.enabled:hover { background-color: #05a546; }
+  .input-area button#sendButton svg { width: 20px; height: 20px; }
+  
+  .error-message { color: red; font-size: 0.8em; margin-top: 4px; padding-left: 0; width: 100%; text-align: left; }
+
+  /* --- Calendar Styles (変更なし) --- */
   .calendar-container {
-    background-color: #fff;
-    border-radius: 8px;
-    padding: 10px;
-    box-shadow: 0 2px 10px rgba(0,0,0,0.1);
-    width: 100%;
-    max-width: 320px; /* カレンダーの最大幅 */
-    margin: 0 auto; /* 中央寄せ */
+    background-color: #fff; border-radius: 8px; padding: 15px; 
+    box-shadow: 0 4px 12px rgba(0,0,0,0.15); width: 100%;
+    max-width: 340px; margin: 0 auto; font-size: 14px; 
   }
   .calendar-header {
-    display: flex;
-    justify-content: space-between;
-    align-items: center;
-    margin-bottom: 10px;
+    display: flex; justify-content: space-between; 
+    align-items: center; margin-bottom: 5px; 
   }
-  .calendar-header button {
-    background: none;
-    border: none;
-    font-size: 1.2em;
-    cursor: pointer;
-    padding: 5px 10px;
-    color: #06C755;
+  .calendar-nav-buttons button { 
+    background: none; border: 1px solid #06C755; color: #06C755;
+    font-size: 0.9em; font-weight: bold; cursor: pointer;
+    padding: 5px 10px; border-radius: 15px; 
+    transition: background-color 0.2s, color 0.2s; margin-left: 5px; 
   }
-  .calendar-header button:hover {
-    color: #05a546;
-  }
-  .calendar-month-year {
-    font-weight: 500;
-    font-size: 1.1em;
-  }
-  .calendar-grid {
-    display: grid;
-    grid-template-columns: repeat(7, 1fr);
-    gap: 2px;
-    text-align: center;
-  }
+  .calendar-nav-buttons button:hover:not(:disabled) { background-color: #06C755; color: white; }
+  .calendar-nav-buttons button:disabled { border-color: #ccc; color: #ccc; cursor: not-allowed; }
+  .calendar-month-year { font-weight: bold; font-size: 1.2em; color: #333; flex-grow: 1; }
+  .calendar-grid { display: grid; grid-template-columns: repeat(7, 1fr); gap: 4px; text-align: center; }
   .calendar-day-name, .calendar-day {
-    padding: 8px 0;
-    font-size: 0.85em;
+    padding: 10px 0; font-size: 0.9em; display: flex;
+    align-items: center; justify-content: center;
   }
   .calendar-day-name {
-    font-weight: 500;
-    color: #777;
+    font-weight: 500; color: #777; border-bottom: 1px solid #eee; margin-bottom: 5px;
   }
+  .calendar-day-name-sun { color: red !important; }
+  .calendar-day-name-sat { color: blue !important; }
   .calendar-day {
-    cursor: pointer;
-    border-radius: 50%;
-    transition: background-color 0.2s;
+    cursor: pointer; border-radius: 50%;
+    transition: background-color 0.2s, color 0.2s, transform 0.1s;
+    height: 36px; width: 36px; line-height: 36px; margin: auto; 
   }
-  .calendar-day:hover:not(.disabled):not(.empty) {
-    background-color: #e6f8ee;
+  .calendar-day:hover:not(.disabled):not(.empty):not(.selected) { background-color: #e6f8ee; transform: scale(1.05); }
+  .calendar-day.selected { background-color: #06C755; color: white; font-weight: bold; }
+  .calendar-day.today { font-weight: bold; border: 2px solid #06C755; padding: calc(10px - 2px) 0; }
+  .calendar-day.disabled, .calendar-day.empty { cursor: default; color: #ccc; background-color: #f9f9f9; }
+  .calendar-day.disabled:hover, .calendar-day.empty:hover { transform: none; background-color: #f9f9f9; }
+  .calendar-day.empty { background-color: transparent !important; border: none; }
+  .calendar-actions {
+    display: flex; justify-content: flex-end; margin-top: 15px;
+    padding-top: 10px; border-top: 1px solid #eee;
   }
-  .calendar-day.selected {
-    background-color: #06C755;
-    color: white;
+  .calendar-submit-button {
+    background-color: #ccc; color: white; border: none;
+    width: 40px; height: 40px; border-radius: 50%; cursor: not-allowed; 
+    display: flex; align-items: center; justify-content: center; transition: background-color 0.2s;
   }
-  .calendar-day.today {
-    font-weight: bold;
-    border: 1px solid #06C755;
-  }
-  .calendar-day.disabled, .calendar-day.empty {
-    cursor: default;
-    color: #ccc;
-  }
-  .calendar-day.empty {
-    background-color: transparent !important; /* 空のセルはホバー効果なし */
-  }
+  .calendar-submit-button.enabled { background-color: #06C755; cursor: pointer; }
+  .calendar-submit-button.enabled:hover { background-color: #05a546; }
+  .calendar-submit-button svg { width: 20px; height: 20px; stroke: white; }
 
 </style>
 </head>
@@ -511,7 +473,7 @@
     <div class="input-area" id="normalInputArea" style="display: flex;">
       <span id="inputIconContainer" class="input-icon-container"></span> 
       <input type="text" id="userInput" placeholder="ここに入力">
-      <button id="sendButton">
+      <button id="sendButton" disabled> 
         <svg xmlns="http://www.w3.org/2000/svg" width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" class="feather feather-send"><line x1="22" y1="2" x2="11" y2="13"></line><polygon points="22 2 15 22 11 13 2 9 22 2"></polygon></svg>
       </button>
     </div>
@@ -523,16 +485,16 @@
 <div class="modal-overlay" id="giftTermsModal">
   <div class="modal-content">
     <button class="modal-close-button" id="modalCloseButton">&times;</button>
-    <h3 id="modalTitle">えらべるデジタルギフトプレゼント条件</h3>
+    <h3 id="modalTitle"></h3> 
     <div id="modalBody">
     </div>
   </div>
 </div>
 
 
-<script src="config.js"></script> <script>
-  // ...(既存のJavaScriptコードはここに続く)...
-  // ただし、以下の変更点を反映
+<script src="config.js"></script> 
+<script>
+  // --- (JavaScriptの大部分は変更なし、askQuestion, displayPairedInputs, handleUserInput, handlePairedInputSubmit を中心に修正) ---
   const chatMessages = document.getElementById('chatMessages');
   const userInput = document.getElementById('userInput'); 
   const sendButton = document.getElementById('sendButton'); 
@@ -546,6 +508,7 @@
 
   const giftTermsModal = document.getElementById('giftTermsModal');
   const modalCloseButton = document.getElementById('modalCloseButton');
+  const modalTitle = document.getElementById('modalTitle'); 
   const modalBody = document.getElementById('modalBody');
 
   let currentSessionId = ''; 
@@ -559,6 +522,8 @@
   let activeChoicesWrapper = null; 
   let activePairedInputWrapper = null; 
   let completedEffectiveQuestions = 0;
+  let currentCalendarDate = new Date(); 
+  let selectedCalendarDate = null;    
 
   const katakanaRegex = /^[ァ-ヶー　]+$/;
 
@@ -574,17 +539,18 @@
     { id: 6, item: "メールアドレス", question: "メールアドレスを入力してください！", placeholder: "user@example.com", answer_method: "text", type: "email", key: "email_address_new", validation: (v) => /^[^\s@]+@[^\s@]+\.[^\s@]+$/.test(v), errorMessage: "有効なメールアドレスを入力してください。" },
     { id: 14, item: "質問要望", question: "最後に、ご質問・ご要望があれば記載ください。", answer_method: "single-choice", options: ["なし", "その他（自由記述）"], key: "inquiry_text_new", validation: (v) => !!v, errorMessage: "選択してください。" },
     { id: 15, item: "質問要望詳細", question: "ご質問・ご要望の詳細を自由にご記入ください。", answer_method: "text", type: "text", placeholder: "自由にご記入ください", key: "inquiry_text_detail_new", condition: { key: "inquiry_text_new", value: "その他（自由記述）" }, validation: (v) => v && v.trim().length > 0, errorMessage: "詳細を入力してください。" },
-    { id: 16, item: "最終同意", pre_message: "ご回答ありがとうございました！", question: "個人情報のお取り扱いをご確認の上、「同意して送信」を押してください。", answer_method: "final-consent", privacy_policy_link_text: "個人情報のお取り扱い", privacy_policy_url: "https://jpreturns.com/privacypolicy/", gift_terms_link_text: "えらべるデジタルギフトプレゼント条件", gift_terms_popup_content: `<h3>えらべるデジタルギフトプレゼント条件</h3> <p>【個別面談・Web面談をお申込みのお客様】<br>プレゼントは、web面談で20,000円、オフライン個別相談で50,000円相当のえらべるデジタルギフトを予定しております。面談でえらべるデジタルギフトプレゼントは以下の条件を満たした方が対象となります。なお、web面談、個別相談とは当社のコンサルタントと当社オフィスもしくは当社オフィス外、ウェブ通信にて対面し、当社サービスの十分な説明とお客様についての十分な（数回にわたり）情報を相互に交換したことを指します。<br>また、えらべるデジタルギフトではAmazonギフトカード、PayPayポイント、楽天ポイント（期間限定ポイント※）からご希望の1種のみを選択いただけます。<br>ご希望のポイントは、フォームの「ご質問・ご要望」欄に記入ください。お申し込み時にご記入がない場合は、Amazonギフトカードをプレゼントいたします。お申し込み完了後の変更は原則受け付けておりませんので、予めご了承ください。<br>※獲得いただけるポイントは期間限定ポイントになり、有効期限はポイント獲得後、6ヶ月間です。</p><p><strong>プレゼント条件</strong><br>下記のすべての項⽬を満たしている⽅が対象になります。<br>世帯で初めて「J.P.リターンズ」のサービスを利⽤（セミナー受講、プライベートセミナー、⾯談、資料請求、動画セミナー）する⽅<br>予約申込後、90⽇以内に個別相談を完了された⽅（本⼈確認必須。Web⾯談の場合、カメラON、お顔が⾒える状態で⾯談をお願いします。）<br>⾯談(web以外も含め)に3回以上ご参加いただいた⽅<br>※お客様のご状況や提案状況に応じて、複数回の⾯談を実施する場合がございます。<br>上場企業、それに準ずる企業（＝資本⾦1億円以上）、またはそのグループ会社にお勤めの⽅、もしくは医師、公務員、看護師、薬剤師として現在お勤めの⽅<br>年収700万円以上の方<br>勤続年数が2年以上かつ25歳以上50歳未満の方<br>※主婦、パートの⽅は配偶者の年収が700万円以上の場合、「年収700万円以上の⽅」と判断する場合もございます。<br>フォームよりお申込後、メールでお送りした属性アンケートにご回答頂いた内容、もしくは、営業担当がヒアリングした内容が上記の年収、勤続年数などの条件を満たした⽅<br>事前に「社会健康保険証」をご提出いただいた方(データ送付・もしくは画面にて提示)<br>WebカメラやFacetime等、テレビ通話を通じて対面で面談が出来る方（お顔を隠さず、Face to Faceで面談できる方）<br>当社提携金融機関の融資が受けられる方（ローン審査通過が必須）<br>⾯談前の電話及び⾯談中の質問事項にすべてお答えいただけた⽅<br>※ご融資に必要な質問事項、および当社のサービス提供にあたり必要な質問事項を含む<br>現在の社会環境の中で、前向きに購⼊を検討されている⽅</p><p><strong>プレゼント対象外</strong><br>ご本人以外の面談の場合<br>1世帯で2回以上の申込みの場合<br>虚偽、重複、悪戯、迷惑行為、不正申込、連絡が取れない方、個別面談を受けられない方<br>当社で行なっている他キャンペーンに応募したことがある方<br>同業他社にお勤めの方<br>無職、学生、フリーター・パート・アルバイト、契約・派遣社員の方<br>現在の借り入れ状況や相談内容等によりサービスの提供が出来ない場合<br>自営業の方、既に住宅ローンがある、疾病などの御理由により、ローンが組めない場合（ローンのご提案が難しい場合）<br>Web参加されても途中退席される方<br>(web以外も含め)ご面談が複数回になる場合がある事をご了承いただけない場合<br>十分な面談時間が取れない場合(1回の面談につき、1～2時間程度)<br>⾯談中、明らかに当社コンサルタントと対話する姿勢でない場合<br>お申込後、事前に「社会健康保険証」をデータ送付頂けない方（または、当日、画面にて呈示頂けない方）<br>お申込後の事前の内容確認およびご融資に必要な質問事項に対して情報を秘匿される等、ご提案へ⾮協⼒的と判断される⽅<br>過度に⾯談スケジュールのキャンセルや変更等をされる他、営業担当者からの連絡に対してご連絡が繋がらない等、営業担当者からの情報提供に対し協⼒的でないと判断される場合<br>不動産購入に対して決裁権がご自身にない場合またはご相談が必要な場合、決裁権のある方またはご相談者（配偶者等）同席での面談を別途実施出来ると確認できない方<br>当社の提案を全て聴いていただけた上で、不動産購⼊に対して決裁権がご⾃⾝にあり、ご⾃⾝だけで判断できると確認できない⽅<br>不動産投資に興味がないなど特典⽬当てと当社が判断した場合<br>初回の⾯談から30⽇以上次回の⾯談⽇程がとれない場合<br>えらべるデジタルギフトのプレゼント対象は2024年5月15日以降申し込みの方に限ります。（2024年5月14日以前に申し込みの方はAmaonギフトカード）</p><p><strong>【ご⾯談についての注意事項】</strong><br>今現在、不動産投資を検討されていない⽅は、お申し込みをご遠慮ください。<br>以下に当てはまる場合に関してはご⾯談をお断り・キャンセルさせていただく可能性がございます。予めご了承の上でお申し込みください。<br>情報収集のみを⽬的とされる等、不動産を活⽤した資産形成やマンション経営を検討されていないと判断される場合<br>当社で取り扱いの無い投資⼿法やサービスをご希望される場合<br>※投資条件（取り扱いエリア・物件種別・平均利回りなど）に当てはまらない場合<br>※ご希望される内容が、当社の商品やサービスにマッチしない場合<br>具体的な話やシミュレーションのご提⽰が不要という⽅<br>現在の不動産市況・ご⾃⾝の所得状況と乖離のある要求をされる⽅<br>現在の借り⼊れ状況や相談内容等によりサービスの提供が出来ない、ローンのご提案が難しい場合<br>客観的に「ポイントのみが⽬当て」と判断される⾔動や⾏動をされる⽅</p><p><strong>【その他注意事項】</strong><br>本キャンペーンはJ.P.RETURNS株式会社による提供です。本キャンペーンについてのお問い合わせはAmaon・PayPay・楽天でお受けしておりません。J.P.RETURNS株式会社 キャンペーン事務局（03‐5962‐9450）までお願いいたします。<br>Amazon、Amazon.co.jpおよびそれらのロゴはAmazon.com,Inc.またはその関連会社の商標です。<br>PayPay ギフトカードで付与。PayPay/PayPay カード公式ストアでも利用可能です。出金・譲渡不可になります。<br>お申し込み前に、必ずページ内に記載の「取り扱い商品の特徴」をご確認ください。<br>上記条件を全て満たしていなくても、ご成約後、特典を進呈する場合があります。なお、この場合、付与決定までは「付与保留」の取り扱いとさせていただきますので、ご了承ください。<br>（例）<br>・現⾦で投資⽤不動産をご購⼊いただけた⽅<br>・頭⾦として現⾦をお⽀払いいただくことにより、投資⽤不動産をご購⼊いただけた⽅<br>・年収700万円未満または勤続2年未満でも、当社提携の⾦融機関から融資を受け、投資⽤不動産をご購⼊いただけた⽅</p><p><strong>当社の取り扱い商品の特徴</strong><br>取り扱いエリア<br>⼊居率や家賃の相場が⾼い【東京・神奈川エリア】の中古区分物件を中⼼に、築年数や駅距離などの条件の良いものをセレクトし、お客様にご提案しています。<br>※⼀部、⼤阪エリア物件の取り扱いあり<br>物件ラインナップ<br>お客様のニーズにお応えするために、低価格⾼利回り物件からファミリータイプ物件まで、様々な物件を取り扱っています。<br>＜価格帯＞1,000万〜5,000万円程度<br>＜平均利回り＞4%前後</p><p><strong>ご注意</strong><br>キャンペーン参加等により被った一切の損害について、当社は責任を負わないものとします。<br>当社は、諸事情等により、予告なく本キャンペーンの内容の全部または一部を変更したり、本キャンペーンの適正な運用を確保するために必要と判断した措置を講じることができたり、本キャンペーンを早期に終了したりすることができるものとします。<br>当社の意に沿わない場合、お断りの理由については一切お答えが出来ませんのでご了承ください。<br>現物でのギフトカードの贈呈はございません。 特典はメールにてお渡し致します（当社指定の⽅法による）。特典付与のタイミングは⾯談から90⽇後頃を想定しております。</p>`, submit_button_text: "同意して送信", key: "final_consent_given" }
+    { id: 16, item: "最終同意", pre_message: "ご回答ありがとうございました！", question: "個人情報のお取り扱いをご確認の上、「同意して送信」を押してください。", answer_method: "final-consent", privacy_policy_link_text: "個人情報のお取り扱い", privacy_policy_url: "https://jpreturns.com/privacypolicy/", gift_terms_link_text: "えらべるデジタルギフトプレゼント条件", 
+      gift_terms_popup_title: "えらべるデジタルギフトプレゼント条件", 
+      gift_terms_popup_content: `<p>【個別面談・Web面談をお申込みのお客様】<br>プレゼントは、web面談で20,000円、オフライン個別相談で50,000円相当のえらべるデジタルギフトを予定しております。面談でえらべるデジタルギフトプレゼントは以下の条件を満たした方が対象となります。なお、web面談、個別相談とは当社のコンサルタントと当社オフィスもしくは当社オフィス外、ウェブ通信にて対面し、当社サービスの十分な説明とお客様についての十分な（数回にわたり）情報を相互に交換したことを指します。<br>また、えらべるデジタルギフトではAmazonギフトカード、PayPayポイント、楽天ポイント（期間限定ポイント※）からご希望の1種のみを選択いただけます。<br>ご希望のポイントは、フォームの「ご質問・ご要望」欄に記入ください。お申し込み時にご記入がない場合は、Amazonギフトカードをプレゼントいたします。お申し込み完了後の変更は原則受け付けておりませんので、予めご了承ください。<br>※獲得いただけるポイントは期間限定ポイントになり、有効期限はポイント獲得後、6ヶ月間です。</p><p><strong>プレゼント条件</strong><br>下記のすべての項⽬を満たしている⽅が対象になります。<br>世帯で初めて「J.P.リターンズ」のサービスを利⽤（セミナー受講、プライベートセミナー、⾯談、資料請求、動画セミナー）する⽅<br>予約申込後、90⽇以内に個別相談を完了された⽅（本⼈確認必須。Web⾯談の場合、カメラON、お顔が⾒える状態で⾯談をお願いします。）<br>⾯談(web以外も含め)に3回以上ご参加いただいた⽅<br>※お客様のご状況や提案状況に応じて、複数回の⾯談を実施する場合がございます。<br>上場企業、それに準ずる企業（＝資本⾦1億円以上）、またはそのグループ会社にお勤めの⽅、もしくは医師、公務員、看護師、薬剤師として現在お勤めの⽅<br>年収700万円以上の方<br>勤続年数が2年以上かつ25歳以上50歳未満の方<br>※主婦、パートの⽅は配偶者の年収が700万円以上の場合、「年収700万円以上の⽅」と判断する場合もございます。<br>フォームよりお申込後、メールでお送りした属性アンケートにご回答頂いた内容、もしくは、営業担当がヒアリングした内容が上記の年収、勤続年数などの条件を満たした⽅<br>事前に「社会健康保険証」をご提出いただいた方(データ送付・もしくは画面にて提示)<br>WebカメラやFacetime等、テレビ通話を通じて対面で面談が出来る方（お顔を隠さず、Face to Faceで面談できる方）<br>当社提携金融機関の融資が受けられる方（ローン審査通過が必須）<br>⾯談前の電話及び⾯談中の質問事項にすべてお答えいただけた⽅<br>※ご融資に必要な質問事項、および当社のサービス提供にあたり必要な質問事項を含む<br>現在の社会環境の中で、前向きに購⼊を検討されている⽅</p><p><strong>プレゼント対象外</strong><br>ご本人以外の面談の場合<br>1世帯で2回以上の申込みの場合<br>虚偽、重複、悪戯、迷惑行為、不正申込、連絡が取れない方、個別面談を受けられない方<br>当社で行なっている他キャンペーンに応募したことがある方<br>同業他社にお勤めの方<br>無職、学生、フリーター・パート・アルバイト、契約・派遣社員の方<br>現在の借り入れ状況や相談内容等によりサービスの提供が出来ない場合<br>自営業の方、既に住宅ローンがある、疾病などの御理由により、ローンが組めない場合（ローンのご提案が難しい場合）<br>Web参加されても途中退席される方<br>(web以外も含め)ご面談が複数回になる場合がある事をご了承いただけない場合<br>十分な面談時間が取れない場合(1回の面談につき、1～2時間程度)<br>⾯談中、明らかに当社コンサルタントと対話する姿勢でない場合<br>お申込後、事前に「社会健康保険証」をデータ送付頂けない方（または、当日、画面にて呈示頂けない方）<br>お申込後の事前の内容確認およびご融資に必要な質問事項に対して情報を秘匿される等、ご提案へ⾮協⼒的と判断される⽅<br>過度に⾯談スケジュールのキャンセルや変更等をされる他、営業担当者からの連絡に対してご連絡が繋がらない等、営業担当者からの情報提供に対し協⼒的でないと判断される場合<br>不動産購入に対して決裁権がご自身にない場合またはご相談が必要な場合、決裁権のある方またはご相談者（配偶者等）同席での面談を別途実施出来ると確認できない方<br>当社の提案を全て聴いていただけた上で、不動産購⼊に対して決裁権がご⾃⾝にあり、ご⾃⾝だけで判断できると確認できない⽅<br>不動産投資に興味がないなど特典⽬当てと当社が判断した場合<br>初回の⾯談から30⽇以上次回の⾯談⽇程がとれない場合<br>えらべるデジタルギフトのプレゼント対象は2024年5月15日以降申し込みの方に限ります。（2024年5月14日以前に申し込みの方はAmaonギフトカード）</p><p><strong>【ご⾯談についての注意事項】</strong><br>今現在、不動産投資を検討されていない⽅は、お申し込みをご遠慮ください。<br>以下に当てはまる場合に関してはご⾯談をお断り・キャンセルさせていただく可能性がございます。予めご了承の上でお申し込みください。<br>情報収集のみを⽬的とされる等、不動産を活⽤した資産形成やマンション経営を検討されていないと判断される場合<br>当社で取り扱いの無い投資⼿法やサービスをご希望される場合<br>※投資条件（取り扱いエリア・物件種別・平均利回りなど）に当てはまらない場合<br>※ご希望される内容が、当社の商品やサービスにマッチしない場合<br>具体的な話やシミュレーションのご提⽰が不要という⽅<br>現在の不動産市況・ご⾃⾝の所得状況と乖離のある要求をされる⽅<br>現在の借り⼊れ状況や相談内容等によりサービスの提供が出来ない、ローンのご提案が難しい場合<br>客観的に「ポイントのみが⽬当て」と判断される⾔動や⾏動をされる⽅</p><p><strong>【その他注意事項】</strong><br>本キャンペーンはJ.P.RETURNS株式会社による提供です。本キャンペーンについてのお問い合わせはAmaon・PayPay・楽天でお受けしておりません。J.P.RETURNS株式会社 キャンペーン事務局（03‐5962‐9450）までお願いいたします。<br>Amazon、Amazon.co.jpおよびそれらのロゴはAmazon.com,Inc.またはその関連会社の商標です。<br>PayPay ギフトカードで付与。PayPay/PayPay カード公式ストアでも利用可能です。出金・譲渡不可になります。<br>お申し込み前に、必ずページ内に記載の「取り扱い商品の特徴」をご確認ください。<br>上記条件を全て満たしていなくても、ご成約後、特典を進呈する場合があります。なお、この場合、付与決定までは「付与保留」の取り扱いとさせていただきますので、ご了承ください。<br>（例）<br>・現⾦で投資⽤不動産をご購⼊いただけた⽅<br>・頭⾦として現⾦をお⽀払いいただくことにより、投資⽤不動産をご購⼊いただけた⽅<br>・年収700万円未満または勤続2年未満でも、当社提携の⾦融機関から融資を受け、投資⽤不動産をご購⼊いただけた⽅</p><p><strong>当社の取り扱い商品の特徴</strong><br>取り扱いエリア<br>⼊居率や家賃の相場が⾼い【東京・神奈川エリア】の中古区分物件を中⼼に、築年数や駅距離などの条件の良いものをセレクトし、お客様にご提案しています。<br>※⼀部、⼤阪エリア物件の取り扱いあり<br>物件ラインナップ<br>お客様のニーズにお応えするために、低価格⾼利回り物件からファミリータイプ物件まで、様々な物件を取り扱っています。<br>＜価格帯＞1,000万〜5,000万円程度<br>＜平均利回り＞4%前後</p><p><strong>ご注意</strong><br>キャンペーン参加等により被った一切の損害について、当社は責任を負わないものとします。<br>当社は、諸事情等により、予告なく本キャンペーンの内容の全部または一部を変更したり、本キャンペーンの適正な運用を確保するために必要と判断した措置を講じることができたり、本キャンペーンを早期に終了したりすることができるものとします。<br>当社の意に沿わない場合、お断りの理由については一切お答えが出来ませんのでご了承ください。<br>現物でのギフトカードの贈呈はございません。 特典はメールにてお渡し致します（当社指定の⽅法による）。特典付与のタイミングは⾯談から90⽇後頃を想定しております。</p>`, 
+      submit_button_text: "同意して送信", key: "final_consent_given" }
   ];
 
   const additionalQuestions = [
-    // ★変更: answer_method を "calendar" に変更
     { id: 101, item: "相談希望日_第一希望", question: "【第一希望】<br>ご相談希望日をお選びください", isHtmlQuestion: true, answer_method: "calendar", key: "first_choice_date_new", 
       condition: { key: "interview_preference", value: "はい" }, 
-      validation: (v) => /^\d{4}\/(0?[1-9]|1[0-2])\/(0?[1-9]|[12][0-9]|3[01])$/.test(v) && !isNaN(new Date(v)), errorMessage: "YYYY/MM/DD形式で有効な日付を入力してください。" }, // validationは残すが、カレンダー選択が主
+      validation: (v) => /^\d{4}\/(0?[1-9]|1[0-2])\/(0?[1-9]|[12][0-9]|3[01])$/.test(v) && !isNaN(new Date(v)), errorMessage: "YYYY/MM/DD形式で有効な日付を入力してください。" },
     { id: 102, item: "相談希望時間_第一希望", question: "【第一希望】<br>ご相談希望時間をお選びください", isHtmlQuestion: true, answer_method: "single-choice", options: ["10：00～12：00", "12：00～14：00", "14：00～16：00", "16：00～18：00", "18：00～20：00", "20：00 以降", "その他の時間"], key: "first_choice_time_new", condition: { key: "interview_preference", value: "はい" }, validation: (v) => !!v, errorMessage: "選択してください。" },
     { id: 103, item: "相談希望時間_第一希望_その他", question: "【第一希望】その他のご相談希望時間を入力ください", answer_method: "text", type: "text", key: "first_choice_time_other_new", condition: { key: "first_choice_time_new", value: "その他の時間" }, validation: (v) => v && v.trim().length > 0, errorMessage: "希望時間を入力してください。" },
-    // ★変更: answer_method を "calendar" に変更
     { id: 104, item: "相談希望日_第二希望", question: "【第二希望】<br>ご相談希望日をお選びください", isHtmlQuestion: true, answer_method: "calendar", key: "second_choice_date_new", 
       condition: { key: "interview_preference", value: "はい" }, 
       validation: (v) => /^\d{4}\/(0?[1-9]|1[0-2])\/(0?[1-9]|[12][0-9]|3[01])$/.test(v) && !isNaN(new Date(v)), errorMessage: "YYYY/MM/DD形式で有効な日付を入力してください。" },
@@ -593,9 +559,8 @@
   ];
   
   let questions = initialQuestions; 
-  let currentCalendarDate = new Date(); // カレンダー表示用の現在日付
 
-  function generateSessionId() {
+  function generateSessionId() {
     return Date.now().toString(36) + Math.random().toString(36).substring(2, 15);
   }
 
@@ -617,6 +582,11 @@
 
     let totalStepsForBar = countTotalEffectiveQuestions(currentQuestionsForProgress, responsesForProgress);
     let completedStepsForBar = completedEffectiveQuestions;
+    
+    if (isInitialFlowForBar && completedStepsForBar >= totalStepsForBar && totalStepsForBar > 0) {
+         progressBar.style.width = '100%';
+         return;
+    }
     
     const progress = totalStepsForBar > 0 ? (completedStepsForBar / totalStepsForBar) * 100 : 0;
     progressBar.style.width = Math.min(progress, 100) + '%';
@@ -714,11 +684,17 @@
         inputs.forEach(input => input.disabled = true);
         activePairedInputWrapper = null;
     }
-    const activeCalendar = dynamicInputPlaceholder.querySelector('.calendar-container');
-    if (activeCalendar) {
-        // カレンダー内のボタンなどを無効化する処理 (必要に応じて)
-        activeCalendar.querySelectorAll('button, .calendar-day').forEach(el => el.onclick = null);
-    }
+    const activeCalendar = dynamicInputPlaceholder.querySelector('.calendar-container');
+    if (activeCalendar) {
+        activeCalendar.querySelectorAll('button, .calendar-day').forEach(el => {
+            if(el.classList.contains('calendar-day') && !el.classList.contains('disabled') && !el.classList.contains('empty')) {
+                el.onclick = null; 
+                el.style.cursor = 'default';
+            } else if (el.tagName === 'BUTTON') {
+                el.disabled = true;
+            }
+        });
+    }
     const finalSubmitBtn = document.getElementById('dynamicFinalSubmitButton');
     if (finalSubmitBtn) finalSubmitBtn.disabled = true;
   }
@@ -778,70 +754,83 @@
 
     const pairedInputContainer = document.createElement('div');
     pairedInputContainer.className = 'paired-input-container';
-    const lastNameRow = document.createElement('div');
-    lastNameRow.className = 'paired-input-row';
-    const lastNameLabel = document.createElement('label');
-    lastNameLabel.htmlFor = `pairedInput-${questionId}-${subStep}-0`;
-    lastNameLabel.textContent = pairData.inputs[0].label;
-    const lastNameInput = document.createElement('input');
-    lastNameInput.type = pairData.inputs[0].type || "text";
-    lastNameInput.id = `pairedInput-${questionId}-${subStep}-0`;
-    lastNameInput.placeholder = pairData.inputs[0].placeholder || "";
-    lastNameInput.dataset.key = pairData.inputs[0].key;
-    lastNameRow.appendChild(lastNameLabel);
-    lastNameRow.appendChild(lastNameInput);
-    const placeholderButton = document.createElement('div'); 
-    placeholderButton.className = 'paired-input-send-button placeholder';
-    lastNameRow.appendChild(placeholderButton);
-    pairedInputContainer.appendChild(lastNameRow);
+    
+    const inputsArray = []; 
 
-    const firstNameRow = document.createElement('div');
-    firstNameRow.className = 'paired-input-row';
-    const firstNameLabel = document.createElement('label');
-    firstNameLabel.htmlFor = `pairedInput-${questionId}-${subStep}-1`;
-    firstNameLabel.textContent = pairData.inputs[1].label;
-    const firstNameInput = document.createElement('input');
-    firstNameInput.type = pairData.inputs[1].type || "text";
-    firstNameInput.id = `pairedInput-${questionId}-${subStep}-1`;
-    firstNameInput.placeholder = pairData.inputs[1].placeholder || "";
-    firstNameInput.dataset.key = pairData.inputs[1].key;
+    pairData.inputs.forEach((inputConfig, index) => {
+        const inputRow = document.createElement('div');
+        inputRow.className = 'paired-input-row';
+        
+        const label = document.createElement('label');
+        label.htmlFor = `pairedInput-${questionId}-${subStep}-${index}`;
+        label.textContent = inputConfig.label;
+        
+        const input = document.createElement('input');
+        input.type = inputConfig.type || "text";
+        input.id = `pairedInput-${questionId}-${subStep}-${index}`;
+        input.placeholder = inputConfig.placeholder || "";
+        input.dataset.key = inputConfig.key;
+        inputsArray.push(input);
 
-    const sendPairedButton = document.createElement('button');
-    sendPairedButton.className = 'paired-input-send-button';
-    sendPairedButton.dataset.questionId = questionId; 
-    sendPairedButton.innerHTML = `<svg xmlns="http://www.w3.org/2000/svg" width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" class="feather feather-send"><line x1="22" y1="2" x2="11" y2="13"></line><polygon points="22 2 15 22 11 13 2 9 22 2"></polygon></svg>`;
-    sendPairedButton.addEventListener('click', () => handlePairedInputSubmit(pairData, questionId));
+        inputRow.appendChild(label);
+        inputRow.appendChild(input);
 
-    firstNameInput.addEventListener('keypress', function(event) {
-        if (event.key === 'Enter') {
-            event.preventDefault(); 
-            handlePairedInputSubmit(pairData, questionId);
+        if (index === pairData.inputs.length - 1) { 
+            const sendPairedButton = document.createElement('button');
+            sendPairedButton.className = 'paired-input-send-button'; 
+            sendPairedButton.disabled = true; 
+            sendPairedButton.dataset.questionId = questionId; 
+            sendPairedButton.innerHTML = `<svg xmlns="http://www.w3.org/2000/svg" width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" class="feather feather-send"><line x1="22" y1="2" x2="11" y2="13"></line><polygon points="22 2 15 22 11 13 2 9 22 2"></polygon></svg>`;
+            sendPairedButton.addEventListener('click', () => handlePairedInputSubmit(pairData, questionId, inputsArray));
+            inputRow.appendChild(sendPairedButton);
+
+            const validateAndToggleButton = () => {
+                const values = inputsArray.map(inp => inp.value.trim());
+                if (pairData.combinedValidation(values[0], values[1])) {
+                    sendPairedButton.disabled = false;
+                    sendPairedButton.classList.add('enabled');
+                    inputsArray.forEach(inp => inp.classList.remove('input-error'));
+                } else {
+                    sendPairedButton.disabled = true;
+                    sendPairedButton.classList.remove('enabled');
+                }
+            };
+            inputsArray.forEach(inp => inp.addEventListener('input', validateAndToggleButton));
+            
+            input.addEventListener('keypress', function(event) {
+                if (event.key === 'Enter') {
+                    event.preventDefault(); 
+                    if(!sendPairedButton.disabled) {
+                        handlePairedInputSubmit(pairData, questionId, inputsArray);
+                    }
+                }
+            });
+        } else { 
+            const placeholderButton = document.createElement('div'); 
+            placeholderButton.className = 'paired-input-send-button placeholder';
+            inputRow.appendChild(placeholderButton);
+            input.addEventListener('keypress', function(event) {
+                if (event.key === 'Enter') {
+                    event.preventDefault();
+                    inputsArray[index + 1]?.focus();
+                }
+            });
         }
+        pairedInputContainer.appendChild(inputRow);
     });
-     lastNameInput.addEventListener('keypress', function(event) { 
-        if (event.key === 'Enter') {
-            event.preventDefault();
-            firstNameInput.focus();
-        }
-    });
-
-
-    firstNameRow.appendChild(firstNameLabel);
-    firstNameRow.appendChild(firstNameInput);
-    firstNameRow.appendChild(sendPairedButton);
-    pairedInputContainer.appendChild(firstNameRow);
 
     pairedInputAreaWrapper.appendChild(pairedInputContainer);
     dynamicInputPlaceholder.appendChild(pairedInputAreaWrapper); 
     scrollToBottom(); 
-    if(lastNameInput) lastNameInput.focus();
+    if(inputsArray.length > 0) inputsArray[0].focus();
   }
 
   // --- Calendar Functions ---
   function displayCalendar(question) {
     normalInputArea.style.display = 'none';
     dynamicInputPlaceholder.style.display = 'block';
-    dynamicInputPlaceholder.innerHTML = ''; // Clear previous content
+    dynamicInputPlaceholder.innerHTML = ''; 
+    selectedCalendarDate = null; 
 
     const calendarContainer = document.createElement('div');
     calendarContainer.className = 'calendar-container';
@@ -852,52 +841,73 @@
   }
 
   function renderCalendar(container, dateToDisplay, question) {
-    container.innerHTML = ''; // Clear previous calendar
+    container.innerHTML = ''; 
 
     const year = dateToDisplay.getFullYear();
-    const month = dateToDisplay.getMonth(); // 0-11
+    const month = dateToDisplay.getMonth(); 
 
     const header = document.createElement('div');
     header.className = 'calendar-header';
 
-    const prevButton = document.createElement('button');
-    prevButton.innerHTML = '&lt;'; // <
-    prevButton.onclick = () => {
-      currentCalendarDate.setMonth(month - 1);
-      renderCalendar(container, currentCalendarDate, question);
-    };
-
     const monthYearDisplay = document.createElement('span');
     monthYearDisplay.className = 'calendar-month-year';
-    monthYearDisplay.textContent = `${year}年 ${month + 1}月`;
+    monthYearDisplay.textContent = `${year}年 ${month + 1}月`; 
+
+    const navButtonsContainer = document.createElement('div');
+    navButtonsContainer.className = 'calendar-nav-buttons';
+
+    const prevButton = document.createElement('button');
+    prevButton.innerHTML = '&lt;'; 
+    
+    const todayForPrevCheck = new Date();
+    todayForPrevCheck.setDate(1); 
+    todayForPrevCheck.setHours(0,0,0,0);
+    const currentDisplayMonthStart = new Date(year, month, 1);
+
+    if (currentDisplayMonthStart <= todayForPrevCheck) {
+        prevButton.disabled = true; 
+    } else {
+        prevButton.disabled = false;
+        prevButton.onclick = () => {
+          currentCalendarDate.setMonth(month - 1);
+          renderCalendar(container, currentCalendarDate, question); 
+        };
+    }
 
     const nextButton = document.createElement('button');
-    nextButton.innerHTML = '&gt;'; // >
+    nextButton.innerHTML = '&gt;'; 
     nextButton.onclick = () => {
       currentCalendarDate.setMonth(month + 1);
-      renderCalendar(container, currentCalendarDate, question);
+      renderCalendar(container, currentCalendarDate, question); 
     };
 
-    header.appendChild(prevButton);
-    header.appendChild(monthYearDisplay);
-    header.appendChild(nextButton);
+    navButtonsContainer.appendChild(prevButton);
+    navButtonsContainer.appendChild(nextButton);
+
+    header.appendChild(monthYearDisplay); 
+    header.appendChild(navButtonsContainer); 
     container.appendChild(header);
 
     const grid = document.createElement('div');
     grid.className = 'calendar-grid';
 
-    const daysOfWeek = ['日', '月', '火', '水', '木', '金', '土'];
-    daysOfWeek.forEach(day => {
+    const daysOfWeek = ['日', '月', '火', '水', '木', '金', '土']; 
+    daysOfWeek.forEach((day, index) => {
       const dayNameCell = document.createElement('div');
       dayNameCell.className = 'calendar-day-name';
+      if (index === 0) { 
+        dayNameCell.classList.add('calendar-day-name-sun');
+      } else if (index === 6) { 
+        dayNameCell.classList.add('calendar-day-name-sat');
+      }
       dayNameCell.textContent = day;
       grid.appendChild(dayNameCell);
     });
 
-    const firstDayOfMonth = new Date(year, month, 1).getDay(); // 0 (Sun) - 6 (Sat)
+    const firstDayOfMonth = new Date(year, month, 1).getDay(); 
     const daysInMonth = new Date(year, month + 1, 0).getDate();
     const today = new Date();
-    today.setHours(0,0,0,0); // 時刻情報をリセットして日付のみで比較
+    today.setHours(0,0,0,0); 
 
     for (let i = 0; i < firstDayOfMonth; i++) {
       const emptyCell = document.createElement('div');
@@ -912,38 +922,67 @@
       const currentDate = new Date(year, month, day);
       currentDate.setHours(0,0,0,0);
 
-
-      if (currentDate < today) { // 過去日は無効化
+      if (currentDate < today) { 
         dayCell.classList.add('disabled');
       } else {
-        dayCell.onclick = () => {
-          const selectedDateStr = `${year}/${String(month + 1).padStart(2, '0')}/${String(day).padStart(2, '0')}`;
-          handleDateSelection(selectedDateStr, question);
+        dayCell.onclick = () => { 
+          const previouslySelected = container.querySelector('.calendar-day.selected');
+          if (previouslySelected) {
+            previouslySelected.classList.remove('selected');
+          }
+          selectedCalendarDate = currentDate; 
+          dayCell.classList.add('selected');
+          
+          const submitButton = container.querySelector('.calendar-submit-button');
+          if (submitButton) {
+            submitButton.disabled = false;
+            submitButton.classList.add('enabled'); 
+          }
         };
       }
       if (currentDate.getTime() === today.getTime()) {
         dayCell.classList.add('today');
       }
+      if (selectedCalendarDate && selectedCalendarDate.getTime() === currentDate.getTime()) {
+         dayCell.classList.add('selected');
+      }
       grid.appendChild(dayCell);
     }
     container.appendChild(grid);
+
+    const actionsDiv = document.createElement('div');
+    actionsDiv.className = 'calendar-actions';
+    const submitButton = document.createElement('button'); 
+    submitButton.className = 'calendar-submit-button'; 
+    submitButton.innerHTML = `<svg xmlns="http://www.w3.org/2000/svg" width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" class="feather feather-send"><line x1="22" y1="2" x2="11" y2="13"></line><polygon points="22 2 15 22 11 13 2 9 22 2"></polygon></svg>`;
+    submitButton.disabled = !selectedCalendarDate; 
+    if (selectedCalendarDate) {
+        submitButton.classList.add('enabled'); 
+    }
+    submitButton.onclick = () => { 
+      if (selectedCalendarDate) {
+        const year = selectedCalendarDate.getFullYear();
+        const month = selectedCalendarDate.getMonth() + 1;
+        const day = selectedCalendarDate.getDate();
+        const formattedDate = `${year}/${String(month).padStart(2, '0')}/${String(day).padStart(2, '0')}`;
+        
+        const currentResponseSet = (currentFlow === 'initial') ? userResponses : additionalUserResponses;
+        currentResponseSet[question.key] = formattedDate;
+        addUserMessage(formattedDate);
+        
+        dynamicInputPlaceholder.innerHTML = ''; 
+        dynamicInputPlaceholder.style.display = 'none';
+        
+        completedEffectiveQuestions++;
+        currentStep++; 
+        updateProgressBar(); 
+        setTimeout(() => askQuestion(), 300); 
+      }
+    };
+    actionsDiv.appendChild(submitButton);
+    container.appendChild(actionsDiv);
   }
-
-  async function handleDateSelection(dateStr, question) {
-    addUserMessage(dateStr); // ユーザーの選択をチャットに表示
-    
-    const currentResponseSet = (currentFlow === 'initial') ? userResponses : additionalUserResponses;
-    currentResponseSet[question.key] = dateStr;
-
-    dynamicInputPlaceholder.innerHTML = ''; // カレンダーをクリア
-    dynamicInputPlaceholder.style.display = 'none';
-    
-    completedEffectiveQuestions++;
-    currentStep++;
-    setTimeout(askQuestion, 300);
-  }
-
-
+  
   function setupFinalConsentScreen(question) { 
     normalInputArea.style.display = 'none';
     dynamicInputPlaceholder.style.display = 'block'; 
@@ -980,8 +1019,8 @@
     giftLink.id = 'dynamicGiftTermsLink';
     giftLink.addEventListener('click', (e) => {
         e.preventDefault();
-        const giftTermsContent = initialQuestions.find(q => q.id === 16)?.gift_terms_popup_content || "";
-        modalBody.innerHTML = giftTermsContent; 
+        modalTitle.textContent = question.gift_terms_popup_title || "えらべるデジタルギフトプレゼント条件";
+        modalBody.innerHTML = question.gift_terms_popup_content || ""; 
         giftTermsModal.style.display = 'flex';
     });
     label.appendChild(giftLink);
@@ -1028,9 +1067,10 @@
   }
 
   async function askQuestion() {
-    userInput.disabled = false; 
-    sendButton.disabled = false; 
-    userInput.classList.remove('input-error');
+    userInput.disabled = true; 
+    sendButton.disabled = true; 
+    sendButton.classList.remove('enabled'); 
+    userInput.classList.remove('input-error'); 
     removeErrorMessage(); 
 
     updateProgressBar(); 
@@ -1060,6 +1100,7 @@
       }
       userInput.disabled = true;
       sendButton.disabled = true;
+    sendButton.classList.remove('enabled');
       normalInputArea.style.display = 'none';
       dynamicInputPlaceholder.style.display = 'none';
       dynamicInputPlaceholder.innerHTML = '';
@@ -1071,7 +1112,9 @@
     if (currentQuestion.pre_message_1) { 
         await addBotMessage(currentQuestion.pre_message_1);
         if (currentQuestion.pre_message_2) await addBotMessage(currentQuestion.pre_message_2);
-    } else if (currentQuestion.pre_message) { 
+    } else if (currentQuestion.pre_message && currentQuestion.answer_method === "final-consent") { 
+        await addBotMessage(currentQuestion.pre_message);
+    } else if (currentQuestion.pre_message){ 
         await addBotMessage(currentQuestion.pre_message);
     }
     
@@ -1107,7 +1150,9 @@
       displayChoicesOutsideBubble(currentQuestion);
     } else if (currentQuestion.answer_method === "final-consent") {
       setupFinalConsentScreen(currentQuestion); 
-    } else if (currentQuestion.answer_method === "calendar") { // ★カレンダー表示
+    } else if (currentQuestion.answer_method === "calendar") { 
+      currentCalendarDate = new Date(); 
+      selectedCalendarDate = null; 
       displayCalendar(currentQuestion);
     } else {  
       normalInputArea.style.display = 'flex'; 
@@ -1123,23 +1168,38 @@
       userInput.type = currentQuestion.type || "text";
       userInput.placeholder = currentQuestion.placeholder || `ここに入力`;
       userInput.value = ''; 
+      userInput.disabled = false; 
+      sendButton.disabled = true; 
+      sendButton.classList.remove('enabled');
+
+      userInput.oninput = () => { 
+          if (currentQuestion.validation && currentQuestion.validation(userInput.value.trim())) {
+              sendButton.disabled = false;
+              sendButton.classList.add('enabled');
+              userInput.classList.remove('input-error');
+          } else {
+              sendButton.disabled = true;
+              sendButton.classList.remove('enabled');
+          }
+      };
       userInput.focus();
     }
     scrollToBottom();
   }
-
-  async function handlePairedInputSubmit(pairData, questionId) {
+  
+  async function handlePairedInputSubmit(pairData, questionId, inputElements) { // inputElements を引数に追加
     if (!activePairedInputWrapper) return; 
-    const inputs = activePairedInputWrapper.querySelectorAll('input');
-    const values = Array.from(inputs).map(input => input.value.trim());
+    const values = inputElements.map(input => input.value.trim());
     const currentResponseSet = (currentFlow === 'initial') ? userResponses : additionalUserResponses;
+    const sendPairedButton = activePairedInputWrapper.querySelector('.paired-input-send-button:not(.placeholder)');
+
 
     const existingErrorMsg = activePairedInputWrapper.querySelector('.paired-input-error');
     if (existingErrorMsg) existingErrorMsg.remove();
 
     if (pairData.combinedValidation && !pairData.combinedValidation(values[0], values[1])) {
         await addBotMessage(pairData.combinedErrorMessage, false, true); 
-        inputs.forEach((inputEl, index) => {
+        inputElements.forEach((inputEl, index) => {
             let isValidForThisField = true;
             const inputKey = inputEl.dataset.key;
             if (inputKey.includes("kana")) {
@@ -1147,15 +1207,23 @@
             } else {
                 isValidForThisField = values[index] && values[index].length > 0;
             }
-            if (!isValidForThisField) inputEl.classList.add('input-error');
-            else inputEl.classList.remove('input-error');
+            if (!isValidForThisField) {
+                inputEl.classList.add('input-error');
+            } else {
+                inputEl.classList.remove('input-error');
+            }
         });
-        const firstErrorInput = Array.from(inputs).find(input => input.classList.contains('input-error'));
+        const firstErrorInput = inputElements.find(input => input.classList.contains('input-error'));
         if (firstErrorInput) firstErrorInput.focus();
-        else inputs[0].focus(); 
+        else inputElements[0].focus(); 
         return;
     }
-    inputs.forEach(input => input.classList.remove('input-error')); 
+    inputElements.forEach(input => {
+        input.classList.remove('input-error');
+        input.disabled = true; 
+    });
+    if(sendPairedButton) sendPairedButton.disabled = true;
+
 
     let userMessageText = "";
     pairData.inputs.forEach((inputConfig, index) => {
@@ -1164,7 +1232,7 @@
     });
     addUserMessage(userMessageText);
     
-    activePairedInputWrapper = null;
+    activePairedInputWrapper = null; 
 
     subStep++;
     const currentQuestionsArray = (currentFlow === 'initial') ? initialQuestions : additionalQuestions;
@@ -1275,6 +1343,7 @@
     const currentQuestion = currentQuestionsArray[currentStep];
     if (currentQuestion.validation && !currentQuestion.validation(messageText)) {
       await addBotMessage(currentQuestion.errorMessage, false, true);
+      userInput.classList.remove('input-completed'); 
       userInput.classList.add('input-error');
       displayErrorMessage(currentQuestion.errorMessage); 
       userInput.focus();
@@ -1300,8 +1369,9 @@
     currentStep++;
 
     userInput.classList.remove('input-error');
-    removeErrorMessage(); 
     userInput.value = ''; 
+    sendButton.disabled = true; 
+    sendButton.classList.remove('enabled');
     setTimeout(askQuestion, 300); 
   }
 
@@ -1425,7 +1495,7 @@
   sendButton.addEventListener('click', handleUserInput);
   userInput.addEventListener('keypress', function(event) {
     if (event.key === 'Enter') {
-      if (normalInputArea.style.display === 'flex' || normalInputArea.style.display === '') {
+      if ((normalInputArea.style.display === 'flex' || normalInputArea.style.display === '') && !sendButton.disabled) {
          event.preventDefault(); 
          handleUserInput();
       } else {
