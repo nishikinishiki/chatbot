@@ -40,7 +40,6 @@
     display: flex;
     flex-direction: column;
     overflow: hidden; 
-    /* 高さはJavaScriptで調整 */
   }
   @media (max-width: 420px) {
     .chat-container {
@@ -69,7 +68,7 @@
     margin-bottom: 5px;
   }
   .progress-bar-container {
-    width: 80%;
+    width: 90%; 
     height: 8px;
     background-color: #00823f;
     border-radius: 4px;
@@ -78,7 +77,7 @@
   .progress-bar {
     width: 0%;
     height: 100%;
-    background-color: #ffffff;
+    background-color: #FFFFFF;
     border-radius: 4px;
     transition: width 0.3s ease-in-out;
   }
@@ -140,6 +139,13 @@
   .bot-message.error-text {
     color: red;
   }
+  .bot-message a { /* リンクのスタイル調整 */
+    color: #007bff;
+    text-decoration: underline;
+  }
+  .bot-message a:hover {
+    color: #0056b3;
+  }
 
 
   .user-message {
@@ -164,6 +170,8 @@
     width: 100%;
     display: flex;
     justify-content: center;
+    margin-top: 8px; /* 選択肢ボタンの上下マージンを復活 */
+    margin-bottom: 8px;
   }
 
   .choices-container {
@@ -279,7 +287,7 @@
     border-color: #06C755 !important; 
     box-shadow: 0 0 0 2px rgba(6, 199, 85, 0.2) !important; 
   }
-  .paired-input-row input.input-error { /* Completedクラスは削除 */
+  .paired-input-row input.input-error {
     border-color: #ff3b30 !important; 
     background-color: #fff0f0; 
   }
@@ -295,22 +303,7 @@
   .paired-input-row .paired-input-send-button svg { width: 20px; height: 20px; }
   .paired-input-error { color: red; font-size: 0.8em; margin-top: 3px; text-align: left; width: 100%; padding-left: 10px; }
 
-  .final-consent-checkbox-area {
-    font-size: 0.8em;
-    text-align: left;
-    padding: 0 10px; 
-  }
-  .final-consent-checkbox-area input[type="checkbox"] {
-    margin-right: 5px;
-    vertical-align: middle;
-  }
-  .final-consent-checkbox-area label {
-    vertical-align: middle;
-  }
-  .final-consent-checkbox-area a {
-    color: #007bff;
-    text-decoration: underline;
-  }
+  /* .final-consent-checkbox-area は削除 */
 
   .modal-overlay {
     position: fixed; top: 0; left: 0; width: 100%; height: 100%;
@@ -367,14 +360,15 @@
     flex-grow: 1; padding: 10px 16px; border: 1px solid #d0d0d0; 
     border-radius: 20px; margin-right: 8px; font-size: 16px; 
     -webkit-appearance: none; appearance: none;
-    background-color: #fff; 
+    background-color: #FFFFFF; 
     transition: border-color 0.2s ease-in-out, box-shadow 0.2s ease-in-out, background-color 0.2s ease-in-out;
     outline: none; 
   }
   .input-area input[type="text"]:hover,
   .input-area input[type="email"]:hover,
+  .input-area input[type="number"]:hover,
   .input-area input[type="tel"]:hover,
-  .input-area input[type="date"]:hover { /* :hover を date にも適用 */
+  .input-area input[type="date"]:hover { 
     border-color: #a0a0a0; 
   }
   .input-area input[type="text"]:focus,
@@ -386,7 +380,6 @@
     border-color: #06C755 !important; 
     box-shadow: 0 0 0 2px rgba(6, 199, 85, 0.2) !important; 
   }
-  /* .input-area input.input-completed は削除 */
   .input-area input.input-error {
     border-color: #ff3b30 !important; 
     background-color: #fff0f0; 
@@ -403,7 +396,7 @@
   
   .error-message { color: red; font-size: 0.8em; margin-top: 4px; padding-left: 0; width: 100%; text-align: left; }
 
-  /* --- Calendar Styles (変更なし) --- */
+  /* --- Calendar Styles --- */
   .calendar-container {
     background-color: #fff; border-radius: 8px; padding: 15px; 
     box-shadow: 0 4px 12px rgba(0,0,0,0.15); width: 100%;
@@ -415,40 +408,41 @@
   }
   .calendar-nav-buttons button { 
     background: none; border: 1px solid #06C755; color: #06C755;
-    font-size: 0.9em; font-weight: bold; cursor: pointer;
+    font-size: 0.9em; font-weight: 500; cursor: pointer;
     padding: 5px 10px; border-radius: 15px; 
     transition: background-color 0.2s, color 0.2s; margin-left: 5px; 
   }
   .calendar-nav-buttons button:hover:not(:disabled) { background-color: #06C755; color: white; }
-  .calendar-nav-buttons button:disabled { border-color: #ccc; color: #ccc; cursor: not-allowed; }
-  .calendar-month-year { font-weight: bold; font-size: 1.2em; color: #333; flex-grow: 1; }
+  .calendar-nav-buttons button:disabled { border-color: #BDBDBD; color: #BDBDBD; cursor: not-allowed; }
+  .calendar-month-year { font-weight: 500; font-size: 1.2em; color: #212121; flex-grow: 1; }
   .calendar-grid { display: grid; grid-template-columns: repeat(7, 1fr); gap: 4px; text-align: center; }
   .calendar-day-name, .calendar-day {
     padding: 10px 0; font-size: 0.9em; display: flex;
     align-items: center; justify-content: center;
   }
   .calendar-day-name {
-    font-weight: 500; color: #777; border-bottom: 1px solid #eee; margin-bottom: 5px;
+    font-weight: 500; color: #757575; border-bottom: 1px solid #E0E0E0; margin-bottom: 5px;
   }
-  .calendar-day-name-sun { color: red !important; }
-  .calendar-day-name-sat { color: blue !important; }
+  .calendar-day-name-sun { color: #E57373 !important; } 
+  .calendar-day-name-sat { color: #64B5F6 !important; } 
+
   .calendar-day {
     cursor: pointer; border-radius: 50%;
     transition: background-color 0.2s, color 0.2s, transform 0.1s;
     height: 36px; width: 36px; line-height: 36px; margin: auto; 
   }
   .calendar-day:hover:not(.disabled):not(.empty):not(.selected) { background-color: #e6f8ee; transform: scale(1.05); }
-  .calendar-day.selected { background-color: #06C755; color: white; font-weight: bold; }
-  .calendar-day.today { font-weight: bold; border: 2px solid #06C755; padding: calc(10px - 2px) 0; }
-  .calendar-day.disabled, .calendar-day.empty { cursor: default; color: #ccc; background-color: #f9f9f9; }
-  .calendar-day.disabled:hover, .calendar-day.empty:hover { transform: none; background-color: #f9f9f9; }
+  .calendar-day.selected { background-color: #06C755; color: white; font-weight: 500; }
+  .calendar-day.today { font-weight: 500; border: 2px solid #06C755; padding: calc(10px - 2px) 0; }
+  .calendar-day.disabled, .calendar-day.empty { cursor: default; color: #BDBDBD; background-color: #FAFAFA; }
+  .calendar-day.disabled:hover, .calendar-day.empty:hover { transform: none; background-color: #FAFAFA; }
   .calendar-day.empty { background-color: transparent !important; border: none; }
   .calendar-actions {
     display: flex; justify-content: flex-end; margin-top: 15px;
-    padding-top: 10px; border-top: 1px solid #eee;
+    padding-top: 10px; border-top: 1px solid #E0E0E0;
   }
   .calendar-submit-button {
-    background-color: #ccc; color: white; border: none;
+    background-color: #BDBDBD; color: white; border: none;
     width: 40px; height: 40px; border-radius: 50%; cursor: not-allowed; 
     display: flex; align-items: center; justify-content: center; transition: background-color 0.2s;
   }
@@ -494,7 +488,6 @@
 
 <script src="config.js"></script> 
 <script>
-  // --- (JavaScriptの大部分は変更なし、askQuestion, displayPairedInputs, handleUserInput, handlePairedInputSubmit を中心に修正) ---
   const chatMessages = document.getElementById('chatMessages');
   const userInput = document.getElementById('userInput'); 
   const sendButton = document.getElementById('sendButton'); 
@@ -539,9 +532,14 @@
     { id: 6, item: "メールアドレス", question: "メールアドレスを入力してください！", placeholder: "user@example.com", answer_method: "text", type: "email", key: "email_address_new", validation: (v) => /^[^\s@]+@[^\s@]+\.[^\s@]+$/.test(v), errorMessage: "有効なメールアドレスを入力してください。" },
     { id: 14, item: "質問要望", question: "最後に、ご質問・ご要望があれば記載ください。", answer_method: "single-choice", options: ["なし", "その他（自由記述）"], key: "inquiry_text_new", validation: (v) => !!v, errorMessage: "選択してください。" },
     { id: 15, item: "質問要望詳細", question: "ご質問・ご要望の詳細を自由にご記入ください。", answer_method: "text", type: "text", placeholder: "自由にご記入ください", key: "inquiry_text_detail_new", condition: { key: "inquiry_text_new", value: "その他（自由記述）" }, validation: (v) => v && v.trim().length > 0, errorMessage: "詳細を入力してください。" },
-    { id: 16, item: "最終同意", pre_message: "ご回答ありがとうございました！", question: "個人情報のお取り扱いをご確認の上、「同意して送信」を押してください。", answer_method: "final-consent", privacy_policy_link_text: "個人情報のお取り扱い", privacy_policy_url: "https://jpreturns.com/privacypolicy/", gift_terms_link_text: "えらべるデジタルギフトプレゼント条件", 
+    { id: 16, item: "最終同意", pre_message: "ご回答ありがとうございました！", question: "個人情報のお取り扱いをご確認の上、「同意して送信」を押してください。", 
+      answer_method: "final-consent", 
+      privacy_policy_link_text: "個人情報のお取り扱い", 
+      privacy_policy_url: "https://jpreturns.com/privacypolicy/", 
+      gift_terms_link_text: "こちら", // ★変更: リンクテキストを「こちら」に
+      gift_terms_message_template: "えらべるデジタルギフトプレゼント条件は{LINK}。※お申し込み完了後のポイント変更は原則受け付けておりません。予めご了承ください。", // ★追加: ギフト規約メッセージテンプレート
       gift_terms_popup_title: "えらべるデジタルギフトプレゼント条件", 
-      gift_terms_popup_content: `<p>【個別面談・Web面談をお申込みのお客様】<br>プレゼントは、web面談で20,000円、オフライン個別相談で50,000円相当のえらべるデジタルギフトを予定しております。面談でえらべるデジタルギフトプレゼントは以下の条件を満たした方が対象となります。なお、web面談、個別相談とは当社のコンサルタントと当社オフィスもしくは当社オフィス外、ウェブ通信にて対面し、当社サービスの十分な説明とお客様についての十分な（数回にわたり）情報を相互に交換したことを指します。<br>また、えらべるデジタルギフトではAmazonギフトカード、PayPayポイント、楽天ポイント（期間限定ポイント※）からご希望の1種のみを選択いただけます。<br>ご希望のポイントは、フォームの「ご質問・ご要望」欄に記入ください。お申し込み時にご記入がない場合は、Amazonギフトカードをプレゼントいたします。お申し込み完了後の変更は原則受け付けておりませんので、予めご了承ください。<br>※獲得いただけるポイントは期間限定ポイントになり、有効期限はポイント獲得後、6ヶ月間です。</p><p><strong>プレゼント条件</strong><br>下記のすべての項⽬を満たしている⽅が対象になります。<br>世帯で初めて「J.P.リターンズ」のサービスを利⽤（セミナー受講、プライベートセミナー、⾯談、資料請求、動画セミナー）する⽅<br>予約申込後、90⽇以内に個別相談を完了された⽅（本⼈確認必須。Web⾯談の場合、カメラON、お顔が⾒える状態で⾯談をお願いします。）<br>⾯談(web以外も含め)に3回以上ご参加いただいた⽅<br>※お客様のご状況や提案状況に応じて、複数回の⾯談を実施する場合がございます。<br>上場企業、それに準ずる企業（＝資本⾦1億円以上）、またはそのグループ会社にお勤めの⽅、もしくは医師、公務員、看護師、薬剤師として現在お勤めの⽅<br>年収700万円以上の方<br>勤続年数が2年以上かつ25歳以上50歳未満の方<br>※主婦、パートの⽅は配偶者の年収が700万円以上の場合、「年収700万円以上の⽅」と判断する場合もございます。<br>フォームよりお申込後、メールでお送りした属性アンケートにご回答頂いた内容、もしくは、営業担当がヒアリングした内容が上記の年収、勤続年数などの条件を満たした⽅<br>事前に「社会健康保険証」をご提出いただいた方(データ送付・もしくは画面にて提示)<br>WebカメラやFacetime等、テレビ通話を通じて対面で面談が出来る方（お顔を隠さず、Face to Faceで面談できる方）<br>当社提携金融機関の融資が受けられる方（ローン審査通過が必須）<br>⾯談前の電話及び⾯談中の質問事項にすべてお答えいただけた⽅<br>※ご融資に必要な質問事項、および当社のサービス提供にあたり必要な質問事項を含む<br>現在の社会環境の中で、前向きに購⼊を検討されている⽅</p><p><strong>プレゼント対象外</strong><br>ご本人以外の面談の場合<br>1世帯で2回以上の申込みの場合<br>虚偽、重複、悪戯、迷惑行為、不正申込、連絡が取れない方、個別面談を受けられない方<br>当社で行なっている他キャンペーンに応募したことがある方<br>同業他社にお勤めの方<br>無職、学生、フリーター・パート・アルバイト、契約・派遣社員の方<br>現在の借り入れ状況や相談内容等によりサービスの提供が出来ない場合<br>自営業の方、既に住宅ローンがある、疾病などの御理由により、ローンが組めない場合（ローンのご提案が難しい場合）<br>Web参加されても途中退席される方<br>(web以外も含め)ご面談が複数回になる場合がある事をご了承いただけない場合<br>十分な面談時間が取れない場合(1回の面談につき、1～2時間程度)<br>⾯談中、明らかに当社コンサルタントと対話する姿勢でない場合<br>お申込後、事前に「社会健康保険証」をデータ送付頂けない方（または、当日、画面にて呈示頂けない方）<br>お申込後の事前の内容確認およびご融資に必要な質問事項に対して情報を秘匿される等、ご提案へ⾮協⼒的と判断される⽅<br>過度に⾯談スケジュールのキャンセルや変更等をされる他、営業担当者からの連絡に対してご連絡が繋がらない等、営業担当者からの情報提供に対し協⼒的でないと判断される場合<br>不動産購入に対して決裁権がご自身にない場合またはご相談が必要な場合、決裁権のある方またはご相談者（配偶者等）同席での面談を別途実施出来ると確認できない方<br>当社の提案を全て聴いていただけた上で、不動産購⼊に対して決裁権がご⾃⾝にあり、ご⾃⾝だけで判断できると確認できない⽅<br>不動産投資に興味がないなど特典⽬当てと当社が判断した場合<br>初回の⾯談から30⽇以上次回の⾯談⽇程がとれない場合<br>えらべるデジタルギフトのプレゼント対象は2024年5月15日以降申し込みの方に限ります。（2024年5月14日以前に申し込みの方はAmaonギフトカード）</p><p><strong>【ご⾯談についての注意事項】</strong><br>今現在、不動産投資を検討されていない⽅は、お申し込みをご遠慮ください。<br>以下に当てはまる場合に関してはご⾯談をお断り・キャンセルさせていただく可能性がございます。予めご了承の上でお申し込みください。<br>情報収集のみを⽬的とされる等、不動産を活⽤した資産形成やマンション経営を検討されていないと判断される場合<br>当社で取り扱いの無い投資⼿法やサービスをご希望される場合<br>※投資条件（取り扱いエリア・物件種別・平均利回りなど）に当てはまらない場合<br>※ご希望される内容が、当社の商品やサービスにマッチしない場合<br>具体的な話やシミュレーションのご提⽰が不要という⽅<br>現在の不動産市況・ご⾃⾝の所得状況と乖離のある要求をされる⽅<br>現在の借り⼊れ状況や相談内容等によりサービスの提供が出来ない、ローンのご提案が難しい場合<br>客観的に「ポイントのみが⽬当て」と判断される⾔動や⾏動をされる⽅</p><p><strong>【その他注意事項】</strong><br>本キャンペーンはJ.P.RETURNS株式会社による提供です。本キャンペーンについてのお問い合わせはAmaon・PayPay・楽天でお受けしておりません。J.P.RETURNS株式会社 キャンペーン事務局（03‐5962‐9450）までお願いいたします。<br>Amazon、Amazon.co.jpおよびそれらのロゴはAmazon.com,Inc.またはその関連会社の商標です。<br>PayPay ギフトカードで付与。PayPay/PayPay カード公式ストアでも利用可能です。出金・譲渡不可になります。<br>お申し込み前に、必ずページ内に記載の「取り扱い商品の特徴」をご確認ください。<br>上記条件を全て満たしていなくても、ご成約後、特典を進呈する場合があります。なお、この場合、付与決定までは「付与保留」の取り扱いとさせていただきますので、ご了承ください。<br>（例）<br>・現⾦で投資⽤不動産をご購⼊いただけた⽅<br>・頭⾦として現⾦をお⽀払いいただくことにより、投資⽤不動産をご購⼊いただけた⽅<br>・年収700万円未満または勤続2年未満でも、当社提携の⾦融機関から融資を受け、投資⽤不動産をご購⼊いただけた⽅</p><p><strong>当社の取り扱い商品の特徴</strong><br>取り扱いエリア<br>⼊居率や家賃の相場が⾼い【東京・神奈川エリア】の中古区分物件を中⼼に、築年数や駅距離などの条件の良いものをセレクトし、お客様にご提案しています。<br>※⼀部、⼤阪エリア物件の取り扱いあり<br>物件ラインナップ<br>お客様のニーズにお応えするために、低価格⾼利回り物件からファミリータイプ物件まで、様々な物件を取り扱っています。<br>＜価格帯＞1,000万〜5,000万円程度<br>＜平均利回り＞4%前後</p><p><strong>ご注意</strong><br>キャンペーン参加等により被った一切の損害について、当社は責任を負わないものとします。<br>当社は、諸事情等により、予告なく本キャンペーンの内容の全部または一部を変更したり、本キャンペーンの適正な運用を確保するために必要と判断した措置を講じることができたり、本キャンペーンを早期に終了したりすることができるものとします。<br>当社の意に沿わない場合、お断りの理由については一切お答えが出来ませんのでご了承ください。<br>現物でのギフトカードの贈呈はございません。 特典はメールにてお渡し致します（当社指定の⽅法による）。特典付与のタイミングは⾯談から90⽇後頃を想定しております。</p>`, 
+      gift_terms_popup_content: `(ここにギフト規約のHTMLコンテンツが入ります。前のバージョンからコピーしてください)`, 
       submit_button_text: "同意して送信", key: "final_consent_given" }
   ];
 
@@ -559,6 +557,13 @@
   ];
   
   let questions = initialQuestions; 
+
+  // ...(generateSessionId, updateProgressBar, countTotalEffectiveQuestions, showTypingIndicator, hideTypingIndicator, addMessage, addBotMessage, addUserMessage, scrollToBottom, disableOldUIElements, displayChoicesOutsideBubble, displayPairedInputs, handlePairedInputSubmit, handleSingleChoiceClick, toggleMultipleChoiceSelection, handleMultipleChoiceSubmit, handleUserInput, displayErrorMessage, removeErrorMessage, submitDataToGAS, promptForAdditionalQuestions, startAdditionalQuestionsFlow, イベントリスナー, initializeChat は前回のコードから変更なし)...
+  // ただし、カレンダー関連の関数 (displayCalendar, renderCalendar) は chatbot_calendar_ui_test_04 のものをベースに、
+  // メインのチャットボットフローの handleCalendarSubmit (旧 handleDateSelection) を呼び出すように調整します。
+
+  // --- (JavaScriptの大部分は前回の chatbot_form_with_calendar_01 と同様) ---
+  // --- (setupFinalConsentScreen と askQuestion の修正点を以下に抜粋) ---
 
   function generateSessionId() {
     return Date.now().toString(36) + Math.random().toString(36).substring(2, 15);
@@ -999,78 +1004,74 @@
     const consentMessageBubble = document.createElement('div'); 
     consentMessageBubble.classList.add('message', 'bot-message');
     const privacyPolicyLinkHTML = `<a href="${question.privacy_policy_url}" target="_blank" rel="noopener noreferrer">${question.privacy_policy_link_text}</a>`;
-    consentMessageBubble.innerHTML = question.question.replace(question.privacy_policy_link_text, privacyPolicyLinkHTML); 
+    consentMessageBubble.innerHTML = question.question.replace(question.privacy_policy_link_text, privacyPolicyLinkHTML); 
     consentMessageWrapper.appendChild(consentMessageBubble);
     chatMessages.appendChild(consentMessageWrapper); 
 
-    const consentControlsWrapper = document.createElement('div'); 
-    consentControlsWrapper.style.padding = "8px 0"; 
+    // ★変更: ギフト規約メッセージを新しい形式で表示
+    if (question.gift_terms_message_template && question.gift_terms_link_text) {
+        const giftTermsMessageWrapper = document.createElement('div');
+        giftTermsMessageWrapper.classList.add('message-wrapper', 'bot-message-wrapper');
+        const giftBotIconDiv = document.createElement('div');
+        giftBotIconDiv.className = 'bot-icon';
+        if (typeof BOT_ICON_URL !== 'undefined' && BOT_ICON_URL && BOT_ICON_URL !== 'YOUR_BOT_ICON_URL_HERE') {
+            giftBotIconDiv.style.backgroundImage = `url('${BOT_ICON_URL}')`;
+        }
+        giftTermsMessageWrapper.appendChild(giftBotIconDiv);
+        const giftTermsBubble = document.createElement('div');
+        giftTermsBubble.classList.add('message', 'bot-message');
+        
+        const giftLinkElement = document.createElement('a');
+        giftLinkElement.href = "#";
+        giftLinkElement.textContent = question.gift_terms_link_text;
+        giftLinkElement.onclick = (e) => {
+            e.preventDefault();
+            modalTitle.textContent = question.gift_terms_popup_title || "えらべるデジタルギフトプレゼント条件";
+            modalBody.innerHTML = question.gift_terms_popup_content || "";
+            giftTermsModal.style.display = 'flex';
+        };
+        
+        const messageParts = question.gift_terms_message_template.split('{LINK}');
+        giftTermsBubble.appendChild(document.createTextNode(messageParts[0]));
+        giftTermsBubble.appendChild(giftLinkElement);
+        if (messageParts.length > 1) {
+            giftTermsBubble.appendChild(document.createTextNode(messageParts[1]));
+        }
+        giftTermsMessageWrapper.appendChild(giftTermsBubble);
+        chatMessages.appendChild(giftTermsMessageWrapper);
+    }
 
-    const checkboxArea = document.createElement('div'); 
-    checkboxArea.className = 'final-consent-checkbox-area';
-    const checkbox = document.createElement('input');
-    checkbox.type = 'checkbox';
-    checkbox.id = 'dynamicGiftTermsConsentCheckbox';
-    const label = document.createElement('label');
-    label.htmlFor = checkbox.id;
-    const giftLink = document.createElement('a');
-    giftLink.href = "#";
-    giftLink.textContent = question.gift_terms_link_text;
-    giftLink.id = 'dynamicGiftTermsLink';
-    giftLink.addEventListener('click', (e) => {
-        e.preventDefault();
-        modalTitle.textContent = question.gift_terms_popup_title || "えらべるデジタルギフトプレゼント条件";
-        modalBody.innerHTML = question.gift_terms_popup_content || ""; 
-        giftTermsModal.style.display = 'flex';
-    });
-    label.appendChild(giftLink);
-    label.append(" について同意します。");
-    const noteSpan = document.createElement('span');
-    noteSpan.style.display = 'block';
-    noteSpan.style.fontSize = '0.9em';
-    noteSpan.style.color = '#555';
-    noteSpan.textContent = '※お申し込み完了後のポイント変更は原則受け付けておりません。予めご了承ください。';
-    label.appendChild(noteSpan);
-    checkboxArea.appendChild(checkbox);
-    checkboxArea.appendChild(label);
-    consentControlsWrapper.appendChild(checkboxArea);
 
     const submitButtonAreaWrapper = document.createElement('div'); 
     submitButtonAreaWrapper.className = 'choices-area-wrapper'; 
-    submitButtonAreaWrapper.style.marginTop = '10px'; 
+    submitButtonAreaWrapper.style.marginTop = '15px'; // ボタンの上のスペース
     const finalSubmitButton = document.createElement('button'); 
     finalSubmitButton.className = 'choice-button final-consent-submit-button'; 
     finalSubmitButton.textContent = question.submit_button_text;
     finalSubmitButton.id = 'dynamicFinalSubmitButton'; 
-    finalSubmitButton.disabled = true;
-
-    checkbox.addEventListener('change', () => {
-        finalSubmitButton.disabled = !checkbox.checked;
-    });
+    finalSubmitButton.disabled = false; // ★変更: チェックボックスがなくなったのでデフォルトで有効
 
     finalSubmitButton.addEventListener('click', async () => {
-        if (checkbox.checked) {
-            if (currentFlow === 'initial') {
-                userResponses[question.key] = true;
-                completedEffectiveQuestions++; 
-                updateProgressBar(); 
-                dynamicInputPlaceholder.innerHTML = ''; 
-                dynamicInputPlaceholder.style.display = 'none'; 
-                await submitDataToGAS(userResponses, false); 
-            }
+        // チェックボックスの確認は不要に
+        if (currentFlow === 'initial') {
+            userResponses[question.key] = true; // 同意したとみなす
+            completedEffectiveQuestions++; 
+            updateProgressBar(); 
+            dynamicInputPlaceholder.innerHTML = ''; 
+            dynamicInputPlaceholder.style.display = 'none'; 
+            await submitDataToGAS(userResponses, false); 
         }
     });
     submitButtonAreaWrapper.appendChild(finalSubmitButton);
-    consentControlsWrapper.appendChild(submitButtonAreaWrapper);
-    dynamicInputPlaceholder.appendChild(consentControlsWrapper); 
+    dynamicInputPlaceholder.appendChild(submitButtonAreaWrapper); 
     scrollToBottom();
   }
 
   async function askQuestion() {
-    userInput.disabled = true; 
-    sendButton.disabled = true; 
-    sendButton.classList.remove('enabled'); 
-    userInput.classList.remove('input-error'); 
+    userInput.disabled = true; 
+    sendButton.disabled = true; 
+    sendButton.classList.remove('enabled'); 
+    userInput.classList.remove('input-error'); 
     removeErrorMessage(); 
 
     updateProgressBar(); 
@@ -1093,14 +1094,14 @@
     }
 
     if (currentStep >= currentQuestionsArray.length) {
-      if (currentFlow === 'initial' && !userResponses.final_consent_given) { 
-      } else if (currentFlow === 'initial' && userResponses.final_consent_given) {
-      } else if (currentFlow === 'additional') {
+      if (currentFlow === 'initial' && !userResponses.final_consent_given) { 
+      } else if (currentFlow === 'initial' && userResponses.final_consent_given) {
+      } else if (currentFlow === 'additional') {
         await submitDataToGAS(additionalUserResponses, true); 
       }
       userInput.disabled = true;
       sendButton.disabled = true;
-    sendButton.classList.remove('enabled');
+      sendButton.classList.remove('enabled');
       normalInputArea.style.display = 'none';
       dynamicInputPlaceholder.style.display = 'none';
       dynamicInputPlaceholder.innerHTML = '';
@@ -1109,14 +1110,14 @@
 
     const currentQuestion = currentQuestionsArray[currentStep];
 
-    if (currentQuestion.pre_message_1) { 
+    if (currentQuestion.pre_message_1) { 
         await addBotMessage(currentQuestion.pre_message_1);
         if (currentQuestion.pre_message_2) await addBotMessage(currentQuestion.pre_message_2);
-    } else if (currentQuestion.pre_message && currentQuestion.answer_method === "final-consent") { 
-        await addBotMessage(currentQuestion.pre_message);
-    } else if (currentQuestion.pre_message){ 
-        await addBotMessage(currentQuestion.pre_message);
-    }
+    } else if (currentQuestion.pre_message && currentQuestion.answer_method === "final-consent") { 
+        await addBotMessage(currentQuestion.pre_message);
+    } else if (currentQuestion.pre_message){ 
+        await addBotMessage(currentQuestion.pre_message);
+    }
     
     normalInputArea.style.display = 'none';
     dynamicInputPlaceholder.innerHTML = ''; 
@@ -1126,9 +1127,9 @@
         const displayNextPair = async () => {
             if (subStep < currentQuestion.pairs.length) {
                 const currentPairData = currentQuestion.pairs[subStep];
-                if (subStep === 0 && currentQuestion.question) {
-                    await addBotMessage(currentQuestion.question);
-                }
+                if (subStep === 0 && currentQuestion.question) {
+                    await addBotMessage(currentQuestion.question);
+                }
                 await addBotMessage(currentPairData.prompt); 
                 displayPairedInputs(currentPairData, currentQuestion.id); 
             } else {
@@ -1143,51 +1144,51 @@
     }
     
     if (currentQuestion.answer_method !== "final-consent" && currentQuestion.question) {
-      await addBotMessage(currentQuestion.question, currentQuestion.isHtmlQuestion || false); 
-    }
+      await addBotMessage(currentQuestion.question, currentQuestion.isHtmlQuestion || false); 
+    }
 
     if (currentQuestion.answer_method === "single-choice" || currentQuestion.answer_method === "multiple-choice") {
       displayChoicesOutsideBubble(currentQuestion);
     } else if (currentQuestion.answer_method === "final-consent") {
       setupFinalConsentScreen(currentQuestion); 
-    } else if (currentQuestion.answer_method === "calendar") { 
-      currentCalendarDate = new Date(); 
-      selectedCalendarDate = null; 
-      displayCalendar(currentQuestion);
-    } else {  
+    } else if (currentQuestion.answer_method === "calendar") { 
+      currentCalendarDate = new Date(); 
+      selectedCalendarDate = null; 
+      displayCalendar(currentQuestion);
+    } else {   
       normalInputArea.style.display = 'flex'; 
       dynamicInputPlaceholder.style.display = 'none'; 
-      
-      inputIconContainer.innerHTML = ''; 
-      if (currentQuestion.type === 'tel') {
-        inputIconContainer.innerHTML = `<svg xmlns="http://www.w3.org/2000/svg" width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" class="feather feather-phone"><path d="M22 16.92v3a2 2 0 0 1-2.18 2 19.79 19.79 0 0 1-8.63-3.07 19.5 19.5 0 0 1-6-6 19.79 19.79 0 0 1-3.07-8.67A2 2 0 0 1 4.11 2h3a2 2 0 0 1 2 1.72 12.84 12.84 0 0 0 .7 2.81 2 2 0 0 1-.45 2.11L8.09 9.91a16 16 0 0 0 6 6l1.27-1.27a2 2 0 0 1 2.11-.45 12.84 12.84 0 0 0 2.81.7A2 2 0 0 1 22 16.92z"></path></svg>`;
-      } else if (currentQuestion.type === 'email') {
-        inputIconContainer.innerHTML = `<svg xmlns="http://www.w3.org/2000/svg" width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" class="feather feather-mail"><path d="M4 4h16c1.1 0 2 .9 2 2v12c0 1.1-.9 2-2 2H4c-1.1 0-2-.9-2-2V6c0-1.1.9-2 2-2z"></path><polyline points="22,6 12,13 2,6"></polyline></svg>`;
-      }
+      
+      inputIconContainer.innerHTML = ''; 
+      if (currentQuestion.type === 'tel') {
+        inputIconContainer.innerHTML = `<svg xmlns="http://www.w3.org/2000/svg" width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" class="feather feather-phone"><path d="M22 16.92v3a2 2 0 0 1-2.18 2 19.79 19.79 0 0 1-8.63-3.07 19.5 19.5 0 0 1-6-6 19.79 19.79 0 0 1-3.07-8.67A2 2 0 0 1 4.11 2h3a2 2 0 0 1 2 1.72 12.84 12.84 0 0 0 .7 2.81 2 2 0 0 1-.45 2.11L8.09 9.91a16 16 0 0 0 6 6l1.27-1.27a2 2 0 0 1 2.11-.45 12.84 12.84 0 0 0 2.81.7A2 2 0 0 1 22 16.92z"></path></svg>`;
+      } else if (currentQuestion.type === 'email') {
+        inputIconContainer.innerHTML = `<svg xmlns="http://www.w3.org/2000/svg" width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" class="feather feather-mail"><path d="M4 4h16c1.1 0 2 .9 2 2v12c0 1.1-.9 2-2 2H4c-1.1 0-2-.9-2-2V6c0-1.1.9-2 2-2z"></path><polyline points="22,6 12,13 2,6"></polyline></svg>`;
+      }
 
       userInput.type = currentQuestion.type || "text";
       userInput.placeholder = currentQuestion.placeholder || `ここに入力`;
       userInput.value = ''; 
-      userInput.disabled = false; 
-      sendButton.disabled = true; 
-      sendButton.classList.remove('enabled');
+      userInput.disabled = false; 
+      sendButton.disabled = true; 
+      sendButton.classList.remove('enabled');
 
-      userInput.oninput = () => { 
-          if (currentQuestion.validation && currentQuestion.validation(userInput.value.trim())) {
-              sendButton.disabled = false;
-              sendButton.classList.add('enabled');
-              userInput.classList.remove('input-error');
-          } else {
-              sendButton.disabled = true;
-              sendButton.classList.remove('enabled');
-          }
-      };
+      userInput.oninput = () => { 
+          if (currentQuestion.validation && currentQuestion.validation(userInput.value.trim())) {
+              sendButton.disabled = false;
+              sendButton.classList.add('enabled');
+              userInput.classList.remove('input-error');
+          } else {
+              sendButton.disabled = true;
+              sendButton.classList.remove('enabled');
+          }
+      };
       userInput.focus();
     }
     scrollToBottom();
   }
   
-  async function handlePairedInputSubmit(pairData, questionId, inputElements) { // inputElements を引数に追加
+  async function handlePairedInputSubmit(pairData, questionId, inputElements) { 
     if (!activePairedInputWrapper) return; 
     const values = inputElements.map(input => input.value.trim());
     const currentResponseSet = (currentFlow === 'initial') ? userResponses : additionalUserResponses;
@@ -1343,7 +1344,6 @@
     const currentQuestion = currentQuestionsArray[currentStep];
     if (currentQuestion.validation && !currentQuestion.validation(messageText)) {
       await addBotMessage(currentQuestion.errorMessage, false, true);
-      userInput.classList.remove('input-completed'); 
       userInput.classList.add('input-error');
       displayErrorMessage(currentQuestion.errorMessage); 
       userInput.focus();
