@@ -98,6 +98,7 @@
     display: flex;
     width: 100%;
     align-items: flex-end;
+    margin-bottom: 10px;
   }
 
   .bot-message-wrapper {
@@ -119,7 +120,7 @@
   }
 
   .message {
-    max-width: calc(100% - 48px);
+    max-width: calc(100% - 48px); 
     padding: 10px 14px;
     border-radius: 18px;
     line-height: 1.5;
@@ -127,10 +128,9 @@
     font-size: 0.95em;
     box-shadow: 0 1px 2px rgba(0,0,0,0.1);
   }
-  .bot-message-wrapper .message {
+  .bot-message-wrapper .message { 
       max-width: calc(85% - 48px);
   }
-
   .bot-message {
     background-color: #ffffff;
     color: #212121;
@@ -139,18 +139,18 @@
   .bot-message.error-text {
     color: red;
   }
-  .bot-message a { /* リンクのスタイル調整 */
-    color: #007bff;
+  .bot-message a { 
+    color: #007bff; 
     text-decoration: underline;
   }
   .bot-message a:hover {
     color: #0056b3;
   }
-
-
+  
+  /* ★★★ ユーザーメッセージのスタイルを確実に適用 ★★★ */
   .user-message {
-    background-color: #8DE047;
-    color: #000000;
+    background-color: #8DE047 !important; /* 明るい緑を強制 */
+    color: #000000 !important; /* 黒文字を強制 */
     border-bottom-right-radius: 4px;
   }
 
@@ -170,7 +170,7 @@
     width: 100%;
     display: flex;
     justify-content: center;
-    margin-top: 8px; /* 選択肢ボタンの上下マージンを復活 */
+    margin-top: 8px; 
     margin-bottom: 8px;
   }
 
@@ -203,6 +203,9 @@
     word-break: break-word;
     min-width: 0;
     line-height: 1.3;
+    display: flex; 
+    align-items: center;
+    justify-content: center;
   }
   .choice-button:hover:not(:disabled) {
     background-color: #e6f8ee;
@@ -239,6 +242,11 @@
   .final-consent-submit-button:hover:not(:disabled) {
     background-color: #05a546; 
   }
+  .final-consent-submit-button svg { 
+    margin-left: 8px;
+    stroke: white; 
+  }
+
 
   .paired-input-area-wrapper {
     margin-left: -12px;  
@@ -297,13 +305,16 @@
     border: none; border-radius: 50%; cursor: not-allowed; display: flex;
     align-items: center; justify-content: center; transition: background-color 0.2s ease; flex-shrink: 0;
   }
-  .paired-input-row .paired-input-send-button.enabled { background-color: #06C755; cursor: pointer; }
-  .paired-input-row .paired-input-send-button.enabled:hover { background-color: #05a546; }
+  .paired-input-row .paired-input-send-button.enabled { 
+    background-color: #06C755 !important; 
+    cursor: pointer; 
+  }
+  .paired-input-row .paired-input-send-button.enabled:hover { 
+    background-color: #05a546 !important; 
+  }
   .paired-input-row .paired-input-send-button.placeholder { visibility: hidden; }
   .paired-input-row .paired-input-send-button svg { width: 20px; height: 20px; }
   .paired-input-error { color: red; font-size: 0.8em; margin-top: 3px; text-align: left; width: 100%; padding-left: 10px; }
-
-  /* .final-consent-checkbox-area は削除 */
 
   .modal-overlay {
     position: fixed; top: 0; left: 0; width: 100%; height: 100%;
@@ -390,13 +401,18 @@
     border: none; border-radius: 50%; cursor: not-allowed; display: flex;
     align-items: center; justify-content: center; transition: background-color 0.2s ease; flex-shrink: 0;
   }
-  .input-area button#sendButton.enabled { background-color: #06C755; cursor: pointer; }
-  .input-area button#sendButton.enabled:hover { background-color: #05a546; }
+  .input-area button#sendButton.enabled { 
+    background-color: #06C755 !important; 
+    cursor: pointer; 
+  }
+  .input-area button#sendButton.enabled:hover { 
+    background-color: #05a546 !important; 
+  }
   .input-area button#sendButton svg { width: 20px; height: 20px; }
   
   .error-message { color: red; font-size: 0.8em; margin-top: 4px; padding-left: 0; width: 100%; text-align: left; }
 
-  /* --- Calendar Styles --- */
+  /* --- Calendar Styles (変更なし) --- */
   .calendar-container {
     background-color: #fff; border-radius: 8px; padding: 15px; 
     box-shadow: 0 4px 12px rgba(0,0,0,0.15); width: 100%;
@@ -488,6 +504,9 @@
 
 <script src="config.js"></script> 
 <script>
+  // --- (JavaScriptの大部分は変更なし、askQuestion, displayPairedInputs, handleUserInput, handlePairedInputSubmit を中心に修正) ---
+  // --- (setupFinalConsentScreen, displayCalendar, renderCalendar, handleCalendarSubmit, promptForAdditionalQuestions, initializeChat も変更なし) ---
+  // gift_terms_popup_content の中身は省略しています。元のコードからコピーしてください。
   const chatMessages = document.getElementById('chatMessages');
   const userInput = document.getElementById('userInput'); 
   const sendButton = document.getElementById('sendButton'); 
@@ -536,8 +555,8 @@
       answer_method: "final-consent", 
       privacy_policy_link_text: "個人情報のお取り扱い", 
       privacy_policy_url: "https://jpreturns.com/privacypolicy/", 
-      gift_terms_link_text: "こちら", // ★変更: リンクテキストを「こちら」に
-      gift_terms_message_template: "えらべるデジタルギフトプレゼント条件は{LINK}。※お申し込み完了後のポイント変更は原則受け付けておりません。予めご了承ください。", // ★追加: ギフト規約メッセージテンプレート
+      gift_terms_link_text: "こちら", 
+      gift_terms_message_template: "えらべるデジタルギフトプレゼント条件は{LINK}。※お申し込み完了後のポイント変更は原則受け付けておりません。予めご了承ください。", 
       gift_terms_popup_title: "えらべるデジタルギフトプレゼント条件", 
       gift_terms_popup_content: `(ここにギフト規約のHTMLコンテンツが入ります。前のバージョンからコピーしてください)`, 
       submit_button_text: "同意して送信", key: "final_consent_given" }
@@ -558,12 +577,11 @@
   
   let questions = initialQuestions; 
 
-  // ...(generateSessionId, updateProgressBar, countTotalEffectiveQuestions, showTypingIndicator, hideTypingIndicator, addMessage, addBotMessage, addUserMessage, scrollToBottom, disableOldUIElements, displayChoicesOutsideBubble, displayPairedInputs, handlePairedInputSubmit, handleSingleChoiceClick, toggleMultipleChoiceSelection, handleMultipleChoiceSubmit, handleUserInput, displayErrorMessage, removeErrorMessage, submitDataToGAS, promptForAdditionalQuestions, startAdditionalQuestionsFlow, イベントリスナー, initializeChat は前回のコードから変更なし)...
-  // ただし、カレンダー関連の関数 (displayCalendar, renderCalendar) は chatbot_calendar_ui_test_04 のものをベースに、
-  // メインのチャットボットフローの handleCalendarSubmit (旧 handleDateSelection) を呼び出すように調整します。
-
-  // --- (JavaScriptの大部分は前回の chatbot_form_with_calendar_01 と同様) ---
-  // --- (setupFinalConsentScreen と askQuestion の修正点を以下に抜粋) ---
+  // ... (JavaScriptの大部分は変更なし) ...
+  // 以下、変更があった、または主要な関数を抜粋して再掲
+  // initializeChat, addBotMessage, displayPairedInputs, setupFinalConsentScreen, askQuestion, 
+  // handlePairedInputSubmit, handleSingleChoiceClick, handleUserInput, submitDataToGAS, promptForAdditionalQuestions,
+  // displayCalendar, renderCalendar
 
   function generateSessionId() {
     return Date.now().toString(36) + Math.random().toString(36).substring(2, 15);
@@ -660,11 +678,41 @@
     chatMessages.appendChild(messageWrapper);
     return messageElement;
   }
-  function addBotMessage(messageText, isHtml = false, isError = false) {
+  function addBotMessage(messageText, isHtml = false, isError = false, isEbookBtn = false) { 
     showTypingIndicator();
     return new Promise(resolve => {
       setTimeout(() => {
-        const msgElem = addMessage(messageText, 'bot', isHtml, isError);
+        let msgElem;
+        if (isEbookBtn) { 
+            const messageWrapper = document.createElement('div');
+            messageWrapper.classList.add('message-wrapper', 'bot-message-wrapper');
+            const botIconDiv = document.createElement('div');
+            botIconDiv.className = 'bot-icon';
+             if (typeof BOT_ICON_URL !== 'undefined' && BOT_ICON_URL && BOT_ICON_URL !== 'YOUR_BOT_ICON_URL_HERE') {
+                botIconDiv.style.backgroundImage = `url('${BOT_ICON_URL}')`;
+            }
+            messageWrapper.appendChild(botIconDiv);
+
+            const messageElementContainer = document.createElement('div'); 
+            messageElementContainer.classList.add('message', 'bot-message', 'ebook-button-message-content');
+            
+            const buttonLink = document.createElement('a');
+            buttonLink.href = "https://jpreturns.com/ebook/";
+            buttonLink.target = "_blank";
+            buttonLink.rel = "noopener noreferrer";
+            buttonLink.className = "ebook-button-link";
+            buttonLink.innerHTML = `
+              <svg xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" class="feather feather-book-open"><path d="M2 3h6a4 4 0 0 1 4 4v14a3 3 0 0 0-3-3H2z"></path><path d="M22 3h-6a4 4 0 0 0-4 4v14a3 3 0 0 1 3-3h7z"></path></svg>
+              <span>${messageText}</span>
+            `;
+            messageElementContainer.appendChild(buttonLink);
+            messageWrapper.appendChild(messageElementContainer);
+            chatMessages.appendChild(messageWrapper);
+            msgElem = messageElementContainer; 
+            hideTypingIndicator(); 
+        } else {
+            msgElem = addMessage(messageText, 'bot', isHtml, isError);
+        }
         resolve(msgElem);
       }, 600 + Math.random() * 400);
     });
@@ -830,7 +878,7 @@
     if(inputsArray.length > 0) inputsArray[0].focus();
   }
 
-  // --- Calendar Functions ---
+  // --- Calendar Functions (統合) ---
   function displayCalendar(question) {
     normalInputArea.style.display = 'none';
     dynamicInputPlaceholder.style.display = 'block';
@@ -1008,7 +1056,6 @@
     consentMessageWrapper.appendChild(consentMessageBubble);
     chatMessages.appendChild(consentMessageWrapper); 
 
-    // ★変更: ギフト規約メッセージを新しい形式で表示
     if (question.gift_terms_message_template && question.gift_terms_link_text) {
         const giftTermsMessageWrapper = document.createElement('div');
         giftTermsMessageWrapper.classList.add('message-wrapper', 'bot-message-wrapper');
@@ -1044,17 +1091,16 @@
 
     const submitButtonAreaWrapper = document.createElement('div'); 
     submitButtonAreaWrapper.className = 'choices-area-wrapper'; 
-    submitButtonAreaWrapper.style.marginTop = '15px'; // ボタンの上のスペース
+    submitButtonAreaWrapper.style.marginTop = '15px'; 
     const finalSubmitButton = document.createElement('button'); 
     finalSubmitButton.className = 'choice-button final-consent-submit-button'; 
-    finalSubmitButton.textContent = question.submit_button_text;
+    finalSubmitButton.innerHTML = `<span>${question.submit_button_text}</span><svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round" class="feather feather-send"><line x1="22" y1="2" x2="11" y2="13"></line><polygon points="22 2 15 22 11 13 2 9 22 2"></polygon></svg>`;
     finalSubmitButton.id = 'dynamicFinalSubmitButton'; 
-    finalSubmitButton.disabled = false; // ★変更: チェックボックスがなくなったのでデフォルトで有効
+    finalSubmitButton.disabled = false; 
 
     finalSubmitButton.addEventListener('click', async () => {
-        // チェックボックスの確認は不要に
         if (currentFlow === 'initial') {
-            userResponses[question.key] = true; // 同意したとみなす
+            userResponses[question.key] = true; 
             completedEffectiveQuestions++; 
             updateProgressBar(); 
             dynamicInputPlaceholder.innerHTML = ''; 
@@ -1422,7 +1468,11 @@
       } else {
         await addBotMessage("全ての情報を承りました。ご回答ありがとうございました！後ほど担当の営業よりご連絡いたします。");
         await addBotMessage("お問い合わせはお電話でも受け付けております。");
-        await addBotMessage("電話番号：0120147104<br>営業時間：10:00～22:00", true);
+        await addBotMessage("電話番号：<a href='tel:0120147104'>0120-147-104</a><br>営業時間：10:00～22:00", true);
+        await new Promise(resolve => setTimeout(resolve, 800));
+        await addBotMessage("ebookは下記のリンクから閲覧可能です！"); 
+        await new Promise(resolve => setTimeout(resolve, 800)); 
+        await addBotMessage("ebookの閲覧はこちら！", false, false, true); // ★第4引数 isEbookBtn を true に
         inputMethodWrapper.style.display = 'none'; 
       }
     })
@@ -1441,6 +1491,7 @@
 
   async function promptForAdditionalQuestions() {
     await addBotMessage("さらに、面談を受けていただくと<span style='color: red;'>ポイント5万円分</span>のプレゼント対象となります！", true); 
+    await new Promise(resolve => setTimeout(resolve, 800)); 
     const question = {
       id: "ask_if_wants_interview", 
       question: "不動産投資に関するご面談を希望されますか？", 
