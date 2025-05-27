@@ -678,15 +678,15 @@
   const initialQuestions = [
     { id: 1, item: "職業", question: "まずはじめに、ご職業を教えてください。", answer_method: "single-choice", options: ["会社員（上場企業）", "会社員（その他）", "公務員", "経営者", "士業（医師、看護師、弁護士、税理士など）", "自営業・その他"], key: "occupation_new", validation: (v) => !!v, errorMessage: "選択してください。" },
     { id: 2, item: "年収", question: "続いて、現在の年収を教えてください。", answer_method: "single-choice", options: ["0～399万", "400～499万", "500～599万", "600～699万", "700～799万", "800～899万", "900～999万", "1000～1099万", "1100～1199万", "1200～1299万", "1300～1399万", "1400～1499万", "1500～1999万", "2000～2499万", "2500～2999万", "3000～3999万", "4000～4999万", "5000万～1億未満", "1億以上"], key: "annual_income_new", validation: (v) => !!v, errorMessage: "選択してください。" },
-    { id: 3, item: "年齢", question: "ご年齢はおいくつでしょうか。", answer_method: "single-choice", options: ["20歳未満", "20～24歳", "25～29歳", "30～34歳", "35～39歳", "40～44歳", "45～49歳", "50～54歳", "55～59歳", "60～64歳", "65～69歳", "70歳以上"], key: "age_group_new", validation: (v) => !!v, errorMessage: "選択してください。" },
+    { id: 3, item: "年齢", question: "ご年齢はおいくつでしょうか？", answer_method: "single-choice", options: ["20歳未満", "20～24歳", "25～29歳", "30～34歳", "35～39歳", "40～44歳", "45～49歳", "50～54歳", "55～59歳", "60～64歳", "65～69歳", "70歳以上"], key: "age_group_new", validation: (v) => !!v, errorMessage: "選択してください。" },
     { id: 4, item: "お名前", question: "ありがとうございます！", answer_method: "text-pair", pairs: [ 
-        { prompt: "お名前を漢字で入力してください。", inputs: [ { label: "姓", key: "last_name_new", placeholder: "山田", type: "text" }, { label: "名", key: "first_name_new", placeholder: "太郎", type: "text" } ], combinedValidation: (v1, v2) => (v1 && v1.trim().length > 0) && (v2 && v2.trim().length > 0), combinedErrorMessage: "姓と名の両方を入力してください。" },
-        { prompt: "続いて、フリガナを全角カタカナで入力してください。", inputs: [ { label: "セイ", key: "last_name_kana_new", placeholder: "ヤマダ", type: "text" }, { label: "メイ", key: "first_name_kana_new", placeholder: "タロウ", type: "text" } ], combinedValidation: (v1, v2) => (v1 && katakanaRegex.test(v1.trim())) && (v2 && katakanaRegex.test(v2.trim())), combinedErrorMessage: "セイとメイの両方を全角カタカナで入力してください。" }
+        { prompt: "お名前を入力してください。", inputs: [ { label: "姓", key: "last_name_new", placeholder: "山田", type: "text" }, { label: "名", key: "first_name_new", placeholder: "太郎", type: "text" } ], combinedValidation: (v1, v2) => (v1 && v1.trim().length > 0) && (v2 && v2.trim().length > 0), combinedErrorMessage: "姓と名の両方を入力してください。" },
+        { prompt: "続いて、フリガナを入力してください。（全角カタカナ）", inputs: [ { label: "セイ", key: "last_name_kana_new", placeholder: "ヤマダ", type: "text" }, { label: "メイ", key: "first_name_kana_new", placeholder: "タロウ", type: "text" } ], combinedValidation: (v1, v2) => (v1 && katakanaRegex.test(v1.trim())) && (v2 && katakanaRegex.test(v2.trim())), combinedErrorMessage: "セイとメイの両方を全角カタカナで入力してください。" }
       ], key_group: "name_details" },
-    { id: 5, item: "電話番号", pre_message_1: "ありがとうございます", pre_message_2: "残り3問です！", question: "電話番号を入力してください。", placeholder: "09012345678", answer_method: "text", type: "tel", key: "phone_number_new", validation: (v) => /^[0-9]{10,11}$/.test(v.replace(/-/g, "")), errorMessage: "有効な電話番号をハイフンなし半角数字で入力してください。" },
+    { id: 5, item: "電話番号", pre_message_1: "ご入力ありがとうございます！", pre_message_2: "残り3問です！", question: "電話番号を入力してください。", placeholder: "09012345678", answer_method: "text", type: "tel", key: "phone_number_new", validation: (v) => /^[0-9]{10,11}$/.test(v.replace(/-/g, "")), errorMessage: "有効な電話番号をハイフンなし半角数字で入力してください。" },
     { id: 6, item: "メールアドレス", question: "メールアドレスを入力してください！", placeholder: "user@example.com", answer_method: "text", type: "email", key: "email_address_new", validation: (v) => /^[^\s@]+@[^\s@]+\.[^\s@]+$/.test(v), errorMessage: "有効なメールアドレスを入力してください。" },
     { id: 14, item: "ご質問・ご要望", question: "最後に、ご質問・ご要望があれば記載ください。", answer_method: "single-choice", options: ["なし", "その他（自由記述）"], key: "inquiry_text_new", validation: (v) => !!v, errorMessage: "選択してください。" },
-    { id: 15, item: "ご質問・ご要望（詳細）", question: "ご質問・ご要望の詳細を自由にご記入ください。", answer_method: "text", type: "text", placeholder: "自由にご記入ください", key: "inquiry_text_detail_new", condition: { key: "inquiry_text_new", value: "その他（自由記述）" }, validation: (v) => v && v.trim().length > 0, errorMessage: "詳細を入力してください。" },
+    { id: 15, item: "ご質問・ご要望（詳細）", question: "ご質問・ご要望をご記入ください。", answer_method: "text", type: "text", placeholder: "自由にご記入ください", key: "inquiry_text_detail_new", condition: { key: "inquiry_text_new", value: "その他（自由記述）" }, validation: (v) => v && v.trim().length > 0, errorMessage: "詳細を入力してください。" },
     { 
       id: 16, 
       item: "最終確認", 
@@ -1734,14 +1734,14 @@
       if (!isAdditional) {
             clearChatMessages(); // ★最初の送信完了後にメッセージクリア
             await new Promise(resolve => setTimeout(resolve, 300)); // クリア後のわずかな間
-            await addBotMessage("お問い合わせいただきありがとうございました！");
+            await addBotMessage("送信が完了しました。<br>お問い合わせいただきありがとうございました！");
             promptForAdditionalQuestions();
       } else {
-        await addBotMessage("全ての情報を承りました。ご回答ありがとうございました！後ほど担当の営業よりご連絡いたします。");
+        await addBotMessage("全ての情報を承りました。ご回答ありがとうございました！<br>後ほど担当よりご連絡いたします。");
         await addBotMessage("お問い合わせはお電話でも受け付けております。");
-        await addBotMessage("電話番号：<a href='tel:0120147104'>0120-147-104</a><br>営業時間：10:00～22:00", true);
+        await addBotMessage("電話番号：<a href='tel:0120147104'>0120-147-104</a><br>営業時間：10:00～22:00（お盆・年末年始除く）", true);
         await new Promise(resolve => setTimeout(resolve, 800));
-        await addBotMessage("ebookは下記のリンクから閲覧可能です！"); 
+        await addBotMessage("ebook（資料）は下記から閲覧できます！"); 
         await new Promise(resolve => setTimeout(resolve, 800)); 
         await addBotMessage("ebookの閲覧はこちら！", false, false, true); 
         inputMethodWrapper.style.display = 'none'; 
@@ -1792,7 +1792,7 @@
           dynamicInputPlaceholder.style.display = 'none';
           if (optionText === "はい") { 
               additionalUserResponses['interview_preference'] = "はい"; 
-              await addBotMessage("ありがとうございます！では、ご面談日時についてお伺いします。"); 
+              await addBotMessage("ありがとうございます！<br>では、ご面談日時についてお伺いします。"); 
               startAdditionalQuestionsFlow(); 
           } else { 
               additionalUserResponses['interview_preference'] = "いいえ"; 
