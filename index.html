@@ -102,7 +102,7 @@
   }
    .bot-message-wrapper.summary-message-wrapper { 
     align-items: flex-start; 
-    margin-bottom: 4px; /* サマリーと下のテキストの間を狭める */
+    margin-bottom: 0px; 
   }
 
 
@@ -359,20 +359,28 @@
   .paired-input-row .paired-input-send-button svg { width: 20px; height: 20px; }
   .paired-input-error { color: red; font-size: 0.8em; margin-top: 3px; text-align: left; width: 100%; padding-left: 10px; }
 
-  /* .extra-consent-text は削除 (役割を .summary-adjacent-consent-text に統合または別途処理) */
+  .extra-consent-text { 
+    font-size: 0.75em;
+    color: #555;
+    text-align: center;
+    margin-top: 8px; 
+    padding: 0 10px;
+  }
+  .extra-consent-text a {
+    color: #007bff;
+    text-decoration: underline;
+  }
   
   .summary-adjacent-consent-text { 
     font-size: 0.75em;
     color: #555;
     text-align: left; 
-    padding-left: calc(40px + 8px + 12px); /* アイコン幅 + アイコン右マージン + chatMessagesの左パディング */
-    padding-right: 12px; /* chatMessagesの右パディングに合わせる */
+    padding: 0px 10px 0px 48px; 
     line-height: 1.5;
     margin-top: 4px; 
     margin-bottom: 10px; 
-    /* max-width は設定せず、親の幅とパディングで制御 */
+    max-width: calc(100% - 48px); 
     word-wrap: break-word; 
-    box-sizing: border-box;
   }
   .summary-adjacent-consent-text a {
     color: #007bff;
@@ -543,7 +551,6 @@
     overflow-y: auto;
     font-size: 0.9em;
     border: 1px solid #e0e0e0;
-    max-width: calc(85% - 48px); /* ボットメッセージの吹き出しに合わせる */
   }
   .summary-area-wrapper h3 {
     font-size: 1em;
@@ -571,6 +578,27 @@
     word-break: break-all; 
   }
 
+  /* ★追加: 送信中メッセージのドットアニメーション */
+  .loading-dots span {
+    display: inline-block;
+    width: 5px; 
+    height: 5px;
+    background-color: currentColor; 
+    border-radius: 50%;
+    margin-left: 2px;
+    animation: loadingDots 1.4s infinite ease-in-out both;
+  }
+  .loading-dots span:nth-child(1) { animation-delay: -0.32s; }
+  .loading-dots span:nth-child(2) { animation-delay: -0.16s; }
+  .loading-dots span:nth-child(3) { animation-delay: 0s; }
+
+  @keyframes loadingDots {
+    0%, 80%, 100% {
+      transform: scale(0);
+    } 40% {
+      transform: scale(1.0);
+    }
+  }
 
 </style>
 </head>
@@ -613,6 +641,7 @@
   // ...(JavaScriptの大部分は変更なし)...
   // setupFinalConsentScreen と initialQuestions の ID:16 の定義を修正
   // askQuestion内のメッセージ表示ロジック修正
+  // submitDataToGAS 内にローディングメッセージ処理追加
   const chatMessages = document.getElementById('chatMessages');
   const userInput = document.getElementById('userInput'); 
   const sendButton = document.getElementById('sendButton'); 
@@ -642,6 +671,7 @@
   let completedEffectiveQuestions = 0;
   let currentCalendarDate = new Date(); 
   let selectedCalendarDate = null;    
+  let loadingMessageElement = null; 
 
   const katakanaRegex = /^[ァ-ヶー　]+$/;
 
@@ -688,12 +718,8 @@
   
   let questions = initialQuestions; 
 
-  // ...(generateSessionId, updateProgressBar, countTotalEffectiveQuestions, showTypingIndicator, hideTypingIndicator, addMessage, addBotMessage, addUserMessage, scrollToBottom, disableOldUIElements, displayChoicesOutsideBubble, displayPairedInputs, handlePairedInputSubmit, handleSingleChoiceClick, toggleMultipleChoiceSelection, handleMultipleChoiceSubmit, handleUserInput, displayErrorMessage, removeErrorMessage, submitDataToGAS, promptForAdditionalQuestions, startAdditionalQuestionsFlow, イベントリスナー, initializeChat は前回のコードから変更なし)...
-  // ただし、カレンダー関連の関数 (displayCalendar, renderCalendar) は chatbot_calendar_ui_test_04 のものをベースに、
-  // メインのチャットボットフローの handleCalendarSubmit を呼び出すように調整します。
-
-  // --- (JavaScriptの大部分は前回の chatbot_form_with_calendar_01 と同様) ---
-  // --- (setupFinalConsentScreen と askQuestion の修正点を以下に抜粋) ---
+  // ...(JavaScriptの大部分は変更なし)...
+  // setupFinalConsentScreen と askQuestion, submitDataToGAS を主に修正
 
   function generateSessionId() {
     return Date.now().toString(36) + Math.random().toString(36).substring(2, 15);
@@ -1153,13 +1179,16 @@
     dynamicInputPlaceholder.style.display = 'block'; 
     dynamicInputPlaceholder.innerHTML = ''; 
 
-    // ★変更: 1. 「ご回答ありがとうございました！」を askQuestion から移動
+    // 1. 「ご回答ありがとうございました！」メッセージ (askQuestionから移動)
+    // このメッセージは askQuestion 関数で question.pre_message として表示されるように変更済み
+    // (askQuestion内で final-consent の場合は先に setupFinalConsentScreen を呼ぶように変更したので、
+    //  pre_message の表示はここで行うのが適切)
     if (question.pre_message) {
         await addBotMessage(question.pre_message);
     }
     await new Promise(resolve => setTimeout(resolve, 100)); 
 
-    // ★変更: 2. 「入力内容・利用規約を〜」メッセージを表示
+    // 2. 「入力内容・利用規約をご確認の上、「同意して送信」を押してください。」をチャットメッセージとして表示
     const consentMessageWrapper = document.createElement('div'); 
     consentMessageWrapper.classList.add('message-wrapper', 'bot-message-wrapper', 'final-consent-message-area');
     const botIconDiv = document.createElement('div');  
@@ -1176,11 +1205,11 @@
     chatMessages.appendChild(consentMessageWrapper); 
     await new Promise(resolve => setTimeout(resolve, 100)); 
 
-    // ★変更: 3. 「ご入力内容」サマリー表示
+    // 3. 「ご入力内容」サマリー表示 (chatMessages に追加)
     displaySummaryArea(); 
     await new Promise(resolve => setTimeout(resolve, 100)); 
 
-    // ★変更: 4. サマリーの直後に、吹き出しなしの同意テキストを表示
+    // 4. サマリーの直後に、吹き出しなしの同意テキストを表示
     const summaryAdjacentConsentTextDiv = document.createElement('div');
     summaryAdjacentConsentTextDiv.className = 'summary-adjacent-consent-text';
     const privacyLinkSmall = document.createElement('a');
@@ -1206,7 +1235,8 @@
     chatMessages.appendChild(summaryAdjacentConsentTextDiv); 
     await new Promise(resolve => setTimeout(resolve, 100));
 
-    // ★変更: 5. 「同意して送信」ボタンを dynamicInputPlaceholder に表示
+
+    // 5. 「同意して送信」ボタンを dynamicInputPlaceholder に表示
     const submitButtonAreaWrapper = document.createElement('div'); 
     submitButtonAreaWrapper.className = 'choices-area-wrapper'; 
     const finalSubmitButton = document.createElement('button'); 
@@ -1629,9 +1659,52 @@
     if (existingError) existingError.remove();
   }
 
+  // ★変更: 送信中アニメーションとメッセージクリア処理を追加
+  function showLoadingMessage() {
+    if (loadingMessageElement && loadingMessageElement.parentNode) {
+        loadingMessageElement.parentNode.removeChild(loadingMessageElement);
+    }
+    const messageText = "情報を送信中";
+    const messageWrapper = document.createElement('div');
+    messageWrapper.classList.add('message-wrapper', 'bot-message-wrapper');
+    
+    const botIconDiv = document.createElement('div');
+    botIconDiv.className = 'bot-icon';
+    if (typeof BOT_ICON_URL !== 'undefined' && BOT_ICON_URL && BOT_ICON_URL !== 'YOUR_BOT_ICON_URL_HERE') {
+        botIconDiv.style.backgroundImage = `url('${BOT_ICON_URL}')`;
+    }
+    messageWrapper.appendChild(botIconDiv);
+
+    const messageElement = document.createElement('div');
+    messageElement.classList.add('message', 'bot-message');
+    messageElement.textContent = messageText;
+
+    const dots = document.createElement('span');
+    dots.className = 'loading-dots';
+    dots.innerHTML = '<span></span><span></span><span></span>';
+    messageElement.appendChild(dots);
+    
+    messageWrapper.appendChild(messageElement);
+    chatMessages.appendChild(messageWrapper);
+    loadingMessageElement = messageWrapper; 
+    scrollToBottom();
+  }
+
+  function hideLoadingMessage() {
+    if (loadingMessageElement && loadingMessageElement.parentNode) {
+      loadingMessageElement.parentNode.removeChild(loadingMessageElement);
+      loadingMessageElement = null;
+    }
+  }
+
+  function clearChatMessages() {
+    chatMessages.innerHTML = ''; 
+  }
+
   async function submitDataToGAS(dataToSend, isAdditional) {
-    await addBotMessage("情報を送信中...");
+    showLoadingMessage(); // ★送信中アニメーション表示
     if (typeof GAS_WEB_APP_URL === 'undefined' || !GAS_WEB_APP_URL || GAS_WEB_APP_URL === 'YOUR_GOOGLE_APPS_SCRIPT_WEB_APP_URL_HERE') {
+        hideLoadingMessage(); // ★エラー時もローディング非表示
         await addBotMessage("データ送信先URLが正しく設定されていません。config.js を確認してください。", false, true);
         console.error("GAS_WEB_APP_URL is not set or is a placeholder in config.js.");
         if (!isAdditional) { 
@@ -1657,9 +1730,12 @@
       body: JSON.stringify(payload) 
     })
     .then(async () => { 
+        hideLoadingMessage(); // ★成功時もローディング非表示
       if (!isAdditional) {
-        await addBotMessage("お問い合わせいただきありがとうございました！");
-        promptForAdditionalQuestions();
+            clearChatMessages(); // ★最初の送信完了後にメッセージクリア
+            await new Promise(resolve => setTimeout(resolve, 300)); // クリア後のわずかな間
+            await addBotMessage("お問い合わせいただきありがとうございました！");
+            promptForAdditionalQuestions();
       } else {
         await addBotMessage("全ての情報を承りました。ご回答ありがとうございました！後ほど担当の営業よりご連絡いたします。");
         await addBotMessage("お問い合わせはお電話でも受け付けております。");
@@ -1672,6 +1748,7 @@
       }
     })
     .catch(async (error) => { 
+        hideLoadingMessage(); // ★エラー時もローディング非表示
       console.error('Error sending data to Google Sheet:', error);
       await addBotMessage("エラーが発生し、データを送信できませんでした。お手数ですが、時間をおいて再度お試しください。", false, true);
       if (!isAdditional) {
@@ -1685,6 +1762,7 @@
   }
 
   async function promptForAdditionalQuestions() {
+    // ★変更: メッセージを3つに分割
     await addBotMessage("さらに、面談を受けていただくと<span style='color: red;'>ポイント5万円分</span>のプレゼント対象となります！", true); 
     await new Promise(resolve => setTimeout(resolve, 800)); 
     const question = {
