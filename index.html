@@ -90,16 +90,21 @@
     background-color: #e9ebee;
     display: flex;
     flex-direction: column;
-    gap: 10px;
+    gap: 10px; 
     -webkit-overflow-scrolling: touch; 
   }
 
   .message-wrapper {
     display: flex;
     width: 100%;
-    align-items: flex-end;
-    margin-bottom: 10px;
+    align-items: flex-end; 
+    margin-bottom: 10px; 
   }
+   .bot-message-wrapper.summary-message-wrapper { 
+    align-items: flex-start; 
+    margin-bottom: 4px; /* サマリーと下のテキストの間を狭める */
+  }
+
 
   .bot-message-wrapper {
     justify-content: flex-start;
@@ -153,7 +158,7 @@
     box-shadow: none !important; 
     width: 100%; 
     max-width: 100%; 
-    border-radius: 8px; /* ボタンの角丸に合わせる */
+    border-radius: 8px; 
   }
 
   .ebook-button-link {
@@ -184,6 +189,11 @@
     stroke: white; 
   }
 
+  .user-message {
+    background-color: #8DE047 !important; 
+    color: #000000 !important; 
+    border-bottom-right-radius: 4px;
+  }
 
   #inputMethodWrapper {
     padding: 8px 12px;
@@ -274,8 +284,10 @@
     background-color: #05a546; 
   }
   .final-consent-submit-button svg { 
-    margin-left: 8px;
+    margin-left: 8px; 
     stroke: white; 
+    width: 16px; 
+    height: 16px;
   }
 
 
@@ -347,7 +359,29 @@
   .paired-input-row .paired-input-send-button svg { width: 20px; height: 20px; }
   .paired-input-error { color: red; font-size: 0.8em; margin-top: 3px; text-align: left; width: 100%; padding-left: 10px; }
 
-  /* .final-consent-checkbox-area は削除 */
+  /* .extra-consent-text は削除 (役割を .summary-adjacent-consent-text に統合または別途処理) */
+  
+  .summary-adjacent-consent-text { 
+    font-size: 0.75em;
+    color: #555;
+    text-align: left; 
+    padding-left: calc(40px + 8px + 12px); /* アイコン幅 + アイコン右マージン + chatMessagesの左パディング */
+    padding-right: 12px; /* chatMessagesの右パディングに合わせる */
+    line-height: 1.5;
+    margin-top: 4px; 
+    margin-bottom: 10px; 
+    /* max-width は設定せず、親の幅とパディングで制御 */
+    word-wrap: break-word; 
+    box-sizing: border-box;
+  }
+  .summary-adjacent-consent-text a {
+    color: #007bff;
+    text-decoration: underline;
+  }
+  .summary-adjacent-consent-text a:hover {
+    color: #0056b3;
+  }
+
 
   .modal-overlay {
     position: fixed; top: 0; left: 0; width: 100%; height: 100%;
@@ -498,6 +532,45 @@
   .calendar-submit-button.enabled { background-color: #06C755; cursor: pointer; }
   .calendar-submit-button.enabled:hover { background-color: #05a546; }
   .calendar-submit-button svg { width: 20px; height: 20px; stroke: white; }
+  
+  .summary-area-wrapper {
+    background-color: #FFFFFF;
+    border-radius: 12px; 
+    padding: 15px;
+    margin: 0px 0px 0px 0px; 
+    box-shadow: 0 1px 2px rgba(0,0,0,0.1);
+    max-height: 180px; 
+    overflow-y: auto;
+    font-size: 0.9em;
+    border: 1px solid #e0e0e0;
+    max-width: calc(85% - 48px); /* ボットメッセージの吹き出しに合わせる */
+  }
+  .summary-area-wrapper h3 {
+    font-size: 1em;
+    font-weight: 500;
+    color: #06C755;
+    margin-top: 0;
+    margin-bottom: 10px;
+    padding-bottom: 5px;
+  }
+  .summary-area-wrapper ul {
+    list-style: none;
+    padding: 0;
+    margin: 0;
+  }
+  .summary-area-wrapper li {
+    margin-bottom: 6px;
+    line-height: 1.4;
+  }
+  .summary-item-label {
+    font-weight: 500;
+    color: #555;
+  }
+  .summary-item-value {
+    color: #222;
+    word-break: break-all; 
+  }
+
 
 </style>
 </head>
@@ -537,9 +610,9 @@
 
 <script src="config.js"></script> 
 <script>
-  // --- (JavaScriptの大部分は変更なし) ---
-  // 主要な変更は addBotMessage 関数と、それを呼び出す submitDataToGAS 関数内の処理です。
-  // gift_terms_popup_content の中身は省略しています。元のコードからコピーしてください。
+  // ...(JavaScriptの大部分は変更なし)...
+  // setupFinalConsentScreen と initialQuestions の ID:16 の定義を修正
+  // askQuestion内のメッセージ表示ロジック修正
   const chatMessages = document.getElementById('chatMessages');
   const userInput = document.getElementById('userInput'); 
   const sendButton = document.getElementById('sendButton'); 
@@ -576,39 +649,51 @@
     { id: 1, item: "職業", question: "まずはじめに、ご職業を教えてください。", answer_method: "single-choice", options: ["会社員（上場企業）", "会社員（その他）", "公務員", "経営者", "士業（医師、看護師、弁護士、税理士など）", "自営業・その他"], key: "occupation_new", validation: (v) => !!v, errorMessage: "選択してください。" },
     { id: 2, item: "年収", question: "続いて、現在の年収を教えてください。", answer_method: "single-choice", options: ["0～399万", "400～499万", "500～599万", "600～699万", "700～799万", "800～899万", "900～999万", "1000～1099万", "1100～1199万", "1200～1299万", "1300～1399万", "1400～1499万", "1500～1999万", "2000～2499万", "2500～2999万", "3000～3999万", "4000～4999万", "5000万～1億未満", "1億以上"], key: "annual_income_new", validation: (v) => !!v, errorMessage: "選択してください。" },
     { id: 3, item: "年齢", question: "ご年齢はおいくつでしょうか。", answer_method: "single-choice", options: ["20歳未満", "20～24歳", "25～29歳", "30～34歳", "35～39歳", "40～44歳", "45～49歳", "50～54歳", "55～59歳", "60～64歳", "65～69歳", "70歳以上"], key: "age_group_new", validation: (v) => !!v, errorMessage: "選択してください。" },
-    { id: 4, item: "名前", question: "ありがとうございます！", answer_method: "text-pair", pairs: [
-        { prompt: "お名前を入力してください。", inputs: [ { label: "姓", key: "last_name_new", placeholder: "山田", type: "text" }, { label: "名", key: "first_name_new", placeholder: "太郎", type: "text" } ], combinedValidation: (v1, v2) => (v1 && v1.trim().length > 0) && (v2 && v2.trim().length > 0), combinedErrorMessage: "姓と名の両方を入力してください。" },
+    { id: 4, item: "お名前", question: "ありがとうございます！", answer_method: "text-pair", pairs: [ 
+        { prompt: "お名前を漢字で入力してください。", inputs: [ { label: "姓", key: "last_name_new", placeholder: "山田", type: "text" }, { label: "名", key: "first_name_new", placeholder: "太郎", type: "text" } ], combinedValidation: (v1, v2) => (v1 && v1.trim().length > 0) && (v2 && v2.trim().length > 0), combinedErrorMessage: "姓と名の両方を入力してください。" },
         { prompt: "続いて、フリガナを全角カタカナで入力してください。", inputs: [ { label: "セイ", key: "last_name_kana_new", placeholder: "ヤマダ", type: "text" }, { label: "メイ", key: "first_name_kana_new", placeholder: "タロウ", type: "text" } ], combinedValidation: (v1, v2) => (v1 && katakanaRegex.test(v1.trim())) && (v2 && katakanaRegex.test(v2.trim())), combinedErrorMessage: "セイとメイの両方を全角カタカナで入力してください。" }
       ], key_group: "name_details" },
     { id: 5, item: "電話番号", pre_message_1: "ありがとうございます", pre_message_2: "残り3問です！", question: "電話番号を入力してください。", placeholder: "09012345678", answer_method: "text", type: "tel", key: "phone_number_new", validation: (v) => /^[0-9]{10,11}$/.test(v.replace(/-/g, "")), errorMessage: "有効な電話番号をハイフンなし半角数字で入力してください。" },
     { id: 6, item: "メールアドレス", question: "メールアドレスを入力してください！", placeholder: "user@example.com", answer_method: "text", type: "email", key: "email_address_new", validation: (v) => /^[^\s@]+@[^\s@]+\.[^\s@]+$/.test(v), errorMessage: "有効なメールアドレスを入力してください。" },
-    { id: 14, item: "質問要望", question: "最後に、ご質問・ご要望があれば記載ください。", answer_method: "single-choice", options: ["なし", "その他（自由記述）"], key: "inquiry_text_new", validation: (v) => !!v, errorMessage: "選択してください。" },
-    { id: 15, item: "質問要望詳細", question: "ご質問・ご要望の詳細を自由にご記入ください。", answer_method: "text", type: "text", placeholder: "自由にご記入ください", key: "inquiry_text_detail_new", condition: { key: "inquiry_text_new", value: "その他（自由記述）" }, validation: (v) => v && v.trim().length > 0, errorMessage: "詳細を入力してください。" },
-    { id: 16, item: "最終同意", pre_message: "ご回答ありがとうございました！", question: "個人情報のお取り扱いをご確認の上、「同意して送信」を押してください。", 
+    { id: 14, item: "ご質問・ご要望", question: "最後に、ご質問・ご要望があれば記載ください。", answer_method: "single-choice", options: ["なし", "その他（自由記述）"], key: "inquiry_text_new", validation: (v) => !!v, errorMessage: "選択してください。" },
+    { id: 15, item: "ご質問・ご要望（詳細）", question: "ご質問・ご要望の詳細を自由にご記入ください。", answer_method: "text", type: "text", placeholder: "自由にご記入ください", key: "inquiry_text_detail_new", condition: { key: "inquiry_text_new", value: "その他（自由記述）" }, validation: (v) => v && v.trim().length > 0, errorMessage: "詳細を入力してください。" },
+    { 
+      id: 16, 
+      item: "最終確認", 
+      pre_message: "ご回答ありがとうございました！", 
+      question: "入力内容・利用規約をご確認の上、「同意して送信」を押してください。", 
       answer_method: "final-consent", 
       privacy_policy_link_text: "個人情報のお取り扱い", 
       privacy_policy_url: "https://jpreturns.com/privacypolicy/", 
-      gift_terms_link_text: "こちら", 
-      gift_terms_message_template: "えらべるデジタルギフトプレゼント条件は{LINK}。※お申し込み完了後のポイント変更は原則受け付けておりません。予めご了承ください。", 
+      gift_terms_link_text: "選べるデジタルギフトプレゼント条件", 
       gift_terms_popup_title: "えらべるデジタルギフトプレゼント条件", 
       gift_terms_popup_content: `(ここにギフト規約のHTMLコンテンツが入ります。前のバージョンからコピーしてください)`, 
-      submit_button_text: "同意して送信", key: "final_consent_given" }
+      submit_button_text: "同意して送信", 
+      key: "final_consent_given" 
+    }
   ];
 
   const additionalQuestions = [
-    { id: 101, item: "相談希望日_第一希望", question: "【第一希望】<br>ご相談希望日をお選びください", isHtmlQuestion: true, answer_method: "calendar", key: "first_choice_date_new", 
+    { id: 101, item: "面談希望日（第一希望）", question: "【第一希望】<br>ご相談希望日をお選びください", isHtmlQuestion: true, answer_method: "calendar", key: "first_choice_date_new", 
       condition: { key: "interview_preference", value: "はい" }, 
       validation: (v) => /^\d{4}\/(0?[1-9]|1[0-2])\/(0?[1-9]|[12][0-9]|3[01])$/.test(v) && !isNaN(new Date(v)), errorMessage: "YYYY/MM/DD形式で有効な日付を入力してください。" },
-    { id: 102, item: "相談希望時間_第一希望", question: "【第一希望】<br>ご相談希望時間をお選びください", isHtmlQuestion: true, answer_method: "single-choice", options: ["10：00～12：00", "12：00～14：00", "14：00～16：00", "16：00～18：00", "18：00～20：00", "20：00 以降", "その他の時間"], key: "first_choice_time_new", condition: { key: "interview_preference", value: "はい" }, validation: (v) => !!v, errorMessage: "選択してください。" },
-    { id: 103, item: "相談希望時間_第一希望_その他", question: "【第一希望】その他のご相談希望時間を入力ください", answer_method: "text", type: "text", key: "first_choice_time_other_new", condition: { key: "first_choice_time_new", value: "その他の時間" }, validation: (v) => v && v.trim().length > 0, errorMessage: "希望時間を入力してください。" },
-    { id: 104, item: "相談希望日_第二希望", question: "【第二希望】<br>ご相談希望日をお選びください", isHtmlQuestion: true, answer_method: "calendar", key: "second_choice_date_new", 
+    { id: 102, item: "面談希望時間（第一希望）", question: "【第一希望】<br>ご相談希望時間をお選びください", isHtmlQuestion: true, answer_method: "single-choice", options: ["10：00～12：00", "12：00～14：00", "14：00～16：00", "16：00～18：00", "18：00～20：00", "20：00 以降", "その他の時間"], key: "first_choice_time_new", condition: { key: "interview_preference", value: "はい" }, validation: (v) => !!v, errorMessage: "選択してください。" },
+    { id: 103, item: "面談希望時間（第一希望その他）", question: "【第一希望】その他のご相談希望時間を入力ください", answer_method: "text", type: "text", key: "first_choice_time_other_new", condition: { key: "first_choice_time_new", value: "その他の時間" }, validation: (v) => v && v.trim().length > 0, errorMessage: "希望時間を入力してください。" },
+    { id: 104, item: "面談希望日（第二希望）", question: "【第二希望】<br>ご相談希望日をお選びください", isHtmlQuestion: true, answer_method: "calendar", key: "second_choice_date_new", 
       condition: { key: "interview_preference", value: "はい" }, 
       validation: (v) => /^\d{4}\/(0?[1-9]|1[0-2])\/(0?[1-9]|[12][0-9]|3[01])$/.test(v) && !isNaN(new Date(v)), errorMessage: "YYYY/MM/DD形式で有効な日付を入力してください。" },
-    { id: 105, item: "相談希望時間_第二希望", question: "【第二希望】<br>ご相談希望時間をお選びください", isHtmlQuestion: true, answer_method: "single-choice", options: ["10：00～12：00", "12：00～14：00", "14：00～16：00", "16：00～18：00", "18：00～20：00", "20：00 以降", "その他の時間"], key: "second_choice_time_new", condition: { key: "interview_preference", value: "はい" }, validation: (v) => !!v, errorMessage: "選択してください。" },
-    { id: 106, item: "相談希望時間_第二希望_その他", question: "【第二希望】その他のご相談希望時間を入力ください", answer_method: "text", type: "text", key: "second_choice_time_other_new", condition: { key: "second_choice_time_new", value: "その他の時間" }, validation: (v) => v && v.trim().length > 0, errorMessage: "希望時間を入力してください。" }
+    { id: 105, item: "面談希望時間（第二希望）", question: "【第二希望】<br>ご相談希望時間をお選びください", isHtmlQuestion: true, answer_method: "single-choice", options: ["10：00～12：00", "12：00～14：00", "14：00～16：00", "16：00～18：00", "18：00～20：00", "20：00 以降", "その他の時間"], key: "second_choice_time_new", condition: { key: "interview_preference", value: "はい" }, validation: (v) => !!v, errorMessage: "選択してください。" },
+    { id: 106, item: "面談希望時間（第二希望その他）", question: "【第二希望】その他のご相談希望時間を入力ください", answer_method: "text", type: "text", key: "second_choice_time_other_new", condition: { key: "second_choice_time_new", value: "その他の時間" }, validation: (v) => v && v.trim().length > 0, errorMessage: "希望時間を入力してください。" }
   ];
   
   let questions = initialQuestions; 
+
+  // ...(generateSessionId, updateProgressBar, countTotalEffectiveQuestions, showTypingIndicator, hideTypingIndicator, addMessage, addBotMessage, addUserMessage, scrollToBottom, disableOldUIElements, displayChoicesOutsideBubble, displayPairedInputs, handlePairedInputSubmit, handleSingleChoiceClick, toggleMultipleChoiceSelection, handleMultipleChoiceSubmit, handleUserInput, displayErrorMessage, removeErrorMessage, submitDataToGAS, promptForAdditionalQuestions, startAdditionalQuestionsFlow, イベントリスナー, initializeChat は前回のコードから変更なし)...
+  // ただし、カレンダー関連の関数 (displayCalendar, renderCalendar) は chatbot_calendar_ui_test_04 のものをベースに、
+  // メインのチャットボットフローの handleCalendarSubmit を呼び出すように調整します。
+
+  // --- (JavaScriptの大部分は前回の chatbot_form_with_calendar_01 と同様) ---
+  // --- (setupFinalConsentScreen と askQuestion の修正点を以下に抜粋) ---
 
   function generateSessionId() {
     return Date.now().toString(36) + Math.random().toString(36).substring(2, 15);
@@ -1063,11 +1148,18 @@
     container.appendChild(actionsDiv);
   }
   
-  function setupFinalConsentScreen(question) { 
-    normalInputArea.style.display = 'none';
+  async function setupFinalConsentScreen(question) { 
+    normalInputArea.style.display = 'none'; 
     dynamicInputPlaceholder.style.display = 'block'; 
     dynamicInputPlaceholder.innerHTML = ''; 
 
+    // ★変更: 1. 「ご回答ありがとうございました！」を askQuestion から移動
+    if (question.pre_message) {
+        await addBotMessage(question.pre_message);
+    }
+    await new Promise(resolve => setTimeout(resolve, 100)); 
+
+    // ★変更: 2. 「入力内容・利用規約を〜」メッセージを表示
     const consentMessageWrapper = document.createElement('div'); 
     consentMessageWrapper.classList.add('message-wrapper', 'bot-message-wrapper', 'final-consent-message-area');
     const botIconDiv = document.createElement('div');  
@@ -1081,50 +1173,48 @@
     const privacyPolicyLinkHTML = `<a href="${question.privacy_policy_url}" target="_blank" rel="noopener noreferrer">${question.privacy_policy_link_text}</a>`;
     consentMessageBubble.innerHTML = question.question.replace(question.privacy_policy_link_text, privacyPolicyLinkHTML); 
     consentMessageWrapper.appendChild(consentMessageBubble);
-    chatMessages.appendChild(consentMessageWrapper); 
+    chatMessages.appendChild(consentMessageWrapper); 
+    await new Promise(resolve => setTimeout(resolve, 100)); 
 
-    if (question.gift_terms_message_template && question.gift_terms_link_text) {
-        const giftTermsMessageWrapper = document.createElement('div');
-        giftTermsMessageWrapper.classList.add('message-wrapper', 'bot-message-wrapper');
-        const giftBotIconDiv = document.createElement('div');
-        giftBotIconDiv.className = 'bot-icon';
-        if (typeof BOT_ICON_URL !== 'undefined' && BOT_ICON_URL && BOT_ICON_URL !== 'YOUR_BOT_ICON_URL_HERE') {
-            giftBotIconDiv.style.backgroundImage = `url('${BOT_ICON_URL}')`;
-        }
-        giftTermsMessageWrapper.appendChild(giftBotIconDiv);
-        const giftTermsBubble = document.createElement('div');
-        giftTermsBubble.classList.add('message', 'bot-message');
-        
-        const giftLinkElement = document.createElement('a');
-        giftLinkElement.href = "#";
-        giftLinkElement.textContent = question.gift_terms_link_text;
-        giftLinkElement.onclick = (e) => {
-            e.preventDefault();
-            modalTitle.textContent = question.gift_terms_popup_title || "えらべるデジタルギフトプレゼント条件";
-            modalBody.innerHTML = question.gift_terms_popup_content || "";
-            giftTermsModal.style.display = 'flex';
-        };
-        
-        const messageParts = question.gift_terms_message_template.split('{LINK}');
-        giftTermsBubble.appendChild(document.createTextNode(messageParts[0]));
-        giftTermsBubble.appendChild(giftLinkElement);
-        if (messageParts.length > 1) {
-            giftTermsBubble.appendChild(document.createTextNode(messageParts[1]));
-        }
-        giftTermsMessageWrapper.appendChild(giftTermsBubble);
-        chatMessages.appendChild(giftTermsMessageWrapper);
-    }
+    // ★変更: 3. 「ご入力内容」サマリー表示
+    displaySummaryArea(); 
+    await new Promise(resolve => setTimeout(resolve, 100)); 
 
+    // ★変更: 4. サマリーの直後に、吹き出しなしの同意テキストを表示
+    const summaryAdjacentConsentTextDiv = document.createElement('div');
+    summaryAdjacentConsentTextDiv.className = 'summary-adjacent-consent-text';
+    const privacyLinkSmall = document.createElement('a');
+    privacyLinkSmall.href = question.privacy_policy_url;
+    privacyLinkSmall.target = "_blank";
+    privacyLinkSmall.rel = "noopener noreferrer";
+    privacyLinkSmall.textContent = question.privacy_policy_link_text;
 
+    const giftTermsLinkSmall = document.createElement('a');
+    giftTermsLinkSmall.href = "#";
+    giftTermsLinkSmall.textContent = question.gift_terms_link_text; 
+    giftTermsLinkSmall.onclick = (e) => {
+        e.preventDefault();
+        modalTitle.textContent = question.gift_terms_popup_title || "えらべるデジタルギフトプレゼント条件";
+        modalBody.innerHTML = question.gift_terms_popup_content || "";
+        giftTermsModal.style.display = 'flex';
+    };
+    
+    summaryAdjacentConsentTextDiv.appendChild(privacyLinkSmall);
+    summaryAdjacentConsentTextDiv.appendChild(document.createTextNode("・"));
+    summaryAdjacentConsentTextDiv.appendChild(giftTermsLinkSmall);
+    summaryAdjacentConsentTextDiv.appendChild(document.createTextNode("に同意します。"));
+    chatMessages.appendChild(summaryAdjacentConsentTextDiv); 
+    await new Promise(resolve => setTimeout(resolve, 100));
+
+    // ★変更: 5. 「同意して送信」ボタンを dynamicInputPlaceholder に表示
     const submitButtonAreaWrapper = document.createElement('div'); 
     submitButtonAreaWrapper.className = 'choices-area-wrapper'; 
-    submitButtonAreaWrapper.style.marginTop = '15px'; 
     const finalSubmitButton = document.createElement('button'); 
     finalSubmitButton.className = 'choice-button final-consent-submit-button'; 
     finalSubmitButton.innerHTML = `<span>${question.submit_button_text}</span><svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round" class="feather feather-send"><line x1="22" y1="2" x2="11" y2="13"></line><polygon points="22 2 15 22 11 13 2 9 22 2"></polygon></svg>`;
     finalSubmitButton.id = 'dynamicFinalSubmitButton'; 
     finalSubmitButton.disabled = false; 
-
+    
     finalSubmitButton.addEventListener('click', async () => {
         if (currentFlow === 'initial') {
             userResponses[question.key] = true; 
@@ -1139,6 +1229,83 @@
     dynamicInputPlaceholder.appendChild(submitButtonAreaWrapper); 
     scrollToBottom();
   }
+
+  function displaySummaryArea() { 
+    const summaryMessageWrapper = document.createElement('div');
+    summaryMessageWrapper.classList.add('message-wrapper', 'bot-message-wrapper', 'summary-message-wrapper');
+
+    const botIconDiv = document.createElement('div');
+    botIconDiv.className = 'bot-icon';
+    if (typeof BOT_ICON_URL !== 'undefined' && BOT_ICON_URL && BOT_ICON_URL !== 'YOUR_BOT_ICON_URL_HERE') {
+        botIconDiv.style.backgroundImage = `url('${BOT_ICON_URL}')`;
+    }
+    summaryMessageWrapper.appendChild(botIconDiv);
+
+    const summaryArea = document.createElement('div');
+    summaryArea.className = 'summary-area-wrapper'; 
+    const summaryTitle = document.createElement('h3');
+    summaryTitle.textContent = 'ご入力内容';
+    summaryArea.appendChild(summaryTitle);
+
+    const summaryList = document.createElement('ul');
+    
+    initialQuestions.forEach(q => {
+        if (q.answer_method === "final-consent" || q.answer_method === "message-only" || !q.item || q.id === 16) return; 
+
+        let itemLabel = q.item;
+        let itemValue = '';
+
+        if (q.answer_method === "text-pair" && q.key_group === "name_details") {
+            const kanjiLastName = userResponses["last_name_new"] || '';
+            const kanjiFirstName = userResponses["first_name_new"] || '';
+            const kanaLastName = userResponses["last_name_kana_new"] || '';
+            const kanaFirstName = userResponses["first_name_kana_new"] || '';
+
+            if (kanjiLastName || kanjiFirstName) {
+                const listItemKanji = document.createElement('li');
+                listItemKanji.innerHTML = `<span class="summary-item-label">お名前: </span><span class="summary-item-value">${kanjiLastName} ${kanjiFirstName}</span>`;
+                summaryList.appendChild(listItemKanji);
+            }
+            if (kanaLastName || kanaFirstName) {
+                 const listItemKana = document.createElement('li');
+                listItemKana.innerHTML = `<span class="summary-item-label">フリガナ: </span><span class="summary-item-value">${kanaLastName} ${kanaFirstName}</span>`;
+                summaryList.appendChild(listItemKana);
+            }
+            return; 
+        } else if (userResponses[q.key] !== undefined && userResponses[q.key] !== null && String(userResponses[q.key]).trim() !== '') {
+            if (Array.isArray(userResponses[q.key])) {
+                itemValue = userResponses[q.key].join(', ');
+            } else {
+                itemValue = userResponses[q.key];
+            }
+        }
+
+        if (itemValue) { 
+            const listItem = document.createElement('li');
+            const labelSpan = document.createElement('span');
+            labelSpan.className = 'summary-item-label';
+            labelSpan.textContent = `${itemLabel}: `;
+            const valueSpan = document.createElement('span');
+            valueSpan.className = 'summary-item-value';
+            valueSpan.textContent = itemValue;
+            listItem.appendChild(labelSpan);
+            listItem.appendChild(valueSpan);
+            summaryList.appendChild(listItem);
+        }
+    });
+
+    if (summaryList.children.length === 0) { 
+        const noDataItem = document.createElement('li');
+        noDataItem.textContent = "ご入力いただいた項目はありません。"; 
+        summaryList.appendChild(noDataItem);
+    }
+
+    summaryArea.appendChild(summaryList);
+    summaryMessageWrapper.appendChild(summaryArea)
+    chatMessages.appendChild(summaryMessageWrapper);
+    scrollToBottom();
+  }
+
 
   async function askQuestion() {
     userInput.disabled = true; 
@@ -1183,11 +1350,14 @@
 
     const currentQuestion = currentQuestionsArray[currentStep];
 
+    if (currentQuestion.answer_method === "final-consent") { 
+        setupFinalConsentScreen(currentQuestion); 
+        return; 
+    }
+
     if (currentQuestion.pre_message_1) { 
         await addBotMessage(currentQuestion.pre_message_1);
         if (currentQuestion.pre_message_2) await addBotMessage(currentQuestion.pre_message_2);
-    } else if (currentQuestion.pre_message && currentQuestion.answer_method === "final-consent") { 
-        await addBotMessage(currentQuestion.pre_message);
     } else if (currentQuestion.pre_message){ 
         await addBotMessage(currentQuestion.pre_message);
     }
@@ -1216,14 +1386,12 @@
         return; 
     }
     
-    if (currentQuestion.answer_method !== "final-consent" && currentQuestion.question) {
+    if (currentQuestion.question) { 
       await addBotMessage(currentQuestion.question, currentQuestion.isHtmlQuestion || false); 
     }
 
     if (currentQuestion.answer_method === "single-choice" || currentQuestion.answer_method === "multiple-choice") {
       displayChoicesOutsideBubble(currentQuestion);
-    } else if (currentQuestion.answer_method === "final-consent") {
-      setupFinalConsentScreen(currentQuestion); 
     } else if (currentQuestion.answer_method === "calendar") { 
       currentCalendarDate = new Date(); 
       selectedCalendarDate = null; 
@@ -1499,7 +1667,7 @@
         await new Promise(resolve => setTimeout(resolve, 800));
         await addBotMessage("ebookは下記のリンクから閲覧可能です！"); 
         await new Promise(resolve => setTimeout(resolve, 800)); 
-        await addBotMessage("ebookの閲覧はこちら！", false, true); 
+        await addBotMessage("ebookの閲覧はこちら！", false, false, true); 
         inputMethodWrapper.style.display = 'none'; 
       }
     })
