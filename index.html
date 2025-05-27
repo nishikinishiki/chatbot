@@ -147,12 +147,43 @@
     color: #0056b3;
   }
   
-  /* ★★★ ユーザーメッセージのスタイルを確実に適用 ★★★ */
-  .user-message {
-    background-color: #8DE047 !important; /* 明るい緑を強制 */
-    color: #000000 !important; /* 黒文字を強制 */
-    border-bottom-right-radius: 4px;
+  .ebook-button-message-content {
+    padding: 0; 
+    background-color: transparent !important; 
+    box-shadow: none !important; 
+    width: 100%; 
+    max-width: 100%; 
+    border-radius: 8px; /* ボタンの角丸に合わせる */
   }
+
+  .ebook-button-link {
+    display: flex; 
+    align-items: center; 
+    justify-content: center; 
+    width: 100%; 
+    padding: 12px 15px;
+    background-color: #06C755; 
+    color: white !important; 
+    border: none;
+    border-radius: 8px; 
+    font-size: 1em;
+    font-weight: 500;
+    text-align: center;
+    text-decoration: none !important; 
+    cursor: pointer;
+    transition: background-color 0.2s;
+    box-sizing: border-box;
+  }
+  .ebook-button-link:hover {
+    background-color: #05a546; 
+  }
+  .ebook-button-link svg { 
+    width: 20px; 
+    height: 20px;
+    margin-right: 8px; 
+    stroke: white; 
+  }
+
 
   #inputMethodWrapper {
     padding: 8px 12px;
@@ -316,6 +347,8 @@
   .paired-input-row .paired-input-send-button svg { width: 20px; height: 20px; }
   .paired-input-error { color: red; font-size: 0.8em; margin-top: 3px; text-align: left; width: 100%; padding-left: 10px; }
 
+  /* .final-consent-checkbox-area は削除 */
+
   .modal-overlay {
     position: fixed; top: 0; left: 0; width: 100%; height: 100%;
     background-color: rgba(0, 0, 0, 0.6); display: none;
@@ -412,7 +445,7 @@
   
   .error-message { color: red; font-size: 0.8em; margin-top: 4px; padding-left: 0; width: 100%; text-align: left; }
 
-  /* --- Calendar Styles (変更なし) --- */
+  /* --- Calendar Styles --- */
   .calendar-container {
     background-color: #fff; border-radius: 8px; padding: 15px; 
     box-shadow: 0 4px 12px rgba(0,0,0,0.15); width: 100%;
@@ -504,8 +537,8 @@
 
 <script src="config.js"></script> 
 <script>
-  // --- (JavaScriptの大部分は変更なし、askQuestion, displayPairedInputs, handleUserInput, handlePairedInputSubmit を中心に修正) ---
-  // --- (setupFinalConsentScreen, displayCalendar, renderCalendar, handleCalendarSubmit, promptForAdditionalQuestions, initializeChat も変更なし) ---
+  // --- (JavaScriptの大部分は変更なし) ---
+  // 主要な変更は addBotMessage 関数と、それを呼び出す submitDataToGAS 関数内の処理です。
   // gift_terms_popup_content の中身は省略しています。元のコードからコピーしてください。
   const chatMessages = document.getElementById('chatMessages');
   const userInput = document.getElementById('userInput'); 
@@ -576,12 +609,6 @@
   ];
   
   let questions = initialQuestions; 
-
-  // ... (JavaScriptの大部分は変更なし) ...
-  // 以下、変更があった、または主要な関数を抜粋して再掲
-  // initializeChat, addBotMessage, displayPairedInputs, setupFinalConsentScreen, askQuestion, 
-  // handlePairedInputSubmit, handleSingleChoiceClick, handleUserInput, submitDataToGAS, promptForAdditionalQuestions,
-  // displayCalendar, renderCalendar
 
   function generateSessionId() {
     return Date.now().toString(36) + Math.random().toString(36).substring(2, 15);
@@ -878,7 +905,7 @@
     if(inputsArray.length > 0) inputsArray[0].focus();
   }
 
-  // --- Calendar Functions (統合) ---
+  // --- Calendar Functions ---
   function displayCalendar(question) {
     normalInputArea.style.display = 'none';
     dynamicInputPlaceholder.style.display = 'block';
@@ -1472,7 +1499,7 @@
         await new Promise(resolve => setTimeout(resolve, 800));
         await addBotMessage("ebookは下記のリンクから閲覧可能です！"); 
         await new Promise(resolve => setTimeout(resolve, 800)); 
-        await addBotMessage("ebookの閲覧はこちら！", false, false, true); // ★第4引数 isEbookBtn を true に
+        await addBotMessage("ebookの閲覧はこちら！", false, true); 
         inputMethodWrapper.style.display = 'none'; 
       }
     })
