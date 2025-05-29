@@ -1762,7 +1762,7 @@
 
   async function promptForAdditionalQuestions() {
     // ★変更: メッセージを3つに分割
-    await addBotMessage("さらに、面談を受けていただくと<span style='color: red;'>ポイント5万円分</span>のプレゼント対象となります！", true); 
+    await addBotMessage("さらに、面談を受けていただくと<span style='color: red;'>最大50,000円相当</span>のえらべるデジタルギフト、プレゼントの対象となります！", true); 
     await new Promise(resolve => setTimeout(resolve, 800)); 
     const question = {
       id: "ask_if_wants_interview", 
