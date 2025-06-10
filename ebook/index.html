@@ -638,10 +638,6 @@
 
 <script src="config.js"></script> 
 <script>
-  // ...(JavaScriptの大部分は変更なし)...
-  // setupFinalConsentScreen と initialQuestions の ID:16 の定義を修正
-  // askQuestion内のメッセージ表示ロジック修正
-  // submitDataToGAS 内にローディングメッセージ処理追加
   const chatMessages = document.getElementById('chatMessages');
   const userInput = document.getElementById('userInput'); 
   const sendButton = document.getElementById('sendButton'); 
@@ -664,8 +660,11 @@
   let subStep = 0; 
   const userResponses = {}; 
   const additionalUserResponses = {}; 
+  // ★★★★★★★★★★★★★★★★★★★★★★★★★★★★★★★★★★★★
+  // ★ 追加: UTMパラメータを格納するための変数を定義 ★
+  // ★★★★★★★★★★★★★★★★★★★★★★★★★★★★★★★★★★★★
   let utmParameters = {}; 
-  
+
   let isBotTyping = false;
   let currentMultipleChoices = []; 
   let activeChoicesWrapper = null; 
@@ -703,27 +702,30 @@
       submit_button_text: "同意して送信", 
       key: "final_consent_given" 
     }
-  ];
+  ];
 
-  const additionalQuestions = [
-    { id: 101, item: "面談希望日（第一希望）", question: "【第一希望】<br>ご相談希望日をお選びください", isHtmlQuestion: true, answer_method: "calendar", key: "first_choice_date_new", 
-      condition: { key: "interview_preference", value: "はい" }, 
-      validation: (v) => /^\d{4}\/(0?[1-9]|1[0-2])\/(0?[1-9]|[12][0-9]|3[01])$/.test(v) && !isNaN(new Date(v)), errorMessage: "YYYY/MM/DD形式で有効な日付を入力してください。" },
-    { id: 102, item: "面談希望時間（第一希望）", question: "【第一希望】<br>ご相談希望時間をお選びください", isHtmlQuestion: true, answer_method: "single-choice", options: ["10：00～12：00", "12：00～14：00", "14：00～16：00", "16：00～18：00", "18：00～20：00", "20：00 以降", "その他の時間"], key: "first_choice_time_new", condition: { key: "interview_preference", value: "はい" }, validation: (v) => !!v, errorMessage: "選択してください。" },
-    { id: 103, item: "面談希望時間（第一希望その他）", question: "【第一希望】その他のご相談希望時間を入力ください", answer_method: "text", type: "text", key: "first_choice_time_other_new", condition: { key: "first_choice_time_new", value: "その他の時間" }, validation: (v) => v && v.trim().length > 0, errorMessage: "希望時間を入力してください。" },
-    { id: 104, item: "面談希望日（第二希望）", question: "【第二希望】<br>ご相談希望日をお選びください", isHtmlQuestion: true, answer_method: "calendar", key: "second_choice_date_new", 
+  const additionalQuestions = [
+    { id: 101, item: "面談希望日（第一希望）", question: "【第一希望】<br>ご相談希望日をお選びください", isHtmlQuestion: true, answer_method: "calendar", key: "first_choice_date_new", 
       condition: { key: "interview_preference", value: "はい" }, 
       validation: (v) => /^\d{4}\/(0?[1-9]|1[0-2])\/(0?[1-9]|[12][0-9]|3[01])$/.test(v) && !isNaN(new Date(v)), errorMessage: "YYYY/MM/DD形式で有効な日付を入力してください。" },
-    { id: 105, item: "面談希望時間（第二希望）", question: "【第二希望】<br>ご相談希望時間をお選びください", isHtmlQuestion: true, answer_method: "single-choice", options: ["10：00～12：00", "12：00～14：00", "14：00～16：00", "16：00～18：00", "18：00～20：00", "20：00 以降", "その他の時間"], key: "second_choice_time_new", condition: { key: "interview_preference", value: "はい" }, validation: (v) => !!v, errorMessage: "選択してください。" },
-    { id: 106, item: "面談希望時間（第二希望その他）", question: "【第二希望】その他のご相談希望時間を入力ください", answer_method: "text", type: "text", key: "second_choice_time_other_new", condition: { key: "second_choice_time_new", value: "その他の時間" }, validation: (v) => v && v.trim().length > 0, errorMessage: "希望時間を入力してください。" }
-  ];
-  
-  let questions = initialQuestions; 
+    { id: 102, item: "面談希望時間（第一希望）", question: "【第一希望】<br>ご相談希望時間をお選びください", isHtmlQuestion: true, answer_method: "single-choice", options: ["10：00～12：00", "12：00～14：00", "14：00～16：00", "16：00～18：00", "18：00～20：00", "20：00 以降", "その他の時間"], key: "first_choice_time_new", condition: { key: "interview_preference", value: "はい" }, validation: (v) => !!v, errorMessage: "選択してください。" },
+    { id: 103, item: "面談希望時間（第一希望その他）", question: "【第一希望】その他のご相談希望時間を入力ください", answer_method: "text", type: "text", key: "first_choice_time_other_new", condition: { key: "first_choice_time_new", value: "その他の時間" }, validation: (v) => v && v.trim().length > 0, errorMessage: "希望時間を入力してください。" },
+    { id: 104, item: "面談希望日（第二希望）", question: "【第二希望】<br>ご相談希望日をお選びください", isHtmlQuestion: true, answer_method: "calendar", key: "second_choice_date_new", 
+      condition: { key: "interview_preference", value: "はい" }, 
+      validation: (v) => /^\d{4}\/(0?[1-9]|1[0-2])\/(0?[1-9]|[12][0-9]|3[01])$/.test(v) && !isNaN(new Date(v)), errorMessage: "YYYY/MM/DD形式で有効な日付を入力してください。" },
+    { id: 105, item: "面談希望時間（第二希望）", question: "【第二希望】<br>ご相談希望時間をお選びください", isHtmlQuestion: true, answer_method: "single-choice", options: ["10：00～12：00", "12：00～14：00", "14：00～16：00", "16：00～18：00", "18：00～20：00", "20：00 以降", "その他の時間"], key: "second_choice_time_new", condition: { key: "interview_preference", value: "はい" }, validation: (v) => !!v, errorMessage: "選択してください。" },
+    { id: 106, item: "面談希望時間（第二希望その他）", question: "【第二希望】その他のご相談希望時間を入力ください", answer_method: "text", type: "text", key: "second_choice_time_other_new", condition: { key: "second_choice_time_new", value: "その他の時間" }, validation: (v) => v && v.trim().length > 0, errorMessage: "希望時間を入力してください。" }
+  ];
+  
+  let questions = initialQuestions; 
 
   function generateSessionId() {
-    return Date.now().toString(36) + Math.random().toString(36).substring(2, 15);
-  }
-  
+    return Date.now().toString(36) + Math.random().toString(36).substring(2, 15);
+  }
+
+  // ★★★★★★★★★★★★★★★★★★★★★★★★★★★★★★★★★★★
+  // ★ 追加: ページのURLからUTMパラメータを取得する関数 ★
+  // ★★★★★★★★★★★★★★★★★★★★★★★★★★★★★★★★★★★
   function getUtmParameters() {
     const urlParams = new URLSearchParams(window.location.search);
     const utmKeys = ['utm_source', 'utm_medium', 'utm_campaign', 'utm_term', 'utm_content'];
@@ -735,7 +737,7 @@
     });
   }
 
-  function updateProgressBar() {
+  function updateProgressBar() {
     let currentQuestionsForProgress = [];
     let responsesForProgress = {};
     let isInitialFlowForBar = (currentFlow === 'initial');
@@ -761,75 +763,75 @@
     
     const progress = totalStepsForBar > 0 ? (completedStepsForBar / totalStepsForBar) * 100 : 0;
     progressBar.style.width = Math.min(progress, 100) + '%';
-  }
+  }
 
-  function countTotalEffectiveQuestions(questionsArray, currentResponseSet) {
-    let count = 0;
-    let tempResponses = {...currentResponseSet};
-    for (let i = 0; i < questionsArray.length; i++) {
-        const q = questionsArray[i];
-        if (q.condition) {
-            if (tempResponses[q.condition.key] === undefined || tempResponses[q.condition.key] !== q.condition.value) {
-                continue;
-            }
-        }
-        if (q.answer_method === 'text-pair') {
-            count += q.pairs.length;
-        } else {
-            count++;
-        }
-    }
-    return count || 1;
-  }
+  function countTotalEffectiveQuestions(questionsArray, currentResponseSet) {
+    let count = 0;
+    let tempResponses = {...currentResponseSet};
+    for (let i = 0; i < questionsArray.length; i++) {
+        const q = questionsArray[i];
+        if (q.condition) {
+            if (tempResponses[q.condition.key] === undefined || tempResponses[q.condition.key] !== q.condition.value) {
+                continue;
+            }
+        }
+        if (q.answer_method === 'text-pair') {
+            count += q.pairs.length;
+        } else {
+            count++;
+        }
+    }
+    return count || 1;
+  }
 
-  function showTypingIndicator() { 
-    if (isBotTyping) return;
-    isBotTyping = true;
-    const indicatorWrapper = document.createElement('div');
-    indicatorWrapper.classList.add('message-wrapper', 'bot-message-wrapper', 'typing-indicator-wrapper');
-    const botIconDiv = document.createElement('div');
-    botIconDiv.className = 'bot-icon';
-    if (typeof BOT_ICON_URL !== 'undefined' && BOT_ICON_URL && BOT_ICON_URL !== 'YOUR_BOT_ICON_URL_HERE') {
-        botIconDiv.style.backgroundImage = `url('${BOT_ICON_URL}')`;
-    }
-    indicatorWrapper.appendChild(botIconDiv);
-    indicatorWrapper.insertAdjacentHTML('beforeend', `<div class="message bot-message typing-indicator"><span></span><span></span><span></span></div>`);
-    chatMessages.appendChild(indicatorWrapper);
-    scrollToBottom();
-  }
-  function hideTypingIndicator() { 
-    const indicatorWrapper = chatMessages.querySelector('.typing-indicator-wrapper');
-    if (indicatorWrapper) indicatorWrapper.remove();
-    isBotTyping = false;
-  }
-  function addMessage(messageText, sender, isHtml = false, isError = false) {
-    hideTypingIndicator();
-    const messageWrapper = document.createElement('div');
-    messageWrapper.classList.add('message-wrapper', `${sender}-message-wrapper`);
-    if (sender === 'bot') {
-      const botIconDiv = document.createElement('div');
-      botIconDiv.className = 'bot-icon';
-      if (typeof BOT_ICON_URL !== 'undefined' && BOT_ICON_URL && BOT_ICON_URL !== 'YOUR_BOT_ICON_URL_HERE') {
-          botIconDiv.style.backgroundImage = `url('${BOT_ICON_URL}')`;
-          const img = new Image();
-          img.onerror = () => { botIconDiv.style.backgroundColor = '#ccc'; };
-          img.src = BOT_ICON_URL;
-      }
-      messageWrapper.appendChild(botIconDiv);
-    }
-    const messageElement = document.createElement('div');
-    messageElement.classList.add('message', `${sender}-message`);
-    if (isError && sender === 'bot') messageElement.classList.add('error-text');
-    if (isHtml) messageElement.innerHTML = messageText;
-    else messageElement.textContent = messageText;
-    messageWrapper.appendChild(messageElement);
-    chatMessages.appendChild(messageWrapper);
-    return messageElement;
-  }
-  function addBotMessage(messageText, isHtml = false, isError = false, isEbookBtn = false) { 
-    showTypingIndicator();
-    return new Promise(resolve => {
-      setTimeout(() => {
+  function showTypingIndicator() { 
+    if (isBotTyping) return;
+    isBotTyping = true;
+    const indicatorWrapper = document.createElement('div');
+    indicatorWrapper.classList.add('message-wrapper', 'bot-message-wrapper', 'typing-indicator-wrapper');
+    const botIconDiv = document.createElement('div');
+    botIconDiv.className = 'bot-icon';
+    if (typeof BOT_ICON_URL !== 'undefined' && BOT_ICON_URL && BOT_ICON_URL !== 'YOUR_BOT_ICON_URL_HERE') {
+        botIconDiv.style.backgroundImage = `url('${BOT_ICON_URL}')`;
+    }
+    indicatorWrapper.appendChild(botIconDiv);
+    indicatorWrapper.insertAdjacentHTML('beforeend', `<div class="message bot-message typing-indicator"><span></span><span></span><span></span></div>`);
+    chatMessages.appendChild(indicatorWrapper);
+    scrollToBottom();
+  }
+  function hideTypingIndicator() { 
+    const indicatorWrapper = chatMessages.querySelector('.typing-indicator-wrapper');
+    if (indicatorWrapper) indicatorWrapper.remove();
+    isBotTyping = false;
+  }
+  function addMessage(messageText, sender, isHtml = false, isError = false) {
+    hideTypingIndicator();
+    const messageWrapper = document.createElement('div');
+    messageWrapper.classList.add('message-wrapper', `${sender}-message-wrapper`);
+    if (sender === 'bot') {
+      const botIconDiv = document.createElement('div');
+      botIconDiv.className = 'bot-icon';
+      if (typeof BOT_ICON_URL !== 'undefined' && BOT_ICON_URL && BOT_ICON_URL !== 'YOUR_BOT_ICON_URL_HERE') {
+          botIconDiv.style.backgroundImage = `url('${BOT_ICON_URL}')`;
+          const img = new Image();
+          img.onerror = () => { botIconDiv.style.backgroundColor = '#ccc'; };
+          img.src = BOT_ICON_URL;
+      }
+      messageWrapper.appendChild(botIconDiv);
+    }
+    const messageElement = document.createElement('div');
+    messageElement.classList.add('message', `${sender}-message`);
+    if (isError && sender === 'bot') messageElement.classList.add('error-text');
+    if (isHtml) messageElement.innerHTML = messageText;
+    else messageElement.textContent = messageText;
+    messageWrapper.appendChild(messageElement);
+    chatMessages.appendChild(messageWrapper);
+    return messageElement;
+  }
+  function addBotMessage(messageText, isHtml = false, isError = false, isEbookBtn = false) { 
+    showTypingIndicator();
+    return new Promise(resolve => {
+      setTimeout(() => {
         let msgElem;
         if (isEbookBtn) { 
             const messageWrapper = document.createElement('div');
@@ -859,172 +861,172 @@
             msgElem = messageElementContainer; 
             hideTypingIndicator(); 
         } else {
-            msgElem = addMessage(messageText, 'bot', isHtml, isError);
+            msgElem = addMessage(messageText, 'bot', isHtml, isError);
         }
-        resolve(msgElem);
-      }, 600 + Math.random() * 400);
-    });
-  }
-  function addUserMessage(messageText) {
-    addMessage(messageText, 'user');
-    scrollToBottom(); 
-  }
-  function scrollToBottom() {
-    requestAnimationFrame(() => { chatMessages.scrollTop = chatMessages.scrollHeight; });
-  }
-  function disableOldUIElements() {
-    if (activeChoicesWrapper) {
-        const buttons = activeChoicesWrapper.querySelectorAll('.choice-button');
-        buttons.forEach(button => button.disabled = true);
-        activeChoicesWrapper = null;
-    }
-    if (activePairedInputWrapper) {
-        const nextButton = activePairedInputWrapper.querySelector('.paired-input-send-button');
-        if (nextButton) nextButton.disabled = true;
-        const inputs = activePairedInputWrapper.querySelectorAll('input');
-        inputs.forEach(input => input.disabled = true);
-        activePairedInputWrapper = null;
-    }
-    const activeCalendar = dynamicInputPlaceholder.querySelector('.calendar-container');
-    if (activeCalendar) {
-        activeCalendar.querySelectorAll('button, .calendar-day').forEach(el => {
-            if(el.classList.contains('calendar-day') && !el.classList.contains('disabled') && !el.classList.contains('empty')) {
-                el.onclick = null; 
-                el.style.cursor = 'default';
-            } else if (el.tagName === 'BUTTON') {
-                el.disabled = true;
-            }
-        });
-    }
-    const finalSubmitBtn = document.getElementById('dynamicFinalSubmitButton');
-    if (finalSubmitBtn) finalSubmitBtn.disabled = true;
-  }
+        resolve(msgElem);
+      }, 600 + Math.random() * 400);
+    });
+  }
+  function addUserMessage(messageText) {
+    addMessage(messageText, 'user');
+    scrollToBottom(); 
+  }
+  function scrollToBottom() {
+    requestAnimationFrame(() => { chatMessages.scrollTop = chatMessages.scrollHeight; });
+  }
+  function disableOldUIElements() {
+    if (activeChoicesWrapper) {
+        const buttons = activeChoicesWrapper.querySelectorAll('.choice-button');
+        buttons.forEach(button => button.disabled = true);
+        activeChoicesWrapper = null;
+    }
+    if (activePairedInputWrapper) {
+        const nextButton = activePairedInputWrapper.querySelector('.paired-input-send-button');
+        if (nextButton) nextButton.disabled = true;
+        const inputs = activePairedInputWrapper.querySelectorAll('input');
+        inputs.forEach(input => input.disabled = true);
+        activePairedInputWrapper = null;
+    }
+    const activeCalendar = dynamicInputPlaceholder.querySelector('.calendar-container');
+    if (activeCalendar) {
+        activeCalendar.querySelectorAll('button, .calendar-day').forEach(el => {
+            if(el.classList.contains('calendar-day') && !el.classList.contains('disabled') && !el.classList.contains('empty')) {
+                el.onclick = null; 
+                el.style.cursor = 'default';
+            } else if (el.tagName === 'BUTTON') {
+                el.disabled = true;
+            }
+        });
+    }
+    const finalSubmitBtn = document.getElementById('dynamicFinalSubmitButton');
+    if (finalSubmitBtn) finalSubmitBtn.disabled = true;
+  }
 
-  function displayChoicesOutsideBubble(question) {
-    normalInputArea.style.display = 'none';
-    dynamicInputPlaceholder.style.display = 'block';
-    dynamicInputPlaceholder.innerHTML = ''; 
+  function displayChoicesOutsideBubble(question) {
+    normalInputArea.style.display = 'none';
+    dynamicInputPlaceholder.style.display = 'block';
+    dynamicInputPlaceholder.innerHTML = ''; 
 
-    const choicesAreaWrapper = document.createElement('div');
-    choicesAreaWrapper.className = 'choices-area-wrapper';
-    activeChoicesWrapper = choicesAreaWrapper; 
+    const choicesAreaWrapper = document.createElement('div');
+    choicesAreaWrapper.className = 'choices-area-wrapper';
+    activeChoicesWrapper = choicesAreaWrapper; 
 
-    const choicesContainer = document.createElement('div');
-    choicesContainer.className = 'choices-container';
+    const choicesContainer = document.createElement('div');
+    choicesContainer.className = 'choices-container';
 
-    question.options.forEach(option => {
-      const button = document.createElement('button');
-      button.className = 'choice-button';
-      button.textContent = option;
-      button.dataset.value = option;
-      button.dataset.questionId = question.id; 
-      choicesContainer.appendChild(button);
+    question.options.forEach(option => {
+      const button = document.createElement('button');
+      button.className = 'choice-button';
+      button.textContent = option;
+      button.dataset.value = option;
+      button.dataset.questionId = question.id; 
+      choicesContainer.appendChild(button);
 
-      if (question.answer_method === "single-choice") {
-        button.addEventListener('click', (event) => handleSingleChoiceClick(event, option, question));
-      } else { 
-        button.addEventListener('click', (event) => toggleMultipleChoiceSelection(event, button, option));
-      }
-    });
+      if (question.answer_method === "single-choice") {
+        button.addEventListener('click', (event) => handleSingleChoiceClick(event, option, question));
+      } else { 
+        button.addEventListener('click', (event) => toggleMultipleChoiceSelection(event, button, option));
+      }
+    });
 
-    if (question.answer_method === "multiple-choice") {
-      const submitButtonWrapper = document.createElement('div');
-      submitButtonWrapper.className = 'submit-choices-button-wrapper';
-      const submitBtn = document.createElement('button');
-      submitBtn.textContent = "これで決定";
-      submitBtn.className = 'choice-button submit-choices-button';
-      submitBtn.dataset.questionId = question.id; 
-      submitBtn.addEventListener('click', (event) => handleMultipleChoiceSubmit(event, question));
-      submitButtonWrapper.appendChild(submitBtn);
-      choicesContainer.appendChild(submitButtonWrapper);
-      currentMultipleChoices = []; 
-    }
-    choicesAreaWrapper.appendChild(choicesContainer);
-    dynamicInputPlaceholder.appendChild(choicesAreaWrapper); 
-    scrollToBottom(); 
-  }
+    if (question.answer_method === "multiple-choice") {
+      const submitButtonWrapper = document.createElement('div');
+      submitButtonWrapper.className = 'submit-choices-button-wrapper';
+      const submitBtn = document.createElement('button');
+      submitBtn.textContent = "これで決定";
+      submitBtn.className = 'choice-button submit-choices-button';
+      submitBtn.dataset.questionId = question.id; 
+      submitBtn.addEventListener('click', (event) => handleMultipleChoiceSubmit(event, question));
+      submitButtonWrapper.appendChild(submitBtn);
+      choicesContainer.appendChild(submitButtonWrapper);
+      currentMultipleChoices = []; 
+    }
+    choicesAreaWrapper.appendChild(choicesContainer);
+    dynamicInputPlaceholder.appendChild(choicesAreaWrapper); 
+    scrollToBottom(); 
+  }
 
-  function displayPairedInputs(pairData, questionId) {
-    normalInputArea.style.display = 'none';
-    dynamicInputPlaceholder.style.display = 'block'; 
-    dynamicInputPlaceholder.innerHTML = ''; 
+  function displayPairedInputs(pairData, questionId) {
+    normalInputArea.style.display = 'none';
+    dynamicInputPlaceholder.style.display = 'block'; 
+    dynamicInputPlaceholder.innerHTML = ''; 
 
-    const pairedInputAreaWrapper = document.createElement('div');
-    pairedInputAreaWrapper.className = 'paired-input-area-wrapper';
-    activePairedInputWrapper = pairedInputAreaWrapper; 
+    const pairedInputAreaWrapper = document.createElement('div');
+    pairedInputAreaWrapper.className = 'paired-input-area-wrapper';
+    activePairedInputWrapper = pairedInputAreaWrapper; 
 
-    const pairedInputContainer = document.createElement('div');
-    pairedInputContainer.className = 'paired-input-container';
-    
-    const inputsArray = []; 
+    const pairedInputContainer = document.createElement('div');
+    pairedInputContainer.className = 'paired-input-container';
+    
+    const inputsArray = []; 
 
-    pairData.inputs.forEach((inputConfig, index) => {
-        const inputRow = document.createElement('div');
-        inputRow.className = 'paired-input-row';
-        
-        const label = document.createElement('label');
-        label.htmlFor = `pairedInput-${questionId}-${subStep}-${index}`;
-        label.textContent = inputConfig.label;
-        
-        const input = document.createElement('input');
-        input.type = inputConfig.type || "text";
-        input.id = `pairedInput-${questionId}-${subStep}-${index}`;
-        input.placeholder = inputConfig.placeholder || "";
-        input.dataset.key = inputConfig.key;
-        inputsArray.push(input);
+    pairData.inputs.forEach((inputConfig, index) => {
+        const inputRow = document.createElement('div');
+        inputRow.className = 'paired-input-row';
+        
+        const label = document.createElement('label');
+        label.htmlFor = `pairedInput-${questionId}-${subStep}-${index}`;
+        label.textContent = inputConfig.label;
+        
+        const input = document.createElement('input');
+        input.type = inputConfig.type || "text";
+        input.id = `pairedInput-${questionId}-${subStep}-${index}`;
+        input.placeholder = inputConfig.placeholder || "";
+        input.dataset.key = inputConfig.key;
+        inputsArray.push(input);
 
-        inputRow.appendChild(label);
-        inputRow.appendChild(input);
+        inputRow.appendChild(label);
+        inputRow.appendChild(input);
 
-        if (index === pairData.inputs.length - 1) { 
-            const sendPairedButton = document.createElement('button');
-            sendPairedButton.className = 'paired-input-send-button'; 
-            sendPairedButton.disabled = true; 
-            sendPairedButton.dataset.questionId = questionId; 
-            sendPairedButton.innerHTML = `<svg xmlns="http://www.w3.org/2000/svg" width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" class="feather feather-send"><line x1="22" y1="2" x2="11" y2="13"></line><polygon points="22 2 15 22 11 13 2 9 22 2"></polygon></svg>`;
-            sendPairedButton.addEventListener('click', () => handlePairedInputSubmit(pairData, questionId, inputsArray));
-            inputRow.appendChild(sendPairedButton);
+        if (index === pairData.inputs.length - 1) { 
+            const sendPairedButton = document.createElement('button');
+            sendPairedButton.className = 'paired-input-send-button'; 
+            sendPairedButton.disabled = true; 
+            sendPairedButton.dataset.questionId = questionId; 
+            sendPairedButton.innerHTML = `<svg xmlns="http://www.w3.org/2000/svg" width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" class="feather feather-send"><line x1="22" y1="2" x2="11" y2="13"></line><polygon points="22 2 15 22 11 13 2 9 22 2"></polygon></svg>`;
+            sendPairedButton.addEventListener('click', () => handlePairedInputSubmit(pairData, questionId, inputsArray));
+            inputRow.appendChild(sendPairedButton);
 
-            const validateAndToggleButton = () => {
-                const values = inputsArray.map(inp => inp.value.trim());
-                if (pairData.combinedValidation(values[0], values[1])) {
-                    sendPairedButton.disabled = false;
-                    sendPairedButton.classList.add('enabled');
-                    inputsArray.forEach(inp => inp.classList.remove('input-error'));
-                } else {
-                    sendPairedButton.disabled = true;
-                    sendPairedButton.classList.remove('enabled');
-                }
-            };
-            inputsArray.forEach(inp => inp.addEventListener('input', validateAndToggleButton));
-            
-            input.addEventListener('keypress', function(event) {
-                if (event.key === 'Enter') {
-                    event.preventDefault(); 
-                    if(!sendPairedButton.disabled) {
-                        handlePairedInputSubmit(pairData, questionId, inputsArray);
-                    }
-                }
-            });
-        } else { 
-            const placeholderButton = document.createElement('div'); 
-            placeholderButton.className = 'paired-input-send-button placeholder';
-            inputRow.appendChild(placeholderButton);
-            input.addEventListener('keypress', function(event) {
-                if (event.key === 'Enter') {
-                    event.preventDefault();
-                    inputsArray[index + 1]?.focus();
-                }
-            });
-        }
-        pairedInputContainer.appendChild(inputRow);
-    });
+            const validateAndToggleButton = () => {
+                const values = inputsArray.map(inp => inp.value.trim());
+                if (pairData.combinedValidation(values[0], values[1])) {
+                    sendPairedButton.disabled = false;
+                    sendPairedButton.classList.add('enabled');
+                    inputsArray.forEach(inp => inp.classList.remove('input-error'));
+                } else {
+                    sendPairedButton.disabled = true;
+                    sendPairedButton.classList.remove('enabled');
+                }
+            };
+            inputsArray.forEach(inp => inp.addEventListener('input', validateAndToggleButton));
+            
+            input.addEventListener('keypress', function(event) {
+                if (event.key === 'Enter') {
+                    event.preventDefault(); 
+                    if(!sendPairedButton.disabled) {
+                        handlePairedInputSubmit(pairData, questionId, inputsArray);
+                    }
+                }
+            });
+        } else { 
+            const placeholderButton = document.createElement('div'); 
+            placeholderButton.className = 'paired-input-send-button placeholder';
+            inputRow.appendChild(placeholderButton);
+            input.addEventListener('keypress', function(event) {
+                if (event.key === 'Enter') {
+                    event.preventDefault();
+                    inputsArray[index + 1]?.focus();
+                }
+            });
+        }
+        pairedInputContainer.appendChild(inputRow);
+    });
 
-    pairedInputAreaWrapper.appendChild(pairedInputContainer);
-    dynamicInputPlaceholder.appendChild(pairedInputAreaWrapper); 
-    scrollToBottom(); 
-    if(inputsArray.length > 0) inputsArray[0].focus();
-  }
+    pairedInputAreaWrapper.appendChild(pairedInputContainer);
+    dynamicInputPlaceholder.appendChild(pairedInputAreaWrapper); 
+    scrollToBottom(); 
+    if(inputsArray.length > 0) inputsArray[0].focus();
+  }
 
   // --- Calendar Functions ---
   function displayCalendar(question) {
@@ -1184,42 +1186,35 @@
     container.appendChild(actionsDiv);
   }
   
-  async function setupFinalConsentScreen(question) { 
-    normalInputArea.style.display = 'none'; 
-    dynamicInputPlaceholder.style.display = 'block'; 
-    dynamicInputPlaceholder.innerHTML = ''; 
+  async function setupFinalConsentScreen(question) { 
+    normalInputArea.style.display = 'none'; 
+    dynamicInputPlaceholder.style.display = 'block'; 
+    dynamicInputPlaceholder.innerHTML = ''; 
 
-    // 1. 「ご回答ありがとうございました！」メッセージ (askQuestionから移動)
-    // このメッセージは askQuestion 関数で question.pre_message として表示されるように変更済み
-    // (askQuestion内で final-consent の場合は先に setupFinalConsentScreen を呼ぶように変更したので、
-    //  pre_message の表示はここで行うのが適切)
     if (question.pre_message) {
         await addBotMessage(question.pre_message);
     }
     await new Promise(resolve => setTimeout(resolve, 100)); 
 
-    // 2. 「入力内容・利用規約をご確認の上、「同意して送信」を押してください。」をチャットメッセージとして表示
-    const consentMessageWrapper = document.createElement('div'); 
-    consentMessageWrapper.classList.add('message-wrapper', 'bot-message-wrapper', 'final-consent-message-area');
-    const botIconDiv = document.createElement('div');  
-    botIconDiv.className = 'bot-icon';
-    if (typeof BOT_ICON_URL !== 'undefined' && BOT_ICON_URL && BOT_ICON_URL !== 'YOUR_BOT_ICON_URL_HERE') {
-        botIconDiv.style.backgroundImage = `url('${BOT_ICON_URL}')`;
-    }
-    consentMessageWrapper.appendChild(botIconDiv);
-    const consentMessageBubble = document.createElement('div'); 
-    consentMessageBubble.classList.add('message', 'bot-message');
-    const privacyPolicyLinkHTML = `<a href="${question.privacy_policy_url}" target="_blank" rel="noopener noreferrer">${question.privacy_policy_link_text}</a>`;
-    consentMessageBubble.innerHTML = question.question.replace(question.privacy_policy_link_text, privacyPolicyLinkHTML); 
-    consentMessageWrapper.appendChild(consentMessageBubble);
-    chatMessages.appendChild(consentMessageWrapper); 
+    const consentMessageWrapper = document.createElement('div'); 
+    consentMessageWrapper.classList.add('message-wrapper', 'bot-message-wrapper', 'final-consent-message-area');
+    const botIconDiv = document.createElement('div');  
+    botIconDiv.className = 'bot-icon';
+    if (typeof BOT_ICON_URL !== 'undefined' && BOT_ICON_URL && BOT_ICON_URL !== 'YOUR_BOT_ICON_URL_HERE') {
+        botIconDiv.style.backgroundImage = `url('${BOT_ICON_URL}')`;
+    }
+    consentMessageWrapper.appendChild(botIconDiv);
+    const consentMessageBubble = document.createElement('div'); 
+    consentMessageBubble.classList.add('message', 'bot-message');
+    const privacyPolicyLinkHTML = `<a href="${question.privacy_policy_url}" target="_blank" rel="noopener noreferrer">${question.privacy_policy_link_text}</a>`;
+    consentMessageBubble.innerHTML = question.question.replace(question.privacy_policy_link_text, privacyPolicyLinkHTML); 
+    consentMessageWrapper.appendChild(consentMessageBubble);
+    chatMessages.appendChild(consentMessageWrapper); 
     await new Promise(resolve => setTimeout(resolve, 100)); 
 
-    // 3. 「ご入力内容」サマリー表示 (chatMessages に追加)
     displaySummaryArea(); 
     await new Promise(resolve => setTimeout(resolve, 100)); 
 
-    // 4. サマリーの直後に、吹き出しなしの同意テキストを表示
     const summaryAdjacentConsentTextDiv = document.createElement('div');
     summaryAdjacentConsentTextDiv.className = 'summary-adjacent-consent-text';
     const privacyLinkSmall = document.createElement('a');
@@ -1246,29 +1241,28 @@
     await new Promise(resolve => setTimeout(resolve, 100));
 
 
-    // 5. 「同意して送信」ボタンを dynamicInputPlaceholder に表示
-    const submitButtonAreaWrapper = document.createElement('div'); 
-    submitButtonAreaWrapper.className = 'choices-area-wrapper'; 
-    const finalSubmitButton = document.createElement('button'); 
-    finalSubmitButton.className = 'choice-button final-consent-submit-button'; 
+    const submitButtonAreaWrapper = document.createElement('div'); 
+    submitButtonAreaWrapper.className = 'choices-area-wrapper'; 
+    const finalSubmitButton = document.createElement('button'); 
+    finalSubmitButton.className = 'choice-button final-consent-submit-button'; 
     finalSubmitButton.innerHTML = `<span>${question.submit_button_text}</span><svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round" class="feather feather-send"><line x1="22" y1="2" x2="11" y2="13"></line><polygon points="22 2 15 22 11 13 2 9 22 2"></polygon></svg>`;
-    finalSubmitButton.id = 'dynamicFinalSubmitButton'; 
+    finalSubmitButton.id = 'dynamicFinalSubmitButton'; 
     finalSubmitButton.disabled = false; 
     
-    finalSubmitButton.addEventListener('click', async () => {
-        if (currentFlow === 'initial') {
-            userResponses[question.key] = true; 
-            completedEffectiveQuestions++; 
-            updateProgressBar(); 
-            dynamicInputPlaceholder.innerHTML = ''; 
-            dynamicInputPlaceholder.style.display = 'none'; 
-            await submitDataToGAS(userResponses, false); 
-        }
-    });
-    submitButtonAreaWrapper.appendChild(finalSubmitButton);
-    dynamicInputPlaceholder.appendChild(submitButtonAreaWrapper); 
-    scrollToBottom();
-  }
+    finalSubmitButton.addEventListener('click', async () => {
+        if (currentFlow === 'initial') {
+            userResponses[question.key] = true; 
+            completedEffectiveQuestions++; 
+            updateProgressBar(); 
+            dynamicInputPlaceholder.innerHTML = ''; 
+            dynamicInputPlaceholder.style.display = 'none'; 
+            await submitDataToGAS(userResponses, false); 
+        }
+    });
+    submitButtonAreaWrapper.appendChild(finalSubmitButton);
+    dynamicInputPlaceholder.appendChild(submitButtonAreaWrapper); 
+    scrollToBottom();
+  }
 
   function displaySummaryArea() { 
     const summaryMessageWrapper = document.createElement('div');
@@ -1347,210 +1341,210 @@
   }
 
 
-  async function askQuestion() {
-    userInput.disabled = true; 
-    sendButton.disabled = true; 
-    sendButton.classList.remove('enabled'); 
-    userInput.classList.remove('input-error'); 
-    removeErrorMessage(); 
+  async function askQuestion() {
+    userInput.disabled = true; 
+    sendButton.disabled = true; 
+    sendButton.classList.remove('enabled'); 
+    userInput.classList.remove('input-error'); 
+    removeErrorMessage(); 
 
-    updateProgressBar(); 
+    updateProgressBar(); 
 
-    const currentQuestionsArray = (currentFlow === 'initial') ? initialQuestions : additionalQuestions;
-    const currentResponseSet = (currentFlow === 'initial') ? userResponses : additionalUserResponses;
+    const currentQuestionsArray = (currentFlow === 'initial') ? initialQuestions : additionalQuestions;
+    const currentResponseSet = (currentFlow === 'initial') ? userResponses : additionalUserResponses;
 
-    while (currentStep < currentQuestionsArray.length) {
-        const q = currentQuestionsArray[currentStep];
-        if (q.condition) {
-            const conditionKey = q.condition.key;
-            const conditionValue = q.condition.value;
-            const responseSetForCondition = (q.condition.checkInInitialFlow && currentFlow === 'additional') ? userResponses : currentResponseSet;
-            if (responseSetForCondition[conditionKey] === undefined || responseSetForCondition[conditionKey] !== conditionValue) {
-                currentStep++;
-                continue;
-            }
-        }
-        break; 
-    }
+    while (currentStep < currentQuestionsArray.length) {
+        const q = currentQuestionsArray[currentStep];
+        if (q.condition) {
+            const conditionKey = q.condition.key;
+            const conditionValue = q.condition.value;
+            const responseSetForCondition = (q.condition.checkInInitialFlow && currentFlow === 'additional') ? userResponses : currentResponseSet;
+            if (responseSetForCondition[conditionKey] === undefined || responseSetForCondition[conditionKey] !== conditionValue) {
+                currentStep++;
+                continue;
+            }
+        }
+        break; 
+    }
 
-    if (currentStep >= currentQuestionsArray.length) {
-      if (currentFlow === 'initial' && !userResponses.final_consent_given) { 
-      } else if (currentFlow === 'initial' && userResponses.final_consent_given) {
-      } else if (currentFlow === 'additional') {
-        await submitDataToGAS(additionalUserResponses, true); 
-      }
-      userInput.disabled = true;
-      sendButton.disabled = true;
-      sendButton.classList.remove('enabled');
-      normalInputArea.style.display = 'none';
-      dynamicInputPlaceholder.style.display = 'none';
-      dynamicInputPlaceholder.innerHTML = '';
-      return;
-    }
+    if (currentStep >= currentQuestionsArray.length) {
+      if (currentFlow === 'initial' && !userResponses.final_consent_given) { 
+      } else if (currentFlow === 'initial' && userResponses.final_consent_given) {
+      } else if (currentFlow === 'additional') {
+        await submitDataToGAS(additionalUserResponses, true); 
+      }
+      userInput.disabled = true;
+      sendButton.disabled = true;
+      sendButton.classList.remove('enabled');
+      normalInputArea.style.display = 'none';
+      dynamicInputPlaceholder.style.display = 'none';
+      dynamicInputPlaceholder.innerHTML = '';
+      return;
+    }
 
-    const currentQuestion = currentQuestionsArray[currentStep];
+    const currentQuestion = currentQuestionsArray[currentStep];
 
-    if (currentQuestion.answer_method === "final-consent") { 
+    if (currentQuestion.answer_method === "final-consent") { 
         setupFinalConsentScreen(currentQuestion); 
         return; 
     }
 
-    if (currentQuestion.pre_message_1) { 
-        await addBotMessage(currentQuestion.pre_message_1);
-        if (currentQuestion.pre_message_2) await addBotMessage(currentQuestion.pre_message_2);
-    } else if (currentQuestion.pre_message){ 
-        await addBotMessage(currentQuestion.pre_message);
-    }
-    
-    normalInputArea.style.display = 'none';
-    dynamicInputPlaceholder.innerHTML = ''; 
-    dynamicInputPlaceholder.style.display = 'none';
+    if (currentQuestion.pre_message_1) { 
+        await addBotMessage(currentQuestion.pre_message_1);
+        if (currentQuestion.pre_message_2) await addBotMessage(currentQuestion.pre_message_2);
+    } else if (currentQuestion.pre_message){ 
+        await addBotMessage(currentQuestion.pre_message);
+    }
+    
+    normalInputArea.style.display = 'none';
+    dynamicInputPlaceholder.innerHTML = ''; 
+    dynamicInputPlaceholder.style.display = 'none';
 
-    if (currentQuestion.answer_method === "text-pair") {
-        const displayNextPair = async () => {
-            if (subStep < currentQuestion.pairs.length) {
-                const currentPairData = currentQuestion.pairs[subStep];
-                if (subStep === 0 && currentQuestion.question) {
-                    await addBotMessage(currentQuestion.question);
-                }
-                await addBotMessage(currentPairData.prompt); 
-                displayPairedInputs(currentPairData, currentQuestion.id); 
-            } else {
-                subStep = 0; 
-                completedEffectiveQuestions++; 
-                currentStep++;
-                askQuestion(); 
-            }
-        };
-        await displayNextPair();
-        return; 
-    }
-    
-    if (currentQuestion.question) { 
-      await addBotMessage(currentQuestion.question, currentQuestion.isHtmlQuestion || false); 
-    }
+    if (currentQuestion.answer_method === "text-pair") {
+        const displayNextPair = async () => {
+            if (subStep < currentQuestion.pairs.length) {
+                const currentPairData = currentQuestion.pairs[subStep];
+                if (subStep === 0 && currentQuestion.question) {
+                    await addBotMessage(currentQuestion.question);
+                }
+                await addBotMessage(currentPairData.prompt); 
+                displayPairedInputs(currentPairData, currentQuestion.id); 
+            } else {
+                subStep = 0; 
+                completedEffectiveQuestions++; 
+                currentStep++;
+                askQuestion(); 
+            }
+        };
+        await displayNextPair();
+        return; 
+    }
+    
+    if (currentQuestion.question) { 
+      await addBotMessage(currentQuestion.question, currentQuestion.isHtmlQuestion || false); 
+    }
 
-    if (currentQuestion.answer_method === "single-choice" || currentQuestion.answer_method === "multiple-choice") {
-      displayChoicesOutsideBubble(currentQuestion);
-    } else if (currentQuestion.answer_method === "calendar") { 
-      currentCalendarDate = new Date(); 
-      selectedCalendarDate = null; 
-      displayCalendar(currentQuestion);
-    } else {   
-      normalInputArea.style.display = 'flex'; 
-      dynamicInputPlaceholder.style.display = 'none'; 
-      
-      inputIconContainer.innerHTML = ''; 
-      if (currentQuestion.type === 'tel') {
-        inputIconContainer.innerHTML = `<svg xmlns="http://www.w3.org/2000/svg" width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" class="feather feather-phone"><path d="M22 16.92v3a2 2 0 0 1-2.18 2 19.79 19.79 0 0 1-8.63-3.07 19.5 19.5 0 0 1-6-6 19.79 19.79 0 0 1-3.07-8.67A2 2 0 0 1 4.11 2h3a2 2 0 0 1 2 1.72 12.84 12.84 0 0 0 .7 2.81 2 2 0 0 1-.45 2.11L8.09 9.91a16 16 0 0 0 6 6l1.27-1.27a2 2 0 0 1 2.11-.45 12.84 12.84 0 0 0 2.81.7A2 2 0 0 1 22 16.92z"></path></svg>`;
-      } else if (currentQuestion.type === 'email') {
-        inputIconContainer.innerHTML = `<svg xmlns="http://www.w3.org/2000/svg" width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" class="feather feather-mail"><path d="M4 4h16c1.1 0 2 .9 2 2v12c0 1.1-.9 2-2 2H4c-1.1 0-2-.9-2-2V6c0-1.1.9-2 2-2z"></path><polyline points="22,6 12,13 2,6"></polyline></svg>`;
-      }
+    if (currentQuestion.answer_method === "single-choice" || currentQuestion.answer_method === "multiple-choice") {
+      displayChoicesOutsideBubble(currentQuestion);
+    } else if (currentQuestion.answer_method === "calendar") { 
+      currentCalendarDate = new Date(); 
+      selectedCalendarDate = null; 
+      displayCalendar(currentQuestion);
+    } else {  
+      normalInputArea.style.display = 'flex'; 
+      dynamicInputPlaceholder.style.display = 'none'; 
+      
+      inputIconContainer.innerHTML = ''; 
+      if (currentQuestion.type === 'tel') {
+        inputIconContainer.innerHTML = `<svg xmlns="http://www.w3.org/2000/svg" width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" class="feather feather-phone"><path d="M22 16.92v3a2 2 0 0 1-2.18 2 19.79 19.79 0 0 1-8.63-3.07 19.5 19.5 0 0 1-6-6 19.79 19.79 0 0 1-3.07-8.67A2 2 0 0 1 4.11 2h3a2 2 0 0 1 2 1.72 12.84 12.84 0 0 0 .7 2.81 2 2 0 0 1-.45 2.11L8.09 9.91a16 16 0 0 0 6 6l1.27-1.27a2 2 0 0 1 2.11-.45 12.84 12.84 0 0 0 2.81.7A2 2 0 0 1 22 16.92z"></path></svg>`;
+      } else if (currentQuestion.type === 'email') {
+        inputIconContainer.innerHTML = `<svg xmlns="http://www.w3.org/2000/svg" width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" class="feather feather-mail"><path d="M4 4h16c1.1 0 2 .9 2 2v12c0 1.1-.9 2-2 2H4c-1.1 0-2-.9-2-2V6c0-1.1.9-2 2-2z"></path><polyline points="22,6 12,13 2,6"></polyline></svg>`;
+      }
 
-      userInput.type = currentQuestion.type || "text";
-      userInput.placeholder = currentQuestion.placeholder || `ここに入力`;
-      userInput.value = ''; 
-      userInput.disabled = false; 
-      sendButton.disabled = true; 
-      sendButton.classList.remove('enabled');
+      userInput.type = currentQuestion.type || "text";
+      userInput.placeholder = currentQuestion.placeholder || `ここに入力`;
+      userInput.value = ''; 
+      userInput.disabled = false; 
+      sendButton.disabled = true; 
+      sendButton.classList.remove('enabled');
 
-      userInput.oninput = () => { 
-          if (currentQuestion.validation && currentQuestion.validation(userInput.value.trim())) {
-              sendButton.disabled = false;
-              sendButton.classList.add('enabled');
-              userInput.classList.remove('input-error');
-          } else {
-              sendButton.disabled = true;
-              sendButton.classList.remove('enabled');
-          }
-      };
-      userInput.focus();
-    }
-    scrollToBottom();
-  }
+      userInput.oninput = () => { 
+          if (currentQuestion.validation && currentQuestion.validation(userInput.value.trim())) {
+              sendButton.disabled = false;
+              sendButton.classList.add('enabled');
+              userInput.classList.remove('input-error');
+          } else {
+              sendButton.disabled = true;
+              sendButton.classList.remove('enabled');
+          }
+      };
+      userInput.focus();
+    }
+    scrollToBottom();
+  }
   
-  async function handlePairedInputSubmit(pairData, questionId, inputElements) { 
-    if (!activePairedInputWrapper) return; 
-    const values = inputElements.map(input => input.value.trim());
-    const currentResponseSet = (currentFlow === 'initial') ? userResponses : additionalUserResponses;
+  async function handlePairedInputSubmit(pairData, questionId, inputElements) { 
+    if (!activePairedInputWrapper) return; 
+    const values = inputElements.map(input => input.value.trim());
+    const currentResponseSet = (currentFlow === 'initial') ? userResponses : additionalUserResponses;
     const sendPairedButton = activePairedInputWrapper.querySelector('.paired-input-send-button:not(.placeholder)');
 
 
-    const existingErrorMsg = activePairedInputWrapper.querySelector('.paired-input-error');
-    if (existingErrorMsg) existingErrorMsg.remove();
+    const existingErrorMsg = activePairedInputWrapper.querySelector('.paired-input-error');
+    if (existingErrorMsg) existingErrorMsg.remove();
 
-    if (pairData.combinedValidation && !pairData.combinedValidation(values[0], values[1])) {
-        await addBotMessage(pairData.combinedErrorMessage, false, true); 
-        inputElements.forEach((inputEl, index) => {
-            let isValidForThisField = true;
-            const inputKey = inputEl.dataset.key;
-            if (inputKey.includes("kana")) {
-                isValidForThisField = values[index] && katakanaRegex.test(values[index]);
-            } else {
-                isValidForThisField = values[index] && values[index].length > 0;
-            }
-            if (!isValidForThisField) {
+    if (pairData.combinedValidation && !pairData.combinedValidation(values[0], values[1])) {
+        await addBotMessage(pairData.combinedErrorMessage, false, true); 
+        inputElements.forEach((inputEl, index) => {
+            let isValidForThisField = true;
+            const inputKey = inputEl.dataset.key;
+            if (inputKey.includes("kana")) {
+                isValidForThisField = values[index] && katakanaRegex.test(values[index]);
+            } else {
+                isValidForThisField = values[index] && values[index].length > 0;
+            }
+            if (!isValidForThisField) {
                 inputEl.classList.add('input-error');
             } else {
                 inputEl.classList.remove('input-error');
             }
-        });
-        const firstErrorInput = inputElements.find(input => input.classList.contains('input-error'));
-        if (firstErrorInput) firstErrorInput.focus();
-        else inputElements[0].focus(); 
-        return;
-    }
-    inputElements.forEach(input => {
+        });
+        const firstErrorInput = inputElements.find(input => input.classList.contains('input-error'));
+        if (firstErrorInput) firstErrorInput.focus();
+        else inputElements[0].focus(); 
+        return;
+    }
+    inputElements.forEach(input => {
         input.classList.remove('input-error');
         input.disabled = true; 
     });
     if(sendPairedButton) sendPairedButton.disabled = true;
 
 
-    let userMessageText = "";
-    pairData.inputs.forEach((inputConfig, index) => {
-        currentResponseSet[inputConfig.key] = values[index]; 
-        userMessageText += `${inputConfig.label}: ${values[index]}${index < pairData.inputs.length -1 ? ', ' : ''}`;
-    });
-    addUserMessage(userMessageText);
-    
-    activePairedInputWrapper = null; 
+    let userMessageText = "";
+    pairData.inputs.forEach((inputConfig, index) => {
+        currentResponseSet[inputConfig.key] = values[index]; 
+        userMessageText += `${inputConfig.label}: ${values[index]}${index < pairData.inputs.length -1 ? ', ' : ''}`;
+    });
+    addUserMessage(userMessageText);
+    
+    activePairedInputWrapper = null; 
 
-    subStep++;
-    const currentQuestionsArray = (currentFlow === 'initial') ? initialQuestions : additionalQuestions;
-    const currentMainQuestion = currentQuestionsArray[currentStep]; 
-    if (subStep < currentMainQuestion.pairs.length) {
-        const nextPairData = currentMainQuestion.pairs[subStep];
-        await addBotMessage(nextPairData.prompt); 
-        displayPairedInputs(nextPairData, currentMainQuestion.id); 
-    } else {
-        subStep = 0; 
-        completedEffectiveQuestions++; 
-        currentStep++; 
-        askQuestion(); 
-    }
-  }
+    subStep++;
+    const currentQuestionsArray = (currentFlow === 'initial') ? initialQuestions : additionalQuestions;
+    const currentMainQuestion = currentQuestionsArray[currentStep]; 
+    if (subStep < currentMainQuestion.pairs.length) {
+        const nextPairData = currentMainQuestion.pairs[subStep];
+        await addBotMessage(nextPairData.prompt); 
+        displayPairedInputs(nextPairData, currentMainQuestion.id); 
+    } else {
+        subStep = 0; 
+        completedEffectiveQuestions++; 
+        currentStep++; 
+        askQuestion(); 
+    }
+  }
 
-  async function handleSingleChoiceClick(event, value, question) {
-    const clickedButton = event.target;
-    const currentQuestionsArray = (currentFlow === 'initial') ? initialQuestions : additionalQuestions;
-    if (parseInt(clickedButton.dataset.questionId) !== currentQuestionsArray[currentStep].id || clickedButton.disabled) {
-        return;
-    }
-    addUserMessage(value);
-    if (question.validation && !question.validation(value)) {
-      await addBotMessage(question.errorMessage, false, true);
-      return;
-    }
-    
-    const currentResponseSet = (currentFlow === 'initial') ? userResponses : additionalUserResponses;
-    currentResponseSet[question.key] = value; 
-    
-    dynamicInputPlaceholder.innerHTML = '';
-    dynamicInputPlaceholder.style.display = 'none';
-    activeChoicesWrapper = null;
+  async function handleSingleChoiceClick(event, value, question) {
+    const clickedButton = event.target;
+    const currentQuestionsArray = (currentFlow === 'initial') ? initialQuestions : additionalQuestions;
+    if (parseInt(clickedButton.dataset.questionId) !== currentQuestionsArray[currentStep].id || clickedButton.disabled) {
+        return;
+    }
+    addUserMessage(value);
+    if (question.validation && !question.validation(value)) {
+      await addBotMessage(question.errorMessage, false, true);
+      return;
+    }
+    
+    const currentResponseSet = (currentFlow === 'initial') ? userResponses : additionalUserResponses;
+    currentResponseSet[question.key] = value; 
+    
+    dynamicInputPlaceholder.innerHTML = '';
+    dynamicInputPlaceholder.style.display = 'none';
+    activeChoicesWrapper = null;
 
-    completedEffectiveQuestions++;
+    completedEffectiveQuestions++;
     if (currentFlow === 'initial' && question.id === 14) {
         const question15 = initialQuestions.find(q => q.id === 15);
         let isQuestion15Skipped = true;
@@ -1574,67 +1568,67 @@
         updateProgressBar();
     }
 
-    currentStep++;
-    setTimeout(askQuestion, 300); 
-  }
+    currentStep++;
+    setTimeout(askQuestion, 300); 
+  }
 
-  async function toggleMultipleChoiceSelection(event, buttonElement, value) {
-    const currentQuestionsArray = (currentFlow === 'initial') ? initialQuestions : additionalQuestions;
-    if (parseInt(buttonElement.dataset.questionId) !== currentQuestionsArray[currentStep].id || buttonElement.disabled) {
-        return;
-    }
-    buttonElement.classList.toggle('selected');
-    if (currentMultipleChoices.includes(value)) {
-      currentMultipleChoices = currentMultipleChoices.filter(item => item !== value);
-    } else {
-      currentMultipleChoices.push(value);
-    }
-  }
+  async function toggleMultipleChoiceSelection(event, buttonElement, value) {
+    const currentQuestionsArray = (currentFlow === 'initial') ? initialQuestions : additionalQuestions;
+    if (parseInt(buttonElement.dataset.questionId) !== currentQuestionsArray[currentStep].id || buttonElement.disabled) {
+        return;
+    }
+    buttonElement.classList.toggle('selected');
+    if (currentMultipleChoices.includes(value)) {
+      currentMultipleChoices = currentMultipleChoices.filter(item => item !== value);
+    } else {
+      currentMultipleChoices.push(value);
+    }
+  }
 
-  async function handleMultipleChoiceSubmit(event, question) {
-    const clickedButton = event.target;
-    const currentQuestionsArray = (currentFlow === 'initial') ? initialQuestions : additionalQuestions;
-    if (parseInt(clickedButton.dataset.questionId) !== currentQuestionsArray[currentStep].id || clickedButton.disabled) {
-        return;
-    }
-    if (question.validation && !question.validation(currentMultipleChoices)) {
-      await addBotMessage(question.errorMessage, false, true);
-      return;
-    }
-    addUserMessage(currentMultipleChoices.length > 0 ? currentMultipleChoices.join(', ') : "(選択なし)");
-    
-    const currentResponseSet = (currentFlow === 'initial') ? userResponses : additionalUserResponses;
-    currentResponseSet[question.key] = [...currentMultipleChoices]; 
-    currentMultipleChoices = []; 
-    
-    dynamicInputPlaceholder.innerHTML = '';
-    dynamicInputPlaceholder.style.display = 'none';
-    activeChoicesWrapper = null;
+  async function handleMultipleChoiceSubmit(event, question) {
+    const clickedButton = event.target;
+    const currentQuestionsArray = (currentFlow === 'initial') ? initialQuestions : additionalQuestions;
+    if (parseInt(clickedButton.dataset.questionId) !== currentQuestionsArray[currentStep].id || clickedButton.disabled) {
+        return;
+    }
+    if (question.validation && !question.validation(currentMultipleChoices)) {
+      await addBotMessage(question.errorMessage, false, true);
+      return;
+    }
+    addUserMessage(currentMultipleChoices.length > 0 ? currentMultipleChoices.join(', ') : "(選択なし)");
+    
+    const currentResponseSet = (currentFlow === 'initial') ? userResponses : additionalUserResponses;
+    currentResponseSet[question.key] = [...currentMultipleChoices]; 
+    currentMultipleChoices = []; 
+    
+    dynamicInputPlaceholder.innerHTML = '';
+    dynamicInputPlaceholder.style.display = 'none';
+    activeChoicesWrapper = null;
 
-    completedEffectiveQuestions++;
+    completedEffectiveQuestions++;
     updateProgressBar();
-    currentStep++;
-    setTimeout(askQuestion, 300); 
-  }
+    currentStep++;
+    setTimeout(askQuestion, 300); 
+  }
 
-  async function handleUserInput() { 
-    const messageText = userInput.value.trim();
-    if (messageText === "" || userInput.disabled) return;
+  async function handleUserInput() { 
+    const messageText = userInput.value.trim();
+    if (messageText === "" || userInput.disabled) return;
 
-    const currentQuestionsArray = (currentFlow === 'initial') ? initialQuestions : additionalQuestions;
-    const currentQuestion = currentQuestionsArray[currentStep];
-    if (currentQuestion.validation && !currentQuestion.validation(messageText)) {
-      await addBotMessage(currentQuestion.errorMessage, false, true);
-      userInput.classList.add('input-error');
-      displayErrorMessage(currentQuestion.errorMessage); 
-      userInput.focus();
-      return;
-    }
-    
-    const currentResponseSet = (currentFlow === 'initial') ? userResponses : additionalUserResponses;
-    currentResponseSet[currentQuestion.key] = messageText; 
-    addUserMessage(messageText);
-    completedEffectiveQuestions++;
+    const currentQuestionsArray = (currentFlow === 'initial') ? initialQuestions : additionalQuestions;
+    const currentQuestion = currentQuestionsArray[currentStep];
+    if (currentQuestion.validation && !currentQuestion.validation(messageText)) {
+      await addBotMessage(currentQuestion.errorMessage, false, true);
+      userInput.classList.add('input-error');
+      displayErrorMessage(currentQuestion.errorMessage); 
+      userInput.focus();
+      return;
+    }
+    
+    const currentResponseSet = (currentFlow === 'initial') ? userResponses : additionalUserResponses;
+    currentResponseSet[currentQuestion.key] = messageText; 
+    addUserMessage(messageText);
+    completedEffectiveQuestions++;
 
     if (currentFlow === 'initial' && currentQuestion.id === 15) {
         const initialQuestionsForBar = initialQuestions.filter(q => q.id !== 16); 
@@ -1647,29 +1641,28 @@
     } else {
         updateProgressBar();
     }
-    currentStep++;
+    currentStep++;
 
-    userInput.classList.remove('input-error');
-    userInput.value = ''; 
+    userInput.classList.remove('input-error');
+    userInput.value = ''; 
     sendButton.disabled = true; 
     sendButton.classList.remove('enabled');
-    setTimeout(askQuestion, 300); 
-  }
+    setTimeout(askQuestion, 300); 
+  }
 
-  function displayErrorMessage(message) {
-    removeErrorMessage(); 
-    const errorDiv = document.createElement('div');
-    errorDiv.classList.add('error-message');
-    errorDiv.textContent = message;
-    userInput.parentNode.insertBefore(errorDiv, userInput.nextSibling);
-  }
+  function displayErrorMessage(message) {
+    removeErrorMessage(); 
+    const errorDiv = document.createElement('div');
+    errorDiv.classList.add('error-message');
+    errorDiv.textContent = message;
+    userInput.parentNode.insertBefore(errorDiv, userInput.nextSibling);
+  }
 
-  function removeErrorMessage() {
-    const existingError = normalInputArea.querySelector('.error-message');
-    if (existingError) existingError.remove();
-  }
+  function removeErrorMessage() {
+    const existingError = normalInputArea.querySelector('.error-message');
+    if (existingError) existingError.remove();
+  }
 
-  // ★変更: 送信中アニメーションとメッセージクリア処理を追加
   function showLoadingMessage() {
     if (loadingMessageElement && loadingMessageElement.parentNode) {
         loadingMessageElement.parentNode.removeChild(loadingMessageElement);
@@ -1711,142 +1704,142 @@
     chatMessages.innerHTML = ''; 
   }
 
-  async function submitDataToGAS(dataToSend, isAdditional) {
-    showLoadingMessage(); // ★送信中アニメーション表示
-    if (typeof GAS_WEB_APP_URL === 'undefined' || !GAS_WEB_APP_URL || GAS_WEB_APP_URL === 'YOUR_GOOGLE_APPS_SCRIPT_WEB_APP_URL_HERE') {
-        hideLoadingMessage(); // ★エラー時もローディング非表示
-        await addBotMessage("データ送信先URLが正しく設定されていません。config.js を確認してください。", false, true);
-        console.error("GAS_WEB_APP_URL is not set or is a placeholder in config.js.");
-        if (!isAdditional) { 
-            const q = initialQuestions.find(q => q.answer_method === 'final-consent');
-            if(q) setupFinalConsentScreen(q); 
-        } else { 
-            await addBotMessage("送信に失敗しました。お手数ですが、最初からやり直してください。");
-            inputMethodWrapper.style.display = 'none';
-        }
-        return;
-    }
+  async function submitDataToGAS(dataToSend, isAdditional) {
+    showLoadingMessage(); // ★送信中アニメーション表示
+    if (typeof GAS_WEB_APP_URL === 'undefined' || !GAS_WEB_APP_URL || GAS_WEB_APP_URL === 'YOUR_GOOGLE_APPS_SCRIPT_WEB_APP_URL_HERE') {
+        hideLoadingMessage(); // ★エラー時もローディング非表示
+        await addBotMessage("データ送信先URLが正しく設定されていません。config.js を確認してください。", false, true);
+        console.error("GAS_WEB_APP_URL is not set or is a placeholder in config.js.");
+        if (!isAdditional) { 
+            const q = initialQuestions.find(q => q.answer_method === 'final-consent');
+            if(q) setupFinalConsentScreen(q); 
+        } else { 
+            await addBotMessage("送信に失敗しました。お手数ですが、最初からやり直してください。");
+            inputMethodWrapper.style.display = 'none';
+        }
+        return;
+    }
 
-    const payload = { ...dataToSend }; 
-    payload["Session ID"] = currentSessionId; 
-    if (isAdditional) {
-      payload.isAdditionalData = true; 
-    }
+    const payload = { ...dataToSend }; 
+    payload["Session ID"] = currentSessionId; 
+    if (isAdditional) {
+      payload.isAdditionalData = true; 
+    }
 
-    fetch(GAS_WEB_APP_URL, {
-      method: 'POST',
-      mode: 'no-cors', 
-      cache: 'no-cache',
-      body: JSON.stringify(payload) 
-    })
-    .then(async () => { 
+    fetch(GAS_WEB_APP_URL, {
+      method: 'POST',
+      mode: 'no-cors', 
+      cache: 'no-cache',
+      body: JSON.stringify(payload) 
+    })
+    .then(async () => { 
         hideLoadingMessage(); // ★成功時もローディング非表示
-      if (!isAdditional) {
+      if (!isAdditional) {
             clearChatMessages(); // ★最初の送信完了後にメッセージクリア
             await new Promise(resolve => setTimeout(resolve, 300)); // クリア後のわずかな間
-            await addBotMessage("送信が完了しました。<br>お問い合わせいただきありがとうございました！", true);
-            promptForAdditionalQuestions();
-      } else {
-        await addBotMessage("全ての情報を承りました。ご回答ありがとうございました！<br>後ほど担当よりご連絡いたします。", true);
-        await addBotMessage("お問い合わせはお電話でも受け付けております。<br>電話番号：<a href='tel:0120147104'>0120-147-104</a><br>営業時間：10:00～22:00（お盆・年末年始除く）", true);
+            await addBotMessage("送信が完了しました。<br>お問い合わせいただきありがとうございました！", true);
+            promptForAdditionalQuestions();
+      } else {
+        await addBotMessage("全ての情報を承りました。ご回答ありがとうございました！<br>後ほど担当よりご連絡いたします。", true);
+        await addBotMessage("お問い合わせはお電話でも受け付けております。<br>電話番号：<a href='tel:0120147104'>0120-147-104</a><br>営業時間：10:00～22:00（お盆・年末年始除く）", true);
         await new Promise(resolve => setTimeout(resolve, 800));
         await addBotMessage("ebook（資料）は下記から閲覧できます！"); 
         await new Promise(resolve => setTimeout(resolve, 800)); 
         await addBotMessage("ebookの閲覧はこちら！", false, false, true); 
-        inputMethodWrapper.style.display = 'none'; 
-      }
-    })
-    .catch(async (error) => { 
+        inputMethodWrapper.style.display = 'none'; 
+      }
+    })
+    .catch(async (error) => { 
         hideLoadingMessage(); // ★エラー時もローディング非表示
-      console.error('Error sending data to Google Sheet:', error);
-      await addBotMessage("エラーが発生し、データを送信できませんでした。お手数ですが、時間をおいて再度お試しください。", false, true);
-      if (!isAdditional) {
-          const q = initialQuestions.find(q => q.answer_method === 'final-consent');
-          if(q && userResponses[q.key]) setupFinalConsentScreen(q); 
-      } else {
-          await addBotMessage("面談希望日時の送信に失敗しました。");
-          inputMethodWrapper.style.display = 'none';
-      }
-    });
-  }
+      console.error('Error sending data to Google Sheet:', error);
+      await addBotMessage("エラーが発生し、データを送信できませんでした。お手数ですが、時間をおいて再度お試しください。", false, true);
+      if (!isAdditional) {
+          const q = initialQuestions.find(q => q.answer_method === 'final-consent');
+          if(q && userResponses[q.key]) setupFinalConsentScreen(q); 
+      } else {
+          await addBotMessage("面談希望日時の送信に失敗しました。");
+          inputMethodWrapper.style.display = 'none';
+      }
+    });
+  }
 
-  async function promptForAdditionalQuestions() {
+  async function promptForAdditionalQuestions() {
     // ★変更: メッセージを3つに分割
-    await addBotMessage("さらに、面談を受けていただくと<span style='color: red;'>最大50,000円相当</span>のえらべるデジタルギフト、プレゼントの対象となります！", true); 
+    await addBotMessage("さらに、面談を受けていただくと<span style='color: red;'>最大50,000円相当</span>のえらべるデジタルギフト、プレゼントの対象となります！", true); 
     await new Promise(resolve => setTimeout(resolve, 800)); 
-    const question = {
-      id: "ask_if_wants_interview", 
-      question: "不動産投資に関するご面談を希望されますか？", 
-      answer_method: "single-choice",
-      options: ["はい", "いいえ"] 
-    };
-    await addBotMessage(question.question);
-    
-    normalInputArea.style.display = 'none';
-    dynamicInputPlaceholder.style.display = 'block';
-    dynamicInputPlaceholder.innerHTML = ''; 
+    const question = {
+      id: "ask_if_wants_interview", 
+      question: "不動産投資に関するご面談を希望されますか？", 
+      answer_method: "single-choice",
+      options: ["はい", "いいえ"] 
+    };
+    await addBotMessage(question.question);
+    
+    normalInputArea.style.display = 'none';
+    dynamicInputPlaceholder.style.display = 'block';
+    dynamicInputPlaceholder.innerHTML = ''; 
 
-    const choicesAreaWrapper = document.createElement('div');
-    choicesAreaWrapper.className = 'choices-area-wrapper';
-    const choicesContainer = document.createElement('div');
-    choicesContainer.className = 'choices-container';
+    const choicesAreaWrapper = document.createElement('div');
+    choicesAreaWrapper.className = 'choices-area-wrapper';
+    const choicesContainer = document.createElement('div');
+    choicesContainer.className = 'choices-container';
 
-    question.options.forEach(optionText => {
-      const button = document.createElement('button');
-      button.className = 'choice-button';
-      button.textContent = optionText;
-      button.addEventListener('click', async () => {
-          addUserMessage(optionText);
-          dynamicInputPlaceholder.innerHTML = '';
-          dynamicInputPlaceholder.style.display = 'none';
-          if (optionText === "はい") { 
-              additionalUserResponses['interview_preference'] = "はい"; 
-              await addBotMessage("ありがとうございます！<br>では、ご面談日時についてお伺いします。", true); 
-              startAdditionalQuestionsFlow(); 
-          } else { 
-              additionalUserResponses['interview_preference'] = "いいえ"; 
-              await addBotMessage("承知いたしました！"); 
-              await submitDataToGAS(additionalUserResponses, true); 
-          }
-      });
-      choicesContainer.appendChild(button);
-    });
-    choicesAreaWrapper.appendChild(choicesContainer);
-    dynamicInputPlaceholder.appendChild(choicesAreaWrapper);
-    scrollToBottom();
-  }
+    question.options.forEach(optionText => {
+      const button = document.createElement('button');
+      button.className = 'choice-button';
+      button.textContent = optionText;
+      button.addEventListener('click', async () => {
+          addUserMessage(optionText);
+          dynamicInputPlaceholder.innerHTML = '';
+          dynamicInputPlaceholder.style.display = 'none';
+          if (optionText === "はい") { 
+              additionalUserResponses['interview_preference'] = "はい"; 
+              await addBotMessage("ありがとうございます！<br>では、ご面談日時についてお伺いします。", true); 
+              startAdditionalQuestionsFlow(); 
+          } else { 
+              additionalUserResponses['interview_preference'] = "いいえ"; 
+              await addBotMessage("承知いたしました！"); 
+              await submitDataToGAS(additionalUserResponses, true); 
+          }
+      });
+      choicesContainer.appendChild(button);
+    });
+    choicesAreaWrapper.appendChild(choicesContainer);
+    dynamicInputPlaceholder.appendChild(choicesAreaWrapper);
+    scrollToBottom();
+  }
 
-  function startAdditionalQuestionsFlow() {
-    currentFlow = 'additional';
-    questions = additionalQuestions; 
-    currentStep = 0;
-    completedEffectiveQuestions = 0; 
-    progressBar.style.width = '0%'; 
-    askQuestion();
-  }
+  function startAdditionalQuestionsFlow() {
+    currentFlow = 'additional';
+    questions = additionalQuestions; 
+    currentStep = 0;
+    completedEffectiveQuestions = 0; 
+    progressBar.style.width = '0%'; 
+    askQuestion();
+  }
 
-  sendButton.addEventListener('click', handleUserInput);
-  userInput.addEventListener('keypress', function(event) {
-    if (event.key === 'Enter') {
-      if ((normalInputArea.style.display === 'flex' || normalInputArea.style.display === '') && !sendButton.disabled) {
-         event.preventDefault(); 
-         handleUserInput();
-      } else {
-        event.preventDefault(); 
-      }
-    }
-  });
+  sendButton.addEventListener('click', handleUserInput);
+  userInput.addEventListener('keypress', function(event) {
+    if (event.key === 'Enter') {
+      if ((normalInputArea.style.display === 'flex' || normalInputArea.style.display === '') && !sendButton.disabled) {
+        event.preventDefault(); 
+        handleUserInput();
+      } else {
+        event.preventDefault(); 
+      }
+    }
+  });
 
-  modalCloseButton.addEventListener('click', () => { 
-    giftTermsModal.style.display = 'none';
-  });
-  window.addEventListener('click', (event) => { 
-    if (event.target == giftTermsModal) {
-      giftTermsModal.style.display = 'none';
-    }
-  });
+  modalCloseButton.addEventListener('click', () => { 
+    giftTermsModal.style.display = 'none';
+  });
+  window.addEventListener('click', (event) => { 
+    if (event.target == giftTermsModal) {
+      giftTermsModal.style.display = 'none';
+    }
+  });
 
-  async function initializeChat() {
+  async function initializeChat() {
     function adjustChatHeight() {
       const chatContainer = document.querySelector('.chat-container');
       if (chatContainer) {
@@ -1857,36 +1850,39 @@
     window.addEventListener('orientationchange', adjustChatHeight);
     adjustChatHeight(); 
 
+    // ★★★★★★★★★★★★★★★★★★★★★★★★★★★★★★★★★★★
+    // ★ 変更: UTMパラメータ取得関数を呼び出し、結果をuserResponsesに格納 ★
+    // ★★★★★★★★★★★★★★★★★★★★★★★★★★★★★★★★★★★
     getUtmParameters(); 
     Object.keys(userResponses).forEach(key => delete userResponses[key]); 
     Object.assign(userResponses, utmParameters);
- 
 
-    currentSessionId = generateSessionId(); 
-    currentFlow = 'initial';
-    questions = initialQuestions;
-    currentStep = 0;
-    subStep = 0;
-    completedEffectiveQuestions = 0;
-    Object.keys(userResponses).forEach(key => delete userResponses[key]); 
-    Object.keys(additionalUserResponses).forEach(key => delete additionalUserResponses[key]);
+    currentSessionId = generateSessionId(); 
+    currentFlow = 'initial';
+    questions = initialQuestions;
+    currentStep = 0;
+    subStep = 0;
+    completedEffectiveQuestions = 0;
+    Object.keys(additionalUserResponses).forEach(key => delete additionalUserResponses[key]);
 
-    updateProgressBar(); 
-    if (typeof BOT_ICON_URL !== 'undefined' && BOT_ICON_URL && BOT_ICON_URL !== 'YOUR_BOT_ICON_URL_HERE') {
-        console.warn("BOT_ICON_URL is not set or is a placeholder in config.js. Default icon behavior will apply.");
-    }
-    if (typeof FAVICON_URL !== 'undefined' && FAVICON_URL) {
-        const faviconLink = document.createElement('link');
-        faviconLink.rel = 'icon';
-        faviconLink.href = FAVICON_URL;
-        document.head.appendChild(faviconLink);
-    }
-    await addBotMessage("J.P.Returnsにお問い合わせいただきありがとうございます！");
-    await addBotMessage("30秒程度の簡単な質問をさせてください。");
-    setTimeout(askQuestion, 1200); 
-  }
+    updateProgressBar(); 
+    if (typeof BOT_ICON_URL !== 'undefined' && BOT_ICON_URL && BOT_ICON_URL !== 'YOUR_BOT_ICON_URL_HERE') {
+        // This is fine, user has set it
+    } else {
+        console.warn("BOT_ICON_URL is not set or is a placeholder in config.js. Default icon behavior will apply.");
+    }
+    if (typeof FAVICON_URL !== 'undefined' && FAVICON_URL) {
+        const faviconLink = document.createElement('link');
+        faviconLink.rel = 'icon';
+        faviconLink.href = FAVICON_URL;
+        document.head.appendChild(faviconLink);
+    }
+    await addBotMessage("J.P.Returnsにお問い合わせいただきありがとうございます！");
+    await addBotMessage("30秒程度の簡単な質問をさせてください。");
+    setTimeout(askQuestion, 1200); 
+  }
 
-  setTimeout(initializeChat, 500);
+  setTimeout(initializeChat, 500);
 
 </script>
 </body>
