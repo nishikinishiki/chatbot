@@ -664,6 +664,8 @@
   let subStep = 0; 
   const userResponses = {}; 
   const additionalUserResponses = {}; 
+  let utmParameters = {}; 
+  
   let isBotTyping = false;
   let currentMultipleChoices = []; 
   let activeChoicesWrapper = null; 
@@ -718,12 +720,20 @@
   
   let questions = initialQuestions; 
 
-  // ...(JavaScriptの大部分は変更なし)...
-  // setupFinalConsentScreen と askQuestion, submitDataToGAS を主に修正
-
   function generateSessionId() {
     return Date.now().toString(36) + Math.random().toString(36).substring(2, 15);
   }
+  
+  function getUtmParameters() {
+    const urlParams = new URLSearchParams(window.location.search);
+    const utmKeys = ['utm_source', 'utm_medium', 'utm_campaign', 'utm_term', 'utm_content'];
+    utmKeys.forEach(key => {
+        if (urlParams.has(key)) {
+            // GAS側のヘッダー名とキーを一致させる
+            utmParameters[key] = urlParams.get(key);
+        }
+    });
+  }
 
   function updateProgressBar() {
     let currentQuestionsForProgress = [];
@@ -1846,6 +1856,11 @@
     window.addEventListener('resize', adjustChatHeight);
     window.addEventListener('orientationchange', adjustChatHeight);
     adjustChatHeight(); 
+
+    getUtmParameters(); 
+    Object.keys(userResponses).forEach(key => delete userResponses[key]); 
+    Object.assign(userResponses, utmParameters);
+ 
 
     currentSessionId = generateSessionId(); 
     currentFlow = 'initial';
