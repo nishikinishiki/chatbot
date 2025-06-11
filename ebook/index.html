@@ -864,7 +864,7 @@
             msgElem = addMessage(messageText, 'bot', isHtml, isError);
         }
         resolve(msgElem);
-      }, 600 + Math.random() * 400);
+      }, 300 + Math.random() * 200);
     });
   }
   function addUserMessage(messageText) {
@@ -1179,7 +1179,7 @@
         completedEffectiveQuestions++;
         currentStep++; 
         updateProgressBar(); 
-        setTimeout(() => askQuestion(), 300); 
+        setTimeout(() => askQuestion(), 200); 
       }
     };
     actionsDiv.appendChild(submitButton);
@@ -1608,7 +1608,7 @@
     completedEffectiveQuestions++;
     updateProgressBar();
     currentStep++;
-    setTimeout(askQuestion, 300); 
+    setTimeout(askQuestion, 100); 
   }
 
   async function handleUserInput() { 
@@ -1647,7 +1647,7 @@
     userInput.value = ''; 
     sendButton.disabled = true; 
     sendButton.classList.remove('enabled');
-    setTimeout(askQuestion, 300); 
+    setTimeout(askQuestion, 100); 
   }
 
   function displayErrorMessage(message) {
@@ -1736,7 +1736,7 @@
         hideLoadingMessage(); // ★成功時もローディング非表示
       if (!isAdditional) {
             clearChatMessages(); // ★最初の送信完了後にメッセージクリア
-            await new Promise(resolve => setTimeout(resolve, 300)); // クリア後のわずかな間
+            await new Promise(resolve => setTimeout(resolve, 200)); // クリア後のわずかな間
             await addBotMessage("送信が完了しました。<br>お問い合わせいただきありがとうございました！", true);
             promptForAdditionalQuestions();
       } else {
@@ -1766,7 +1766,7 @@
   async function promptForAdditionalQuestions() {
     // ★変更: メッセージを3つに分割
     await addBotMessage("さらに、面談を受けていただくと<span style='color: red;'>最大50,000円相当</span>のえらべるデジタルギフト、プレゼントの対象となります！", true); 
-    await new Promise(resolve => setTimeout(resolve, 800)); 
+    await new Promise(resolve => setTimeout(resolve, 500)); 
     const question = {
       id: "ask_if_wants_interview", 
       question: "不動産投資に関するご面談を希望されますか？", 
@@ -1879,10 +1879,10 @@
     }
     await addBotMessage("J.P.Returnsにお問い合わせいただきありがとうございます！");
     await addBotMessage("30秒程度の簡単な質問をさせてください。");
-    setTimeout(askQuestion, 1200); 
+    setTimeout(askQuestion, 300); 
   }
 
-  setTimeout(initializeChat, 500);
+  setTimeout(initializeChat, 300);
 
 </script>
 </body>
