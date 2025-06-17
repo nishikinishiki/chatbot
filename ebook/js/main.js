@@ -95,9 +95,6 @@ async function askQuestion() {
             displayCalendar(currentQuestion, (value) => handleCalendarInput(currentQuestion, value));
             break;
         case 'final-consent':
-             if (currentQuestion.question) {
-                await addBotMessage(currentQuestion.question, currentQuestion.isHtmlQuestion);
-             }
              displayFinalConsentScreen(currentQuestion, state.userResponses, initialQuestions, () => {
                 state.userResponses[currentQuestion.key] = true;
                 submitDataToGAS(state.userResponses, false);
