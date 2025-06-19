@@ -12,7 +12,35 @@ const state = {
     utmParameters: {},
     completedEffectiveQuestions: 0,
     questions: [],
+    gaStepCounter: 0, // GAイベント用のステップカウンターを追加
 };
+
+// --- GAイベント送信 ---
+/**
+ * GA4にイベントを送信する関数
+ * @param {object} question - questions.jsから取得した質問オブジェクト
+ */
+function sendGaEvent(question) {
+    if (!window.dataLayer) {
+        console.warn("dataLayer is not available. GA event was not sent.");
+        return;
+    }
+
+    state.gaStepCounter++; // イベントごとにステップ番号を1つ進める
+
+    const eventData = {
+        'event': 'question_answered',
+        'form_variant': window.location.pathname,
+        'step_number': state.gaStepCounter,
+        'question_id': question.id.toString(), // IDを文字列として送信
+        'question_item': question.item,
+    };
+
+    window.dataLayer.push(eventData);
+    // デバッグ用にコンソールに出力
+    console.log("GA Event Sent:", eventData);
+}
+
 
 // --- 初期化 ---
 document.addEventListener('DOMContentLoaded', initializeChat);
@@ -40,6 +68,7 @@ async function initializeChat() {
     state.questions = initialQuestions;
     Object.assign(state.userResponses, state.utmParameters);
     state.currentSessionId = generateSessionId();
+    state.gaStepCounter = 0; // 初期化
 
     if (typeof FAVICON_URL !== 'undefined' && FAVICON_URL) {
         const faviconLink = document.createElement('link');
@@ -68,7 +97,7 @@ async function askQuestion() {
     clearInputArea();
     
     // 事前メッセージの表示
-    if (currentQuestion.pre_message) await addBotMessage(currentQuestion.pre_message);
+    if (currentQuestion.pre_message) await addBotMessage(currentQuestion.pre_message, true);
     if (currentQuestion.pre_message_1) await addBotMessage(currentQuestion.pre_message_1);
     if (currentQuestion.pre_message_2) await addBotMessage(currentQuestion.pre_message_2);
     
@@ -97,6 +126,7 @@ async function askQuestion() {
         case 'final-consent':
              displayFinalConsentScreen(currentQuestion, state.userResponses, initialQuestions, () => {
                 state.userResponses[currentQuestion.key] = true;
+                sendGaEvent(currentQuestion);
                 submitDataToGAS(state.userResponses, false);
              });
             break;
@@ -149,6 +179,7 @@ function handleSingleChoice(question, value) {
     addUserMessage(value);
     const responseSet = (state.currentFlow === 'initial') ? state.userResponses : state.additionalUserResponses;
     responseSet[question.key] = value;
+    sendGaEvent(question);
     proceedToNextStep();
 }
 
@@ -161,39 +192,44 @@ function handleTextInput(question, value) {
     addUserMessage(trimmedValue);
     const responseSet = (state.currentFlow === 'initial') ? state.userResponses : state.additionalUserResponses;
     responseSet[question.key] = trimmedValue;
+    sendGaEvent(question);
     proceedToNextStep();
 }
 
+// =================================================
+// ▼▼▼ 変更点 ▼▼▼
+// 質問の構造変更に伴い、この関数内のGAイベント送信ロジックをシンプルにしました。
+// =================================================
 async function handlePairedQuestion(question) {
-    if (state.subStep < question.pairs.length) {
-        const currentPair = question.pairs[state.subStep];
-        
-        if (state.subStep === 0 && question.question) {
-            await addBotMessage(question.question);
-        }
-        
-        await addBotMessage(currentPair.prompt);
-
-        displayPairedInputs(currentPair, (values) => {
-            const responseSet = (state.currentFlow === 'initial') ? state.userResponses : state.additionalUserResponses;
-            let userMessageText = "";
-
-            currentPair.inputs.forEach((inputConfig, index) => {
-                responseSet[inputConfig.key] = values[index];
-                userMessageText += `${inputConfig.label}: ${values[index]}${index < currentPair.inputs.length - 1 ? ', ' : ''}`;
-            });
-            addUserMessage(userMessageText);
-
-            state.subStep++;
-            state.completedEffectiveQuestions++;
-            calculateProgress(); 
-            handlePairedQuestion(question);
-        });
-    } else {
-        state.currentStep++;
-        state.subStep = 0;
-        setTimeout(askQuestion, 150);
+    // text-pairの質問は常にpairs配列の最初の要素を扱う
+    const currentPair = question.pairs[0];
+    
+    if (state.subStep === 0 && question.question) {
+        await addBotMessage(question.question);
     }
+    
+    await addBotMessage(currentPair.prompt);
+
+    displayPairedInputs(currentPair, (values) => {
+        const responseSet = (state.currentFlow === 'initial') ? state.userResponses : state.additionalUserResponses;
+        let userMessageText = "";
+
+        currentPair.inputs.forEach((inputConfig, index) => {
+            responseSet[inputConfig.key] = values[index];
+            userMessageText += `${inputConfig.label}: ${values[index]}${index < currentPair.inputs.length - 1 ? ', ' : ''}`;
+        });
+        addUserMessage(userMessageText);
+        
+        // シンプルなGAイベント送信
+        sendGaEvent(question);
+
+        // 次の質問へ進む
+        state.currentStep++;
+        state.subStep = 0; // subStepは常にリセット
+        state.completedEffectiveQuestions++;
+        calculateProgress(); 
+        setTimeout(askQuestion, 150);
+    });
 }
 
 function handleCalendarInput(question, value) {
@@ -204,6 +240,7 @@ function handleCalendarInput(question, value) {
     addUserMessage(value);
     const responseSet = (state.currentFlow === 'initial') ? state.userResponses : state.additionalUserResponses;
     responseSet[question.key] = value;
+    sendGaEvent(question);
     proceedToNextStep();
 }
 
@@ -221,7 +258,8 @@ function calculateProgress() {
             }
         }
         if (q.answer_method === 'text-pair') {
-            totalEffectiveQuestions += q.pairs.length;
+            // text-pairは1質問としてカウント
+            totalEffectiveQuestions++;
         } else if (q.answer_method !== 'final-consent') {
             totalEffectiveQuestions++;
         }
@@ -277,7 +315,8 @@ async function submitDataToGAS(dataToSend, isAdditional) {
             }
             clearChatMessages();
             await addBotMessage("送信が完了しました。<br>お問い合わせいただきありがとうございました！", true);
-            promptForAdditionalQuestions();
+            startAdditionalQuestionsFlow();
+
         } else {
             await addBotMessage("全ての情報を承りました。ご回答ありがとうございました！<br>後ほど担当よりご連絡いたします。", true);
             await addBotMessage("お問い合わせはお電話でも受け付けております。<br>電話番号：<a href='tel:0120147104'>0120-147-104</a><br>営業時間：10:00～22:00（お盆・年末年始除く）", true);
@@ -291,35 +330,6 @@ async function submitDataToGAS(dataToSend, isAdditional) {
         console.error('Error sending data to Google Sheet:', error);
         await addBotMessage("エラーが発生し、データを送信できませんでした。お手数ですが、時間をおいて再度お試しください。", false, true);
     }
-}
-
-// --- 追加質問フロー ---
-async function promptForAdditionalQuestions() {
-    await addBotMessage("さらに、面談を受けていただくと<span style='color: red;'>最大50,000円相当</span>のえらべるデジタルギフト、プレゼントの対象となります！", true);
-    
-    const question = {
-        question: "不動産投資に関するご面談を希望されますか？",
-        options: ["はい", "いいえ"],
-        validation: () => true, // 常に有効
-    };
-    
-    await addBotMessage(question.question);
-    
-    displayChoices(question, async (value) => {
-        addUserMessage(value);
-        // ★★★★★★★★★★【ロジック修正】★★★★★★★★★★
-        clearInputArea(); 
-        
-        if (value === "はい") {
-            state.additionalUserResponses['interview_preference'] = "はい";
-            await addBotMessage("ありがとうございます！<br>では、ご面談日時についてお伺いします。", true);
-            startAdditionalQuestionsFlow();
-        } else {
-            state.additionalUserResponses['interview_preference'] = "いいえ";
-            await addBotMessage("承知いたしました！ご回答ありがとうございました！");
-            submitDataToGAS(state.additionalUserResponses, true);
-        }
-    });
 }
 
 function startAdditionalQuestionsFlow() {
