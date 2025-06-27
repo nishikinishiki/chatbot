@@ -410,6 +410,37 @@ body {
 .modal-content h3 { margin-top: 0; margin-bottom: 15px; font-size: 1.2em; }
 .modal-content p, .modal-content li { font-size: 0.85em; line-height: 1.6; margin-bottom: 10px; }
 
+/*
+* ▼▼▼【新規追加】▼▼▼
+* 利用規約モーダルのコンテンツ専用スタイル
+*/
+#modalBody h3 {
+  font-size: 1.1em;
+  text-align: center;
+  font-weight: bold;
+  margin-bottom: 1em;
+}
+#modalBody h4 {
+  font-size: 1em;
+  font-weight: bold;
+  margin-top: 1.5em;
+  margin-bottom: 0.8em;
+  border-left: 4px solid #06C755;
+  padding-left: 8px;
+}
+#modalBody p, #modalBody ul {
+  font-size: 0.8em;
+  line-height: 1.6;
+}
+#modalBody ul {
+  padding-left: 20px;
+  list-style-type: disc;
+}
+#modalBody li {
+  margin-bottom: 0.5em;
+}
+/* ▲▲▲【新規追加】▲▲▲ */
+
 .input-area { 
   display: flex;
   align-items: center;
