@@ -433,9 +433,10 @@ function displayFinalConsentScreen(question, userResponses, initialQuestions, on
     scrollToBottom();
 }
 
+
 // =================================================
 // ▼▼▼【修正箇所】▼▼▼
-// お名前とメールアドレスが正しく表示されるようにキー名を修正しました。
+// お名前とフリガナが重複して表示される不具合を修正しました。
 // =================================================
 function displaySummaryArea(userResponses, initialQuestions) {
     const summaryMessageWrapper = createMessageWrapper('bot');
@@ -447,29 +448,34 @@ function displaySummaryArea(userResponses, initialQuestions) {
     summaryArea.appendChild(summaryTitle);
 
     const summaryList = document.createElement('ul');
+    let nameDisplayed = false; // お名前を表示したかどうかを管理するフラグ
+
     initialQuestions.forEach(q => {
         if (!q.item || q.answer_method === 'final-consent') return;
-        
-        // ★修正点1: お名前（漢字・フリガナ）のキーを修正
+
+        // お名前・フリガナの処理 (key_group を使い、一度だけ表示する)
         if (q.key_group === "name_details") {
-            // 'last_name' と 'first_name' は古いキーなので、新しいキーを参照する
-            const kanjiLastName = userResponses["last_name"] || '';
-            const kanjiFirstName = userResponses["first_name"] || '';
-            if (kanjiLastName || kanjiFirstName) {
-                const li = document.createElement('li');
-                li.innerHTML = `<span class="summary-item-label">お名前: </span><span class="summary-item-value">${kanjiLastName} ${kanjiFirstName}</span>`;
-                summaryList.appendChild(li);
-            }
-            // 'last_name_kana' と 'first_name_kana' は古いキーなので、新しいキーを参照する
-            const kanaLastName = userResponses["last_name_kana"] || '';
-            const kanaFirstName = userResponses["first_name_kana"] || '';
-            if (kanaLastName || kanaFirstName) {
-                const li = document.createElement('li');
-                li.innerHTML = `<span class="summary-item-label">フリガナ: </span><span class="summary-item-value">${kanaLastName} ${kanaFirstName}</span>`;
-                summaryList.appendChild(li);
+            if (!nameDisplayed) { // まだ表示されていない場合のみ処理
+                // 漢字氏名
+                const kanjiLastName = userResponses["last_name"] || '';
+                const kanjiFirstName = userResponses["first_name"] || '';
+                if (kanjiLastName || kanjiFirstName) {
+                    const li = document.createElement('li');
+                    li.innerHTML = `<span class="summary-item-label">お名前: </span><span class="summary-item-value">${kanjiLastName} ${kanjiFirstName}</span>`;
+                    summaryList.appendChild(li);
+                }
+                // フリガナ
+                const kanaLastName = userResponses["last_name_kana"] || '';
+                const kanaFirstName = userResponses["first_name_kana"] || '';
+                if (kanaLastName || kanaFirstName) {
+                    const li = document.createElement('li');
+                    li.innerHTML = `<span class="summary-item-label">フリガナ: </span><span class="summary-item-value">${kanaLastName} ${kanaFirstName}</span>`;
+                    summaryList.appendChild(li);
+                }
+                nameDisplayed = true; // 表示済みのフラグを立てる
             }
         } 
-        // ★修正点2: その他の項目を正しく表示
+        // その他の項目の処理
         else if (userResponses[q.key]) {
             const listItem = document.createElement('li');
             listItem.innerHTML = `<span class="summary-item-label">${q.item}: </span><span class="summary-item-value">${userResponses[q.key]}</span>`;
@@ -499,8 +505,6 @@ function scrollToBottom() {
     });
 }
 
-// ★★★★★★★★★★【ロジック修正】★★★★★★★★★★
-// タイピングインジケーターを表示しないようにする
 function showTypingIndicator() {
     // ユーザーの要望により、通常のメッセージ読み込み中のドットアニメーションは無効化
     // データ送信中のローディング表示は showLoadingMessage() で別途制御されます。
