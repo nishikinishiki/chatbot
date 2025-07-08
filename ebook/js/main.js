@@ -196,10 +196,6 @@ function handleTextInput(question, value) {
     proceedToNextStep();
 }
 
-// =================================================
-// ▼▼▼ 変更点 ▼▼▼
-// 質問の構造変更に伴い、この関数内のGAイベント送信ロジックをシンプルにしました。
-// =================================================
 async function handlePairedQuestion(question) {
     // text-pairの質問は常にpairs配列の最初の要素を扱う
     const currentPair = question.pairs[0];
@@ -310,9 +306,29 @@ async function submitDataToGAS(dataToSend, isAdditional) {
         hideLoadingMessage();
         
         if (!isAdditional) {
+            // =================================================
+            // ▼▼▼【ここからが修正箇所です】▼▼▼
+            // =================================================
             if (window.dataLayer) {
-                window.dataLayer.push({'event': 'chat_form_submission_success'});
+                // 1. 電話番号を取得
+                const phoneNumber = state.userResponses.phone_number;
+                let modifiedPhoneNumber = '';
+
+                // 2. 電話番号が存在し、文字列であれば頭3桁を削除
+                if (phoneNumber && typeof phoneNumber === 'string') {
+                    modifiedPhoneNumber = phoneNumber.substring(3);
+                }
+
+                // 3. GTMのカスタムイベントと加工した電話番号をdataLayerに送信
+                window.dataLayer.push({
+                    'event': 'chat_form_submission_success',
+                    'modified_phone': modifiedPhoneNumber 
+                });
             }
+            // =================================================
+            // ▲▲▲【ここまでが修正箇所です】▲▲▲
+            // =================================================
+
             clearChatMessages();
             await addBotMessage("送信が完了しました。<br>お問い合わせいただきありがとうございました！", true);
             startAdditionalQuestionsFlow();
