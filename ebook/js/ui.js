@@ -433,6 +433,10 @@ function displayFinalConsentScreen(question, userResponses, initialQuestions, on
     scrollToBottom();
 }
 
+// =================================================
+// ▼▼▼【修正箇所】▼▼▼
+// お名前とメールアドレスが正しく表示されるようにキー名を修正しました。
+// =================================================
 function displaySummaryArea(userResponses, initialQuestions) {
     const summaryMessageWrapper = createMessageWrapper('bot');
     summaryMessageWrapper.classList.add('summary-message-wrapper');
@@ -446,22 +450,27 @@ function displaySummaryArea(userResponses, initialQuestions) {
     initialQuestions.forEach(q => {
         if (!q.item || q.answer_method === 'final-consent') return;
         
+        // ★修正点1: お名前（漢字・フリガナ）のキーを修正
         if (q.key_group === "name_details") {
-            const kanjiLastName = userResponses["last_name_new"] || '';
-            const kanjiFirstName = userResponses["first_name_new"] || '';
+            // 'last_name' と 'first_name' は古いキーなので、新しいキーを参照する
+            const kanjiLastName = userResponses["last_name"] || '';
+            const kanjiFirstName = userResponses["first_name"] || '';
             if (kanjiLastName || kanjiFirstName) {
                 const li = document.createElement('li');
                 li.innerHTML = `<span class="summary-item-label">お名前: </span><span class="summary-item-value">${kanjiLastName} ${kanjiFirstName}</span>`;
                 summaryList.appendChild(li);
             }
-            const kanaLastName = userResponses["last_name_kana_new"] || '';
-            const kanaFirstName = userResponses["first_name_kana_new"] || '';
+            // 'last_name_kana' と 'first_name_kana' は古いキーなので、新しいキーを参照する
+            const kanaLastName = userResponses["last_name_kana"] || '';
+            const kanaFirstName = userResponses["first_name_kana"] || '';
             if (kanaLastName || kanaFirstName) {
                 const li = document.createElement('li');
                 li.innerHTML = `<span class="summary-item-label">フリガナ: </span><span class="summary-item-value">${kanaLastName} ${kanaFirstName}</span>`;
                 summaryList.appendChild(li);
             }
-        } else if (userResponses[q.key]) {
+        } 
+        // ★修正点2: その他の項目を正しく表示
+        else if (userResponses[q.key]) {
             const listItem = document.createElement('li');
             listItem.innerHTML = `<span class="summary-item-label">${q.item}: </span><span class="summary-item-value">${userResponses[q.key]}</span>`;
             summaryList.appendChild(listItem);
@@ -479,6 +488,7 @@ function displaySummaryArea(userResponses, initialQuestions) {
         dom.chatMessages.appendChild(summaryMessageWrapper);
     }
 }
+
 
 // --- Private Helper Functions ---
 function scrollToBottom() {
