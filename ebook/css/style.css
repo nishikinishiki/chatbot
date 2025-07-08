@@ -10,7 +10,7 @@
 html, body {
   height: 100%;
   overflow: auto; 
-  font-family: 'Roboto', "Helvetica Neue", "Segoe UI", "Hiragino Kaku Gothic ProN", "Hiragino Sans", Meiryo, Arial, sans-serif;
+  font-family: 'Noto Sans JP', sans-serif; /* 変更: Noto Sans JPを適用 */
   color: #333;
 }
 
