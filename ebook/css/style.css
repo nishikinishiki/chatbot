@@ -304,7 +304,7 @@ body {
   display: flex;
   align-items: center;
   gap: 8px;
-  padding: 0 10px; 
+  padding: 0 5px; 
 }
 .paired-input-row label {
   font-size: 0.9em;
