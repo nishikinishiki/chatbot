@@ -77,8 +77,8 @@ async function initializeChat() {
         document.head.appendChild(faviconLink);
     }
     
-    await addBotMessage("J.P.Returnsにお問い合わせいただきありがとうございます！");
-    await addBotMessage("30秒程度の簡単な質問をさせてください。");
+    await addBotMessage("J.P.リターンズに興味をもってくださりありがとうございます！");
+    await addBotMessage("30秒程度の簡単な質問をさせてください！");
     
     setTimeout(askQuestion, 150);
 }
