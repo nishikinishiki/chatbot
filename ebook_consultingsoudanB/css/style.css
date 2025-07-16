@@ -653,6 +653,7 @@ body {
 /* バナー画像用のスタイル */
 .banner-image-wrapper {
   margin-bottom: 5px;
+  box-shadow: 0 2px 5px rgba(0, 0, 0, 0.1);
 }
 
 .chat-banner-image {
