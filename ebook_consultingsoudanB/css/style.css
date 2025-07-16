@@ -451,6 +451,12 @@ body {
   align-items: center;
   width: 100%; 
 }
+
+.input-area:has(input[type="tel"]),
+.input-area:has(input[type="email"]) {
+  margin: 8px 0;
+}
+
 .input-icon-container {
   display: flex;
   align-items: center;
