@@ -578,3 +578,31 @@ function createEbookButtonMessage(text) {
     }
     return wrapper;
 }
+// ▼▼▼【ここから新規追加】▼▼▼
+/**
+ * バナー画像をチャットエリアの最上部に表示する関数
+ * @param {string} imageUrl - 表示する画像のURL
+ */
+function displayBannerImage(imageUrl) {
+    if (!dom.chatMessages) return;
+
+    const bannerWrapper = document.createElement('div');
+    bannerWrapper.className = 'banner-image-wrapper';
+
+    const bannerImage = document.createElement('img');
+    bannerImage.src = imageUrl;
+    bannerImage.alt = 'キャンペーンバナー'; // 代替テキスト
+    bannerImage.className = 'chat-banner-image';
+
+    // 画像の読み込みに失敗した場合のエラーハンドリング
+    bannerImage.onerror = () => {
+        console.error('バナー画像の読み込みに失敗しました:', imageUrl);
+        bannerWrapper.remove(); // 読み込めなかったら要素ごと削除
+    };
+
+    bannerWrapper.appendChild(bannerImage);
+    // 最初のメッセージの前にバナーを挿入
+    dom.chatMessages.prepend(bannerWrapper);
+    scrollToBottom();
+}
+// ▲▲▲【ここまで新規追加】▲▲▲

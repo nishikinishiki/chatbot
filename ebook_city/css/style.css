@@ -453,6 +453,12 @@ body {
   align-items: center;
   width: 100%; 
 }
+
+/* ★追加: 電話番号・メールアドレス入力欄に上下の余白を追加 */
+.input-area:has(input[type="tel"]),
+.input-area:has(input[type="email"]) {
+  margin: 8px 0;
+}
 .input-icon-container {
   display: flex;
   align-items: center;
@@ -649,4 +655,18 @@ body {
 @keyframes typing-indicator-bounce {
     0%, 60%, 100% { transform: translateY(0); }
     30% { transform: translateY(-5px); }
+}
+
+/* ★★★ここから新規追加★★★ */
+/* バナー画像用のスタイル */
+.banner-image-wrapper {
+  margin-bottom: 5px;
+  box-shadow: 0 2px 5px rgba(0, 0, 0, 0.1);
+}
+
+.chat-banner-image {
+  width: 100%; /* コンテナの幅いっぱいに表示 */
+  height: auto; /* アスペクト比を維持 */
+  display: block; /* 画像下の余分なスペースを削除 */
+  border-radius: 0; /* バナーは角丸にしない */
 }

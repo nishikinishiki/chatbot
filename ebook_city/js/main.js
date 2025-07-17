@@ -77,6 +77,13 @@ async function initializeChat() {
         document.head.appendChild(faviconLink);
     }
     
+        // ▼▼▼【ここから追加】▼▼▼
+    // バナー画像が設定されていれば表示する
+    if (typeof BANNER_IMAGE_URL !== 'undefined' && BANNER_IMAGE_URL) {
+        displayBannerImage(BANNER_IMAGE_URL);
+    }
+    // ▲▲▲【ここまで追加】▲▲▲
+
     await addBotMessage("J.P.Returnsにお問い合わせいただきありがとうございます！");
     await addBotMessage("30秒程度の簡単な質問をさせてください。");
     

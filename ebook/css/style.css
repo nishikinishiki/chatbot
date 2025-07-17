@@ -446,6 +446,13 @@ body {
   align-items: center;
   width: 100%; 
 }
+
+/* ★追加: 電話番号・メールアドレス入力欄に上下の余白を追加 */
+.input-area:has(input[type="tel"]),
+.input-area:has(input[type="email"]) {
+  margin: 8px 0;
+}
+
 .input-icon-container {
   display: flex;
   align-items: center;

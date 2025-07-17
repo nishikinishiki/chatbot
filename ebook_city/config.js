@@ -7,3 +7,6 @@ const GAS_WEB_APP_URL = 'https://script.google.com/macros/s/AKfycbyEenzB8emvey9j
 const BOT_ICON_URL = 'images/icon.png';
 // 3. ファビコンの画像URL
 const FAVICON_URL = 'images/favicon.png'; 
+// 4. 【新規追加】チャット開始時に表示するバナー画像のURL
+const BANNER_IMAGE_URL = 'images/banner_ebook_city.png'; 
+
