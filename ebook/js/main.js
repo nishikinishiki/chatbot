@@ -77,6 +77,11 @@ async function initializeChat() {
         document.head.appendChild(faviconLink);
     }
     
+    // バナー画像が設定されていれば表示する
+    if (typeof BANNER_IMAGE_URL !== 'undefined' && BANNER_IMAGE_URL) {
+        displayBannerImage(BANNER_IMAGE_URL);
+    }
+
     await addBotMessage("J.P.Returnsにお問い合わせいただきありがとうございます！");
     await addBotMessage("30秒程度の簡単な質問をさせてください。");
     
@@ -96,7 +101,6 @@ async function askQuestion() {
 
     clearInputArea();
     
-    // 事前メッセージの表示
     if (currentQuestion.pre_message) await addBotMessage(currentQuestion.pre_message, true);
     if (currentQuestion.pre_message_1) await addBotMessage(currentQuestion.pre_message_1);
     if (currentQuestion.pre_message_2) await addBotMessage(currentQuestion.pre_message_2);
@@ -105,7 +109,6 @@ async function askQuestion() {
         await addBotMessage(currentQuestion.question, currentQuestion.isHtmlQuestion);
     }
     
-    // 回答方法に応じたUIを生成
     switch(currentQuestion.answer_method) {
         case 'single-choice':
             displayChoices(currentQuestion, (value) => handleSingleChoice(currentQuestion, value));
@@ -170,7 +173,6 @@ function proceedToNextStep() {
 }
 
 
-// --- 回答ハンドラ ---
 function handleSingleChoice(question, value) {
     if (!question.validation(value)) {
         addBotMessage(question.errorMessage, false, true);
@@ -197,7 +199,6 @@ function handleTextInput(question, value) {
 }
 
 async function handlePairedQuestion(question) {
-    // text-pairの質問は常にpairs配列の最初の要素を扱う
     const currentPair = question.pairs[0];
     
     if (state.subStep === 0 && question.question) {
@@ -216,12 +217,10 @@ async function handlePairedQuestion(question) {
         });
         addUserMessage(userMessageText);
         
-        // シンプルなGAイベント送信
         sendGaEvent(question);
 
-        // 次の質問へ進む
         state.currentStep++;
-        state.subStep = 0; // subStepは常にリセット
+        state.subStep = 0;
         state.completedEffectiveQuestions++;
         calculateProgress(); 
         setTimeout(askQuestion, 150);
@@ -241,7 +240,6 @@ function handleCalendarInput(question, value) {
 }
 
 
-// --- ヘルパー関数 ---
 function calculateProgress() {
     const questionsArray = (state.currentFlow === 'initial') ? initialQuestions : additionalQuestions;
     const responseSet = (state.currentFlow === 'initial') ? state.userResponses : state.additionalUserResponses;
@@ -254,7 +252,6 @@ function calculateProgress() {
             }
         }
         if (q.answer_method === 'text-pair') {
-            // text-pairは1質問としてカウント
             totalEffectiveQuestions++;
         } else if (q.answer_method !== 'final-consent') {
             totalEffectiveQuestions++;
@@ -284,7 +281,6 @@ function generateSessionId() {
     return Date.now().toString(36) + Math.random().toString(36).substring(2, 15);
 }
 
-// --- データ送信 ---
 async function submitDataToGAS(dataToSend, isAdditional) {
     showLoadingMessage();
     
@@ -306,28 +302,50 @@ async function submitDataToGAS(dataToSend, isAdditional) {
         hideLoadingMessage();
         
         if (!isAdditional) {
-            // =================================================
-            // ▼▼▼【ここからが修正箇所です】▼▼▼
-            // =================================================
+            // ▼▼▼【ここから修正】▼▼▼
             if (window.dataLayer) {
-                // 1. 電話番号を取得
+                // --- ユーザーの回答を変数に格納 ---
+                const email = state.userResponses.email;
                 const phoneNumber = state.userResponses.phone_number;
-                let modifiedPhoneNumber = '';
+                const lastName = state.userResponses.last_name;
+                const firstName = state.userResponses.first_name;
 
-                // 2. 電話番号が存在し、文字列であれば頭3桁を削除
+                // --- ① 広告代理店様用の modified_phone を作成 ---
+                let modifiedPhoneNumber = '';
                 if (phoneNumber && typeof phoneNumber === 'string') {
                     modifiedPhoneNumber = phoneNumber.substring(3);
                 }
 
-                // 3. GTMのカスタムイベントと加工した電話番号をdataLayerに送信
+                // --- ② 拡張コンバージョン用の電話番号をフォーマット (+81を付与) ---
+                let formattedPhoneNumber = '';
+                if (phoneNumber && typeof phoneNumber === 'string') {
+                    if (phoneNumber.startsWith('0')) {
+                        // 0で始まる日本の電話番号から先頭の0を除去し、+81を付与
+                        formattedPhoneNumber = '+81' + phoneNumber.substring(1);
+                    } else {
+                        // 0で始まらない場合は、そのまま+81を付与（念のため）
+                        formattedPhoneNumber = '+81' + phoneNumber;
+                    }
+                }
+
+                // --- ③ 拡張コンバージョン用の user_data オブジェクトを作成 ---
+                const userData = {
+                    'email': email,
+                    'phone_number': formattedPhoneNumber,
+                    'address': {
+                        'last_name': lastName,
+                        'first_name': firstName
+                    }
+                };
+
+                // --- ①と③の両方のデータをデータレイヤーに送信 ---
                 window.dataLayer.push({
                     'event': 'chat_form_submission_success',
-                    'modified_phone': modifiedPhoneNumber 
+                    'user_data': userData,                 // 拡張コンバージョン用データ
+                    'modified_phone': modifiedPhoneNumber  // 既存のCV計測用データ
                 });
             }
-            // =================================================
-            // ▲▲▲【ここまでが修正箇所です】▲▲▲
-            // =================================================
+            // ▲▲▲【ここまで修正】▲▲▲
 
             clearChatMessages();
             await addBotMessage("送信が完了しました。<br>お問い合わせいただきありがとうございました！", true);
@@ -337,8 +355,8 @@ async function submitDataToGAS(dataToSend, isAdditional) {
             await addBotMessage("全ての情報を承りました。ご回答ありがとうございました！<br>後ほど担当よりご連絡いたします。", true);
             await addBotMessage("お問い合わせはお電話でも受け付けております。<br>電話番号：<a href='tel:0120147104'>0120-147-104</a><br>営業時間：10:00～22:00（お盆・年末年始除く）", true);
             
-            await addBotMessage("デジタル書籍は下記から閲覧できます！");
-            await addBotMessage("デジタル書籍を閲覧する", false, false, true);
+            await addBotMessage("電子書籍は下記から閲覧できます！");
+            await addBotMessage("電子書籍を閲覧する", false, false, true);
         }
 
     } catch (error) {
