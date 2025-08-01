@@ -308,7 +308,7 @@ async function submitDataToGAS(dataToSend, isAdditional) {
             // ▼▼▼【ここから修正】▼▼▼
             if (window.dataLayer) {
                 // --- ユーザーの回答を変数に格納 ---
-                const email = state.userResponses.email;
+                const email = state.userResponses.email_address;
                 const phoneNumber = state.userResponses.phone_number;
                 const lastName = state.userResponses.last_name;
                 const firstName = state.userResponses.first_name;
