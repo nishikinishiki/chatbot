@@ -77,12 +77,10 @@ async function initializeChat() {
         document.head.appendChild(faviconLink);
     }
     
-    // ▼▼▼【ここから追加】▼▼▼
     // バナー画像が設定されていれば表示する
     if (typeof BANNER_IMAGE_URL !== 'undefined' && BANNER_IMAGE_URL) {
         displayBannerImage(BANNER_IMAGE_URL);
     }
-    // ▲▲▲【ここまで追加】▲▲▲
 
     await addBotMessage("J.P.Returnsにお問い合わせいただきありがとうございます！");
     await addBotMessage("30秒程度の簡単な質問をさせてください。");
@@ -91,7 +89,6 @@ async function initializeChat() {
 }
 
 // --- メイン会話フロー ---
-// (以降のコードは変更ありません)
 async function askQuestion() {
     calculateProgress();
     
@@ -305,17 +302,51 @@ async function submitDataToGAS(dataToSend, isAdditional) {
         hideLoadingMessage();
         
         if (!isAdditional) {
+            // ▼▼▼【ここから修正】▼▼▼
             if (window.dataLayer) {
+                // --- ユーザーの回答を変数に格納 ---
+                const email = state.userResponses.email;
                 const phoneNumber = state.userResponses.phone_number;
+                const lastName = state.userResponses.last_name;
+                const firstName = state.userResponses.first_name;
+
+                // --- ① 広告代理店様用の modified_phone を作成 ---
                 let modifiedPhoneNumber = '';
                 if (phoneNumber && typeof phoneNumber === 'string') {
                     modifiedPhoneNumber = phoneNumber.substring(3);
                 }
+
+                // --- ② 拡張コンバージョン用の電話番号をフォーマット (+81を付与) ---
+                let formattedPhoneNumber = '';
+                if (phoneNumber && typeof phoneNumber === 'string') {
+                    if (phoneNumber.startsWith('0')) {
+                        // 0で始まる日本の電話番号から先頭の0を除去し、+81を付与
+                        formattedPhoneNumber = '+81' + phoneNumber.substring(1);
+                    } else {
+                        // 0で始まらない場合は、そのまま+81を付与（念のため）
+                        formattedPhoneNumber = '+81' + phoneNumber;
+                    }
+                }
+
+                // --- ③ 拡張コンバージョン用の user_data オブジェクトを作成 ---
+                const userData = {
+                    'email': email,
+                    'phone_number': formattedPhoneNumber,
+                    'address': {
+                        'last_name': lastName,
+                        'first_name': firstName
+                    }
+                };
+
+                // --- ①と③の両方のデータをデータレイヤーに送信 ---
                 window.dataLayer.push({
                     'event': 'chat_form_submission_success',
-                    'modified_phone': modifiedPhoneNumber 
+                    'user_data': userData,                 // 拡張コンバージョン用データ
+                    'modified_phone': modifiedPhoneNumber  // 既存のCV計測用データ
                 });
             }
+            // ▲▲▲【ここまで修正】▲▲▲
+
             clearChatMessages();
             await addBotMessage("送信が完了しました。<br>お問い合わせいただきありがとうございました！", true);
             startAdditionalQuestionsFlow();
