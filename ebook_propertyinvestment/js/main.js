@@ -84,7 +84,7 @@ async function initializeChat() {
     }
     // ▲▲▲【ここまで追加】▲▲▲
 
-    await addBotMessage("お問い合わせいただきありがとうございます！<br>30秒程度の簡単な質問をさせてください。", true);
+    await addBotMessage("お問い合わせありがとうございます！<br>30秒程度の簡単な質問をさせてください。", true);
     
     setTimeout(askQuestion, 150);
 }
