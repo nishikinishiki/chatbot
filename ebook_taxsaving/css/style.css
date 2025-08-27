@@ -43,8 +43,8 @@ body {
 }
 
 .chat-header {
-  background: linear-gradient(135deg, #61b265 0%, #007f87 60%);
-  color: white;
+  background: linear-gradient(135deg, #9e8139 20%, #5f5f5f 100%);
+  color: rgb(255, 255, 255);
   padding: 10px 16px;
   text-align: center;
   font-size: 1.1em;
@@ -65,7 +65,7 @@ body {
 .progress-bar-container {
   width: 90%; 
   height: 8px;
-  background-color: #005f70;
+  background-color: #685527;
   border-radius: 4px;
   overflow: hidden;
 }
@@ -82,7 +82,7 @@ body {
   flex-grow: 1;
   padding: 16px 12px; 
   overflow-y: auto; 
-  background-color: #efede0;
+  background-color: #ece6d7;
   display: flex;
   flex-direction: column;
   gap: 10px; 
@@ -163,7 +163,7 @@ body {
   justify-content: center; 
   width: 100%; 
   padding: 12px 15px;
-  background-color: #00748A; 
+  background-color: #9e8139; 
   color: white !important; 
   border: none;
   border-radius: 8px; 
@@ -176,7 +176,7 @@ body {
   box-sizing: border-box;
 }
 .ebook-button-link:hover {
-  background-color: #005f70; 
+  background-color: #9e8139; 
 }
 .ebook-button-link svg { 
   width: 20px; 
@@ -186,14 +186,14 @@ body {
 }
 
 .user-message {
-  background-color: #00848C !important; 
+  background-color: #9e8139 !important; 
   color: #ffffff !important; 
   border-bottom-right-radius: 4px;
 }
 
 #inputMethodWrapper {
   padding: 8px 12px;
-  background-color: #f4f2e3;
+  background-color: #f1ecdd;
   border-top: 1px solid #e0e0e0;
   min-height: 56px; 
   flex-shrink: 0;
@@ -226,8 +226,8 @@ body {
 
 .choice-button {
   background-color: #fff;
-  border: 1px solid #007387;
-  color: #007387;
+  border: 1px solid #9e8139;
+  color: #9e8139;
   padding: 10px 6px;
   font-size: 0.9em;
   border-radius: 16px;
@@ -252,7 +252,7 @@ body {
   box-shadow: 0px 1px 2px rgba(0, 0, 0, 0.3), 0px 1px 3px 1px rgba(0, 0, 0, 0.15);
 }
 .choice-button.selected {
-  background-color: #00748A;
+  background-color: #9e8139;
   color: #fff;
 }
 .choice-button:disabled {
@@ -276,12 +276,12 @@ body {
   background-color: #0056b3;
 }
 .final-consent-submit-button {
-  background-color: #00748A; 
+  background-color: #9e8139; 
   color: white;
-  border-color: #005f70; 
+  border-color: #9e8139; 
 }
 .final-consent-submit-button:hover:not(:disabled) {
-  background-color: #005f70; 
+  background-color: #9e8139; 
 }
 .final-consent-submit-button svg { 
   margin-left: 8px; 
@@ -299,7 +299,7 @@ body {
   justify-content: center; 
   margin-top: 0; 
   margin-bottom: 0; 
-  background-color: #f4f2e3; 
+  background-color: #f1ecdd; 
 }
 .paired-input-container {
   display: flex;
@@ -335,7 +335,7 @@ body {
 }
 .paired-input-row input[type="text"]:focus {
   outline: none !important; 
-  border-color: #00748A !important; 
+  border-color: #9e8139 !important; 
   box-shadow: 0 0 0 2px rgba(0, 116, 138, 0.2) !important; 
 }
 .paired-input-row input.input-error {
@@ -349,11 +349,11 @@ body {
   align-items: center; justify-content: center; transition: background-color 0.2s ease; flex-shrink: 0;
 }
 .paired-input-row .paired-input-send-button.enabled { 
-  background-color: #00748A !important; 
+  background-color: #9e8139 !important; 
   cursor: pointer; 
 }
 .paired-input-row .paired-input-send-button.enabled:hover { 
-  background-color: #005f70 !important; 
+  background-color: #9e8139 !important; 
 }
 .paired-input-row .paired-input-send-button.placeholder { visibility: hidden; }
 .paired-input-row .paired-input-send-button svg { width: 20px; height: 20px; }
@@ -432,7 +432,7 @@ body {
   font-weight: bold;
   margin-top: 1.5em;
   margin-bottom: 0.8em;
-  border-left: 4px solid #00748A;
+  border-left: 4px solid #9e8139;
   padding-left: 8px;
 }
 #modalBody p, #modalBody ul {
@@ -497,7 +497,7 @@ body {
 .input-area input[type="tel"]:focus,
 .input-area input[type="date"]:focus {
   outline: none !important; 
-  border-color: #00748A !important; 
+  border-color: #9e8139 !important; 
   box-shadow: 0 0 0 2px rgba(0, 116, 138, 0.2) !important; 
 }
 .input-area input.input-error {
@@ -511,11 +511,11 @@ body {
   align-items: center; justify-content: center; transition: background-color 0.2s ease; flex-shrink: 0;
 }
 .input-area button#sendButton.enabled { 
-  background-color: #00748A !important; 
+  background-color: #9e8139 !important; 
   cursor: pointer; 
 }
 .input-area button#sendButton.enabled:hover { 
-  background-color: #005f70 !important; 
+  background-color: #9e8139 !important; 
 }
 .input-area button#sendButton svg { width: 20px; height: 20px; }
 
@@ -534,12 +534,12 @@ body {
   align-items: center; margin-bottom: 5px; 
 }
 .calendar-nav-buttons button { 
-  background: none; border: 1px solid #00748A; color: #00748A;
+  background: none; border: 1px solid #9e8139; color: #9e8139;
   font-size: 0.9em; font-weight: 500; cursor: pointer;
   padding: 5px 10px; border-radius: 15px; 
   transition: background-color 0.2s, color 0.2s; margin-left: 5px; 
 }
-.calendar-nav-buttons button:hover:not(:disabled) { background-color: #00748A; color: white; }
+.calendar-nav-buttons button:hover:not(:disabled) { background-color: #9e8139; color: white; }
 .calendar-nav-buttons button:disabled { border-color: #BDBDBD; color: #BDBDBD; cursor: not-allowed; }
 .calendar-month-year { font-weight: 500; font-size: 1.2em; color: #212121; flex-grow: 1; }
 .calendar-grid { display: grid; grid-template-columns: repeat(7, 1fr); gap: 4px; text-align: center; }
@@ -559,8 +559,8 @@ body {
   height: 36px; width: 36px; line-height: 36px; margin: auto; 
 }
 .calendar-day:hover:not(.disabled):not(.empty):not(.selected) { background-color: #e5f1f4; transform: scale(1.05); }
-.calendar-day.selected { background-color: #00748A; color: white; font-weight: 500; }
-.calendar-day.today { font-weight: 500; border: 2px solid #00748A; padding: calc(10px - 2px) 0; }
+.calendar-day.selected { background-color: #9e8139; color: white; font-weight: 500; }
+.calendar-day.today { font-weight: 500; border: 2px solid #9e8139; padding: calc(10px - 2px) 0; }
 .calendar-day.disabled, .calendar-day.empty { cursor: default; color: #BDBDBD; background-color: #FAFAFA; }
 .calendar-day.disabled:hover, .calendar-day.empty:hover { transform: none; background-color: #FAFAFA; }
 .calendar-day.empty { background-color: transparent !important; border: none; }
@@ -573,8 +573,8 @@ body {
   width: 40px; height: 40px; border-radius: 50%; cursor: not-allowed; 
   display: flex; align-items: center; justify-content: center; transition: background-color 0.2s;
 }
-.calendar-submit-button.enabled { background-color: #00748A; cursor: pointer; }
-.calendar-submit-button.enabled:hover { background-color: #005f70; }
+.calendar-submit-button.enabled { background-color: #9e8139; cursor: pointer; }
+.calendar-submit-button.enabled:hover { background-color: #9e8139; }
 .calendar-submit-button svg { width: 20px; height: 20px; stroke: white; }
 
 .summary-area-wrapper {
@@ -592,7 +592,7 @@ body {
 .summary-area-wrapper h3 {
   font-size: 1em;
   font-weight: 500;
-  color: #00748A;
+  color: #9e8139;
   margin-top: 0;
   margin-bottom: 10px;
   padding-bottom: 5px;
