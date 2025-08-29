@@ -485,14 +485,14 @@ function displaySummaryArea(userResponses, initialQuestions) {
                 const kanjiFirstName = userResponses["first_name"] || '';
                 if (kanjiLastName || kanjiFirstName) {
                     const li = document.createElement('li');
-                    li.innerHTML = `<span class="summary-item-label">お名前: </span><span class="summary-item-value">${kanjiLastName} ${kanjiFirstName}</span>`;
+                    li.innerHTML = `<span class="summary-item-label">お名前 </span><span class="summary-item-value">${kanjiLastName} ${kanjiFirstName}</span>`;
                     summaryList.appendChild(li);
                 }
                 const kanaLastName = userResponses["last_name_kana"] || '';
                 const kanaFirstName = userResponses["first_name_kana"] || '';
                 if (kanaLastName || kanaFirstName) {
                     const li = document.createElement('li');
-                    li.innerHTML = `<span class="summary-item-label">フリガナ: </span><span class="summary-item-value">${kanaLastName} ${kanaFirstName}</span>`;
+                    li.innerHTML = `<span class="summary-item-label">フリガナ </span><span class="summary-item-value">${kanaLastName} ${kanaFirstName}</span>`;
                     summaryList.appendChild(li);
                 }
                 nameDisplayed = true; 
@@ -510,7 +510,7 @@ function displaySummaryArea(userResponses, initialQuestions) {
             }
             
             const listItem = document.createElement('li');
-            listItem.innerHTML = `<span class="summary-item-label">${q.item}: </span><span class="summary-item-value">${displayValue}</span>`;
+            listItem.innerHTML = `<span class="summary-item-label">${q.item}  </span><span class="summary-item-value">${displayValue}</span>`;
             summaryList.appendChild(listItem);
         }
     });
