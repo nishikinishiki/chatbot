@@ -98,9 +98,6 @@ async function askQuestion() {
         handleFlowCompletion();
         return;
     }
-
-    // ★修正: clearInputAreaは呼ばないようにします
-    // clearInputArea();
     
     if (currentQuestion.pre_message) await addBotMessage(currentQuestion.pre_message, true);
     if (currentQuestion.pre_message_1) await addBotMessage(currentQuestion.pre_message_1);
@@ -112,14 +109,12 @@ async function askQuestion() {
     
     switch(currentQuestion.answer_method) {
         case 'single-choice':
-            // ★修正: handleSingleChoiceに渡す引数を変更
-            displayChoices(currentQuestion, (value, container) => handleSingleChoice(currentQuestion, value, container));
+            displayChoices(currentQuestion, (selection, container) => handleSingleChoice(currentQuestion, selection, container));
             break;
         case 'text':
         case 'tel':
         case 'email':
              displayNormalInput(currentQuestion, {
-                // ★修正: handleTextInputに渡す引数を変更
                 onSend: (value, container) => handleTextInput(currentQuestion, value, container),
              });
             break;
@@ -127,12 +122,10 @@ async function askQuestion() {
             handlePairedQuestion(currentQuestion);
             break;
         case 'calendar':
-            // ★修正: handleCalendarInputに渡す引数を変更
             displayCalendar(currentQuestion, (value, container) => handleCalendarInput(currentQuestion, value, container));
             break;
         case 'final-consent':
              displayFinalConsentScreen(currentQuestion, state.userResponses, initialQuestions, (container) => {
-                // ★修正: disableInputsを呼び出し
                 if (container) disableInputs(container);
                 state.userResponses[currentQuestion.key] = true;
                 sendGaEvent(currentQuestion);
@@ -165,8 +158,6 @@ function findNextQuestion() {
 }
 
 function handleFlowCompletion() {
-    // ★修正: clearInputAreaは呼ばないようにします
-    // clearInputArea(); 
     if (state.currentFlow === 'additional') {
         submitDataToGAS(state.additionalUserResponses, true);
     }
@@ -179,29 +170,32 @@ function proceedToNextStep() {
     setTimeout(askQuestion, 150);
 }
 
-// ★修正: 第3引数にcontainerを追加
-function handleSingleChoice(question, value, container) {
+function handleSingleChoice(question, selection, container) {
+    const value = (typeof selection === 'object' && selection.value) ? selection.value : selection;
+    const label = (typeof selection === 'object' && selection.label) ? selection.label : selection;
+
     if (!question.validation(value)) {
         addBotMessage(question.errorMessage, false, true);
         return;
     }
-    // ★修正: disableInputsを呼び出し
     if (container) disableInputs(container);
-    addUserMessage(value);
+    
+    const userMessageLabel = label.replace(/<br>/g, ' ');
+    addUserMessage(userMessageLabel);
+    
     const responseSet = (state.currentFlow === 'initial') ? state.userResponses : state.additionalUserResponses;
     responseSet[question.key] = value;
+    
     sendGaEvent(question);
     proceedToNextStep();
 }
 
-// ★修正: 第3引数にcontainerを追加
 function handleTextInput(question, value, container) {
     const trimmedValue = value.trim();
     if (!question.validation(trimmedValue)) {
         addBotMessage(question.errorMessage, false, true);
         return;
     }
-    // ★修正: disableInputsを呼び出し
     if (container) disableInputs(container);
     addUserMessage(trimmedValue);
     const responseSet = (state.currentFlow === 'initial') ? state.userResponses : state.additionalUserResponses;
@@ -219,18 +213,17 @@ async function handlePairedQuestion(question) {
     
     await addBotMessage(currentPair.prompt);
     
-    // ★修正: コールバックの引数にcontainerを追加
     displayPairedInputs(currentPair, (values, container) => {
-        // ★修正: disableInputsを呼び出し
         if (container) disableInputs(container);
 
         const responseSet = (state.currentFlow === 'initial') ? state.userResponses : state.additionalUserResponses;
-        let userMessageText = "";
-
+        
         currentPair.inputs.forEach((inputConfig, index) => {
             responseSet[inputConfig.key] = values[index];
-            userMessageText += `${inputConfig.label}: ${values[index]}${index < currentPair.inputs.length - 1 ? ', ' : ''}`;
         });
+
+        // ★修正: 「姓」と「名」を半角スペースで連結して表示
+        const userMessageText = values.join(' ');
         addUserMessage(userMessageText);
         
         sendGaEvent(question);
@@ -243,13 +236,11 @@ async function handlePairedQuestion(question) {
     });
 }
 
-// ★修正: 第3引数にcontainerを追加
 function handleCalendarInput(question, value, container) {
     if (!question.validation(value)) {
         addBotMessage(question.errorMessage, false, true);
         return;
     }
-    // ★修正: disableInputsを呼び出し
     if (container) disableInputs(container);
     addUserMessage(value);
     const responseSet = (state.currentFlow === 'initial') ? state.userResponses : state.additionalUserResponses;

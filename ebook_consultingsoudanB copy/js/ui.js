@@ -15,7 +15,7 @@ const dom = {
 
 let isBotTyping = false;
 let loadingMessageElement = null;
-// let scrollTimeout = null; // ★修正: 50ミリ秒待つ処理を削除するため、この変数は不要になります
+let scrollTimeout = null; 
 
 // --- Public UI Functions ---
 
@@ -191,10 +191,17 @@ function displayChoices(question, onSelect) {
     question.options.forEach(option => {
         const button = document.createElement('button');
         button.className = 'choice-button';
-        button.textContent = option;
-        button.dataset.value = option;
+
+        const isObjectOption = typeof option === 'object' && option.hasOwnProperty('label') && option.hasOwnProperty('value');
+        
+        const label = isObjectOption ? option.label : option;
+        const value = isObjectOption ? option.value : option;
+
+        button.innerHTML = label;
+        button.dataset.value = value;
+
         applyRippleEffect(button);
-        button.addEventListener('click', () => onSelect(option, choicesAreaWrapper));
+        button.addEventListener('click', () => onSelect({ label, value }, choicesAreaWrapper));
         choicesContainer.appendChild(button);
     });
 
@@ -434,7 +441,7 @@ function displayFinalConsentScreen(question, userResponses, initialQuestions, on
     summaryAdjacentConsentTextDiv.appendChild(privacyLinkSmall);
     summaryAdjacentConsentTextDiv.appendChild(document.createTextNode("・"));
     summaryAdjacentConsentTextDiv.appendChild(giftTermsLinkSmall);
-    summaryAdjacentConsentTextDiv.appendChild(document.createTextNode("に同意の上、送信してください。"));
+    summaryAdjacentConsentTextDiv.appendChild(document.createTextNode("に同意する。"));
     dom.chatMessages.appendChild(summaryAdjacentConsentTextDiv);
 
     const submitButtonAreaWrapper = document.createElement('div');
@@ -456,6 +463,7 @@ function displayFinalConsentScreen(question, userResponses, initialQuestions, on
     scrollToBottom();
 }
 
+// ★修正: サマリー表示でlabelを使うように変更
 function displaySummaryArea(userResponses, initialQuestions) {
     const summaryMessageWrapper = createMessageWrapper('bot');
     summaryMessageWrapper.classList.add('summary-message-wrapper');
@@ -491,8 +499,18 @@ function displaySummaryArea(userResponses, initialQuestions) {
             }
         } 
         else if (userResponses[q.key]) {
+            let displayValue = userResponses[q.key];
+
+            // 'single-choice'で、optionsがオブジェクト配列の場合、対応するlabelを探す
+            if (q.answer_method === 'single-choice' && Array.isArray(q.options) && typeof q.options[0] === 'object') {
+                const selectedOption = q.options.find(opt => opt.value === displayValue);
+                if (selectedOption) {
+                    displayValue = selectedOption.label.replace(/<br>/g, ' '); // labelを使い、<br>はスペースに置換
+                }
+            }
+            
             const listItem = document.createElement('li');
-            listItem.innerHTML = `<span class="summary-item-label">${q.item}: </span><span class="summary-item-value">${userResponses[q.key]}</span>`;
+            listItem.innerHTML = `<span class="summary-item-label">${q.item}: </span><span class="summary-item-value">${displayValue}</span>`;
             summaryList.appendChild(listItem);
         }
     });
@@ -509,9 +527,9 @@ function displaySummaryArea(userResponses, initialQuestions) {
     }
 }
 
+
 // --- Private Helper Functions ---
 
-// ★修正: 50ミリ秒待つ処理(setTimeout)を削除し、即時スクロールに戻します
 function scrollToBottom() {
     requestAnimationFrame(() => {
         if (dom.chatMessages) {
@@ -558,8 +576,11 @@ function addMessage(text, sender, isHtml = false, isError = false) {
     
     if(messageElement){
         if (isError) messageElement.classList.add('error-text');
-        if (isHtml) messageElement.innerHTML = text;
-        else messageElement.textContent = text;
+        if (isHtml) {
+            messageElement.innerHTML = text;
+        } else {
+            messageElement.textContent = text;
+        }
     }
     
     if (dom.chatMessages) {
