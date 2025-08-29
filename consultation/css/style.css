@@ -1,0 +1,671 @@
+/* 基本的なスタイルリセット */
+
+*,
+*::before,
+*::after {
+  box-sizing: border-box;
+  margin: 0;
+  padding: 0;
+}
+
+html, body {
+  height: 100%;
+  overflow: auto; 
+  font-family: 'Noto Sans JP', sans-serif;
+  color: #111111;
+}
+
+body {
+  background-color: #8297ac;
+  display: flex;
+  justify-content: center;
+  align-items: center;
+  overscroll-behavior-y: contain;
+}
+
+.chat-container {
+  width: 100%;
+  max-width: 600px;
+  background-color: #ffffff;
+  border-radius: 16px;
+  box-shadow: 0px 1px 2px rgba(0, 0, 0, 0.3), 0px 1px 3px 1px rgba(0, 0, 0, 0.15);
+  display: flex;
+  flex-direction: column;
+  overflow: hidden; 
+}
+@media (max-width: 420px) {
+  .chat-container {
+    border-radius: 0;
+    box-shadow: none;
+    max-width: 100%;
+    height: 100%; 
+  }
+}
+
+.chat-header {
+  background: linear-gradient(135deg, #61b265 0%, #007f87 60%);
+  color: white;
+  padding: 10px 16px;
+  text-align: center;
+  font-size: 1.1em;
+  font-weight: 500;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: center;
+  flex-shrink: 0;
+  padding-top: calc(10px + env(safe-area-inset-top));
+  position: relative;
+  z-index: 10;
+  box-shadow: 0px 1px 2px rgba(0, 0, 0, 0.3), 0px 1px 3px 1px rgba(0, 0, 0, 0.15);
+}
+.chat-header-title {
+  margin-bottom: 5px;
+}
+.progress-bar-container {
+  width: 90%; 
+  height: 8px;
+  background-color: #005f70;
+  border-radius: 4px;
+  overflow: hidden;
+}
+.progress-bar {
+  width: 0%;
+  height: 100%;
+  background-color: #FFFFFF;
+  border-radius: 4px;
+  transition: width 0.3s ease-in-out;
+}
+
+
+.chat-messages {
+  flex-grow: 1;
+  padding: 16px 12px; 
+  overflow-y: auto; 
+  background-color: #efede0;
+  display: flex;
+  flex-direction: column;
+  gap: 10px; 
+  -webkit-overflow-scrolling: touch; 
+}
+
+.message-wrapper {
+  display: flex;
+  width: 100%;
+  align-items: flex-end; 
+  margin-bottom: 10px; 
+}
+ .bot-message-wrapper.summary-message-wrapper { 
+  align-items: flex-start; 
+  margin-bottom: 0px; 
+}
+
+
+.bot-message-wrapper {
+  justify-content: flex-start;
+}
+.bot-icon {
+  width: 40px;
+  height: 40px;
+  border-radius: 50%;
+  margin-right: 8px;
+  background-size: cover;
+  background-position: center;
+  flex-shrink: 0;
+  background-color: #ddd; 
+}
+
+.user-message-wrapper {
+  justify-content: flex-end;
+}
+
+.message {
+  max-width: calc(100% - 48px); 
+  padding: 10px 14px;
+  border-radius: 18px;
+  line-height: 1.5;
+  word-wrap: break-word;
+  font-size: 0.95em;
+  /* ★変更: M3のElevation Level 1に相当する、ごくわずかな影 */
+  box-shadow: 0px 1px 2px rgba(0, 0, 0, 0.2);
+}
+.bot-message-wrapper .message { 
+    max-width: calc(85% - 48px);
+}
+.bot-message {
+  background-color: #ffffff;
+  color: #212121;
+  border-bottom-left-radius: 4px;
+}
+.bot-message.error-text {
+  color: red;
+}
+.bot-message a { 
+  color: #007bff; 
+  text-decoration: underline;
+}
+.bot-message a:hover {
+  color: #0056b3;
+}
+
+.ebook-button-message-content {
+  padding: 0; 
+  background-color: transparent !important; 
+  box-shadow: none !important; 
+  width: 100%; 
+  max-width: 100%; 
+  border-radius: 8px; 
+}
+
+.ebook-button-link {
+  display: flex; 
+  align-items: center; 
+  justify-content: center; 
+  width: 100%; 
+  padding: 12px 15px;
+  background-color: #00748A; 
+  color: white !important; 
+  border: none;
+  border-radius: 8px; 
+  font-size: 1em;
+  font-weight: 500;
+  text-align: center;
+  text-decoration: none !important; 
+  cursor: pointer;
+  transition: background-color 0.2s;
+  box-sizing: border-box;
+}
+.ebook-button-link:hover {
+  background-color: #005f70; 
+}
+.ebook-button-link svg { 
+  width: 20px; 
+  height: 20px;
+  margin-right: 8px; 
+  stroke: white; 
+}
+
+.user-message {
+  background-color: #00848C !important; 
+  color: #ffffff !important; 
+  border-bottom-right-radius: 4px;
+}
+
+#inputMethodWrapper {
+  padding: 8px 12px;
+  background-color: #f4f2e3;
+  border-top: 1px solid #e0e0e0;
+  min-height: 56px; 
+  flex-shrink: 0;
+  display: flex; 
+  flex-direction: column; 
+  justify-content: center; 
+  padding-bottom: calc(8px + env(safe-area-inset-bottom));
+}
+
+.choices-area-wrapper {
+  width: 100%;
+  display: flex;
+  justify-content: center;
+  margin-top: 8px; 
+  margin-bottom: 8px;
+}
+
+.choices-container {
+  display: grid;
+  grid-template-columns: repeat(2, minmax(0, 1fr));
+  gap: 8px;
+  width: 100%;
+  max-width: 380px;
+  padding: 0 5px; 
+  max-height: 220px;
+  overflow-y: auto;
+  -webkit-overflow-scrolling: touch;
+}
+
+
+.choice-button {
+  background-color: #fff;
+  border: 1px solid #007387;
+  color: #007387;
+  padding: 10px 6px;
+  font-size: 0.9em;
+  border-radius: 16px;
+  cursor: pointer;
+  text-align: center;
+  transition: background-color 0.2s, color 0.2s, box-shadow 0.2s; /* box-shadowのtransitionを追加 */
+  width: 100%;
+  box-sizing: border-box;
+  overflow-wrap: break-word;
+  word-break: break-word;
+  min-width: 0;
+  line-height: 1.3;
+  display: flex; 
+  align-items: center;
+  justify-content: center;
+  /* ★追加: 選択肢ボタンにもわずかな影を追加 */
+  box-shadow: 0px 1px 2px rgba(0, 0, 0, 0.15);
+}
+.choice-button:hover:not(:disabled) {
+  background-color: #e5f1f4;
+  /* ★追加: ホバー時にも影を少し変化させる */
+  box-shadow: 0px 1px 2px rgba(0, 0, 0, 0.3), 0px 1px 3px 1px rgba(0, 0, 0, 0.15);
+}
+.choice-button.selected {
+  background-color: #00748A;
+  color: #fff;
+}
+.choice-button:disabled {
+  background-color: #f0f0f0;
+  color: #aaa;
+  border-color: #ddd;
+  cursor: not-allowed;
+}
+.submit-choices-button-wrapper {
+  grid-column: 1 / -1;
+  display: flex;
+  justify-content: center;
+  margin-top: 8px;
+}
+.submit-choices-button { 
+  background-color: #007bff;
+  color: white;
+  border-color: #007bff;
+}
+.submit-choices-button:hover:not(:disabled) {
+  background-color: #0056b3;
+}
+.final-consent-submit-button {
+  background-color: #00748A; 
+  color: white;
+  border-color: #005f70; 
+}
+.final-consent-submit-button:hover:not(:disabled) {
+  background-color: #005f70; 
+}
+.final-consent-submit-button svg { 
+  margin-left: 8px; 
+  stroke: white; 
+  width: 16px; 
+  height: 16px;
+}
+
+
+.paired-input-area-wrapper {
+  margin-left: -12px;  
+  margin-right: -12px; 
+  width: calc(100% + 24px); 
+  display: flex;
+  justify-content: center; 
+  margin-top: 0; 
+  margin-bottom: 0; 
+  background-color: #f4f2e3; 
+}
+.paired-input-container {
+  display: flex;
+  flex-direction: column;
+  gap: 5px; 
+  width: 100%; 
+  max-width: 380px; 
+  padding: 8px 0; 
+}
+.paired-input-row {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  padding: 0 5px; 
+}
+.paired-input-row label {
+  font-size: 0.9em;
+  color: #555;
+  flex-shrink: 0;
+  margin-right: 5px;
+  width: 30px;
+  text-align: right;
+}
+.paired-input-row input[type="text"] {
+  flex-grow: 1; padding: 10px 12px; border: 1px solid #ccc; 
+  border-radius: 15px; font-size: 16px; -webkit-appearance: none; appearance: none; min-width: 0;
+  background-color: #fff; 
+  transition: border-color 0.2s ease-in-out, box-shadow 0.2s ease-in-out, background-color 0.2s ease-in-out;
+  outline: none; 
+}
+.paired-input-row input[type="text"]:hover {
+  border-color: #a0a0a0; 
+}
+.paired-input-row input[type="text"]:focus {
+  outline: none !important; 
+  border-color: #00748A !important; 
+  box-shadow: 0 0 0 2px rgba(0, 116, 138, 0.2) !important; 
+}
+.paired-input-row input.input-error {
+  border-color: #ff3b30 !important; 
+  background-color: #fff0f0; 
+}
+
+.paired-input-row .paired-input-send-button {
+  padding: 0; width: 40px; height: 40px; background-color: #b0b0b0; color: white;
+  border: none; border-radius: 50%; cursor: not-allowed; display: flex;
+  align-items: center; justify-content: center; transition: background-color 0.2s ease; flex-shrink: 0;
+}
+.paired-input-row .paired-input-send-button.enabled { 
+  background-color: #00748A !important; 
+  cursor: pointer; 
+}
+.paired-input-row .paired-input-send-button.enabled:hover { 
+  background-color: #005f70 !important; 
+}
+.paired-input-row .paired-input-send-button.placeholder { visibility: hidden; }
+.paired-input-row .paired-input-send-button svg { width: 20px; height: 20px; }
+.paired-input-error { color: red; font-size: 0.8em; margin-top: 3px; text-align: left; width: 100%; padding-left: 10px; }
+
+.extra-consent-text { 
+  font-size: 0.75em;
+  color: #555;
+  text-align: center;
+  margin-top: 8px; 
+  padding: 0 10px;
+}
+.extra-consent-text a {
+  color: #007bff;
+  text-decoration: underline;
+}
+
+.summary-adjacent-consent-text { 
+  font-size: 0.75em;
+  color: #555;
+  text-align: left; 
+  padding: 0px 10px 0px 48px; 
+  line-height: 1.5;
+  margin-top: 4px; 
+  margin-bottom: 10px; 
+  max-width: calc(100% - 48px); 
+  word-wrap: break-word; 
+}
+.summary-adjacent-consent-text a {
+  color: #007bff;
+  text-decoration: underline;
+}
+.summary-adjacent-consent-text a:hover {
+  color: #0056b3;
+}
+
+
+.modal-overlay {
+  position: fixed; top: 0; left: 0; width: 100%; height: 100%;
+  background-color: rgba(0, 0, 0, 0.6); display: none;
+  justify-content: center; align-items: center; z-index: 1000;
+}
+.modal-content {
+  background-color: white; padding: 25px; border-radius: 8px;
+  width: 90%; max-width: 500px; max-height: 80vh; overflow-y: auto;
+  position: relative;
+  /* ★変更: M3のElevation Level 5に相当する、最も強い影 */
+  box-shadow: 0px 2px 3px rgba(0, 0, 0, 0.3), 0px 8px 12px 6px rgba(0, 0, 0, 0.15);
+}
+.modal-close-button {
+  position: sticky; 
+  top: 10px; 
+  float: right; 
+  margin-right: -10px; 
+  margin-top: -10px; 
+  font-size: 1.8em;
+  font-weight: bold;
+  cursor: pointer;
+  border: none;
+  background: none;
+  color: #888;
+  z-index: 1001; 
+}
+.modal-close-button:hover { color: #000; }
+.modal-content h3 { margin-top: 0; margin-bottom: 15px; font-size: 1.2em; }
+.modal-content p, .modal-content li { font-size: 0.85em; line-height: 1.6; margin-bottom: 10px; }
+
+#modalBody h3 {
+  font-size: 1.1em;
+  text-align: center;
+  font-weight: bold;
+  margin-bottom: 1em;
+}
+#modalBody h4 {
+  font-size: 1em;
+  font-weight: bold;
+  margin-top: 1.5em;
+  margin-bottom: 0.8em;
+  border-left: 4px solid #00748A;
+  padding-left: 8px;
+}
+#modalBody p, #modalBody ul {
+  font-size: 0.8em;
+  line-height: 1.6;
+}
+#modalBody ul {
+  padding-left: 20px;
+  list-style-type: disc;
+}
+#modalBody li {
+  margin-bottom: 0.5em;
+}
+
+.input-area { 
+  display: flex;
+  align-items: center;
+  width: 100%; 
+}
+
+.input-area:has(input[type="tel"]),
+.input-area:has(input[type="email"]) {
+  margin: 8px 0;
+}
+
+.input-icon-container {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  width: 24px; 
+  margin-right: 8px; 
+}
+.input-icon-container svg {
+  width: 20px; 
+  height: 20px;
+  stroke: #555; 
+  fill: none; 
+}
+
+.input-area input[type="text"],
+.input-area input[type="email"],
+.input-area input[type="number"],
+.input-area input[type="tel"],
+.input-area input[type="date"] {
+  flex-grow: 1; padding: 10px 16px; border: 1px solid #d0d0d0; 
+  border-radius: 20px; margin-right: 8px; font-size: 16px; 
+  -webkit-appearance: none; appearance: none;
+  background-color: #FFFFFF; 
+  transition: border-color 0.2s ease-in-out, box-shadow 0.2s ease-in-out, background-color 0.2s ease-in-out;
+  outline: none; 
+}
+.input-area input[type="text"]:hover,
+.input-area input[type="email"]:hover,
+.input-area input[type="number"]:hover,
+.input-area input[type="tel"]:hover,
+.input-area input[type="date"]:hover { 
+  border-color: #a0a0a0; 
+}
+.input-area input[type="text"]:focus,
+.input-area input[type="email"]:focus,
+.input-area input[type="number"]:focus,
+.input-area input[type="tel"]:focus,
+.input-area input[type="date"]:focus {
+  outline: none !important; 
+  border-color: #00748A !important; 
+  box-shadow: 0 0 0 2px rgba(0, 116, 138, 0.2) !important; 
+}
+.input-area input.input-error {
+  border-color: #ff3b30 !important; 
+  background-color: #fff0f0; 
+}
+
+.input-area button#sendButton {
+  padding: 0; width: 40px; height: 40px; background-color: #b0b0b0; color: white;
+  border: none; border-radius: 50%; cursor: not-allowed; display: flex;
+  align-items: center; justify-content: center; transition: background-color 0.2s ease; flex-shrink: 0;
+}
+.input-area button#sendButton.enabled { 
+  background-color: #00748A !important; 
+  cursor: pointer; 
+}
+.input-area button#sendButton.enabled:hover { 
+  background-color: #005f70 !important; 
+}
+.input-area button#sendButton svg { width: 20px; height: 20px; }
+
+.error-message { color: red; font-size: 0.8em; margin-top: 4px; padding-left: 0; width: 100%; text-align: left; }
+
+/* --- Calendar Styles --- */
+.calendar-container {
+  background-color: #fff; border-radius: 8px; padding: 15px; 
+  width: 100%;
+  max-width: 340px; margin: 0 auto; font-size: 14px;
+  /* ★変更: M3のElevation Level 4に相当する影 */
+  box-shadow: 0px 1px 3px rgba(0, 0, 0, 0.3), 0px 6px 10px 4px rgba(0, 0, 0, 0.15);
+}
+.calendar-header {
+  display: flex; justify-content: space-between; 
+  align-items: center; margin-bottom: 5px; 
+}
+.calendar-nav-buttons button { 
+  background: none; border: 1px solid #00748A; color: #00748A;
+  font-size: 0.9em; font-weight: 500; cursor: pointer;
+  padding: 5px 10px; border-radius: 15px; 
+  transition: background-color 0.2s, color 0.2s; margin-left: 5px; 
+}
+.calendar-nav-buttons button:hover:not(:disabled) { background-color: #00748A; color: white; }
+.calendar-nav-buttons button:disabled { border-color: #BDBDBD; color: #BDBDBD; cursor: not-allowed; }
+.calendar-month-year { font-weight: 500; font-size: 1.2em; color: #212121; flex-grow: 1; }
+.calendar-grid { display: grid; grid-template-columns: repeat(7, 1fr); gap: 4px; text-align: center; }
+.calendar-day-name, .calendar-day {
+  padding: 10px 0; font-size: 0.9em; display: flex;
+  align-items: center; justify-content: center;
+}
+.calendar-day-name {
+  font-weight: 500; color: #757575; border-bottom: 1px solid #E0E0E0; margin-bottom: 5px;
+}
+.calendar-day-name-sun { color: #E57373 !important; } 
+.calendar-day-name-sat { color: #64B5F6 !important; } 
+
+.calendar-day {
+  cursor: pointer; border-radius: 50%;
+  transition: background-color 0.2s, color 0.2s, transform 0.1s;
+  height: 36px; width: 36px; line-height: 36px; margin: auto; 
+}
+.calendar-day:hover:not(.disabled):not(.empty):not(.selected) { background-color: #e5f1f4; transform: scale(1.05); }
+.calendar-day.selected { background-color: #00748A; color: white; font-weight: 500; }
+.calendar-day.today { font-weight: 500; border: 2px solid #00748A; padding: calc(10px - 2px) 0; }
+.calendar-day.disabled, .calendar-day.empty { cursor: default; color: #BDBDBD; background-color: #FAFAFA; }
+.calendar-day.disabled:hover, .calendar-day.empty:hover { transform: none; background-color: #FAFAFA; }
+.calendar-day.empty { background-color: transparent !important; border: none; }
+.calendar-actions {
+  display: flex; justify-content: flex-end; margin-top: 15px;
+  padding-top: 10px; border-top: 1px solid #E0E0E0;
+}
+.calendar-submit-button {
+  background-color: #BDBDBD; color: white; border: none;
+  width: 40px; height: 40px; border-radius: 50%; cursor: not-allowed; 
+  display: flex; align-items: center; justify-content: center; transition: background-color 0.2s;
+}
+.calendar-submit-button.enabled { background-color: #00748A; cursor: pointer; }
+.calendar-submit-button.enabled:hover { background-color: #005f70; }
+.calendar-submit-button svg { width: 20px; height: 20px; stroke: white; }
+
+.summary-area-wrapper {
+  background-color: #FFFFFF;
+  border-radius: 12px; 
+  padding: 15px;
+  margin: 0px 0px 0px 0px; 
+  max-height: 180px; 
+  overflow-y: auto;
+  font-size: 0.9em;
+  border: 1px solid #e0e0e0;
+  /* ★変更: M3のElevation Level 1に相当する、ごくわずかな影 */
+  box-shadow: 0px 1px 2px rgba(0, 0, 0, 0.2);
+}
+.summary-area-wrapper h3 {
+  font-size: 1em;
+  font-weight: 500;
+  color: #00748A;
+  margin-top: 0;
+  margin-bottom: 10px;
+  padding-bottom: 5px;
+}
+.summary-area-wrapper ul {
+  list-style: none;
+  padding: 0;
+  margin: 0;
+}
+.summary-area-wrapper li {
+  margin-bottom: 6px;
+  line-height: 1.4;
+}
+.summary-item-label {
+  font-weight: 500;
+  color: #555;
+}
+.summary-item-value {
+  color: #222;
+  word-break: break-all; 
+}
+
+/* 送信中メッセージのドットアニメーション */
+.loading-dots span {
+  display: inline-block;
+  width: 5px; 
+  height: 5px;
+  background-color: currentColor; 
+  border-radius: 50%;
+  margin-left: 2px;
+  animation: loadingDots 1.4s infinite ease-in-out both;
+}
+.loading-dots span:nth-child(1) { animation-delay: -0.32s; }
+.loading-dots span:nth-child(2) { animation-delay: -0.16s; }
+.loading-dots span:nth-child(3) { animation-delay: 0s; }
+
+@keyframes loadingDots {
+  0%, 80%, 100% {
+    transform: scale(0);
+  } 40% {
+    transform: scale(1.0);
+  }
+}
+
+/* タイピングインジケーター */
+.typing-indicator span {
+    display: inline-block;
+    width: 8px;
+    height: 8px;
+    border-radius: 50%;
+    background-color: #a0a0a0;
+    margin: 0 1px;
+    animation: typing-indicator-bounce 1s infinite;
+}
+.typing-indicator span:nth-child(1) { animation-delay: 0s; }
+.typing-indicator span:nth-child(2) { animation-delay: 0.2s; }
+.typing-indicator span:nth-child(3) { animation-delay: 0.4s; }
+
+@keyframes typing-indicator-bounce {
+    0%, 60%, 100% { transform: translateY(0); }
+    30% { transform: translateY(-5px); }
+}
+
+/* ★★★ここから新規追加★★★ */
+/* バナー画像用のスタイル */
+.banner-image-wrapper {
+  margin-bottom: 5px;
+  box-shadow: 0 2px 5px rgba(0, 0, 0, 0.1);
+}
+
+.chat-banner-image {
+  width: 100%; /* コンテナの幅いっぱいに表示 */
+  height: auto; /* アスペクト比を維持 */
+  display: block; /* 画像下の余分なスペースを削除 */
+  border-radius: 0; /* バナーは角丸にしない */
+}
