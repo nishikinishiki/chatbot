@@ -474,11 +474,14 @@ body {
 .calendar-day-name-sun { color: #E57373 !important; } 
 .calendar-day-name-sat { color: #64B5F6 !important; } 
 .calendar-day {
-  padding: 10px 0;
+  padding: 0;
   cursor: pointer; 
   border-radius: 50%;
   transition: background-color 0.2s, color 0.2s, transform 0.1s;
   aspect-ratio: 1 / 1;
+  display: flex;
+  align-items: center;
+  justify-content: center; 
 }
 .calendar-day:hover:not(.disabled):not(.empty):not(.selected) { 
   background-color: var(--choice-button-hover-bg); 
