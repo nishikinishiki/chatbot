@@ -9,8 +9,35 @@ const katakanaRegex = /^[ァ-ヶー　]+$/;
 // それに伴い、後続のIDを振り直しています。
 // =================================================
 const initialQuestions = [
-  { id: 1, item: "職業", question: "まずはじめに、ご職業を教えてください。", answer_method: "single-choice", options: ["会社員（上場企業）", "会社員（その他）", "公務員", "経営者", "士業（医師、看護師、弁護士、税理士など）", "自営業・その他"], key: "occupation", validation: (v) => !!v, errorMessage: "選択してください。" },
-  { id: 2, item: "年収", question: "続いて、現在の年収を教えてください。", answer_method: "single-choice", options: ["0～399万", "400～499万", "500～599万", "600～699万", "700～799万", "800～899万", "900～999万", "1000～1099万", "1100～1199万", "1200～1299万", "1300～1399万", "1400～1499万", "1500～1999万", "2000～2499万", "2500～2999万", "3000～3999万", "4000～4999万", "5000万～1億未満", "1億以上"], key: "annual_income", validation: (v) => !!v, errorMessage: "選択してください。" },
+  // ★修正: 職業のoptionsをlabelとvalueを持つオブジェクト形式に変更
+  { id: 1, item: "職業", question: "まずはじめに、ご職業を教えてください。", answer_method: "single-choice", 
+    options: [
+      { label: "会社員 (上場企業)", value: "会社員（上場企業）" },
+      { label: "会社員 (その他)", value: "会社員（その他）" },
+      { label: "公務員", value: "公務員" },
+      { label: "経営者", value: "経営者" },
+      { label: "士業<br>(医師、弁護士等)", value: "士業（医師、看護師、弁護士、税護士など）" },
+      { label: "自営業・その他", value: "自営業・その他" }
+    ], 
+    key: "occupation", validation: (v) => !!v, errorMessage: "選択してください。" 
+  },
+  { id: 2, item: "年収", question: "続いて、現在の年収を教えてください。", answer_method: "single-choice", 
+    options: [
+      { label: "500万未満",   value: "0～399万" },
+      { label: "500万～",   value: "500～599万" },
+      { label: "600万～",   value: "600～699万" },
+      { label: "700万～",   value: "700～799万" },
+      { label: "800万～",   value: "800～899万" },
+      { label: "900万～",   value: "900～999万" },
+      { label: "1000万～",  value: "1000～1099万" },
+      { label: "1200万～",  value: "1200～1299万" },
+      { label: "1500万～",  value: "1500～1999万" },
+      { label: "2000万～",  value: "2000～2499万" },
+      { label: "3000万～",  value: "3000～3999万" },
+      { label: "5000万～",  value: "5000万～1億未満" }
+    ], 
+    key: "annual_income", validation: (v) => !!v, errorMessage: "選択してください。" 
+  },
   { id: 3, item: "年齢", question: "ご年齢はおいくつでしょうか？", answer_method: "single-choice", options: ["20歳未満", "20～24歳", "25～29歳", "30～34歳", "35～39歳", "40～44歳", "45～49歳", "50～54歳", "55～59歳", "60～64歳", "65～69歳", "70歳以上"], key: "age_group", validation: (v) => !!v, errorMessage: "選択してください。" },
   { id: 4, item: "お名前（漢字）", pre_message_1: "ありがとうございます！", answer_method: "text-pair", pairs: [
       { prompt: "お名前を入力してください。", inputs: [ { label: "姓", key: "last_name", placeholder: "山田", type: "text" }, { label: "名", key: "first_name", placeholder: "太郎", type: "text" } ], combinedValidation: (v1, v2) => (v1 && v1.trim().length > 0) && (v2 && v2.trim().length > 0), combinedErrorMessage: "姓と名の両方を入力してください。" }
@@ -18,8 +45,8 @@ const initialQuestions = [
   { id: 5, item: "お名前（フリガナ）", answer_method: "text-pair", pairs: [
       { prompt: "続いて、フリガナを入力してください。（全角カタカナ）", inputs: [ { label: "セイ", key: "last_name_kana", placeholder: "ヤマダ", type: "text" }, { label: "メイ", key: "first_name_kana", placeholder: "タロウ", type: "text" } ], combinedValidation: (v1, v2) => (v1 && katakanaRegex.test(v1.trim())) && (v2 && katakanaRegex.test(v2.trim())), combinedErrorMessage: "セイとメイの両方を全角カタカナで入力してください。" }
     ], key_group: "name_details" },
-  { id: 6, item: "電話番号", pre_message_1: "ご入力ありがとうございます！", pre_message_2: "残り2問です！", question: "電話番号を入力してください。", placeholder: "09012345678", answer_method: "text", type: "tel", key: "phone_number", validation: (v) => /^[0-9]{10,11}$/.test(v.replace(/-/g, "")), errorMessage: "有効な電話番号をハイフンなし半角数字で入力してください。" },
-  { id: 7, item: "メールアドレス", question: "メールアドレスを入力してください！", placeholder: "user@example.com", answer_method: "text", type: "email", key: "email_address", validation: (v) => /^[^\s@]+@[^\s@]+\.[^\s@]+$/.test(v), errorMessage: "有効なメールアドレスを入力してください。" },
+  { id: 6, item: "電話番号", pre_message_1: "残り2問です！", question: "電話番号を入力してください。", placeholder: "09012345678", answer_method: "text", type: "tel", key: "phone_number", validation: (v) => /^[0-9]{10,11}$/.test(v.replace(/-/g, "")), errorMessage: "有効な電話番号をハイフンなし半角数字で入力してください。" },
+  { id: 7, item: "メールアドレス", question: "最後に、メールアドレスを入力してください！", placeholder: "user@example.com", answer_method: "text", type: "email", key: "email_address", validation: (v) => /^[^\s@]+@[^\s@]+\.[^\s@]+$/.test(v), errorMessage: "有効なメールアドレスを入力してください。" },
   {
     id: 8,
     item: "最終確認",
@@ -32,7 +59,7 @@ const initialQuestions = [
     gift_terms_popup_title: "",
     gift_terms_popup_content: `
       <h3>えらべるデジタルギフト<br>プレゼント条件</h3>
-      <h4>【個別面談・Web面談をお申込みのお客様】</h4>
+      <h4>個別面談・Web面談をお申込みのお客様</h4>
       <p>プレゼントは、web面談で20,000円、オフライン個別相談で50,000円相当のえらべるデジタルギフトを予定しております。面談でえらべるデジタルギフトプレゼントは以下の条件を満たした方が対象となります。なお、web面談、個別相談とは当社のコンサルタントと当社オフィスもしくは当社オフィス外、ウェブ通信にて対面し、当社サービスの十分な説明とお客様についての十分な（数回にわたり）情報を相互に交換したことを指します。<br>また、えらべるデジタルギフトではAmazonギフトカード、PayPayポイント、楽天ポイント（期間限定ポイント※）からご希望の1種のみを選択いただけます。<br>ご希望のポイントは、フォームの「ご質問・ご要望」欄に記入ください。お申し込み時にご記入がない場合は、Amazonギフトカードをプレゼントいたします。お申し込み完了後の変更は原則受け付けておりませんので、予めご了承ください。<br>※獲得いただけるポイントは期間限定ポイントになり、有効期限はポイント獲得後、6ヶ月間です。</p>
       <h4>プレゼント条件</h4>
       <p>下記の①〜⑫すべての項⽬を満たしている⽅が対象になります。</p>
@@ -50,13 +77,13 @@ const initialQuestions = [
           <li>⾯談前の電話及び⾯談中の質問事項にすべてお答えいただけた⽅<br>※ご融資に必要な質問事項、および当社のサービス提供にあたり必要な質問事項を含む</li>
           <li>現在の社会環境の中で、前向きに購⼊を検討されている⽅</li>
       </ul>
-      <h4>プレゼント対象外</h4>
+      <h4>プレゼント対象外条件</h4>
       <ul>
           <li>ご本人以外の面談の場合</li>
           <li>1世帯で2回以上の申込みの場合虚偽、重複、悪戯、迷惑行為、不正申込、連絡が取れない方、個別面談を受けられない方</li>
           <li>当社で行なっている他キャンペーンに応募したことがある方</li>
           <li>同業他社にお勤めの方</li>
-          <li>無職、学生、フリーター・パート・アルバ-イト、契約・派遣社員の方</li>
+          <li>無職、学生、フリーター・パート・アル-バイト、契約・派遣社員の方</li>
           <li>現在の借り入れ状況や相談内容等によりサービスの提供が出来ない場合</li>
           <li>自営業の方、既に住宅ローンがある、疾病などの御理由により、ローンが組めない場合（ローンのご提案が難しい場合）</li>
           <li>Web参加されても途中退席される方</li>
@@ -72,7 +99,7 @@ const initialQuestions = [
           <li>初回の⾯談から30⽇以上次回の⾯談⽇程がとれない場合</li>
           <li>えらべるデジタルギフトのプレゼント対象は2024年5月15日以降申し込みの方に限ります。（2024年5月14日以前に申し込みの方はAmaonギフトカード）</li>
       </ul>
-      <h4>【ご⾯談についての注意事項】</h4>
+      <h4>ご⾯談についての注意事項</h4>
       <p>今現在、不動産投資を検討されていない⽅は、お申し込みをご遠慮ください。<br>以下に当てはまる場合に関してはご⾯談をお断り・キャンセルさせていただく可能性がございます。予めご了承の上でお申し込みください。</p>
       <ul>
           <li>情報収集のみを⽬的とされる等、不動産を活⽤した資産形成やマンション経営を検討されていないと判断される場合</li>
@@ -82,7 +109,7 @@ const initialQuestions = [
           <li>現在の借り⼊れ状況や相談内容等によりサービスの提供が出来ない、ローンのご提案が難しい場合</li>
           <li>客観的に「ポイントのみが⽬当て」と判断される⾔動や⾏動をされる⽅</li>
       </ul>
-      <h4>【その他注意事項】</h4>
+      <h4>その他注意事項</h4>
       <ul>
           <li>本キャンペーンはJ.P.RETURNS株式会社による提供です。本キャンペーンについてのお問い合わせはAmaon・PayPay・楽天でお受けしておりません。J.P.RETURNS株式会社 キャンペーン事務局（03‐5962‐9450）までお願いいたします。</li>
           <li>Amazon、Amazon.co.jpおよびそれらのロゴはAmazon.com,Inc.またはその関連会社の商標です。</li>
@@ -110,8 +137,8 @@ const initialQuestions = [
 const additionalQuestions = [
     { id: 9, item: "面談希望日（第一希望）", pre_message: "面談を受けていただくと<span style='color: red;'>最大50,000円相当</span>のえらべるデジタルギフト、プレゼントの対象となります！", question: "【第一希望】<br>ご相談希望日をお選びください", isHtmlQuestion: true, answer_method: "calendar", key: "first_choice_date", validation: (v) => /^\d{4}\/(0?[1-9]|1[0-2])\/(0?[1-9]|[12][0-9]|3[01])$/.test(v) && !isNaN(new Date(v)), errorMessage: "YYYY/MM/DD形式で有効な日付を入力してください。" },
     { id: 10, item: "面談希望時間（第一希望）", question: "【第一希望】<br>ご相談希望時間をお選びください", isHtmlQuestion: true, answer_method: "single-choice", options: ["10：00～12：00", "12：00～14：00", "14：00～16：00", "16：00～18：00", "18：00～20：00", "20：00 以降", "その他の時間"], key: "first_choice_time", validation: (v) => !!v, errorMessage: "選択してください。" },
-    { id: 11, item: "面談希望時間（第一希望その他）", question: "【第一希望】その他のご相談希望時間を入力ください", answer_method: "text", type: "text", key: "first_choice_time_other", condition: { key: "first_choice_time", value: "その他の時間" }, validation: (v) => v && v.trim().length > 0, errorMessage: "希望時間を入力してください。" },
+    { id: 11, item: "面談希望時間（第一希望その他）", question: "【第一希望】ご相談希望時間を入力ください", answer_method: "text", type: "text", key: "first_choice_time_other", condition: { key: "first_choice_time", value: "その他の時間" }, validation: (v) => v && v.trim().length > 0, errorMessage: "希望時間を入力してください。" },
     { id: 12, item: "面談希望日（第二希望）", question: "【第二希望】<br>ご相談希望日をお選びください", isHtmlQuestion: true, answer_method: "calendar", key: "second_choice_date", validation: (v) => /^\d{4}\/(0?[1-9]|1[0-2])\/(0?[1-9]|[12][0-9]|3[01])$/.test(v) && !isNaN(new Date(v)), errorMessage: "YYYY/MM/DD形式で有効な日付を入力してください。" },
     { id: 13, item: "面談希望時間（第二希望）", question: "【第二希望】<br>ご相談希望時間をお選びください", isHtmlQuestion: true, answer_method: "single-choice", options: ["10：00～12：00", "12：00～14：00", "14：00～16：00", "16：00～18：00", "18：00～20：00", "20：00 以降", "その他の時間"], key: "second_choice_time", validation: (v) => !!v, errorMessage: "選択してください。" },
-    { id: 14, item: "面談希望時間（第二希望その他）", question: "【第二希望】その他のご相談希望時間を入力ください", answer_method: "text", type: "text", key: "second_choice_time_other", condition: { key: "second_choice_time", value: "その他の時間" }, validation: (v) => v && v.trim().length > 0, errorMessage: "希望時間を入力してください。" }
+    { id: 14, item: "面談希望時間（第二希望その他）", question: "【第二希望】ご相談希望時間を入力ください", answer_method: "text", type: "text", key: "second_choice_time_other", condition: { key: "second_choice_time", value: "その他の時間" }, validation: (v) => v && v.trim().length > 0, errorMessage: "希望時間を入力してください。" }
 ];

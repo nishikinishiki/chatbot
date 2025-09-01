@@ -77,12 +77,10 @@ async function initializeChat() {
         document.head.appendChild(faviconLink);
     }
     
-    // ▼▼▼【ここから追加】▼▼▼
     // バナー画像が設定されていれば表示する
     if (typeof BANNER_IMAGE_URL !== 'undefined' && BANNER_IMAGE_URL) {
         displayBannerImage(BANNER_IMAGE_URL);
     }
-    // ▲▲▲【ここまで追加】▲▲▲
 
     await addBotMessage("お問い合わせありがとうございます！<br>30秒程度の簡単な質問をさせてください。", true);
     
@@ -90,7 +88,6 @@ async function initializeChat() {
 }
 
 // --- メイン会話フロー ---
-// (以降のコードは変更ありません)
 async function askQuestion() {
     calculateProgress();
     
@@ -100,8 +97,6 @@ async function askQuestion() {
         handleFlowCompletion();
         return;
     }
-
-    clearInputArea();
     
     if (currentQuestion.pre_message) await addBotMessage(currentQuestion.pre_message, true);
     if (currentQuestion.pre_message_1) await addBotMessage(currentQuestion.pre_message_1);
@@ -113,23 +108,24 @@ async function askQuestion() {
     
     switch(currentQuestion.answer_method) {
         case 'single-choice':
-            displayChoices(currentQuestion, (value) => handleSingleChoice(currentQuestion, value));
+            displayChoices(currentQuestion, (selection, container) => handleSingleChoice(currentQuestion, selection, container));
             break;
         case 'text':
         case 'tel':
         case 'email':
              displayNormalInput(currentQuestion, {
-                onSend: (value) => handleTextInput(currentQuestion, value),
+                onSend: (value, container) => handleTextInput(currentQuestion, value, container),
              });
             break;
         case 'text-pair':
             handlePairedQuestion(currentQuestion);
             break;
         case 'calendar':
-            displayCalendar(currentQuestion, (value) => handleCalendarInput(currentQuestion, value));
+            displayCalendar(currentQuestion, (value, container) => handleCalendarInput(currentQuestion, value, container));
             break;
         case 'final-consent':
-             displayFinalConsentScreen(currentQuestion, state.userResponses, initialQuestions, () => {
+             displayFinalConsentScreen(currentQuestion, state.userResponses, initialQuestions, (container) => {
+                if (container) disableInputs(container);
                 state.userResponses[currentQuestion.key] = true;
                 sendGaEvent(currentQuestion);
                 submitDataToGAS(state.userResponses, false);
@@ -161,7 +157,6 @@ function findNextQuestion() {
 }
 
 function handleFlowCompletion() {
-    clearInputArea(); 
     if (state.currentFlow === 'additional') {
         submitDataToGAS(state.additionalUserResponses, true);
     }
@@ -174,25 +169,33 @@ function proceedToNextStep() {
     setTimeout(askQuestion, 150);
 }
 
+function handleSingleChoice(question, selection, container) {
+    const value = (typeof selection === 'object' && selection.value) ? selection.value : selection;
+    const label = (typeof selection === 'object' && selection.label) ? selection.label : selection;
 
-function handleSingleChoice(question, value) {
     if (!question.validation(value)) {
         addBotMessage(question.errorMessage, false, true);
         return;
     }
-    addUserMessage(value);
+    if (container) disableInputs(container);
+    
+    const userMessageLabel = label.replace(/<br>/g, ' ');
+    addUserMessage(userMessageLabel);
+    
     const responseSet = (state.currentFlow === 'initial') ? state.userResponses : state.additionalUserResponses;
     responseSet[question.key] = value;
+    
     sendGaEvent(question);
     proceedToNextStep();
 }
 
-function handleTextInput(question, value) {
+function handleTextInput(question, value, container) {
     const trimmedValue = value.trim();
     if (!question.validation(trimmedValue)) {
         addBotMessage(question.errorMessage, false, true);
         return;
     }
+    if (container) disableInputs(container);
     addUserMessage(trimmedValue);
     const responseSet = (state.currentFlow === 'initial') ? state.userResponses : state.additionalUserResponses;
     responseSet[question.key] = trimmedValue;
@@ -208,15 +211,18 @@ async function handlePairedQuestion(question) {
     }
     
     await addBotMessage(currentPair.prompt);
+    
+    displayPairedInputs(currentPair, (values, container) => {
+        if (container) disableInputs(container);
 
-    displayPairedInputs(currentPair, (values) => {
         const responseSet = (state.currentFlow === 'initial') ? state.userResponses : state.additionalUserResponses;
-        let userMessageText = "";
-
+        
         currentPair.inputs.forEach((inputConfig, index) => {
             responseSet[inputConfig.key] = values[index];
-            userMessageText += `${inputConfig.label}: ${values[index]}${index < currentPair.inputs.length - 1 ? ', ' : ''}`;
         });
+
+        // ★修正: 「姓」と「名」を半角スペースで連結して表示
+        const userMessageText = values.join(' ');
         addUserMessage(userMessageText);
         
         sendGaEvent(question);
@@ -229,11 +235,12 @@ async function handlePairedQuestion(question) {
     });
 }
 
-function handleCalendarInput(question, value) {
+function handleCalendarInput(question, value, container) {
     if (!question.validation(value)) {
         addBotMessage(question.errorMessage, false, true);
         return;
     }
+    if (container) disableInputs(container);
     addUserMessage(value);
     const responseSet = (state.currentFlow === 'initial') ? state.userResponses : state.additionalUserResponses;
     responseSet[question.key] = value;
@@ -304,33 +311,26 @@ async function submitDataToGAS(dataToSend, isAdditional) {
         hideLoadingMessage();
         
         if (!isAdditional) {
-            // ▼▼▼【ここから修正】▼▼▼
             if (window.dataLayer) {
-                // --- ユーザーの回答を変数に格納 ---
                 const email = state.userResponses.email_address;
                 const phoneNumber = state.userResponses.phone_number;
                 const lastName = state.userResponses.last_name;
                 const firstName = state.userResponses.first_name;
 
-                // --- ① 広告代理店様用の modified_phone を作成 ---
                 let modifiedPhoneNumber = '';
                 if (phoneNumber && typeof phoneNumber === 'string') {
                     modifiedPhoneNumber = phoneNumber.substring(3);
                 }
 
-                // --- ② 拡張コンバージョン用の電話番号をフォーマット (+81を付与) ---
                 let formattedPhoneNumber = '';
                 if (phoneNumber && typeof phoneNumber === 'string') {
                     if (phoneNumber.startsWith('0')) {
-                        // 0で始まる日本の電話番号から先頭の0を除去し、+81を付与
                         formattedPhoneNumber = '+81' + phoneNumber.substring(1);
                     } else {
-                        // 0で始まらない場合は、そのまま+81を付与（念のため）
                         formattedPhoneNumber = '+81' + phoneNumber;
                     }
                 }
 
-                // --- ③ 拡張コンバージョン用の user_data オブジェクトを作成 ---
                 const userData = {
                     'email': email,
                     'phone_number': formattedPhoneNumber,
@@ -340,14 +340,12 @@ async function submitDataToGAS(dataToSend, isAdditional) {
                     }
                 };
 
-                // --- ①と③の両方のデータをデータレイヤーに送信 ---
                 window.dataLayer.push({
                     'event': 'chat_form_submission_success',
-                    'user_data': userData,                 // 拡張コンバージョン用データ
-                    'modified_phone': modifiedPhoneNumber  // 既存のCV計測用データ
+                    'user_data': userData,
+                    'modified_phone': modifiedPhoneNumber
                 });
             }
-            // ▲▲▲【ここまで修正】▲▲▲
 
             clearChatMessages();
             await addBotMessage("送信が完了しました。<br>お問い合わせいただきありがとうございました！", true);
