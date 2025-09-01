@@ -7,7 +7,7 @@ const katakanaRegex = /^[ァ-ヶー　]+$/;
 // ★summaryLabelプロパティを追加。サマリー画面の表示名を変更したい場合に使用します。
 const questions = [
     // --- 旧 additionalQuestions (面談希望日時) ---
-    { id: 1, item: "面談希望日（第一希望）", summaryLabel: "第1希望 日程", pre_message: "面談を受けていただくと<span style='color: red;'>最大50,000円相当</span>のえらべるデジタルギフト、プレゼントの対象となります！", question: "【第1希望】<br>ご相談希望日をお選びください", isHtmlQuestion: true, answer_method: "calendar", key: "first_choice_date", validation: (v) => /^\d{4}\/(0?[1-9]|1[0-2])\/(0?[1-9]|[12][0-9]|3[01])$/.test(v) && !isNaN(new Date(v)), errorMessage: "YYYY/MM/DD形式で有効な日付を入力してください。" },
+    { id: 1, item: "面談希望日（第一希望）", summaryLabel: "第1希望 日程", question: "【第1希望】<br>ご相談希望日をお選びください", isHtmlQuestion: true, answer_method: "calendar", key: "first_choice_date", validation: (v) => /^\d{4}\/(0?[1-9]|1[0-2])\/(0?[1-9]|[12][0-9]|3[01])$/.test(v) && !isNaN(new Date(v)), errorMessage: "YYYY/MM/DD形式で有効な日付を入力してください。" },
     { id: 2, item: "面談希望時間（第一希望）", summaryLabel: "第1希望 時間", question: "【第1希望】<br>ご相談希望時間をお選びください", isHtmlQuestion: true, answer_method: "single-choice",
       options: [
         { label: "10:00～12:00", value: "10：00～12：00" },
@@ -35,7 +35,7 @@ const questions = [
       key: "second_choice_time", validation: (v) => !!v, errorMessage: "選択してください。" 
     },
     { id: 6, item: "面談希望時間（第二希望その他）", summaryLabel: "第2希望 時間(その他)", question: "【第2希望】ご相談希望時間を入力ください", answer_method: "text", type: "text", key: "second_choice_time_other", condition: { key: "second_choice_time", value: "その他の時間" }, validation: (v) => v && v.trim().length > 0, errorMessage: "希望時間を入力してください。" },
-    { id: 7, item: "職業", summaryLabel: "ご職業", question: "まずはじめに、ご職業を教えてください。", answer_method: "single-choice", 
+    { id: 7, item: "職業", summaryLabel: "ご職業", question: "ご職業を教えてください。", answer_method: "single-choice", 
       options: [
         { label: "会社員 (上場企業)", value: "会社員（上場企業）" },
         { label: "会社員 (その他)", value: "会社員（その他）" },
