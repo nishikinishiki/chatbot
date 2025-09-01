@@ -23,25 +23,18 @@ const initialQuestions = [
   },
   { id: 2, item: "年収", question: "続いて、現在の年収を教えてください。", answer_method: "single-choice", 
     options: [
-      { label: "400万未満",   value: "0～399万" },
-      { label: "400万～",   value: "400～499万" },
+      { label: "500万未満",   value: "0～399万" },
       { label: "500万～",   value: "500～599万" },
       { label: "600万～",   value: "600～699万" },
       { label: "700万～",   value: "700～799万" },
       { label: "800万～",   value: "800～899万" },
       { label: "900万～",   value: "900～999万" },
       { label: "1000万～",  value: "1000～1099万" },
-      { label: "1100万～",  value: "1100～1199万" },
       { label: "1200万～",  value: "1200～1299万" },
-      { label: "1300万～",  value: "1300～1399万" },
-      { label: "1400万～",  value: "1400～1499万" },
       { label: "1500万～",  value: "1500～1999万" },
       { label: "2000万～",  value: "2000～2499万" },
-      { label: "2500万～",  value: "2500～2999万" },
       { label: "3000万～",  value: "3000～3999万" },
-      { label: "4000万～",  value: "4000～4999万" },
-      { label: "5000万～",  value: "5000万～1億未満" },
-      { label: "1億以上",   value: "1億以上" }
+      { label: "5000万～",  value: "5000万～1億未満" }
     ], 
     key: "annual_income", validation: (v) => !!v, errorMessage: "選択してください。" 
   },
