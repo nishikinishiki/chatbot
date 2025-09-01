@@ -82,8 +82,7 @@ async function initializeChat() {
         displayBannerImage(BANNER_IMAGE_URL);
     }
 
-    await addBotMessage("J.P.Returnsにお問い合わせいただきありがとうございます！");
-    await addBotMessage("30秒程度の簡単な質問をさせてください。");
+    await addBotMessage("お問い合わせありがとうございます！<br>30秒程度の簡単な質問をさせてください。", true);
     
     setTimeout(askQuestion, 150);
 }
