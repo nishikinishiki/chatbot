@@ -15,6 +15,7 @@ const dom = {
 
 let isBotTyping = false;
 let loadingMessageElement = null;
+let scrollTimeout = null; 
 
 // --- Public UI Functions ---
 
@@ -60,17 +61,15 @@ function clearChatMessages() {
 function addBotMessage(messageText, isHtml = false, isError = false, isEbookBtn = false) {
     showTypingIndicator();
     return new Promise(resolve => {
-        setTimeout(() => {
-            let msgElem;
-            if (isEbookBtn) {
-                msgElem = createEbookButtonMessage(messageText);
-                hideTypingIndicator();
-            } else {
-                msgElem = addMessage(messageText, 'bot', isHtml, isError);
-            }
-            scrollToBottom();
-            resolve(msgElem);
-        }, 100 + Math.random() * 100);
+        let msgElem;
+        if (isEbookBtn) {
+            msgElem = createEbookButtonMessage(messageText);
+            hideTypingIndicator();
+        } else {
+            msgElem = addMessage(messageText, 'bot', isHtml, isError);
+        }
+        scrollToBottom();
+        resolve(msgElem);
     });
 }
 
@@ -119,10 +118,20 @@ function clearInputArea() {
     }
 }
 
+function disableInputs(container) {
+    const inputs = container.querySelectorAll('input, button');
+    inputs.forEach(input => {
+        input.disabled = true;
+    });
+    container.classList.add('inputs-disabled');
+}
+
+
 function displayNormalInput(question, callbacks) {
-    if (!dom.inputMethodWrapper) return;
-    dom.inputMethodWrapper.style.display = 'flex';
-    dom.inputMethodWrapper.innerHTML = `
+    const inputContainer = document.createElement('div');
+    inputContainer.className = 'input-container-wrapper';
+
+    inputContainer.innerHTML = `
         <div class="input-area" id="normalInputArea" style="display: flex;">
           <span id="inputIconContainer" class="input-icon-container"></span>
           <input type="text" id="userInput" placeholder="ここに入力">
@@ -130,10 +139,13 @@ function displayNormalInput(question, callbacks) {
             <svg xmlns="http://www.w3.org/2000/svg" width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" class="feather feather-send"><line x1="22" y1="2" x2="11" y2="13"></line><polygon points="22 2 15 22 11 13 2 9 22 2"></polygon></svg>
           </button>
         </div>`;
+    
+    dom.chatMessages.appendChild(inputContainer);
+    scrollToBottom();
 
-    const userInput = document.getElementById('userInput');
-    const sendButton = document.getElementById('sendButton');
-    const iconContainer = document.getElementById('inputIconContainer');
+    const userInput = inputContainer.querySelector('#userInput');
+    const sendButton = inputContainer.querySelector('#sendButton');
+    const iconContainer = inputContainer.querySelector('#inputIconContainer');
 
     if (question.type === 'tel') {
         iconContainer.innerHTML = `<svg xmlns="http://www.w3.org/2000/svg" width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" class="feather feather-phone"><path d="M22 16.92v3a2 2 0 0 1-2.18 2 19.79 19.79 0 0 1-8.63-3.07 19.5 19.5 0 0 1-6-6 19.79 19.79 0 0 1-3.07-8.67A2 2 0 0 1 4.11 2h3a2 2 0 0 1 2 1.72 12.84 12.84 0 0 0 .7 2.81 2 2 0 0 1-.45 2.11L8.09 9.91a16 16 0 0 0 6 6l1.27-1.27a2 2 0 0 1 2.11-.45 12.84 12.84 0 0 0 2.81.7A2 2 0 0 1 22 16.92z"></path></svg>`;
@@ -157,21 +169,21 @@ function displayNormalInput(question, callbacks) {
     });
 
     applyRippleEffect(sendButton);
+    
+    const handleSend = () => callbacks.onSend(userInput.value, inputContainer);
 
-    sendButton.addEventListener('click', () => callbacks.onSend(userInput.value));
+    sendButton.addEventListener('click', handleSend);
     userInput.addEventListener('keypress', (e) => {
         if (e.key === 'Enter' && !sendButton.disabled) {
             e.preventDefault();
-            callbacks.onSend(userInput.value);
+            handleSend();
         }
     });
 }
 
 function displayChoices(question, onSelect) {
-    if (!dom.inputMethodWrapper) return;
-    dom.inputMethodWrapper.style.display = 'block';
     const choicesAreaWrapper = document.createElement('div');
-    choicesAreaWrapper.className = 'choices-area-wrapper';
+    choicesAreaWrapper.className = 'input-container-wrapper';
     
     const choicesContainer = document.createElement('div');
     choicesContainer.className = 'choices-container';
@@ -179,24 +191,29 @@ function displayChoices(question, onSelect) {
     question.options.forEach(option => {
         const button = document.createElement('button');
         button.className = 'choice-button';
-        button.textContent = option;
-        button.dataset.value = option;
+
+        const isObjectOption = typeof option === 'object' && option.hasOwnProperty('label') && option.hasOwnProperty('value');
+        
+        const label = isObjectOption ? option.label : option;
+        const value = isObjectOption ? option.value : option;
+
+        button.innerHTML = label;
+        button.dataset.value = value;
+
         applyRippleEffect(button);
-        button.addEventListener('click', () => onSelect(option));
+        button.addEventListener('click', () => onSelect({ label, value }, choicesAreaWrapper));
         choicesContainer.appendChild(button);
     });
 
     choicesAreaWrapper.appendChild(choicesContainer);
-    dom.inputMethodWrapper.innerHTML = ''; 
-    dom.inputMethodWrapper.appendChild(choicesAreaWrapper);
+    
+    dom.chatMessages.appendChild(choicesAreaWrapper);
+    scrollToBottom();
 }
 
 function displayPairedInputs(pairData, onSubmit) {
-    if (!dom.inputMethodWrapper) return;
-    dom.inputMethodWrapper.style.display = 'block';
-    
     const pairedInputAreaWrapper = document.createElement('div');
-    pairedInputAreaWrapper.className = 'paired-input-area-wrapper';
+    pairedInputAreaWrapper.className = 'input-container-wrapper paired-input-area-wrapper';
 
     const pairedInputContainer = document.createElement('div');
     pairedInputContainer.className = 'paired-input-container';
@@ -227,16 +244,16 @@ function displayPairedInputs(pairData, onSubmit) {
             
             applyRippleEffect(sendPairedButton);
 
-            sendPairedButton.addEventListener('click', () => {
+            const handleSubmit = () => {
                 const values = inputsArray.map(inp => inp.value.trim());
                 if (pairData.combinedValidation(...values)) {
-                    onSubmit(values);
+                    onSubmit(values, pairedInputAreaWrapper);
                 } else {
                     addBotMessage(pairData.combinedErrorMessage, false, true);
                 }
-            });
+            };
 
-            inputRow.appendChild(sendPairedButton);
+            sendPairedButton.addEventListener('click', handleSubmit);
 
             const validateAndToggleButton = () => {
                 const values = inputsArray.map(inp => inp.value.trim());
@@ -256,6 +273,8 @@ function displayPairedInputs(pairData, onSubmit) {
                     sendPairedButton.click();
                 }
             });
+            inputRow.appendChild(sendPairedButton);
+
         } else {
             const placeholderButton = document.createElement('div');
             placeholderButton.className = 'paired-input-send-button placeholder';
@@ -271,15 +290,17 @@ function displayPairedInputs(pairData, onSubmit) {
     });
 
     pairedInputAreaWrapper.appendChild(pairedInputContainer);
-    dom.inputMethodWrapper.innerHTML = '';
-    dom.inputMethodWrapper.appendChild(pairedInputAreaWrapper);
+    
+    dom.chatMessages.appendChild(pairedInputAreaWrapper);
+    scrollToBottom();
     
     if (inputsArray.length > 0) inputsArray[0].focus();
 }
 
+
 function displayCalendar(question, onSubmit) {
-    if (!dom.inputMethodWrapper) return;
-    dom.inputMethodWrapper.style.display = 'block';
+    const calendarWrapper = document.createElement('div');
+    calendarWrapper.className = 'input-container-wrapper';
 
     const calendarContainer = document.createElement('div');
     calendarContainer.className = 'calendar-container';
@@ -385,7 +406,7 @@ function displayCalendar(question, onSubmit) {
                 const y = selectedCalendarDate.getFullYear();
                 const m = String(selectedCalendarDate.getMonth() + 1).padStart(2, '0');
                 const d = String(selectedCalendarDate.getDate()).padStart(2, '0');
-                onSubmit(`${y}/${m}/${d}`);
+                onSubmit(`${y}/${m}/${d}`, calendarWrapper);
             }
         };
         actionsDiv.appendChild(submitButton);
@@ -393,12 +414,14 @@ function displayCalendar(question, onSubmit) {
     };
     
     render(currentCalendarDate);
-    dom.inputMethodWrapper.innerHTML = '';
-    dom.inputMethodWrapper.appendChild(calendarContainer);
+    calendarWrapper.appendChild(calendarContainer);
+    
+    dom.chatMessages.appendChild(calendarWrapper);
+    scrollToBottom();
 }
 
 function displayFinalConsentScreen(question, userResponses, initialQuestions, onSubmit) {
-    if (!dom.inputMethodWrapper || !dom.chatMessages) return;
+    if (!dom.chatMessages) return;
     displaySummaryArea(userResponses, initialQuestions);
     
     const summaryAdjacentConsentTextDiv = document.createElement('div');
@@ -418,12 +441,12 @@ function displayFinalConsentScreen(question, userResponses, initialQuestions, on
     summaryAdjacentConsentTextDiv.appendChild(privacyLinkSmall);
     summaryAdjacentConsentTextDiv.appendChild(document.createTextNode("・"));
     summaryAdjacentConsentTextDiv.appendChild(giftTermsLinkSmall);
-    summaryAdjacentConsentTextDiv.appendChild(document.createTextNode("に同意の上、送信してください。"));
+    summaryAdjacentConsentTextDiv.appendChild(document.createTextNode("に同意する。"));
     dom.chatMessages.appendChild(summaryAdjacentConsentTextDiv);
 
-    dom.inputMethodWrapper.style.display = 'block';
     const submitButtonAreaWrapper = document.createElement('div');
-    submitButtonAreaWrapper.className = 'choices-area-wrapper';
+    submitButtonAreaWrapper.className = 'input-container-wrapper';
+
     const finalSubmitButton = document.createElement('button');
     finalSubmitButton.className = 'choice-button final-consent-submit-button';
     finalSubmitButton.innerHTML = `<span>${question.submit_button_text}</span><svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round" class="feather feather-send"><line x1="22" y1="2" x2="11" y2="13"></line><polygon points="22 2 15 22 11 13 2 9 22 2"></polygon></svg>`;
@@ -432,15 +455,15 @@ function displayFinalConsentScreen(question, userResponses, initialQuestions, on
 
     finalSubmitButton.addEventListener('click', () => {
         finalSubmitButton.disabled = true;
-        onSubmit();
+        onSubmit(submitButtonAreaWrapper);
     });
     submitButtonAreaWrapper.appendChild(finalSubmitButton);
-    dom.inputMethodWrapper.innerHTML = '';
-    dom.inputMethodWrapper.appendChild(submitButtonAreaWrapper);
-
+    
+    dom.chatMessages.appendChild(submitButtonAreaWrapper);
     scrollToBottom();
 }
 
+// ★修正: サマリー表示でlabelを使うように変更
 function displaySummaryArea(userResponses, initialQuestions) {
     const summaryMessageWrapper = createMessageWrapper('bot');
     summaryMessageWrapper.classList.add('summary-message-wrapper');
@@ -451,37 +474,43 @@ function displaySummaryArea(userResponses, initialQuestions) {
     summaryArea.appendChild(summaryTitle);
 
     const summaryList = document.createElement('ul');
-    let nameDisplayed = false; // お名前を表示したかどうかを管理するフラグ
+    let nameDisplayed = false; 
 
     initialQuestions.forEach(q => {
         if (!q.item || q.answer_method === 'final-consent') return;
 
-        // お名前・フリガナの処理 (key_group を使い、一度だけ表示する)
         if (q.key_group === "name_details") {
-            if (!nameDisplayed) { // まだ表示されていない場合のみ処理
-                // 漢字氏名
+            if (!nameDisplayed) { 
                 const kanjiLastName = userResponses["last_name"] || '';
                 const kanjiFirstName = userResponses["first_name"] || '';
                 if (kanjiLastName || kanjiFirstName) {
                     const li = document.createElement('li');
-                    li.innerHTML = `<span class="summary-item-label">お名前: </span><span class="summary-item-value">${kanjiLastName} ${kanjiFirstName}</span>`;
+                    li.innerHTML = `<span class="summary-item-label">お名前 </span><span class="summary-item-value">${kanjiLastName} ${kanjiFirstName}</span>`;
                     summaryList.appendChild(li);
                 }
-                // フリガナ
                 const kanaLastName = userResponses["last_name_kana"] || '';
                 const kanaFirstName = userResponses["first_name_kana"] || '';
                 if (kanaLastName || kanaFirstName) {
                     const li = document.createElement('li');
-                    li.innerHTML = `<span class="summary-item-label">フリガナ: </span><span class="summary-item-value">${kanaLastName} ${kanaFirstName}</span>`;
+                    li.innerHTML = `<span class="summary-item-label">フリガナ </span><span class="summary-item-value">${kanaLastName} ${kanaFirstName}</span>`;
                     summaryList.appendChild(li);
                 }
-                nameDisplayed = true; // 表示済みのフラグを立てる
+                nameDisplayed = true; 
             }
         } 
-        // その他の項目の処理
         else if (userResponses[q.key]) {
+            let displayValue = userResponses[q.key];
+
+            // 'single-choice'で、optionsがオブジェクト配列の場合、対応するlabelを探す
+            if (q.answer_method === 'single-choice' && Array.isArray(q.options) && typeof q.options[0] === 'object') {
+                const selectedOption = q.options.find(opt => opt.value === displayValue);
+                if (selectedOption) {
+                    displayValue = selectedOption.label.replace(/<br>/g, ' '); // labelを使い、<br>はスペースに置換
+                }
+            }
+            
             const listItem = document.createElement('li');
-            listItem.innerHTML = `<span class="summary-item-label">${q.item}: </span><span class="summary-item-value">${userResponses[q.key]}</span>`;
+            listItem.innerHTML = `<span class="summary-item-label">${q.item}  </span><span class="summary-item-value">${displayValue}</span>`;
             summaryList.appendChild(listItem);
         }
     });
@@ -489,7 +518,7 @@ function displaySummaryArea(userResponses, initialQuestions) {
     summaryArea.appendChild(summaryList);
     const messageContent = summaryMessageWrapper.querySelector('.message');
     if (messageContent) {
-        messageContent.innerHTML = ''; // 古いコンテンツをクリア
+        messageContent.innerHTML = ''; 
         messageContent.appendChild(summaryArea);
     }
     
@@ -498,7 +527,9 @@ function displaySummaryArea(userResponses, initialQuestions) {
     }
 }
 
+
 // --- Private Helper Functions ---
+
 function scrollToBottom() {
     requestAnimationFrame(() => {
         if (dom.chatMessages) {
@@ -545,8 +576,11 @@ function addMessage(text, sender, isHtml = false, isError = false) {
     
     if(messageElement){
         if (isError) messageElement.classList.add('error-text');
-        if (isHtml) messageElement.innerHTML = text;
-        else messageElement.textContent = text;
+        if (isHtml) {
+            messageElement.innerHTML = text;
+        } else {
+            messageElement.textContent = text;
+        }
     }
     
     if (dom.chatMessages) {
@@ -598,11 +632,6 @@ function applyRippleEffect(buttonElement) {
     });
 }
 
-// ▼▼▼【ここから新規追加】▼▼▼
-/**
- * バナー画像をチャットエリアの最上部に表示する関数
- * @param {string} imageUrl - 表示する画像のURL
- */
 function displayBannerImage(imageUrl) {
     if (!dom.chatMessages) return;
 
@@ -611,18 +640,15 @@ function displayBannerImage(imageUrl) {
 
     const bannerImage = document.createElement('img');
     bannerImage.src = imageUrl;
-    bannerImage.alt = 'キャンペーンバナー'; // 代替テキスト
+    bannerImage.alt = 'キャンペーンバナー';
     bannerImage.className = 'chat-banner-image';
 
-    // 画像の読み込みに失敗した場合のエラーハンドリング
     bannerImage.onerror = () => {
         console.error('バナー画像の読み込みに失敗しました:', imageUrl);
-        bannerWrapper.remove(); // 読み込めなかったら要素ごと削除
+        bannerWrapper.remove();
     };
 
     bannerWrapper.appendChild(bannerImage);
-    // 最初のメッセージの前にバナーを挿入
     dom.chatMessages.prepend(bannerWrapper);
     scrollToBottom();
 }
-// ▲▲▲【ここまで新規追加】▲▲▲
