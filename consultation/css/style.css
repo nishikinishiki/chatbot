@@ -197,7 +197,6 @@ body {
   border-bottom-right-radius: 4px;
 }
 
-/* ★修正: ebookボタン用のスタイルを追加 */
 .ebook-button-message-content {
   padding: 0 !important; 
   background-color: transparent !important; 
@@ -416,125 +415,133 @@ body {
   visibility: hidden; 
 }
 
-/* --- 5c. Calendar (カレンダー) --- */
-.calendar-container {
-  background-color: var(--bot-message-bg); 
-  border-radius: 8px; 
-  padding: 15px; 
+/* --- 5c. Time Table (タイムテーブル) --- */
+.time-table-container {
+  background-color: var(--bot-message-bg);
+  border-radius: 8px;
+  padding: 15px;
   width: 100%;
   max-width: 480px;
-  margin: 0 auto; 
+  margin: 0 auto;
   font-size: 14px;
   box-shadow: 0 1px 3px rgba(0,0,0,0.3), 0 6px 10px 4px rgba(0,0,0,0.15);
+  -webkit-user-select: none; /* Safari */
+  -ms-user-select: none; /* IE 10+ */
+  user-select: none;
 }
-.calendar-header {
-  display: flex; 
-  justify-content: space-between; 
-  align-items: center; 
-  margin-bottom: 5px; 
+.time-table-header {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  margin-bottom: 8px;
+  padding: 0 3px;
 }
-.calendar-month-year { 
-  font-weight: 500; 
-  font-size: 1.2em; 
-  color: var(--text-color-dark); 
+.time-table-header span {
+  font-weight: 500;
+  font-size: 1.1em;
 }
-.calendar-nav-buttons button { 
-  background: none; 
-  border: 1px solid var(--primary-color); 
+.time-table-nav {
+  background: none;
+  border: 1px solid var(--primary-color);
   color: var(--primary-color);
   cursor: pointer;
-  padding: 5px 10px; 
-  border-radius: 15px; 
-  transition: background-color 0.2s, color 0.2s; 
-  margin-left: 5px; 
-}
-.calendar-nav-buttons button:hover:not(:disabled) { 
-  background-color: var(--primary-color); 
-  color: var(--text-color-light); 
-}
-.calendar-nav-buttons button:disabled { 
-  border-color: #BDBDBD; 
-  color: #BDBDBD; 
-  cursor: not-allowed; 
-}
-.calendar-grid { 
-  display: grid; 
-  grid-template-columns: repeat(7, 1fr); 
-  gap: 4px; 
-  text-align: center; 
-}
-.calendar-day-name {
-  padding: 10px 0;
-  font-size: 0.9em;
-  font-weight: 500; 
-  color: #757575; 
-  border-bottom: 1px solid #E0E0E0; 
-  margin-bottom: 5px;
-}
-.calendar-day-name-sun { color: #E57373 !important; } 
-.calendar-day-name-sat { color: #64B5F6 !important; } 
-.calendar-day {
-  padding: 0;
-  cursor: pointer; 
+  width: 25px;
+  height: 25px;
   border-radius: 50%;
-  transition: background-color 0.2s, color 0.2s, transform 0.1s;
-  aspect-ratio: 1 / 1;
+  transition: background-color 0.2s, color 0.2s;
   display: flex;
   align-items: center;
-  justify-content: center; 
+  justify-content: center;
 }
-.calendar-day:hover:not(.disabled):not(.empty):not(.selected) { 
-  background-color: var(--choice-button-hover-bg); 
-  transform: scale(1.05); 
+.time-table-nav:hover:not(:disabled) {
+  background-color: var(--primary-color);
+  color: var(--text-color-light);
 }
-.calendar-day.selected { 
-  background-color: var(--primary-color); 
-  color: var(--text-color-light); 
-  font-weight: 500; 
+.time-table-nav:disabled {
+  border-color: #BDBDBD;
+  color: #BDBDBD;
+  cursor: not-allowed;
 }
-.calendar-day.today { 
-  font-weight: 500; 
-  border: 2px solid var(--primary-color); 
+
+.time-table {
+  width: 100%;
+  border-collapse: collapse;
+  text-align: center;
+  table-layout: fixed; /* テーブルのレイアウトを固定 */
 }
-.calendar-day.disabled, .calendar-day.empty { 
-  cursor: default; 
-  color: #BDBDBD; 
-  background-color: #FAFAFA; 
+.time-table th {
+  font-weight: normal;
+  padding-bottom: 5px;
 }
-.calendar-day.empty { 
-  background-color: transparent !important; 
+.time-table th span {
+  font-size: 0.8em;
+  color: #757575;
 }
-.calendar-actions {
-  display: flex; 
-  justify-content: flex-end; 
+.time-table th.saturday span, .time-table th.saturday { color: #64B5F6 !important; }
+.time-table th.sunday span, .time-table th.sunday { color: #E57373 !important; }
+
+.time-label-cell {
+  font-size: 0.8em;
+  font-weight: 500;
+  color: var(--text-color-medium);
+  padding-right: 10px;
+  white-space: nowrap;
+  text-align: right;
+  width: 28%; /* 時間列の幅を固定 */
+}
+.time-slot-cell {
+  border: 1px solid #eee;
+  padding: 8px 0;
+  cursor: pointer;
+  transition: background-color 0.2s, color 0.2s;
+}
+.time-slot-cell.disabled {
+  background-color: #f9f9f9;
+  color: #ccc;
+  cursor: not-allowed;
+}
+.time-slot-cell.disabled span {
+  color: #ddd;
+}
+.time-slot-cell:not(.selected):not(.disabled):hover {
+    background-color: var(--choice-button-hover-bg);
+}
+.time-slot-cell.selected {
+    background-color: var(--primary-color);
+    color: var(--text-color-light);
+    font-weight: bold;
+}
+.time-table-actions {
+  display: flex;
+  justify-content: flex-end;
   margin-top: 10px;
-  padding-top: 10px; 
+  padding-top: 10px;
   border-top: 1px solid #E0E0E0;
 }
-.calendar-submit-button {
-  background-color: #BDBDBD; 
-  color: var(--text-color-light); 
+.time-table-submit-button {
+  background-color: #BDBDBD;
+  color: var(--text-color-light);
   border: none;
-  width: 40px; 
-  height: 40px; 
-  border-radius: 50%; 
-  cursor: not-allowed; 
-  display: flex; 
-  align-items: center; 
-  justify-content: center; 
+  width: 40px;
+  height: 40px;
+  border-radius: 50%;
+  cursor: not-allowed;
+  display: flex;
+  align-items: center;
+  justify-content: center;
   transition: background-color 0.2s;
 }
-.calendar-submit-button.enabled { 
-  background-color: var(--primary-color); 
-  cursor: pointer; 
+.time-table-submit-button.enabled {
+  background-color: var(--primary-color);
+  cursor: pointer;
 }
-.calendar-submit-button.enabled:hover { 
-  background-color: var(--primary-dark); 
+.time-table-submit-button.enabled:hover {
+  background-color: var(--primary-dark);
 }
-.calendar-submit-button svg { 
-  width: 20px; 
-  height: 20px; 
-  stroke: var(--text-color-light); 
+.time-table-submit-button svg {
+  width: 20px;
+  height: 20px;
+  stroke: var(--text-color-light);
 }
 
 /* ===============================================================
@@ -564,11 +571,11 @@ body {
   line-height: 1.4;
 }
 .summary-item-label {
+  font-weight: 500;
   color: var(--text-color-medium);
 }
 .summary-item-value {
   color: #222;
-  font-weight: 500;  
   word-break: break-all; 
 }
 
@@ -681,3 +688,4 @@ body {
     transform: scale(1.0);
   }
 }
+

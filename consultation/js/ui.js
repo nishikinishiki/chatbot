@@ -1,4 +1,4 @@
-// js/ui.js (Modified for AB Test with summaryLabel)
+// js/ui.js
 // このファイルはUIの生成と操作に特化します。
 
 // --- DOM要素の保持用オブジェクト ---
@@ -151,6 +151,8 @@ function displayNormalInput(question, callbacks) {
         iconContainer.innerHTML = `<svg xmlns="http://www.w3.org/2000/svg" width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" class="feather feather-phone"><path d="M22 16.92v3a2 2 0 0 1-2.18 2 19.79 19.79 0 0 1-8.63-3.07 19.5 19.5 0 0 1-6-6 19.79 19.79 0 0 1-3.07-8.67A2 2 0 0 1 4.11 2h3a2 2 0 0 1 2 1.72 12.84 12.84 0 0 0 .7 2.81 2 2 0 0 1-.45 2.11L8.09 9.91a16 16 0 0 0 6 6l1.27-1.27a2 2 0 0 1 2.11-.45 12.84 12.84 0 0 0 2.81.7A2 2 0 0 1 22 16.92z"></path></svg>`;
     } else if (question.type === 'email') {
         iconContainer.innerHTML = `<svg xmlns="http://www.w3.org/2000/svg" width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" class="feather feather-mail"><path d="M4 4h16c1.1 0 2 .9 2 2v12c0 1.1-.9 2-2 2H4c-1.1 0-2-.9-2-2V6c0-1.1.9-2 2-2z"></path><polyline points="22,6 12,13 2,6"></polyline></svg>`;
+    } else {
+        iconContainer.style.display = 'none'; // Hide icon for other types
     }
 
     userInput.type = question.type || "text";
@@ -297,132 +299,178 @@ function displayPairedInputs(pairData, onSubmit) {
     if (inputsArray.length > 0) inputsArray[0].focus();
 }
 
+function displayTimeTable(question, onSubmit) {
+    const timeTableWrapper = document.createElement('div');
+    timeTableWrapper.className = 'input-container-wrapper';
 
-function displayCalendar(question, onSubmit) {
-    const calendarWrapper = document.createElement('div');
-    calendarWrapper.className = 'input-container-wrapper';
+    const timeTableContainer = document.createElement('div');
+    timeTableContainer.className = 'time-table-container';
 
-    const calendarContainer = document.createElement('div');
-    calendarContainer.className = 'calendar-container';
+    let currentStartDate = new Date();
+    let selectedCell = null;
+    const numDaysToShow = 7; // 表示日数を7日に固定
 
-    let currentCalendarDate = new Date();
-    let selectedCalendarDate = null;
+    const render = (startDate) => {
+        // Sanitize the start date to prevent time-of-day issues
+        startDate.setHours(0, 0, 0, 0);
 
-    const render = (dateToDisplay) => {
-        calendarContainer.innerHTML = ''; 
-
-        const year = dateToDisplay.getFullYear();
-        const month = dateToDisplay.getMonth(); 
+        timeTableContainer.innerHTML = '';
 
         const header = document.createElement('div');
-        header.className = 'calendar-header';
+        header.className = 'time-table-header';
+        
+        const prevButton = document.createElement('button');
+        prevButton.className = 'time-table-nav';
+        prevButton.innerHTML = '&lt;';
+
+        const today = new Date();
+        today.setHours(0, 0, 0, 0);
+        if (startDate <= today) {
+            prevButton.disabled = true;
+        } else {
+            prevButton.onclick = () => {
+                const newStartDate = new Date(startDate);
+                newStartDate.setDate(newStartDate.getDate() - numDaysToShow);
+                render(newStartDate);
+            };
+        }
 
         const monthYearDisplay = document.createElement('span');
-        monthYearDisplay.className = 'calendar-month-year';
-        monthYearDisplay.textContent = `${year}年 ${month + 1}月`;
-
-        const navButtonsContainer = document.createElement('div');
-        navButtonsContainer.className = 'calendar-nav-buttons';
-
-        const prevButton = document.createElement('button');
-        prevButton.innerHTML = '&lt;';
         
-        const todayForPrevCheck = new Date();
-        todayForPrevCheck.setDate(1); 
-        todayForPrevCheck.setHours(0,0,0,0);
-        const currentDisplayMonthStart = new Date(year, month, 1);
-        if (currentDisplayMonthStart <= todayForPrevCheck) {
-            prevButton.disabled = true; 
-        } else {
-            prevButton.onclick = () => render(new Date(year, month - 1, 1));
+        // --- MODIFIED PART START ---
+        const endDate = new Date(startDate);
+        endDate.setDate(startDate.getDate() + numDaysToShow - 1);
+
+        const startYear = startDate.getFullYear();
+        const startMonth = startDate.getMonth() + 1;
+        const endYear = endDate.getFullYear();
+        const endMonth = endDate.getMonth() + 1;
+
+        let monthYearText = `${startYear}年 ${startMonth}月`;
+        if (startYear !== endYear) {
+            monthYearText = `${startYear}年${startMonth}月 - ${endYear}年${endMonth}月`;
+        } else if (startMonth !== endMonth) {
+            monthYearText += ` - ${endMonth}月`;
         }
+        monthYearDisplay.textContent = monthYearText;
+        // --- MODIFIED PART END ---
+
 
         const nextButton = document.createElement('button');
-        nextButton.innerHTML = '&gt;'; 
-        nextButton.onclick = () => render(new Date(year, month + 1, 1));
+        nextButton.className = 'time-table-nav';
+        nextButton.innerHTML = '&gt;';
+        nextButton.onclick = () => {
+            const newStartDate = new Date(startDate);
+            newStartDate.setDate(newStartDate.getDate() + numDaysToShow);
+            render(newStartDate);
+        };
 
-        navButtonsContainer.appendChild(prevButton);
-        navButtonsContainer.appendChild(nextButton);
-        header.appendChild(monthYearDisplay); 
-        header.appendChild(navButtonsContainer); 
-        calendarContainer.appendChild(header);
+        header.appendChild(prevButton);
+        header.appendChild(monthYearDisplay);
+        header.appendChild(nextButton);
+        timeTableContainer.appendChild(header);
 
-        const grid = document.createElement('div');
-        grid.className = 'calendar-grid';
+        const table = document.createElement('table');
+        table.className = 'time-table';
+        const thead = table.createTHead();
+        const headerRow = thead.insertRow();
+        headerRow.insertCell(); // Empty cell for time labels
 
-        const daysOfWeek = ['日', '月', '火', '水', '木', '金', '土'];
-        daysOfWeek.forEach((day, index) => {
-            const dayNameCell = document.createElement('div');
-            dayNameCell.className = 'calendar-day-name';
-            if (index === 0) dayNameCell.classList.add('calendar-day-name-sun');
-            else if (index === 6) dayNameCell.classList.add('calendar-day-name-sat');
-            dayNameCell.textContent = day;
-            grid.appendChild(dayNameCell);
+        const dates = [];
+        for (let i = 0; i < numDaysToShow; i++) {
+            const date = new Date(startDate);
+            date.setDate(date.getDate() + i);
+            dates.push(date);
+            const th = document.createElement('th');
+            const dayOfWeek = ['日', '月', '火', '水', '木', '金', '土'][date.getDay()];
+            th.innerHTML = `${date.getDate()}<br><span>(${dayOfWeek})</span>`;
+            if (date.getDay() === 0) th.classList.add('sunday');
+            if (date.getDay() === 6) th.classList.add('saturday');
+            headerRow.appendChild(th);
+        }
+
+        const tbody = table.createTBody();
+        const now = new Date(); // Get current date and time
+
+        question.timeSlots.forEach(slot => {
+            const row = tbody.insertRow();
+            const labelCell = row.insertCell();
+            labelCell.className = 'time-label-cell';
+            labelCell.textContent = slot.label;
+
+            dates.forEach(date => {
+                const cell = row.insertCell();
+                cell.className = 'time-slot-cell';
+                const y = date.getFullYear();
+                const m = String(date.getMonth() + 1).padStart(2, '0');
+                const d = String(date.getDate()).padStart(2, '0');
+                const dateString = `${y}/${m}/${d}`;
+
+                // Check if the slot should be disabled
+                let isDisabled = false;
+                if (date < today) {
+                    isDisabled = true; // Past dates are disabled
+                } else if (date.getTime() === today.getTime()) {
+                    // For today, check if the time slot has already passed
+                    const slotStartHourText = slot.value.split('：')[0];
+                    if (!isNaN(slotStartHourText)) {
+                        const slotStartHour = parseInt(slotStartHourText, 10);
+                        if (now.getHours() >= slotStartHour) {
+                            isDisabled = true;
+                        }
+                    }
+                }
+
+                if (isDisabled) {
+                    cell.classList.add('disabled');
+                    cell.innerHTML = '<span>×</span>';
+                } else {
+                    cell.innerHTML = '<span>○</span>';
+                    cell.dataset.date = dateString;
+                    cell.dataset.value = slot.value;
+                    cell.onclick = () => {
+                        if (selectedCell) {
+                            selectedCell.classList.remove('selected');
+                        }
+                        selectedCell = cell;
+                        selectedCell.classList.add('selected');
+                        submitButton.disabled = false;
+                        submitButton.classList.add('enabled');
+                    };
+                }
+            });
         });
-
-        const firstDayOfMonth = new Date(year, month, 1).getDay();
-        const daysInMonth = new Date(year, month + 1, 0).getDate();
-        const today = new Date();
-        today.setHours(0,0,0,0);
-
-        for (let i = 0; i < firstDayOfMonth; i++) {
-            grid.appendChild(document.createElement('div')).className = 'calendar-day empty';
-        }
-
-        for (let day = 1; day <= daysInMonth; day++) {
-            const dayCell = document.createElement('div');
-            dayCell.className = 'calendar-day';
-            dayCell.textContent = day;
-            const currentDate = new Date(year, month, day);
-            
-            if (currentDate < today) {
-                dayCell.classList.add('disabled');
-            } else {
-                dayCell.onclick = () => {
-                    const previouslySelected = calendarContainer.querySelector('.calendar-day.selected');
-                    if (previouslySelected) previouslySelected.classList.remove('selected');
-                    selectedCalendarDate = currentDate;
-                    dayCell.classList.add('selected');
-                    submitButton.disabled = false;
-                    submitButton.classList.add('enabled');
-                };
-            }
-            if (currentDate.getTime() === today.getTime()) dayCell.classList.add('today');
-            if (selectedCalendarDate && selectedCalendarDate.getTime() === currentDate.getTime()) dayCell.classList.add('selected');
-            grid.appendChild(dayCell);
-        }
-        calendarContainer.appendChild(grid);
+        timeTableContainer.appendChild(table);
 
         const actionsDiv = document.createElement('div');
-        actionsDiv.className = 'calendar-actions';
+        actionsDiv.className = 'time-table-actions';
         const submitButton = document.createElement('button');
-        submitButton.className = 'calendar-submit-button';
+        submitButton.className = 'time-table-submit-button';
         submitButton.innerHTML = `<svg xmlns="http://www.w3.org/2000/svg" width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" class="feather feather-send"><line x1="22" y1="2" x2="11" y2="13"></line><polygon points="22 2 15 22 11 13 2 9 22 2"></polygon></svg>`;
-        submitButton.disabled = !selectedCalendarDate;
-        if (selectedCalendarDate) submitButton.classList.add('enabled');
+        submitButton.disabled = !selectedCell;
+        if (selectedCell) submitButton.classList.add('enabled');
         
         submitButton.onclick = () => {
-            if (selectedCalendarDate) {
-                const y = selectedCalendarDate.getFullYear();
-                const m = String(selectedCalendarDate.getMonth() + 1).padStart(2, '0');
-                const d = String(selectedCalendarDate.getDate()).padStart(2, '0');
-                onSubmit(`${y}/${m}/${d}`, calendarWrapper);
+            if (selectedCell) {
+                const selectedDate = selectedCell.dataset.date;
+                const selectedTimeValue = selectedCell.dataset.value;
+                onSubmit({ date: selectedDate, time: selectedTimeValue }, timeTableWrapper);
             }
         };
         actionsDiv.appendChild(submitButton);
-        calendarContainer.appendChild(actionsDiv);
+        timeTableContainer.appendChild(actionsDiv);
     };
     
-    render(currentCalendarDate);
-    calendarWrapper.appendChild(calendarContainer);
-    
-    dom.chatMessages.appendChild(calendarWrapper);
+    render(currentStartDate);
+
+    timeTableWrapper.appendChild(timeTableContainer);
+    dom.chatMessages.appendChild(timeTableWrapper);
     scrollToBottom();
 }
 
-function displayFinalConsentScreen(question, userResponses, questions, onSubmit) {
+function displayFinalConsentScreen(question, userResponses, initialQuestions, onSubmit) {
     if (!dom.chatMessages) return;
-    displaySummaryArea(userResponses, questions);
+    displaySummaryArea(userResponses, initialQuestions);
     
     const summaryAdjacentConsentTextDiv = document.createElement('div');
     summaryAdjacentConsentTextDiv.className = 'summary-adjacent-consent-text';
@@ -463,8 +511,7 @@ function displayFinalConsentScreen(question, userResponses, questions, onSubmit)
     scrollToBottom();
 }
 
-// ★修正: summaryLabelを優先的に使用するように変更
-function displaySummaryArea(userResponses, questions) {
+function displaySummaryArea(userResponses, allQuestions) {
     const summaryMessageWrapper = createMessageWrapper('bot');
     summaryMessageWrapper.classList.add('summary-message-wrapper');
     const summaryArea = document.createElement('div');
@@ -476,8 +523,10 @@ function displaySummaryArea(userResponses, questions) {
     const summaryList = document.createElement('ul');
     let nameDisplayed = false; 
 
-    questions.forEach(q => {
+    allQuestions.forEach(q => {
         if (!q.item || q.answer_method === 'final-consent') return;
+        
+        let label = q.summaryLabel || q.item;
 
         if (q.key_group === "name_details") {
             if (!nameDisplayed) { 
@@ -497,20 +546,24 @@ function displaySummaryArea(userResponses, questions) {
                 }
                 nameDisplayed = true; 
             }
-        } 
-        else if (userResponses[q.key]) {
+        } else if (q.answer_method === 'time-table') {
+            const dateValue = userResponses[q.keys.date];
+            const timeValue = userResponses[q.keys.time];
+            if (dateValue && timeValue) {
+                const timeLabel = q.timeSlots.find(slot => slot.value === timeValue)?.label || timeValue;
+                const listItem = document.createElement('li');
+                listItem.innerHTML = `<span class="summary-item-label">${label}  </span><span class="summary-item-value">${dateValue} ${timeLabel}</span>`;
+                summaryList.appendChild(listItem);
+            }
+        } else if (userResponses[q.key]) {
             let displayValue = userResponses[q.key];
-
             if (q.answer_method === 'single-choice' && Array.isArray(q.options) && typeof q.options[0] === 'object') {
                 const selectedOption = q.options.find(opt => opt.value === displayValue);
                 if (selectedOption) {
-                    displayValue = selectedOption.label.replace(/<br>/g, ' '); 
+                    displayValue = selectedOption.label.replace(/<br>/g, ' ');
                 }
             }
-            
             const listItem = document.createElement('li');
-            // ★修正: q.summaryLabelがあればそれを使い、なければq.itemを使う
-            const label = q.summaryLabel || q.item;
             listItem.innerHTML = `<span class="summary-item-label">${label}  </span><span class="summary-item-value">${displayValue}</span>`;
             summaryList.appendChild(listItem);
         }
@@ -645,7 +698,7 @@ function displayBannerImage(imageUrl) {
     bannerImage.className = 'chat-banner-image';
 
     bannerImage.onerror = () => {
-        console.error('Failed to load banner image:', imageUrl);
+        console.error('バナー画像の読み込みに失敗しました:', imageUrl);
         bannerWrapper.remove();
     };
 
