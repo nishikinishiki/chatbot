@@ -439,6 +439,7 @@ body {
 .time-table-header span {
   font-weight: 500;
   font-size: 1.1em;
+  padding-bottom: 3px;
 }
 .time-table-nav {
   background: none;
@@ -491,6 +492,7 @@ body {
 }
 .time-slot-cell {
   border: 1px solid #eee;
+  color: var(--choice-button-text);
   padding: 8px 0;
   cursor: pointer;
   transition: background-color 0.2s, color 0.2s;
