@@ -1,7 +1,7 @@
 // 設定ファイル (config.js)
 
 // 1. Google Apps ScriptのウェブアプリURL
-const GAS_WEB_APP_URL = 'https://script.google.com/macros/s/AKfycbyEenzB8emvey9jMuLJ_2KHka2rklVfwCHRgvImUnaTyFxWVWsPTgUlTkhVFG8rQPFdMg/exec';
+const GAS_WEB_APP_URL = 'https://script.google.com/macros/s/AKfycbz6AQ_iL9GUIAOsRlpGsxe_9q-LOQ0mTfpCEgblGRU9SJ-qSR656BHOrz-W_OiSz_Xlug/exec';
 // 2. 質問者アイコンの画像URL
 const BOT_ICON_URL = 'images/icon.png';
 // 3. ファビコンの画像URL

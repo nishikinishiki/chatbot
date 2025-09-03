@@ -264,7 +264,7 @@ body {
   border: 1px solid var(--choice-button-border);
   color: var(--choice-button-text);
   padding: 12px 6px;
-  font-size: 0.9em;
+  font-size: 0.8em;
   border-radius: 20px;
   cursor: pointer;
   text-align: center;

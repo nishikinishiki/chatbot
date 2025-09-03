@@ -15,9 +15,11 @@ const initialQuestions = [
       { label: "会社員 (上場企業)", value: "会社員（上場企業）" },
       { label: "会社員 (その他)", value: "会社員（その他）" },
       { label: "公務員", value: "公務員" },
-      { label: "経営者", value: "経営者" },
-      { label: "士業<br>(医師、弁護士等)", value: "士業（医師、看護師、弁護士、税護士など）" },
-      { label: "自営業・その他", value: "自営業・その他" }
+      { label: "経営者,役員", value: "経営者" },
+      { label: "医師,看護師", value: "士業（医師、看護師、弁護士、税護士など）" },    
+      { label: "士業 (弁護士,税理士等)", value: "士業（医師、看護師、弁護士、税護士など）" },
+      { label: "自営業", value: "自営業・その他" },
+      { label: "その他", value: "自営業・その他" }
     ], 
     key: "occupation", validation: (v) => !!v, errorMessage: "選択してください。" 
   },
