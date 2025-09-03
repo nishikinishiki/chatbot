@@ -38,7 +38,21 @@ const initialQuestions = [
     ], 
     key: "annual_income", validation: (v) => !!v, errorMessage: "選択してください。" 
   },
-  { id: 3, item: "年齢", question: "ご年齢はおいくつでしょうか？", answer_method: "single-choice", options: ["20歳未満", "20～24歳", "25～29歳", "30～34歳", "35～39歳", "40～44歳", "45～49歳", "50～54歳", "55～59歳", "60～64歳", "65～69歳", "70歳以上"], key: "age_group", validation: (v) => !!v, errorMessage: "選択してください。" },
+  { id: 3, item: "年齢", question: "ご年齢はおいくつでしょうか？", answer_method: "single-choice",
+    options: [
+      { label: "20歳未満",  value: "20歳未満" },
+      { label: "20～24歳",  value: "20～24歳" },
+      { label: "25～29歳",  value: "25～29歳" },
+      { label: "30～34歳",  value: "30～34歳" },
+      { label: "35～39歳",  value: "35～39歳" },
+      { label: "40～44歳",  value: "40～44歳" },
+      { label: "45～49歳",  value: "45～49歳" },
+      { label: "50～54歳",  value: "50～54歳" },
+      { label: "55～59歳",  value: "55～59歳" },
+      { label: "60歳～",  value: "60～64歳" }
+    ], 
+    key: "age_group", validation: (v) => !!v, errorMessage: "選択してください。" 
+  },
   { id: 4, item: "お名前（漢字）", pre_message_1: "ありがとうございます！", answer_method: "text-pair", pairs: [
       { prompt: "お名前を入力してください。", inputs: [ { label: "姓", key: "last_name", placeholder: "山田", type: "text" }, { label: "名", key: "first_name", placeholder: "太郎", type: "text" } ], combinedValidation: (v1, v2) => (v1 && v1.trim().length > 0) && (v2 && v2.trim().length > 0), combinedErrorMessage: "姓と名の両方を入力してください。" }
     ], key_group: "name_details" },
