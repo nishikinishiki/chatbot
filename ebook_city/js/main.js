@@ -13,31 +13,71 @@ const state = {
     completedEffectiveQuestions: 0,
     questions: [],
     gaStepCounter: 0, // GAイベント用のステップカウンターを追加
+    isTestMode: false, // ★★★ テストモードの状態を管理する変数を追加 ★★★
 };
+
+// --- ログ送信 ---
+/**
+ * 回答データをログ用スプレッドシートに送信する関数
+ * @param {object} question
+ * @param {string} answerValue
+ */
+function sendAnswerToLog(question, answerValue) {
+    if (!GAS_LOG_APP_URL || GAS_LOG_APP_URL === 'ここに新しく取得したログ用GASのURLを貼り付け') {
+        return; // ログ用URLが設定されていない場合は何もしない
+    }
+
+    const payload = {
+        sessionId: state.currentSessionId,
+        questionId: question.id.toString(),
+        answerValue: answerValue,
+        is_test: state.isTestMode,
+        form_variant: window.location.pathname
+    };
+
+    // 'no-cors'モードでエラーをコンソールに出さないように送信
+    fetch(GAS_LOG_APP_URL, {
+        method: 'POST',
+        mode: 'no-cors',
+        cache: 'no-cache',
+        headers: { 'Content-Type': 'text/plain;charset=utf-8' },
+        body: JSON.stringify(payload)
+    }).catch(error => {
+        // 意図的にエラーを無視する（バックグラウンドでの軽量なログ送信のため）
+    });
+}
+
 
 // --- GAイベント送信 ---
 /**
  * GA4にイベントを送信する関数
- * @param {object} question - questions.jsから取得した質問オブジェクト
+ * @param {object} question
+ * @param {string} answerValue
  */
-function sendGaEvent(question) {
+function sendGaEvent(question, answerValue) {
+    // ★★★ テストモードの場合はGAイベントを送信しない ★★★
+    if (state.isTestMode) {
+        console.log("Test mode is active. GA event was not sent.");
+        return;
+    }
+    
     if (!window.dataLayer) {
         console.warn("dataLayer is not available. GA event was not sent.");
         return;
     }
 
-    state.gaStepCounter++; // イベントごとにステップ番号を1つ進める
+    state.gaStepCounter++; 
 
     const eventData = {
         'event': 'question_answered',
         'form_variant': window.location.pathname,
         'step_number': state.gaStepCounter,
-        'question_id': question.id.toString(), // IDを文字列として送信
+        'question_id': question.id.toString(), 
         'question_item': question.item,
+        'answer_value': answerValue
     };
 
     window.dataLayer.push(eventData);
-    // デバッグ用にコンソールに出力
     console.log("GA Event Sent:", eventData);
 }
 
@@ -63,12 +103,19 @@ async function initializeChat() {
         }
     });
 
-    getUtmParameters();
+    const urlParams = new URLSearchParams(window.location.search);
+    
+    state.isTestMode = urlParams.get('test_mode') === 'true';
+    if (state.isTestMode) {
+        console.log("Test mode is active. Data will not be saved to spreadsheets.");
+    }
+    
+    getUtmParameters(urlParams);
     state.currentFlow = 'initial';
     state.questions = initialQuestions;
     Object.assign(state.userResponses, state.utmParameters);
     state.currentSessionId = generateSessionId();
-    state.gaStepCounter = 0; // 初期化
+    state.gaStepCounter = 0; 
 
     if (typeof FAVICON_URL !== 'undefined' && FAVICON_URL) {
         const faviconLink = document.createElement('link');
@@ -77,12 +124,11 @@ async function initializeChat() {
         document.head.appendChild(faviconLink);
     }
     
-    // バナー画像が設定されていれば表示する
     if (typeof BANNER_IMAGE_URL !== 'undefined' && BANNER_IMAGE_URL) {
         displayBannerImage(BANNER_IMAGE_URL);
     }
 
-    await addBotMessage("お問い合わせありがとうございます！<br>30秒程度の簡単な質問をさせてください。", true);
+    await addBotMessage("J.P.Returnsにご興味いただきありがとうございます！<br>30秒程度の簡単な質問をさせてください。", true);
     
     setTimeout(askQuestion, 150);
 }
@@ -127,7 +173,8 @@ async function askQuestion() {
              displayFinalConsentScreen(currentQuestion, state.userResponses, initialQuestions, (container) => {
                 if (container) disableInputs(container);
                 state.userResponses[currentQuestion.key] = true;
-                sendGaEvent(currentQuestion);
+                sendGaEvent(currentQuestion, 'true');
+                sendAnswerToLog(currentQuestion, 'true');
                 submitDataToGAS(state.userResponses, false);
              });
             break;
@@ -185,7 +232,8 @@ function handleSingleChoice(question, selection, container) {
     const responseSet = (state.currentFlow === 'initial') ? state.userResponses : state.additionalUserResponses;
     responseSet[question.key] = value;
     
-    sendGaEvent(question);
+    sendGaEvent(question, value);
+    sendAnswerToLog(question, value);
     proceedToNextStep();
 }
 
@@ -199,7 +247,15 @@ function handleTextInput(question, value, container) {
     addUserMessage(trimmedValue);
     const responseSet = (state.currentFlow === 'initial') ? state.userResponses : state.additionalUserResponses;
     responseSet[question.key] = trimmedValue;
-    sendGaEvent(question);
+
+    sendAnswerToLog(question, trimmedValue);
+    
+    let gaAnswerValue = trimmedValue;
+    if (question.type === 'email' || question.type === 'tel') {
+        gaAnswerValue = '[REDACTED]';
+    }
+    sendGaEvent(question, gaAnswerValue);
+
     proceedToNextStep();
 }
 
@@ -221,11 +277,11 @@ async function handlePairedQuestion(question) {
             responseSet[inputConfig.key] = values[index];
         });
 
-        // ★修正: 「姓」と「名」を半角スペースで連結して表示
         const userMessageText = values.join(' ');
         addUserMessage(userMessageText);
         
-        sendGaEvent(question);
+        sendAnswerToLog(question, userMessageText);
+        sendGaEvent(question, '[REDACTED]');
 
         state.currentStep++;
         state.subStep = 0;
@@ -244,7 +300,8 @@ function handleCalendarInput(question, value, container) {
     addUserMessage(value);
     const responseSet = (state.currentFlow === 'initial') ? state.userResponses : state.additionalUserResponses;
     responseSet[question.key] = value;
-    sendGaEvent(question);
+    sendGaEvent(question, value);
+    sendAnswerToLog(question, value);
     proceedToNextStep();
 }
 
@@ -276,8 +333,7 @@ function calculateProgress() {
     updateProgressBar(progress);
 }
 
-function getUtmParameters() {
-    const urlParams = new URLSearchParams(window.location.search);
+function getUtmParameters(urlParams) {
     const utmKeys = ['utm_source', 'utm_medium', 'utm_campaign', 'utm_term', 'utm_content'];
     utmKeys.forEach(key => {
         if (urlParams.has(key)) {
@@ -298,6 +354,7 @@ async function submitDataToGAS(dataToSend, isAdditional) {
     if (isAdditional) {
         payload.isAdditionalData = true;
     }
+    payload.is_test = state.isTestMode; 
 
     try {
         await fetch(GAS_WEB_APP_URL, {
@@ -311,7 +368,7 @@ async function submitDataToGAS(dataToSend, isAdditional) {
         hideLoadingMessage();
         
         if (!isAdditional) {
-            if (window.dataLayer) {
+            if (window.dataLayer && !state.isTestMode) { 
                 const email = state.userResponses.email_address;
                 const phoneNumber = state.userResponses.phone_number;
                 const lastName = state.userResponses.last_name;

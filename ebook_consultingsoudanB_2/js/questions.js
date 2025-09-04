@@ -3,13 +3,7 @@
 
 const katakanaRegex = /^[ァ-ヶー　]+$/;
 
-// =================================================
-// ▼▼▼ 変更点 ▼▼▼
-// 1. 冒頭に不動産投資に関する3つの質問を追加
-// 2. 全ての質問のidを連番の数字から、内容を表すユニークな「文字列」に変更
-// =================================================
 const initialQuestions = [
-  // ★★★ ここから追加 ★★★
   { 
     id: 'investment_experience', 
     item: "不動産投資経験", 
@@ -53,7 +47,6 @@ const initialQuestions = [
     validation: (v) => !!v, 
     errorMessage: "選択してください。" 
   },
-  // ★★★ ここまで追加 ★★★
   
   { id: 'occupation', item: "職業", question: "ご職業を教えてください。", answer_method: "single-choice", 
     options: [
