@@ -1,6 +1,20 @@
 const questions = [
+    { 
+    id: 'digital_gift_choice', 
+    item: "希望デジタルギフト", 
+    question: "ご希望のデジタルギフトをお選びください！", 
+    answer_method: "single-choice", 
+    options: [
+      { label: "Amazonギフトカード", value: "Amazonギフトカード" },
+      { label: "PayPayポイント", value: "PayPayポイント" },
+      { label: "楽天ポイント", value: "楽天ポイント" }
+    ], 
+    key: "digital_gift_choice", 
+    validation: (v) => !!v, 
+    errorMessage: "選択してください。" 
+    },
     {
-        id: 1,
+        id: 'first_choice_date',
         item: "面談希望日時（第一希望）",
         summaryLabel: "日時 第1希望",
         pre_message: "面談を受けていただくと<span style='color: red;'>最大50,000円相当</span>のえらべるデジタルギフト、プレゼントの対象となります！",
@@ -21,7 +35,7 @@ const questions = [
         errorMessage: "ご希望の日時を選択してください。"
     },
     { 
-        id: 2, 
+        id: 'first_choice_time_other', 
         item: "面談希望時間（第一希望その他）",
         summaryLabel: "その他時間",
         question: "【第1希望】<br>ご相談希望時間を入力ください。",
@@ -34,7 +48,7 @@ const questions = [
         errorMessage: "希望時間を入力してください。" 
     },
     {
-        id: 3,
+        id: 'second_choice_date',
         item: "面談希望日時（第二希望）",
         summaryLabel: "日時 第2希望",
         question: "【第2希望】<br>ご相談希望日時をお選びください。",
@@ -54,7 +68,7 @@ const questions = [
         errorMessage: "ご希望の日時を選択してください。"
     },
     { 
-        id: 4, 
+        id: 'second_choice_time_other', 
         item: "面談希望時間（第二希望その他）", 
         summaryLabel: "その他時間",
         question: "【第2希望】<br>ご相談希望時間を入力ください。", 
@@ -67,7 +81,7 @@ const questions = [
         errorMessage: "希望時間を入力してください。" 
     },
     { 
-        id: 5, 
+        id: 'occupation', 
         item: "職業", 
         summaryLabel: "職業",
         question: "ありがとうございます！<br>続いて、ご職業を教えてください。", 
@@ -86,7 +100,7 @@ const questions = [
         errorMessage: "選択してください。" 
     },
     { 
-        id: 6, 
+        id: 'annual_income', 
         item: "年収", 
         summaryLabel: "年収",
         question: "現在の年収を教えてください。", 
@@ -110,7 +124,7 @@ const questions = [
         errorMessage: "選択してください。" 
     },
     { 
-        id: 7, 
+        id: 'age_group', 
         item: "年齢", 
         summaryLabel: "年齢",
         question: "ご年齢はおいくつでしょうか？", 
@@ -121,7 +135,7 @@ const questions = [
         errorMessage: "選択してください。" 
     },
     { 
-        id: 8, 
+        id: 'name_kanji', 
         item: "お名前（漢字）", 
         pre_message_1: "ありがとうございます！", 
         answer_method: "text-pair", 
@@ -139,7 +153,7 @@ const questions = [
         key_group: "name_details" 
     },
     { 
-        id: 9, 
+        id: 'name_kana', 
         item: "お名前（フリガナ）", 
         answer_method: "text-pair", 
         pairs: [
@@ -159,7 +173,7 @@ const questions = [
         key_group: "name_details" 
     },
     { 
-        id: 10, 
+        id: 'phone_number', 
         item: "電話番号", 
         summaryLabel: "電話番号",
         pre_message_1: "残り2問です！", 
@@ -172,7 +186,7 @@ const questions = [
         errorMessage: "有効な電話番号をハイフンなし半角数字で入力してください。" 
     },
     { 
-        id: 11, 
+        id: 'email_address', 
         item: "メールアドレス", 
         summaryLabel: "メールアドレス",
         question: "最後に、メールアドレスを入力してください！", 
@@ -184,7 +198,7 @@ const questions = [
         errorMessage: "有効なメールアドレスを入力してください。" 
     },
     {
-        id: 12,
+        id: 'final_consent',
         item: "最終確認",
         pre_message: "ご回答ありがとうございました！",
         question: "入力内容・利用規約をご確認の上、「同意して送信」を押してください。",
