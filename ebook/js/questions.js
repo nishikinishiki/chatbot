@@ -5,6 +5,20 @@ const katakanaRegex = /^[ァ-ヶー　]+$/;
 
 const initialQuestions = [
   { 
+    id: 'digital_gift_choice', 
+    item: "希望デジタルギフト", 
+    question: "希望するデジタルギフトの種類をお選びください！", 
+    answer_method: "single-choice", 
+    options: [
+      { label: "Amazonギフトカード", value: "Amazonギフトカード" },
+      { label: "PayPayポイント", value: "PayPayポイント" },
+      { label: "楽天ポイント", value: "楽天ポイント" }
+    ], 
+    key: "digital_gift_choice", 
+    validation: (v) => !!v, 
+    errorMessage: "選択してください。" 
+  },  
+  { 
     id: 'investment_experience', 
     item: "不動産投資経験", 
     question: "まず、不動産投資のご経験はありますか？", 
