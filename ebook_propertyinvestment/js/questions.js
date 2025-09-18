@@ -18,50 +18,6 @@ const initialQuestions = [
     validation: (v) => !!v, 
     errorMessage: "選択してください。" 
   },
-  { 
-    id: 'investment_experience', 
-    item: "不動産投資経験", 
-    question: "不動産投資のご経験はありますか？", 
-    answer_method: "single-choice", 
-    options: [
-      { label: "あり", value: "あり" },
-      { label: "なし", value: "なし" }
-    ], 
-    key: "investment_experience", 
-    validation: (v) => !!v, 
-    errorMessage: "選択してください。" 
-  },
-  { 
-    id: 'investment_purpose', 
-    item: "不動産投資の目的", 
-    question: "続いて、不動産投資に期待することを1つ教えてください！", 
-    answer_method: "single-choice", 
-    options: [
-      { label: "節税対策", value: "節税対策" },   
-      { label: "家賃収入", value: "家賃収入" },
-      { label: "相続対策", value: "相続対策" },
-      { label: "老後の年金対策", value: "老後の年金対策" },
-      { label: "リスク分散", value: "リスク分散" },
-      { label: "その他・まだ分からない", value: "その他・まだ分からない" }
-    ], 
-    key: "investment_purpose", 
-    validation: (v) => !!v, 
-    errorMessage: "選択してください。" 
-  },
-  { 
-    id: 'investment_interest', 
-    item: "不動産投資への興味", 
-    question: "不動産投資への興味度合いはいかがでしょうか？", 
-    answer_method: "single-choice",
-    options: [
-      { label: "今すぐ始めたい", value: "今すぐ始めたい" },
-      { label: "情報収集したい", value: "情報収集したい" }
-    ], 
-    key: "investment_interest", 
-    validation: (v) => !!v, 
-    errorMessage: "選択してください。" 
-  },
-  
   { id: 'occupation', item: "職業", question: "ご職業を教えてください。", answer_method: "single-choice", 
     options: [
       { label: "会社員 (上場企業)", value: "会社員（上場企業）" },
