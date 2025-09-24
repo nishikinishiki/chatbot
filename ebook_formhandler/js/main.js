@@ -356,7 +356,8 @@ async function submitDataToGAS(dataToSend, isAdditional) {
         payload = { 
             ...dataToSend,
             "email_address": state.userResponses.email_address, // 1回目の回答からメアドを取得
-            "isAdditionalData": true
+            "isAdditionalData": true,
+            "interview_request": "希望する"
         };
         // ▲▲▲ ここまで ▲▲▲
     } else {
