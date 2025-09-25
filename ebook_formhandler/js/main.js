@@ -16,6 +16,37 @@ const state = {
     isTestMode: false, // ★★★ テストモードの状態を管理する変数を追加 ★★★
 };
 
+// ▼▼▼ ここに対応表を定義 ▼▼▼
+const UTM_MAPPING = {
+  "TPC_gift_ebook": "インフルエンサーキャンペーン（資料請求）",
+  "TPC_gift_consultation": "インフルエンサーキャンペーン（個別相談）",
+  "TPC_gift_movie": "インフルエンサーキャンペーン（動画セミナー）",
+  "CRS_gift_ebook": "アマギフキャンペーン（資料請求）",
+  "ALA_gift_ebook": "アマギフキャンペーン（資料請求）",
+  "BKR_gift_ebook": "アマギフキャンペーン（資料請求）",
+  "GMN_gift_ebook": "アマギフキャンペーン（資料請求）",
+  "BKR_gift_movie": "アマギフキャンペーン（動画セミナー）",
+  "ALA_gift_movie": "アマギフキャンペーン（動画セミナー）",
+  "GMN_gift_movie": "アマギフキャンペーン（動画セミナー）",
+  "BKR_gift_consultation": "アマギフキャンペーン（個別相談）",
+  "ALA_gift_consultation": "アマギフキャンペーン（個別相談）",
+  "CRS_gift_consultation": "アマギフキャンペーン（個別相談）",
+  "PWP_gift_consultation": "アマギフキャンペーン（個別相談）",
+  "GMN_gift_consultation": "アマギフキャンペーン（個別相談）",
+  "CYB_gift_consultation": "アマギフキャンペーン（個別相談）",
+  "CYB_gift_1000": "アマギフキャンペーン（1000万）",
+  "BKR_point_1000": "ポイントサイト（1000万）",
+  "BKR_point_movie": "ポイントサイト（動画セミナー）",
+  "BKR_point_consultation": "ポイントサイト（個別相談）",
+  "ALA_line_book": "LINEポイントAD（資料請求）",
+  "ALA_line_consultation": "LINEポイントAD（個別相談）",
+  "yahoo": "リスティング(資料請求)",
+  "google": "リスティング(資料請求)",
+  "fbtrg": "SNS(資料請求)",
+  "mail": "メルマガCP",
+  "hp": "HP反響(WEB面談・個別相談)"
+};
+
 // --- ログ送信 ---
 /**
  * 回答データをログ用スプレッドシートに送信する関数
@@ -367,6 +398,17 @@ async function submitDataToGAS(dataToSend, isAdditional) {
         // 新規登録であることを示すため、フラグに 'false' を設定して送信
         payload["isAdditionalData"] = "false"; 
     }
+
+    // ▼▼▼ この判定ロジックを追加 ▼▼▼
+    // utm_sourceに基づいて「集客元」を判定し、payloadに追加
+    // stateからutm_sourceの値を取得し、UTM_MAPPINGオブジェクトで検索
+    if (state.userResponses.utm_source && UTM_MAPPING[state.userResponses.utm_source]) {
+        payload["lead_source"] = UTM_MAPPING[state.userResponses.utm_source];
+    } else if (state.userResponses.utm_source) {
+        // 対応表にない場合は、utm_sourceの値をそのまま「集客元」として送信
+        payload["lead_source"] = state.userResponses.utm_source;
+    }
+    // ▲▲▲ ここまで ▲▲▲
     
     payload.is_test = state.isTestMode; 
 
