@@ -200,6 +200,9 @@ async function askQuestion() {
         case 'calendar':
             displayCalendar(currentQuestion, (value, container) => handleCalendarInput(currentQuestion, value, container));
             break;
+        case 'time-table':
+            displayTimeTable(currentQuestion, (value, container) => handleTimeTableInput(currentQuestion, value, container));
+            break;
         case 'final-consent':
              displayFinalConsentScreen(currentQuestion, state.userResponses, initialQuestions, (container) => {
                 if (container) disableInputs(container);
@@ -333,6 +336,25 @@ function handleCalendarInput(question, value, container) {
     responseSet[question.key] = value;
     sendGaEvent(question, value);
     sendAnswerToLog(question, value);
+    proceedToNextStep();
+}
+
+function handleTimeTableInput(question, value, container) {
+    if (!question.validation(value)) {
+        addBotMessage(question.errorMessage, false, true);
+        return;
+    }
+    if (container) disableInputs(container);
+    
+    // Find the label corresponding to the selected time value
+    const timeLabel = question.timeSlots.find(slot => slot.value === value.time)?.label || value.time;
+    addUserMessage(`${value.date} ${timeLabel}`);
+
+    // Store the actual values
+    state.userResponses[question.keys.date] = value.date;
+    state.userResponses[question.keys.time] = value.time;
+
+    sendGaEvent(question);
     proceedToNextStep();
 }
 

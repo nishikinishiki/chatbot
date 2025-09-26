@@ -160,89 +160,71 @@ const initialQuestions = [
 ];
 
 const additionalQuestions = [
-  {
-    id: "first_choice_date",
-    item: "面談希望日（第一希望）",
-    pre_message: "面談を受けていただくと<span style='color: red;'>最大50,000円相当</span>のえらべるデジタルギフト、プレゼントの対象となります！",
-    question: "【第一希望】<br>ご相談希望日をお選びください",
-    isHtmlQuestion: true,
-    answer_method: "calendar",
-    key: "first_choice_date",
-    validation: (v) =>
-      /^\d{4}\/(0?[1-9]|1[0-2])\/(0?[1-9]|[12][0-9]|3[01])$/.test(v) &&
-      !isNaN(new Date(v)),
-    errorMessage: "YYYY/MM/DD形式で有効な日付を入力してください。"
-  },
-  {
-    id: "first_choice_time",
-    item: "面談希望時間（第一希望）",
-    question: "【第一希望】<br>ご相談希望時間をお選びください",
-    isHtmlQuestion: true,
-    answer_method: "single-choice",
-    options: [
-      "10：00～12：00",
-      "12：00～14：00",
-      "14：00～16：00",
-      "16：00～18：00",
-      "18：00～20：00",
-      "20：00 以降",
-      "その他の時間"
-    ],
-    key: "first_choice_time",
-    validation: (v) => !!v,
-    errorMessage: "選択してください。"
-  },
-  {
-    id: "first_choice_time_other",
-    item: "面談希望時間（第一希望その他）",
-    question: "【第一希望】ご相談希望時間を入力ください",
-    answer_method: "text",
-    type: "text",
-    key: "first_choice_time_other",
-    condition: { key: "first_choice_time", value: "その他の時間" },
-    validation: (v) => v && v.trim().length > 0,
-    errorMessage: "希望時間を入力してください。"
-  },
-  {
-    id: "second_choice_date",
-    item: "面談希望日（第二希望）",
-    question: "【第二希望】<br>ご相談希望日をお選びください",
-    isHtmlQuestion: true,
-    answer_method: "calendar",
-    key: "second_choice_date",
-    validation: (v) =>
-      /^\d{4}\/(0?[1-9]|1[0-2])\/(0?[1-9]|[12][0-9]|3[01])$/.test(v) &&
-      !isNaN(new Date(v)),
-    errorMessage: "YYYY/MM/DD形式で有効な日付を入力してください。"
-  },
-  {
-    id: "second_choice_time",
-    item: "面談希望時間（第二希望）",
-    question: "【第二希望】<br>ご相談希望時間をお選びください",
-    isHtmlQuestion: true,
-    answer_method: "single-choice",
-    options: [
-      "10：00～12：00",
-      "12：00～14：00",
-      "14：00～16：00",
-      "16：00～18：00",
-      "18：00～20：00",
-      "20：00 以降",
-      "その他の時間"
-    ],
-    key: "second_choice_time",
-    validation: (v) => !!v,
-    errorMessage: "選択してください。"
-  },
-  {
-    id: "second_choice_time_other",
-    item: "面談希望時間（第二希望その他）",
-    question: "【第二希望】ご相談希望時間を入力ください",
-    answer_method: "text",
-    type: "text",
-    key: "second_choice_time_other",
-    condition: { key: "second_choice_time", value: "その他の時間" },
-    validation: (v) => v && v.trim().length > 0,
-    errorMessage: "希望時間を入力してください。"
-  }
+    {
+        id: 'first_choice_date',
+        item: "面談希望日時（第一希望）",
+        summaryLabel: "日時 第1希望",
+        pre_message: "面談を受けていただくと<span style='color: red;'>最大50,000円相当</span>のえらべるデジタルギフト、プレゼントの対象となります！",
+        question: "【第1希望】<br>ご相談希望日時をお選びください。",
+        isHtmlQuestion: true,
+        answer_method: "time-table",
+        keys: { date: 'first_choice_date', time: 'first_choice_time' },
+        timeSlots: [
+            { label: "10:00~", value: "10：00～12：00" },
+            { label: "12:00~", value: "12：00～14：00" },
+            { label: "14:00~", value: "14：00～16：00" },
+            { label: "16:00~", value: "16：00～18：00" },
+            { label: "18:00~", value: "18：00～20：00" },
+            { label: "20:00~", value: "20：00 以降" },
+            { label: "その他", value: "その他の時間" }
+        ],
+        validation: (v) => !!v,
+        errorMessage: "ご希望の日時を選択してください。"
+    },
+    { 
+        id: 'first_choice_time_other', 
+        item: "面談希望時間（第一希望その他）",
+        summaryLabel: "その他時間",
+        question: "【第1希望】<br>ご相談希望時間を入力ください。",
+        isHtmlQuestion: true, 
+        answer_method: "text", 
+        type: "text", 
+        key: "first_choice_time_other", 
+        condition: { key: "first_choice_time", value: "その他の時間" }, 
+        validation: (v) => v && v.trim().length > 0, 
+        errorMessage: "希望時間を入力してください。" 
+    },
+    {
+        id: 'second_choice_date',
+        item: "面談希望日時（第二希望）",
+        summaryLabel: "日時 第2希望",
+        question: "【第2希望】<br>ご相談希望日時をお選びください。",
+        isHtmlQuestion: true,
+        answer_method: "time-table",
+        keys: { date: 'second_choice_date', time: 'second_choice_time' },
+        timeSlots: [
+            { label: "10:00~", value: "10：00～12：00" },
+            { label: "12:00~", value: "12：00～14：00" },
+            { label: "14:00~", value: "14：00～16：00" },
+            { label: "16:00~", value: "16：00～18：00" },
+            { label: "18:00~", value: "18：00～20：00" },
+            { label: "20:00~", value: "20：00 以降" },
+            { label: "その他", value: "その他の時間" }
+        ],
+        validation: (v) => !!v,
+        errorMessage: "ご希望の日時を選択してください。"
+    },
+    { 
+        id: 'second_choice_time_other', 
+        item: "面談希望時間（第二希望その他）", 
+        summaryLabel: "その他時間",
+        question: "【第2希望】<br>ご相談希望時間を入力ください。", 
+        isHtmlQuestion: true,
+        answer_method: "text", 
+        type: "text", 
+        key: "second_choice_time_other", 
+        condition: { key: "second_choice_time", value: "その他の時間" }, 
+        validation: (v) => v && v.trim().length > 0, 
+        errorMessage: "希望時間を入力してください。" 
+    },
 ];

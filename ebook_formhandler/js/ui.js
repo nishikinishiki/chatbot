@@ -296,6 +296,169 @@ function displayPairedInputs(pairData, onSubmit) {
     if (inputsArray.length > 0) inputsArray[0].focus();
 }
 
+function displayTimeTable(question, onSubmit) {
+    const timeTableWrapper = document.createElement('div');
+    timeTableWrapper.className = 'input-container-wrapper';
+
+    const timeTableContainer = document.createElement('div');
+    timeTableContainer.className = 'time-table-container';
+
+    let currentStartDate = new Date();
+    let selectedCell = null;
+    const numDaysToShow = 7; // 表示日数を7日に固定
+
+    const render = (startDate) => {
+        // Sanitize the start date to prevent time-of-day issues
+        startDate.setHours(0, 0, 0, 0);
+
+        timeTableContainer.innerHTML = '';
+
+        const header = document.createElement('div');
+        header.className = 'time-table-header';
+        
+        const prevButton = document.createElement('button');
+        prevButton.className = 'time-table-nav';
+        prevButton.innerHTML = '&lt;';
+
+        const today = new Date();
+        today.setHours(0, 0, 0, 0);
+        if (startDate <= today) {
+            prevButton.disabled = true;
+        } else {
+            prevButton.onclick = () => {
+                const newStartDate = new Date(startDate);
+                newStartDate.setDate(newStartDate.getDate() - numDaysToShow);
+                render(newStartDate);
+            };
+        }
+
+        const monthYearDisplay = document.createElement('span');
+        
+        const endDate = new Date(startDate);
+        endDate.setDate(startDate.getDate() + numDaysToShow - 1);
+
+        const startYear = startDate.getFullYear();
+        const startMonth = startDate.getMonth() + 1;
+        const endYear = endDate.getFullYear();
+        const endMonth = endDate.getMonth() + 1;
+
+        let monthYearText = `${startYear}年 ${startMonth}月`;
+        if (startYear !== endYear) {
+            monthYearText = `${startYear}年${startMonth}月 - ${endYear}年${endMonth}月`;
+        } else if (startMonth !== endMonth) {
+            monthYearText += ` - ${endMonth}月`;
+        }
+        monthYearDisplay.textContent = monthYearText;
+
+        const nextButton = document.createElement('button');
+        nextButton.className = 'time-table-nav';
+        nextButton.innerHTML = '&gt;';
+        nextButton.onclick = () => {
+            const newStartDate = new Date(startDate);
+            newStartDate.setDate(newStartDate.getDate() + numDaysToShow);
+            render(newStartDate);
+        };
+
+        header.appendChild(prevButton);
+        header.appendChild(monthYearDisplay);
+        header.appendChild(nextButton);
+        timeTableContainer.appendChild(header);
+
+        const table = document.createElement('table');
+        table.className = 'time-table';
+        const thead = table.createTHead();
+        const headerRow = thead.insertRow();
+        headerRow.insertCell(); // Empty cell for time labels
+
+        const dates = [];
+        for (let i = 0; i < numDaysToShow; i++) {
+            const date = new Date(startDate);
+            date.setDate(date.getDate() + i);
+            dates.push(date);
+            const th = document.createElement('th');
+            const dayOfWeek = ['日', '月', '火', '水', '木', '金', '土'][date.getDay()];
+            th.innerHTML = `${date.getDate()}<br><span>(${dayOfWeek})</span>`;
+            if (date.getDay() === 0) th.classList.add('sunday');
+            if (date.getDay() === 6) th.classList.add('saturday');
+            headerRow.appendChild(th);
+        }
+
+        const tbody = table.createTBody();
+        const now = new Date(); // Get current date and time
+
+        question.timeSlots.forEach(slot => {
+            const row = tbody.insertRow();
+            const labelCell = row.insertCell();
+            labelCell.className = 'time-label-cell';
+            labelCell.textContent = slot.label;
+
+            dates.forEach(date => {
+                const cell = row.insertCell();
+                cell.className = 'time-slot-cell';
+                const y = date.getFullYear();
+                const m = String(date.getMonth() + 1).padStart(2, '0');
+                const d = String(date.getDate()).padStart(2, '0');
+                const dateString = `${y}/${m}/${d}`;
+
+                let isDisabled = false;
+                if (date < today) {
+                    isDisabled = true;
+                } else if (date.getTime() === today.getTime()) {
+                    const slotStartHourText = slot.value.split('：')[0];
+                    if (!isNaN(slotStartHourText)) {
+                        const slotStartHour = parseInt(slotStartHourText, 10);
+                        if (now.getHours() >= slotStartHour) {
+                            isDisabled = true;
+                        }
+                    }
+                }
+
+                if (isDisabled) {
+                    cell.classList.add('disabled');
+                    cell.innerHTML = '<span>×</span>';
+                } else {
+                    cell.innerHTML = '<span>○</span>';
+                    cell.dataset.date = dateString;
+                    cell.dataset.value = slot.value;
+                    cell.onclick = () => {
+                        if (selectedCell) {
+                            selectedCell.classList.remove('selected');
+                        }
+                        selectedCell = cell;
+                        selectedCell.classList.add('selected');
+                        submitButton.disabled = false;
+                        submitButton.classList.add('enabled');
+                    };
+                }
+            });
+        });
+        timeTableContainer.appendChild(table);
+
+        const actionsDiv = document.createElement('div');
+        actionsDiv.className = 'time-table-actions';
+        const submitButton = document.createElement('button');
+        submitButton.className = 'time-table-submit-button';
+        submitButton.innerHTML = `<svg xmlns="http://www.w3.org/2000/svg" width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" class="feather feather-arrow-right"><line x1="5" y1="12" x2="19" y2="12"></line><polyline points="12 5 19 12 12 19"></polyline></svg>`;
+        submitButton.disabled = !selectedCell;
+        if (selectedCell) submitButton.classList.add('enabled');
+        
+        submitButton.onclick = () => {
+            if (selectedCell) {
+                const selectedDate = selectedCell.dataset.date;
+                const selectedTimeValue = selectedCell.dataset.value;
+                onSubmit({ date: selectedDate, time: selectedTimeValue }, timeTableWrapper);
+            }
+        };
+        actionsDiv.appendChild(submitButton);
+        timeTableContainer.appendChild(actionsDiv);
+    };
+    
+    render(currentStartDate);
+
+    timeTableWrapper.appendChild(timeTableContainer);
+    dom.chatMessages.appendChild(timeTableWrapper);
+    scrollToBottom();
+}
 
 function displayCalendar(question, onSubmit) {
     const calendarWrapper = document.createElement('div');
