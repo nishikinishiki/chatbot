@@ -393,15 +393,33 @@ async function submitDataToGAS(dataToSend, isAdditional) {
         // 1回目の送信時
         payload = { ...dataToSend };
         payload["Session ID"] = state.currentSessionId;
-        // 新規登録であることを示すため、フラグに 'false' を設定して送信
+        // 1回目であることをフラグに 'false' を設定
         payload["isAdditionalData"] = "false"; 
-        // utm_sourceに基づいて「集客元」を判定し、payloadに追加
-        // stateからutm_sourceの値を取得し、UTM_MAPPINGオブジェクトで検索
+        // utm_sourceに基づいて「集客元」を判定
         if (state.userResponses.utm_source && UTM_MAPPING[state.userResponses.utm_source]) {
             payload["lead_source"] = UTM_MAPPING[state.userResponses.utm_source];
         } else if (state.userResponses.utm_source) {
         // 対応表にない場合は、utm_sourceの値をそのまま「集客元」として送信
             payload["lead_source"] = state.userResponses.utm_source;
+        }
+        // Thanksメールの出し分け
+        const flagConditions = [
+            "自営業・その他",
+            "0～399万",
+            "400～499万",
+            "20歳未満",
+            "20～24歳",
+            "60～64歳"
+        ];
+
+        const occupation = state.userResponses.occupation;
+        const income = state.userResponses.annual_income;
+        const age = state.userResponses.age_group;
+
+        if (flagConditions.includes(occupation) || flagConditions.includes(income) || flagConditions.includes(age)) {
+            payload["segment_flag"] = true;
+        } else {
+            payload["segment_flag"] = false;
         }
     }
 
