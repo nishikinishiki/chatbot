@@ -382,33 +382,30 @@ async function submitDataToGAS(dataToSend, isAdditional) {
     
     let payload = {};
     if (isAdditional) {
-        // ▼▼▼ 2回目の送信時 ▼▼▼
-        // 追加の回答(dataToSend)に、キーとなる「メールアドレス」だけを追加
+        // 2回目の送信時
         payload = { 
             ...dataToSend,
-            "email_address": state.userResponses.email_address, // 1回目の回答からメアドを取得
+            "email_address": state.userResponses.email_address,
             "isAdditionalData": true,
             "interview_request": "希望する"
         };
-        // ▲▲▲ ここまで ▲▲▲
     } else {
-        // 1回目の送信時 (変更なし)
+        // 1回目の送信時
         payload = { ...dataToSend };
         payload["Session ID"] = state.currentSessionId;
         // 新規登録であることを示すため、フラグに 'false' を設定して送信
         payload["isAdditionalData"] = "false"; 
+        // utm_sourceに基づいて「集客元」を判定し、payloadに追加
+        // stateからutm_sourceの値を取得し、UTM_MAPPINGオブジェクトで検索
+        if (state.userResponses.utm_source && UTM_MAPPING[state.userResponses.utm_source]) {
+            payload["lead_source"] = UTM_MAPPING[state.userResponses.utm_source];
+        } else if (state.userResponses.utm_source) {
+        // 対応表にない場合は、utm_sourceの値をそのまま「集客元」として送信
+            payload["lead_source"] = state.userResponses.utm_source;
+        }
     }
 
-    // ▼▼▼ この判定ロジックを追加 ▼▼▼
-    // utm_sourceに基づいて「集客元」を判定し、payloadに追加
-    // stateからutm_sourceの値を取得し、UTM_MAPPINGオブジェクトで検索
-    if (state.userResponses.utm_source && UTM_MAPPING[state.userResponses.utm_source]) {
-        payload["lead_source"] = UTM_MAPPING[state.userResponses.utm_source];
-    } else if (state.userResponses.utm_source) {
-        // 対応表にない場合は、utm_sourceの値をそのまま「集客元」として送信
-        payload["lead_source"] = state.userResponses.utm_source;
-    }
-    // ▲▲▲ ここまで ▲▲▲
+
     
     payload.is_test = state.isTestMode; 
 
