@@ -477,7 +477,15 @@ async function submitDataToGAS(dataToSend, isAdditional) {
 
             clearChatMessages();
             await addBotMessage("送信が完了しました。<br>お問い合わせいただきありがとうございました！", true);
-            startAdditionalQuestionsFlow();
+            // segment_flagの値で次のアクションを分岐
+            if (payload.segment_flag === true) {
+                // trueの場合：追加質問をスキップし、最終メッセージを表示
+                await addBotMessage("デジタル書籍は下記から閲覧できます！");
+                await addBotMessage("デジタル書籍を閲覧する", false, false, true);
+            } else {
+                // falseの場合：通常通り追加質問を開始
+                startAdditionalQuestionsFlow();
+            }
 
         } else {
             await addBotMessage("全ての情報を承りました。ご回答ありがとうございました！<br>後ほど担当よりご連絡いたします。", true);
