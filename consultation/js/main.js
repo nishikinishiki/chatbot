@@ -241,7 +241,7 @@ function calculateProgress() {
 
 function getUtmParameters() {
     const urlParams = new URLSearchParams(window.location.search);
-    const utmKeys = ['utm_source', 'utm_medium', 'utm_campaign', 'utm_term', 'utm_content'];
+    const utmKeys = ['utm_source', 'utm_medium', 'utm_campaign', 'utm_term', 'utm_content', 'source'];
     utmKeys.forEach(key => {
         if (urlParams.has(key)) {
             state.utmParameters[key] = urlParams.get(key);
