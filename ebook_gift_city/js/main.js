@@ -450,9 +450,8 @@ async function submitDataToGAS(dataToSend, isAdditional) {
     payload.is_test = state.isTestMode; 
 
     try {
-        await fetch(GAS_WEB_APP_URL, {
+        await fetch(ENDPOINT_URL, {
             method: 'POST',
-            mode: 'no-cors',
             cache: 'no-cache',
             headers: { 'Content-Type': 'text/plain;charset=utf-8' },
             body: JSON.stringify(payload)
