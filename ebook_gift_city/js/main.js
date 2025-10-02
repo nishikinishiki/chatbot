@@ -445,7 +445,7 @@ async function submitDataToGAS(dataToSend, isAdditional) {
         }
     }
 
-
+    payload.form_variant = window.location.pathname;
     
     payload.is_test = state.isTestMode; 
 
