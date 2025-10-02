@@ -1,6 +1,6 @@
 // 設定ファイル (config.js)
 
-// 1. direct Pardot Form Handler URL
+// 1. Form Handler URL
 const GAS_WEB_APP_URL = 'https://script.google.com/macros/s/AKfycby18ywbiYHXSvlqiKgh9BCyN-BmQMxhKVJvuQIg9wafDZoyD56NhlYSZvt568Wcvjz4/exec';
 
 // 2. Google Apps ScriptのウェブアプリURL（ログデータ用）
