@@ -415,7 +415,6 @@ async function submitDataToGAS(dataToSend, isAdditional) {
         // 1回目の送信時
         payload = { ...dataToSend };
         payload["Session ID"] = state.currentSessionId;
-        // 1回目であることをフラグに 'false' を設定
         payload["isAdditionalData"] = "false"; 
         // utm_sourceに基づいて「集客元」を判定
         if (state.userResponses.utm_source && UTM_MAPPING[state.userResponses.utm_source]) {
@@ -444,7 +443,6 @@ async function submitDataToGAS(dataToSend, isAdditional) {
             payload["segment_flag"] = false;
         }
     }
-    payload.formId = FORM_ENDPOINTS;
     payload.is_test = state.isTestMode; 
 
     try {
