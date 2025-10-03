@@ -444,9 +444,7 @@ async function submitDataToGAS(dataToSend, isAdditional) {
             payload["segment_flag"] = false;
         }
     }
-
-    payload.form_variant = window.location.pathname;
-    
+    payload.formId = FORM_ENDPOINTS;
     payload.is_test = state.isTestMode; 
 
     try {

@@ -2,6 +2,7 @@
 
 // 1. Form Handler URL
 const GAS_WEB_APP_URL = 'https://script.google.com/macros/s/AKfycby18ywbiYHXSvlqiKgh9BCyN-BmQMxhKVJvuQIg9wafDZoyD56NhlYSZvt568Wcvjz4/exec';
+const FORM_ENDPOINTS = 'https://official.jpreturns.com/l/894951/2025-09-23/hwjz2';
 
 // 2. Google Apps ScriptのウェブアプリURL（ログデータ用）
 const GAS_LOG_APP_URL = 'https://script.google.com/macros/s/AKfycbxOEisLnlCPIKn18Cgoli1dCRxyXfrjG3BOp68Ne4G5RzY1s8rYgVMzAiB90RsMZoif/exec';
