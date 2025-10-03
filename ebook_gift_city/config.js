@@ -1,7 +1,7 @@
 // 設定ファイル (config.js)
 
-// 1. Form Handler URL
-const GAS_WEB_APP_URL = 'https://script.google.com/macros/s/AKfycby18ywbiYHXSvlqiKgh9BCyN-BmQMxhKVJvuQIg9wafDZoyD56NhlYSZvt568Wcvjz4/exec';
+// 1. GAS Form Handler URL
+const GAS_WEB_APP_URL = 'https://script.google.com/macros/s/AKfycbxlXAnqiGfhJZHbPsQB8wd9euHFiKIeHpyYLxaMIZvVSMzScMOLf594y41H_9gVAibakA/exec';
 
 // 2. Google Apps ScriptのウェブアプリURL（ログデータ用）
 const GAS_LOG_APP_URL = 'https://script.google.com/macros/s/AKfycbxOEisLnlCPIKn18Cgoli1dCRxyXfrjG3BOp68Ne4G5RzY1s8rYgVMzAiB90RsMZoif/exec';
