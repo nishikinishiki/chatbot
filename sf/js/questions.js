@@ -2,12 +2,13 @@ const questions = [
     { 
     id: 'digital_gift_choice', 
     item: "希望デジタルギフト", 
-    question: "ご希望のデジタルギフトをお選びください！", 
+    question: "まずは、あなたの現在の課題に最も近いものをお選びください。", 
     answer_method: "single-choice", 
     options: [
-      { label: "Amazonギフトカード", value: "Amazonギフトカード" },
-      { label: "PayPayポイント", value: "PayPayポイント" },
-      { label: "楽天ポイント", value: "楽天ポイント" }
+      { label: "信用力・タックスコントロールを活用した戦略を検討したい", value: "信用力・タックスコントロールを活用した戦略を検討したい" },
+      { label: "節税の仕組みがわからないので、そこを学びたい", value: "節税の仕組みがわからないので、そこを学びたい" },
+      { label: "不動産相場が上がり過ぎてて買い時はもう遅い？", value: "不動産相場が上がり過ぎてて買い時はもう遅い？" },  
+      { label: "他社で検討中、もしくは既に所有済み", value: "他社で検討中、もしくは既に所有済み" }
     ], 
     key: "digital_gift_choice", 
     validation: (v) => !!v, 

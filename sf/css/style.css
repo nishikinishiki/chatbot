@@ -4,22 +4,22 @@
    =============================================================== */
 :root {
   /* --- カラーパレット --- */
-  --primary-color: #00748A;
-  --primary-dark: #005f70;
-  --primary-gradient-start: #61b265;
-  --primary-gradient-end: #007f87;
-  --secondary-color: #00848C;
+  --primary-color: #0176D3;
+  --primary-dark: #036CC1;
+  --primary-gradient-start: #E8D1FE;
+  --primary-gradient-end: #5E8FE7;
+  --secondary-color: #0176D3;
   --body-bg: #8297ac;
   --chat-container-bg: #ffffff;
-  --chat-messages-bg: #efede0;
+  --chat-messages-bg: #ffffff;
   --bot-message-bg: #ffffff;
   --user-message-bg: var(--secondary-color);
   --text-color-light: #ffffff;
-  --text-color-dark: #212121;
+  --text-color-dark: #042853;
   --text-color-medium: #555;
   --text-color-default: #111111;
-  --choice-button-text: #007387;
-  --choice-button-border: #007387;
+  --choice-button-text: #032D60;
+  --choice-button-border: #032D60;
   --choice-button-bg: #ffffff;
   --choice-button-hover-bg: #e5f1f4;
   --disabled-bg: #f0f0f0;
@@ -171,7 +171,7 @@ body {
   border-radius: 18px;
   word-wrap: break-word;
   font-size: 0.95em;
-  box-shadow: 0 1px 2px rgba(0,0,0,0.2);
+  box-shadow: 0px 1px 4px rgba(0,0,0,0.3);
 }
 
 .bot-message-wrapper .message { 
