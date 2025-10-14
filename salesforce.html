@@ -1,0 +1,793 @@
+<!DOCTYPE html>
+<html lang="ja">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>戦略的資産コンサルティング チャットボット</title>
+    <style>
+        /* J.P.RETURNS ブランドカラー */
+        :root {
+            --jp-teal: #008284;
+            --jp-gold: #BFA96F;
+            --jp-text: #2d3748;
+            --jp-bg: #f8f9fa;
+            --jp-teal-light: #eff8f8; /* さらに薄いティールに変更 */
+            --jp-teal-dark: #006a6b;
+            --jp-gold-light: #F4E8D4; /* 新しい明るいゴールド */
+        }
+
+        /* ベーススタイル */
+        body {
+            font-family: 'Noto Sans JP', sans-serif;
+            background-color: var(--jp-bg);
+            margin: 0;
+            padding: 0;
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            min-height: 100vh;
+            color: var(--jp-text);
+        }
+
+        #chatbot-container {
+            width: 100%;
+            max-width: 600px;
+            height: 80vh; /* 画面の高さに合わせる */
+            background: white;
+            border-radius: 16px;
+            box-shadow: 0 10px 30px rgba(0, 0, 0, 0.1);
+            display: flex;
+            flex-direction: column;
+            overflow: hidden;
+            border: 1px solid #e2e8f0;
+        }
+
+        #messages {
+            flex-grow: 1;
+            padding: 20px;
+            overflow-y: auto;
+            scroll-behavior: smooth;
+            background: #f7fafc;
+        }
+
+        .message-bubble {
+            max-width: 85%;
+            padding: 12px 18px;
+            border-radius: 20px;
+            margin-bottom: 15px;
+            line-height: 1.6;
+            font-size: 1rem;
+            box-shadow: 0 1px 3px rgba(0, 0, 0, 0.05);
+        }
+
+        .bot-message {
+            background-color: var(--jp-teal-light); /* Teal Light */
+            color: var(--jp-text);
+            margin-right: auto;
+            border-bottom-left-radius: 4px;
+        }
+
+        .user-message {
+            background-color: #f0fff4; /* Green Light */
+            color: var(--jp-text);
+            margin-left: auto;
+            border-bottom-right-radius: 4px;
+        }
+
+        #options {
+            padding: 15px 20px;
+            background: #ffffff;
+            border-top: 1px solid #edf2f7;
+            display: flex;
+            flex-direction: column;
+            gap: 12px; /* ボタン間の間隔を少し広げた */
+        }
+
+        /* 既存のボタン（動画視聴CTAになる） - 色を濃く */
+        .option-button {
+            width: 100%;
+            padding: 14px 20px; /* パディングを増やした */
+            background-color: var(--jp-teal-dark); /* 濃いティール */
+            color: white;
+            border: none;
+            border-radius: 8px;
+            cursor: pointer;
+            font-size: 1rem;
+            font-weight: 700;
+            transition: all 0.2s ease;
+            text-align: left;
+            box-shadow: 0 4px 6px rgba(0, 130, 132, 0.2);
+            line-height: 1.3;
+        }
+
+        .option-button:hover {
+            background-color: var(--jp-teal);
+            transform: translateY(-2px);
+            box-shadow: 0 6px 10px rgba(0, 130, 132, 0.3);
+        }
+
+        .option-button:active {
+            transform: translateY(0);
+        }
+
+        /* NEW: アニメーション付き最優先CTAボタン（個別ヒアリング）- 色を薄く */
+        .final-cta {
+            background-color: var(--jp-gold-light); /* 明るいゴールド */
+            color: var(--jp-text); /* 文字色を濃く */
+            border: 2px solid var(--jp-gold); /* ゴールドのボーダー */
+            font-size: 1.1rem;
+            padding: 16px 20px;
+            box-shadow: 0 0 0 0 rgba(191, 169, 111, 0.4); /* 初期シャドウを淡く */
+            animation: pulse-glow 2s infinite; /* 光るアニメーション */
+            font-weight: 900;
+            text-align: center;
+        }
+        .final-cta:hover {
+            background-color: var(--jp-gold);
+            color: white;
+            transform: translateY(-2px);
+        }
+
+        /* パルスアニメーション定義 (影の色を淡く) */
+        @keyframes pulse-glow {
+            0% { box-shadow: 0 0 0 0 rgba(191, 169, 111, 0.3); }
+            70% { box-shadow: 0 0 0 10px rgba(191, 169, 111, 0); }
+            100% { box-shadow: 0 0 0 0 rgba(191, 169, 111, 0); }
+        }
+
+        /* NEW: ボタン内サインのスタイル */
+        .cta-sign {
+            display: block;
+            font-size: 0.9rem;
+            font-weight: 700;
+            margin-top: 4px;
+            color: var(--jp-text); /* 暗いテキスト */
+            background: white;
+            padding: 4px 8px;
+            border-radius: 4px;
+            box-shadow: 0 1px 4px rgba(0, 0, 0, 0.2);
+        }
+        /* キャンペーン対象外サインのスタイル */
+        .cta-sign.inactive {
+            background: #e2e8f0;
+            color: #718096;
+        }
+
+        /* NEW: 億円表示のスタイル */
+        .okuen-main {
+            font-size: 1.8em;
+            font-weight: 900;
+            color: var(--jp-gold);
+            display: inline-block;
+        }
+
+        /* NEW: ローディングアニメーション */
+        .loading-dots {
+            display: inline-block;
+        }
+        .loading-dots:after {
+            content: ' .';
+            animation: dots 1s steps(5, end) infinite;
+        }
+        @keyframes dots {
+            0%, 20% {
+                color: rgba(0,0,0,0);
+                text-shadow:
+                    .25em 0 0 rgba(0,0,0,0),
+                    .5em 0 0 rgba(0,0,0,0);
+            }
+            40% {
+                color: var(--jp-text);
+                text-shadow:
+                    .25em 0 0 rgba(0,0,0,0),
+                    .5em 0 0 rgba(0,0,0,0);
+            }
+            60% {
+                text-shadow:
+                    .25em 0 0 var(--jp-text),
+                    .5em 0 0 rgba(0,0,0,0);
+            }
+            80%, 100% {
+                text-shadow:
+                    .25em 0 0 var(--jp-text),
+                    .5em 0 0 var(--jp-text);
+            }
+        }
+
+
+        .input-group {
+            display: flex;
+            gap: 10px;
+            align-items: center;
+        }
+
+        .input-group input {
+            flex-grow: 1;
+            padding: 12px;
+            border: 2px solid #ccc;
+            border-radius: 8px;
+            font-size: 1rem;
+        }
+
+        .input-group button {
+            padding: 12px 20px;
+            background-color: var(--jp-teal);
+            color: white;
+            border: none;
+            border-radius: 8px;
+            cursor: pointer;
+            font-weight: 700;
+            transition: background-color 0.2s;
+        }
+        .input-group button:hover {
+            background-color: var(--jp-teal-dark);
+        }
+        .error-message {
+            color: red;
+            font-size: 0.9rem;
+            margin-top: -8px;
+        }
+
+        /* NEW: 二階建て表示のスタイル */
+        .double-score-container {
+            display: flex;
+            flex-direction: column;
+            gap: 8px;
+            margin-top: 15px;
+        }
+        .score-block {
+            padding: 10px 15px;
+            border-radius: 8px;
+            text-align: left;
+        }
+        .solid-block {
+            background-color: #e6f3f3; /* 堅実枠 */
+            border-left: 5px solid var(--jp-teal);
+        }
+        .full-block {
+            background-color: #fffbeb; /* 活用枠 */
+            border-left: 5px solid var(--jp-gold);
+        }
+        /* NEW: タックスメリット表示のスタイル */
+        .tax-block {
+            background-color: #fcefe6; /* オレンジ系ライト */
+            border-left: 5px solid #d97706; /* 濃いオレンジ */
+            margin-top: 15px;
+        }
+
+        .block-title {
+            font-size: 0.9rem;
+            font-weight: 400;
+            color: var(--jp-text);
+        }
+        .block-value {
+            font-size: 1.4rem;
+            font-weight: 900;
+            margin-top: 2px;
+        }
+
+        /* NEW: 最終CTAボタン内のフロー説明スタイル */
+        .cta-sign-flow {
+            display: block;
+            font-size: 0.8rem;
+            font-weight: 400;
+            margin-top: 8px;
+            line-height: 1.4;
+            color: var(--jp-text);
+            opacity: 0.85;
+        }
+        
+        .cta-sign {
+            display: block;
+            font-size: 0.9rem;
+            font-weight: 700;
+            margin-top: 8px;
+            color: var(--jp-gold);
+            background: rgba(255, 255, 255, 0.5);
+            padding: 4px 8px;
+            border-radius: 4px;
+        }
+        .cta-sign.inactive {
+            color: #718096;
+            background: #e2e8f0;
+        }
+
+
+        @media (max-width: 768px) {
+            #chatbot-container {
+                height: 100vh;
+                width: 100%;
+                max-width: none;
+                border-radius: 0;
+            }
+            body {
+                align-items: flex-start;
+            }
+        }
+    </style>
+</head>
+<body>
+
+    <div id="chatbot-container">
+        <div id="messages">
+            <!-- メッセージはここに表示されます -->
+        </div>
+        <div id="options">
+            <!-- ボタンはここに表示されます -->
+        </div>
+    </div>
+
+    <script>
+        // **********************************************
+        // 1. 設定とスコアリングロジック
+        // **********************************************
+        const app = document.getElementById('chatbot-container');
+        const messagesDiv = document.getElementById('messages');
+        const optionsDiv = document.getElementById('options');
+
+        // 【Gemini API 設定】 (機能は削除済みだが、変数は残す)
+        const API_KEY = "";
+        const API_URL = `https://generativelanguage.googleapis.com/v1beta/models/gemini-2.5-flash-preview-05-20:generateContent?key=${API_KEY}`;
+
+
+        // 【要設定】連携先URL（この2つを設定すれば実践開始可能です）
+        const CONSULT_URL = "#"; // 電話ヒアリング予約 (Googleカレンダーなど) のURLをここに設定
+        const VIDEO_URL = "#"; // 動画視聴ページURLをここに設定
+
+        // 【キャンペーン設定】
+        const IS_CAMPAIGN_ACTIVE = true; // true: キャンペーン中 / false: キャンペーン終了
+        
+        // 与信枠計算の閾値とボーナス点
+        const HYPER_CORE_THRESHOLD_AMOUNT = 10000; // 1億円 (10,000万円)
+        const CORE_THRESHOLD = 3000; // 推定与信枠 3,000万円以上 (個別電話ヒアリング誘導ライン) 
+        const MIN_ANNUAL_SALARY = 600; // 最低年収 600万円 (万円単位)
+        
+        // タックスメリット計算の最小値 (万円)
+        const MIN_TAX_BENEFIT = 100; 
+        
+        // **********************************************
+        // 初期状態の定義
+        // **********************************************
+        let currentStep = 'start';
+        let userScore = 0;
+        let userData = {}; // 年収、残債などのデータを保持
+
+        // **********************************************
+        // 2. チャットボットのステップ定義
+        // **********************************************
+        const CTA_TEXT = "2〜3問の質問で与信枠（休眠資産）が<br>自動計算されます（個人情報なしで３０秒自動判定）";
+        
+        const steps = {
+            'start': {
+                message: "Salesforce様 限定の戦略的資産形成プログラムへようこそ。まずは、あなたの現在の課題に最も近いものをお選びください。",
+                options: [
+                    { text: "A. 信用力・タックスコントロールを<br>活用した資産拡大戦略を検討したい", next: 'q1_salary', score: 0 }, // スコアリング開始へ直行
+                    { text: "B. 節税の仕組みがわからないので、そこを学びたい", next: 'q0_tax_approach', score: 0 }, 
+                    { text: "C. 不動産相場が上がり過ぎてて買い時はもう遅い？", next: 'q0_bubble', score: 0 }, 
+                    { text: "D. 他社で検討中、<br>もしくは既に所有済み", next: 'q0_status', score: 0 } // Dの深掘りへ分岐
+                ]
+            },
+
+            'q0_tax_approach': {
+                message: "承知いたしました。節税の仕組みについて、あなたの理想的なアプローチをお聞かせください。",
+                options: [
+                    { text: "面倒なのは嫌なので、丸投げできるなら専門家に頼みたい", next: 'q1_salary', score: 0 }, // 年収入力へ
+                    { text: "全部理解しないと気が済まないので、じっくり仕組みが知りたい", next: 'end_video', score: 0 } // 学習志向
+                ]
+            },
+
+            'q0_bubble': {
+                message: "市場環境の懸念、承知いたしました。では、もし仮に相場よりまだ割安で手に入る「勝ち筋の物件」があるとしたら、あなたの考えはどちらに近いですか？",
+                options: [
+                    { text: "相場より割安で手に入る物件なら、検討する価値あるかも", next: 'q1_salary', score: 0 }, // 年収入力へ
+                    { text: "バブルは怖いから無理かも", next: 'end_video', score: 0 } // 知識補強が必要
+                ]
+            },
+            
+            'q0_status': {
+                message: "承知いたしました。現在のご状況をお聞かせください。",
+                options: [
+                    { text: "他社で具体的な物件提案を受け、<br>比較検討中です", next: 'q1_salary', score: 2500 }, // 他社検討中 (+2,500万円相当)
+                    { text: "既に不動産を所有しており、<br>運用・出口戦略を相談したい", next: 'q1_salary', score: 1000 } // 既にオーナー (+1,000万円相当)
+                ]
+            },
+
+            // --- スコアリング質問群 ---
+            'q1_salary': {
+                message: "Q1. あなたの現在の年収（税引前、万円単位）をご入力ください。",
+                is_input: true, 
+                next: 'q2_loan' // 年収入力後、ローン残債へ
+            },
+            
+            'q2_loan': {
+                message: "Q2. 住宅ローンや、投資物件ローン、車、その他本人名義の借り入れ（残債、万円単位）を概算でご入力ください。ない場合は「0」をご入力ください。（融資余力測定）",
+                is_input: true, 
+                next: 'q3_experience' // ローン残債入力後、経験へ
+            },
+
+            // Q3を復活させる
+            'q3_experience': {
+                message: "Q3. 過去にマンション投資を検討し、具体的な物件選定やシミュレーションまで進めた経験はありますか？",
+                options: [
+                    { text: "はい、具体的に動いたことがあります", next: 'q4_barrier', score: 500 }, // Q4へ誘導
+                    { text: "いいえ、情報収集段階です", next: 'q4_barrier', score: 0 }, 
+                ]
+            },
+
+            // Q4をスコアリング専用の質問として復活させる
+            'q4_barrier': {
+                message: "Q4. その他に、現在の検討状況で『解消できていない明確な課題』はありますか？",
+                options: [
+                    { text: "はい、明確な課題（不安）がありました", next: 'calc_score', score: 500 }, // +500万円相当
+                    { text: "いいえ、特にありません", next: 'calc_score', score: 250 }, // +250万円相当
+                    { text: "特になく、すでに所有済みなので、その活用方法や出口戦略を相談したい", next: 'calc_score', score: 250 } // +250万円相当
+                ]
+            },
+            
+            // --- 最終結果と振り分け ---
+            'calc_score': {
+                message: "スコアリングが完了しました。あなたの「休眠信用資産（与信枠）」のポテンシャルを推定します...",
+                next: 'final_result',
+                options: [] // JavaScriptでメッセージを追加
+            },
+
+            'final_result': {
+                message: "", // スコアで動的に生成
+                options: [
+                    // --- 最終誘導の二択 ---
+                    // ボタン内にサインを統合 - JSで動的にHTMLを生成するため、textはプレースホルダー
+                    { text: ``, next: 'redirect_consult', is_cta: true, class: 'final-cta' },
+                    { text: "② まずは無料動画を視聴する", next: 'redirect_video', is_cta: true, class: 'option-button' },
+                    // -----------------
+                ]
+            },
+            
+            // --- 誘導先 ---
+            'end_video': {
+                message: "承知いたしました。まずは知識武装から始めるのが賢明です。高年収者が確実に資産を築くための「タックスコントロール基礎動画」を無料公開しています。こちらからご視聴ください。",
+                options: [
+                    { text: "無料動画視聴ページへ進む", next: 'redirect_video', is_cta: true, class: 'option-button' },
+                ]
+            },
+            'redirect_consult': {
+                message: "個別電話ヒアリング予約ページへ移動します...",
+                action: () => window.open(CONSULT_URL, '_blank') // 新しいタブで開く
+            },
+            'redirect_video': {
+                message: "無料動画視聴ページへ移動します...",
+                action: () => window.open(VIDEO_URL, '_blank') // 新しいタブで開く
+            }
+        };
+
+        // **********************************************
+        // 3. メイン処理関数
+        // **********************************************
+
+        function displayMessage(text, isUser = false) {
+            const bubble = document.createElement('div');
+            bubble.className = 'message-bubble ' + (isUser ? 'user-message' : 'bot-message');
+            bubble.innerHTML = text;
+            messagesDiv.appendChild(bubble);
+            scrollToBottom();
+        }
+        
+        function displayLoading(messageText = 'AIコンシェルジュが分析中です') {
+            const loadingBubble = document.createElement('div');
+            loadingBubble.className = 'message-bubble bot-message';
+            loadingBubble.id = 'loading-message';
+            loadingBubble.innerHTML = `<span class="loading-dots">${messageText}</span>`;
+            messagesDiv.appendChild(loadingBubble);
+            scrollToBottom();
+        }
+
+        function removeLoading() {
+            const loading = document.getElementById('loading-message');
+            if (loading) {
+                messagesDiv.removeChild(loading);
+            }
+        }
+
+        function displayOptions(stepName) {
+            optionsDiv.innerHTML = '';
+            const step = steps[stepName];
+
+            if (step.action) {
+                step.action();
+                return;
+            }
+
+            if (step.is_input) {
+                displayInputField(stepName, step.input_type);
+                return;
+            }
+
+            if (step.options && step.options.length > 0) {
+                
+                step.options.forEach(option => {
+                    const button = document.createElement('button');
+                    button.className = 'option-button';
+                    if (option.class) button.classList.add(option.class);
+                    
+                    // final_resultステップの場合にボタンのHTMLを動的に生成
+                    if (stepName === 'final_result') {
+                        // ①のボタンのHTMLをここで生成
+                        if (option.next === 'redirect_consult') {
+                            const signClass = IS_CAMPAIGN_ACTIVE ? '' : 'inactive';
+                            const signText = IS_CAMPAIGN_ACTIVE ? '✨ 社内福利厚生キャンペーン対象！今すぐご予約ください ✨' : '（キャンペーン対象外）';
+                            
+                            button.innerHTML = `
+                                ① 【最優先】個別電話ヒアリングを予約する
+                                <span class="cta-sign-flow">
+                                    まずは日程確保。専門スタッフが電話でヒアリング<br>
+                                    （コンサル選定・WEB/来社相談を決定）
+                                </span>
+                                <span class="cta-sign ${signClass}">${signText}</span>
+                            `;
+                            // ②のボタンは通常のinnerHTMLを使用
+                        } else {
+                            button.innerHTML = option.text;
+                        }
+                    } else {
+                        button.innerHTML = option.text; 
+                    }
+
+
+                    button.onclick = () => handleOptionClick(option);
+                    optionsDiv.appendChild(button);
+                });
+            }
+            scrollToBottom();
+        }
+
+        function displayInputField(stepName, inputType = 'number') {
+            const placeholderText = stepName === 'q1_salary' ? "例：1200 (万円)" : 
+                                    stepName === 'q2_loan' ? "例：200 (万円) または 0" : 
+                                    "具体的にお聞かせください";
+            const isNumber = inputType === 'number';
+
+            optionsDiv.innerHTML = `
+                <div class="input-group">
+                    <input type="${isNumber ? 'number' : 'text'}" id="userInput" placeholder="${placeholderText}" ${isNumber ? 'min="0" step="10"' : ''}>
+                    <button onclick="handleInputSubmit('${stepName}', ${isNumber})">送信</button>
+                </div>
+                <div id="inputError" class="error-message"></div>
+            `;
+            document.getElementById('userInput')?.focus();
+            scrollToBottom();
+        }
+
+        async function handleInputSubmit(stepName, isNumber) {
+            const inputElement = document.getElementById('userInput');
+            const errorElement = document.getElementById('inputError');
+            const inputValue = inputElement.value.trim();
+
+            errorElement.textContent = ''; // エラーメッセージをクリア
+
+            if (!inputValue || (isNumber && (isNaN(parseInt(inputValue)) || parseInt(inputValue) < 0))) {
+                errorElement.textContent = isNumber ? '有効な金額（万円）を数字で入力してください。' : '内容を入力してください。';
+                return;
+            }
+
+            displayMessage(inputValue, true); // ユーザーの入力を表示
+            optionsDiv.innerHTML = ''; // ボタンを非表示にする
+
+            if (stepName === 'q1_salary') {
+                userData.annualSalary = parseInt(inputValue);
+            } else if (stepName === 'q2_loan') {
+                userData.loanRemaining = parseInt(inputValue);
+                
+                // 次のステップに進む
+                currentStep = steps[stepName].next;
+                displayMessage(steps[currentStep].message);
+                displayOptions(currentStep);
+                return;
+            } 
+
+            // 次のステップに進む
+            currentStep = steps[stepName].next;
+            
+            // 次のステップのメッセージを表示
+            if (steps[currentStep]) {
+                displayMessage(steps[currentStep].message);
+                displayOptions(currentStep);
+            }
+        }
+
+
+        /**
+         * 年収から最大タックスメリット額の倍率を取得する (簡易計算)
+         */
+        function getMaxTaxMultiplier(annualSalary) {
+            if (annualSalary >= 1801) return 0.30; // 1801万円以上: 30%
+            if (annualSalary >= 901) return 0.25; // 901万円以上: 25%
+            if (annualSalary >= 696) return 0.20; // 696万円以上: 20%
+            return 0.15; // 695万円以下: 15%
+        }
+
+        function getLoanMultiplier(annualSalary) {
+            if (annualSalary >= 1201) return 12; // 1201万円以上は12倍
+            if (annualSalary >= 801) return 10; // 801〜1200万円は10倍
+            return 8; // 800万円以下は8倍
+        }
+
+        function calculateCreditScore() {
+            const annualSalary = userData.annualSalary || 0;
+            const loanRemaining = userData.loanRemaining || 0;
+            
+            // --- 堅実低金利安定枠 (年収 x 9倍 - 残債) ---
+            const SOLID_MULTIPLIER = 9; 
+            const solidCreditTotal = Math.max(0, annualSalary * SOLID_MULTIPLIER - loanRemaining);
+            
+            // --- 信用力ポテンシャル最大活用枠 (年収 x 最大倍率 - 残債) ---
+            const maxMultiplier = getLoanMultiplier(annualSalary);
+            const maxCreditTotal = Math.max(0, annualSalary * maxMultiplier - loanRemaining);
+            
+            // --- タックスメリット最大活用額 (年収連動) ---
+            const taxMultiplier = getMaxTaxMultiplier(annualSalary);
+            const calculatedTaxBenefit = Math.floor(annualSalary * taxMultiplier);
+
+            userData.solidCredit = solidCreditTotal;
+            userData.maxCredit = maxCreditTotal; 
+            
+            // タックスメリット推定額の計算 (最小値は100万円に固定)
+            userData.taxBenefitEstimate = { min: MIN_TAX_BENEFIT, max: calculatedTaxBenefit }; 
+
+            // スコアリングの判定に使用する金額（万円）
+            // 注意：userScoreには初期ボーナス点（万円）が既に入っている
+            userData.scoreForFiltering = solidCreditTotal + userScore;
+        }
+
+        // 数値を億円に分割し、HTMLタグでラップするヘルパー関数
+        function formatTotalPotential(totalPotentialMan) {
+            // 万円以下の端数を切り捨て、シンプルに億単位のみを強調
+            const oku = Math.floor(totalPotentialMan / 10000); 
+            
+            // 1億円未満は万円で表示
+            if (totalPotentialMan < 10000) {
+                return `<span class="okuen-main">${Math.floor(totalPotentialMan).toLocaleString()}</span><span class="man-remainder">万円</span>`;
+            } else {
+                // 1億円以上は億円で表示し、万円以下の端数を切り捨てる
+                return `<span class="okuen-main">約 ${oku.toLocaleString()}億円</span>`;
+            }
+        }
+
+
+        function handleOptionClick(option) {
+            displayMessage(option.text, true); // ユーザーの選択を表示
+
+            // スコアリング処理と次のステップの決定
+            userScore += option.score; // ボーナススコア（万円）を加算
+            currentStep = option.next;
+
+            optionsDiv.innerHTML = ''; // ボタンを非表示にする
+
+            // スコアリング完了時のみ特別な処理
+            if (currentStep === 'calc_score') {
+                if (typeof userData.annualSalary !== 'number' || typeof userData.loanRemaining !== 'number') {
+                    displayMessage("エラーが発生しました。年収と残債を正しく入力してください。", false);
+                    currentStep = 'start';
+                    displayOptions(currentStep);
+                    return;
+                }
+                
+                displayMessage(steps['calc_score'].message);
+                // 与信枠計算を実行し、メッセージを表示
+                calculateCreditScore();
+                calculateAndDisplayResult();
+                return;
+            }
+            
+            // それ以外の通常のメッセージ表示
+            if (steps[currentStep]) {
+                displayMessage(steps[currentStep].message);
+                displayOptions(currentStep);
+            }
+        }
+
+        function calculateAndDisplayResult() {
+            // フィルタリング後のメッセージを決定する
+            
+            // --- フィルタリングロジック ---
+            const annualSalary = userData.annualSalary || 0;
+            const solidCredit = userData.solidCredit || 0;
+            
+            // 1. 年収の絶対条件チェック (600万円以下は動画誘導)
+            if (annualSalary <= MIN_ANNUAL_SALARY) {
+                currentStep = 'end_video';
+                displayMessage(steps[currentStep].message);
+                displayOptions(currentStep);
+                return;
+            }
+
+            // 2. 与信枠（堅実枠）の絶対条件チェック (3,000万円以下は動画誘導)
+            if (solidCredit < CORE_THRESHOLD) { // 3,000万円未満
+                currentStep = 'end_video';
+                displayMessage(steps[currentStep].message);
+                displayOptions(currentStep);
+                return;
+            }
+            
+            // --- 3,000万円以上の高確度リードに対するメッセージ生成 ---
+            
+            let loanMessage;
+            const maxCredit = userData.maxCredit || 0;
+            const taxBenefitEstimate = userData.taxBenefitEstimate; 
+
+            // 総合ポテンシャル総額の計算 (万円)
+            // ポテンシャル総額 = ②最大活用枠 + ③タックスメリット最大額
+            const totalPotentialMan = maxCredit + taxBenefitEstimate.max;
+
+            // 総額表示のためのフォーマットを決定 (1億円以上は万円以下切り捨て)
+            const totalPotentialDisplay = formatTotalPotential(totalPotentialMan);
+            
+            // 1. 1億円以上の場合（部長クラス担当）
+            if (totalPotentialMan >= HYPER_CORE_THRESHOLD_AMOUNT) { 
+                
+                loanMessage = `
+                    <strong style="color:var(--jp-teal);">【極秘・機密情報】</strong><br>
+                    貴方の信用力は**総額 ${totalPotentialDisplay}** の**超優良資産**に匹敵します。
+                    このポテンシャルを活かすため、<strong class="score-value">部長クラスの敏腕コンサル</strong>が担当をお約束します。
+                `;
+
+            } else { // 2. 3,000万円〜9,999万円の場合（ベテランコンサル担当）
+                
+                loanMessage = `
+                    貴方の信用力は**総額 ${totalPotentialDisplay}** の休眠信用資産に匹敵します。
+                    あなたのお悩みをしっかり解決へ導く、<strong class="score-value">ベテランコンサル</strong>が担当をお約束します。
+                `;
+            }
+            
+            // スコアと与信枠の表示
+            const solidValueDisplay = `${Math.floor(solidCredit).toLocaleString()} 万円`;
+            const maxValueDisplay = `${Math.floor(maxCredit).toLocaleString()} 万円`;
+            
+            // NEW: タックスメリットの表示
+            const taxValueDisplay = `${taxBenefitEstimate.min.toLocaleString()} 万円 〜 ${taxBenefitEstimate.max.toLocaleString()} 万円`;
+            
+            // 最大活用枠の掛け目表示を計算
+            let currentMaxMultiplier = getLoanMultiplier(annualSalary);
+            
+            // 最終的なHTML生成
+            const scoreDisplayHtml = `
+                <div class="double-score-container">
+                    <div class="score-block solid-block">
+                        <div class="block-title">① 堅実低金利安定枠（年収×9倍－残債）</div>
+                        <div class="block-value" style="color: var(--jp-teal);">${solidValueDisplay}</div>
+                    </div>
+                    <div class="score-block full-block">
+                        <div class="block-title">② 信用力ポテンシャル最大活用枠（年収×${currentMaxMultiplier}倍－残債）</div>
+                        <div class="block-value" style="color: var(--jp-gold);">${maxValueDisplay}</div>
+                    </div>
+                    <div class="score-block tax-block">
+                        <div class="block-title">③ TAX機会損失額（初年度概算）</div>
+                        <div class="block-value" style="color: #d97706;">${taxValueDisplay}</div>
+                        <p style="text-align: right; font-size: 0.8rem; color: #4a5568; margin-top: 5px;">※この効果は、中古物件なら初年度だけでなく、その後も4〜15年にわたって継続可能です</p>
+                    </div>
+                </div>
+                <p style="margin-top: 15px;">${loanMessage}</p>
+            `;
+            messagesDiv.lastChild.innerHTML = steps['calc_score'].message + scoreDisplayHtml; // 最後のメッセージを上書き
+
+            // 最終CTAボタンを表示 (final_resultには常に二択のオプションがある)
+            currentStep = 'final_result'; // 2択CTAに進む
+            displayOptions(currentStep);
+        }
+
+        function scrollToBottom() {
+            messagesDiv.scrollTop = messagesDiv.scrollHeight;
+        }
+
+        // **********************************************
+        // 4. 初期化
+        // **********************************************
+        document.addEventListener('DOMContentLoaded', () => {
+            // 初期メッセージとオプションを表示
+            displayMessage(steps[currentStep].message);
+            displayOptions(currentStep);
+        });
+
+    </script>
+</body>
+</html>
+
+
