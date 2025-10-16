@@ -1,0 +1,401 @@
+<!DOCTYPE html>
+<html lang="ja">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>J.P.RETURNS 新規事業計画</title>
+    <script src="https://cdn.tailwindcss.com"></script>
+    <!-- Lucide Icons for professional clarity -->
+    <script src="https://unpkg.com/lucide@latest"></script>
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@100..900&family=Noto+Sans+JP:wght@100..900&display=swap" rel="stylesheet">
+    <style>
+        /* --- VISUAL EFFECT & UX OPTIMIZATION (SCREEN/LP MODE) --- */
+        :root {
+            --color-jp-primary: #193264; /* Authority / Deep Navy */
+            --color-jp-secondary: #EAF0F6; /* Contrast Panel / Very Light Cool Grey */
+            --color-jp-accent: #4DBCB5; /* Highlight / Logo Turqoise Green */
+            --color-jp-background: #FDFDFB; /* Premium Background / Soft Off-White */
+            --color-jp-text: #1f2937; /* Dark Text */
+        }
+        .font-inter { font-family: 'Inter', sans-serif; }
+        .font-noto { font-family: 'Noto Sans JP', sans-serif; }
+        .text-jp-primary { color: var(--color-jp-primary); }
+        .bg-jp-primary { background-color: var(--color-jp-primary); }
+        .border-jp-accent { border-color: var(--color-jp-accent); }
+        .ring-jp-accent { --tw-ring-color: var(--color-jp-accent); }
+        
+        body { 
+            background-color: var(--color-jp-background); 
+            color: var(--color-jp-text); 
+            line-height: 1.75; 
+        }
+        .section-heading {
+            border-bottom: 4px solid var(--color-jp-accent); 
+            padding-bottom: 0.5rem;
+        }
+        .data-cell {
+            background-color: var(--color-jp-secondary);
+            font-weight: 600;
+        }
+        .solution-panel {
+             background-color: var(--color-jp-secondary); 
+        }
+        .final-hub {
+            box-shadow: 0 4px 15px rgba(255, 0, 0, 0.2); 
+        }
+        .logic-step {
+            box-shadow: 0 4px 6px -1px rgba(0, 0, 0, 0.1);
+        }
+
+        /* --- PRINT OPTIMIZATION (PRINT MODE) --- */
+        @media print {
+            /* General Reset & Ink Saving */
+            body, .solution-panel, .bg-jp-primary, .bg-gray-50, .bg-white, .logic-step {
+                background-color: white !important;
+                color: black !important;
+                /* Forces browser to print background colors and images (use sparingly) */
+                -webkit-print-color-adjust: exact !important; 
+                print-color-adjust: exact !important;
+            }
+            /* Remove Shadows, Rings, and Heavy Visuals */
+            .shadow-2xl, .shadow-md, .shadow-lg, .shadow-xl, .shadow-inner, .ring-1, .ring-2, .final-hub {
+                box-shadow: none !important;
+                border: none !important;
+            }
+            /* Ensure text is black and bolding is clear */
+            p, h1, h2, h3, div, span, li, td, .text-jp-accent, .text-red-500, .text-yellow-300 {
+                color: black !important;
+                font-weight: bold !important; /* Force bold for visibility */
+            }
+            /* Restore visibility of key borders */
+            .border-l-4, .border-t-4, .border-b-4, .border-r-4, .border-t-2 {
+                border-color: #333 !important;
+                border-style: solid !important;
+            }
+            .section-heading {
+                border-bottom: 3px solid black !important;
+            }
+            /* Hide distracting icons */
+            i[data-lucide] {
+                display: none !important;
+            }
+            /* Make containers full width for printing */
+            .max-w-7xl {
+                max-width: none !important;
+                margin: 0 !important;
+                padding: 0 1rem !important;
+            }
+            /* Page Break Control: Ensure major sections start on a new page */
+            .section-wrapper {
+                page-break-before: always;
+            }
+            /* Adjust the header specifically */
+            header {
+                page-break-before: avoid !important; /* Title page should not be preceded by a break */
+                border-bottom: 5px solid black !important;
+            }
+            /* Ensure the logic flow doesn't break mid-step */
+            .logic-step {
+                page-break-inside: avoid;
+            }
+            /* Final Conclusion Panel should stand out */
+             .bg-jp-primary {
+                border: 2px solid black !important;
+                color: black !important;
+            }
+        }
+    </style>
+</head>
+<body class="font-noto">
+
+    <div class="max-w-7xl mx-auto py-12 px-4 sm:px-6 lg:px-8">
+
+        <!-- 1. TITLE / EXECUTIVE SUMMARY -->
+        <!-- No wrapper needed for the header -->
+        <header class="text-center py-16 bg-jp-primary text-white rounded-lg shadow-2xl mb-16">
+            <h1 class="text-4xl sm:text-6xl font-extrabold font-inter tracking-tight">
+                J.P.RETURNS <span class="text-jp-accent block sm:inline">新規事業計画</span>
+            </h1>
+            <p class="mt-4 text-xl sm:text-2xl font-light opacity-80">
+                建物管理事業への新規参入 — 論理に基づいた確実な収益化戦略
+            </p>
+        </header>
+
+        <!-- 2. SECTION: PROBLEM DEFINITION (現状維持が生むコスト) -->
+        <div class="mb-20 section-wrapper">
+            <h2 class="text-3xl font-bold section-heading text-jp-primary mb-8">
+                1. 問題提起: 現状維持が生むコスト (The Cost of Status Quo)
+            </h2>
+            <div class="grid md:grid-cols-3 gap-8 text-lg">
+
+                <div class="p-6 border-l-4 border-red-500 bg-gray-50 rounded-lg shadow-md">
+                    <div class="flex items-center mb-4">
+                        <i data-lucide="calculator" class="w-6 h-6 text-red-500 mr-3"></i>
+                        <h3 class="font-bold text-xl">非効率なコスト構造</h3>
+                    </div>
+                    <p class="text-gray-600">既存のデベロッパー系管理会社による高止まりした管理費。市場原理が働かない閉鎖的な構造が、オーナー様に不必要な金銭的負担を強いている。</p>
+                </div>
+
+                <div class="p-6 border-l-4 border-red-500 bg-gray-50 rounded-lg shadow-md">
+                    <div class="flex items-center mb-4">
+                        <i data-lucide="shield-off" class="w-6 h-6 text-red-500 mr-3"></i>
+                        <h3 class="font-bold text-xl">資産価値の毀損リスク</h3>
+                    </div>
+                    <p class="text-gray-600">管理会社主導の不透明な長期修繕計画や、適当な日常管理が、建物の劣化を早め、将来的な売却価格を下落させる潜在リスクを内包。</p>
+                </div>
+
+                <div class="p-6 border-l-4 border-red-500 bg-gray-50 rounded-lg shadow-md">
+                    <div class="flex items-center mb-4">
+                        <i data-lucide="dollar-sign" class="w-6 h-6 text-red-500 mr-3"></i>
+                        <h3 class="font-bold text-xl">事業機会の他社流出（競合の囲い込み）</h3>
+                    </div>
+                    <p class="text-gray-600"><span class="font-bold text-jp-accent">新築デベロッパーの管理会社による「囲い込み」戦略に太刀打ちできていない現状。</span>オーナー様の売却相談が、関係性の薄さから他社へ流出し、最大の収益源を逸失している。</p>
+                </div>
+
+            </div>
+        </div>
+
+        <!-- 3. SECTION: SOLUTION (解決策と提供価値) -->
+        <div class="mb-20 section-wrapper">
+            <h2 class="text-3xl font-bold section-heading text-jp-primary mb-8">
+                2. 解決策: J.P.RETURNSによるオーナー資産の最適化
+            </h2>
+            <div class="solution-panel p-8 rounded-lg shadow-inner">
+                <p class="mb-6 text-lg font-medium text-gray-700">我々の新事業は、感情論ではなく、オーナー様の<span class="font-bold">資産価値の最大化</span>という論理的な最適解を提供します。</p>
+
+                <div class="grid md:grid-cols-2 gap-6">
+
+                    <!-- Core Strategy -->
+                    <div class="p-5 bg-white rounded-lg shadow-lg border-t-4 border-jp-accent">
+                        <h3 class="font-bold text-2xl text-jp-primary mb-3">コア戦略: コスト・コントロールと意思決定の代行</h3>
+                        <ul class="list-none space-y-3 text-gray-700">
+                            <li class="flex items-start">
+                                <i data-lucide="check-circle" class="w-5 h-5 text-green-600 flex-shrink-0 mt-1 mr-2"></i>
+                                <div>
+                                    <span class="font-bold">コスト最適化コンサル</span>: 長期修繕計画を科学的に再構築し、無駄な工事や高額な費用を徹底的に削減。
+                                </div>
+                            </li>
+                            <li class="flex items-start">
+                                <i data-lucide="check-circle" class="w-5 h-5 text-green-600 flex-shrink-0 mt-1 mr-2"></i>
+                                <div>
+                                    <span class="font-bold">管理組合意思決定代行</span>: オーナー様の負担を軽減し、専門家の視点から資産保全に最適な判断を迅速に実行。
+                                </div>
+                            </li>
+                        </ul>
+                    </div>
+
+                    <!-- Value-added Services -->
+                    <div class="p-5 bg-white rounded-lg shadow-lg border-t-4 border-jp-accent">
+                        <h3 class="font-bold text-2xl text-jp-primary mb-3">付加価値サービス: 資産の多角的な防御と増強</h3>
+                        <ul class="list-none space-y-3 text-gray-700">
+                            <li class="flex items-start">
+                                <i data-lucide="trending-up" class="w-5 h-5 text-jp-accent flex-shrink-0 mt-1 mr-2"></i>
+                                <div>
+                                    <span class="font-bold">リノベ・バリューアップ提案</span>: 共用部の省エネ化やデザイン変更など、入居率・資産価値を向上させる具体的な提案を実行。
+                                </div>
+                            </li>
+                            <li class="flex items-start">
+                                <i data-lucide="shield" class="w-5 h-5 text-jp-accent flex-shrink-0 mt-1 mr-2"></i>
+                                <div>
+                                    <span class="font-bold">リスクヘッジ</span>: 24/365緊急対応、防災BCP策定支援、税務・法務相談窓口の提供。
+                                </div>
+                            </li>
+                        </ul>
+                    </div>
+                </div>
+            </div>
+        </div>
+
+        <!-- 4. SECTION: FINANCIAL LOGIC (事業モデルと確実な収益性) -->
+        <div class="mb-20 section-wrapper">
+            <h2 class="text-3xl font-bold section-heading text-jp-primary mb-8">
+                3. 事業モデル: ロジックに基づいた確実な収益性
+            </h2>
+
+            <!-- 4.1. Core Stock Business Simulation -->
+            <h3 class="text-2xl font-semibold text-gray-800 mb-4">
+                3.1. コア・ストック収益シミュレーション (管理費単価 ¥10,000 / 戸)
+            </h3>
+            <div class="overflow-x-auto shadow-xl rounded-lg ring-1 ring-gray-200">
+                <table class="min-w-full divide-y divide-gray-300">
+                    <thead class="bg-jp-primary text-white">
+                        <tr>
+                            <th scope="col" class="py-3.5 pl-4 pr-3 text-left text-sm font-semibold sm:pl-6">管理戸数</th>
+                            <th scope="col" class="px-3 py-3.5 text-center text-sm font-semibold">月間売上 (万円)</th>
+                            <th scope="col" class="px-3 py-3.5 text-center text-sm font-semibold">年間売上 (万円)</th>
+                            <th scope="col" class="px-3 py-3.5 text-center text-sm font-semibold bg-gray-800">年間利益 (10%)</th>
+                            <th scope="col" class="px-3 py-3.5 text-center text-sm font-semibold bg-jp-accent">年間利益 (20%)</th>
+                            <th scope="col" class="px-3 py-3.5 text-center text-sm font-semibold bg-green-600">年間利益 (30%)</th>
+                        </tr>
+                    </thead>
+                    <tbody class="divide-y divide-gray-200 bg-white">
+                        <!-- Data Rows -->
+                        <tr class="hover:bg-gray-50"><td class="py-4 pl-4 pr-3 text-sm font-medium text-gray-900 sm:pl-6">100戸</td><td class="px-3 py-4 text-sm text-gray-500 text-center">100.0</td><td class="px-3 py-4 text-sm text-gray-500 text-center">1,200.0</td><td class="px-3 py-4 text-sm data-cell text-center">120.0</td><td class="px-3 py-4 text-sm data-cell text-center text-jp-accent">240.0</td><td class="px-3 py-4 text-sm data-cell text-center text-green-600">360.0</td></tr>
+                        <tr class="hover:bg-gray-50"><td class="py-4 pl-4 pr-3 text-sm font-medium text-gray-900 sm:pl-6">300戸</td><td class="px-3 py-4 text-sm text-gray-500 text-center">300.0</td><td class="px-3 py-4 text-sm text-gray-500 text-center">3,600.0</td><td class="px-3 py-4 text-sm data-cell text-center">360.0</td><td class="px-3 py-4 text-sm data-cell text-center text-jp-accent">720.0</td><td class="px-3 py-4 text-sm data-cell text-center text-green-600">1,080.0</td></tr>
+                        <tr class="hover:bg-gray-50"><td class="py-4 pl-4 pr-3 text-sm font-medium text-gray-900 sm:pl-6">500戸</td><td class="px-3 py-4 text-sm text-gray-500 text-center">500.0</td><td class="px-3 py-4 text-sm text-gray-500 text-center">6,000.0</td><td class="px-3 py-4 text-sm data-cell text-center">600.0</td><td class="px-3 py-4 text-sm data-cell text-center text-jp-accent">1,200.0</td><td class="px-3 py-4 text-sm data-cell text-center text-green-600">1,800.0</td></tr>
+                        <tr class="hover:bg-gray-50"><td class="py-4 pl-4 pr-3 text-sm font-medium text-gray-900 sm:pl-6">1,000戸</td><td class="px-3 py-4 text-sm text-gray-500 text-center">1,000.0</td><td class="px-3 py-4 text-sm text-gray-500 text-center">12,000.0</td><td class="px-3 py-4 text-sm data-cell text-center">1,200.0</td><td class="px-3 py-4 text-sm data-cell text-center text-jp-accent">2,400.0</td><td class="px-3 py-4 text-sm data-cell text-center text-green-600">3,600.0</td></tr>
+                        <tr class="hover:bg-gray-50"><td class="py-4 pl-4 pr-3 text-sm font-medium text-gray-900 sm:pl-6">2,000戸</td><td class="px-3 py-4 text-sm text-gray-500 text-center">2,000.0</td><td class="px-3 py-4 text-sm text-gray-500 text-center">24,000.0</td><td class="px-3 py-4 text-sm data-cell text-center">2,400.0</td><td class="px-3 py-4 text-sm data-cell text-center text-jp-accent">4,800.0</td><td class="px-3 py-4 text-sm data-cell text-center text-green-600">7,200.0</td></tr>
+                    </tbody>
+                </table>
+            </div>
+            <p class="mt-4 text-sm text-gray-500">*利益率10%の上昇が、2,000戸スケールでは年間2,400万円の利益増に直結します。規模の論理を証明します。</p>
+
+
+            <!-- 4.2. Multi-Revenue Model -->
+            <h3 class="text-2xl font-semibold text-gray-800 mt-12 mb-4">
+                3.2. マネタイズの多角化: 5つの収益ハブ
+            </h3>
+            <div class="grid md:grid-cols-5 gap-4">
+                <div class="p-4 bg-white rounded-lg shadow-lg text-center border-t-2 border-jp-accent">
+                    <i data-lucide="home" class="w-6 h-6 mx-auto text-jp-accent mb-2"></i>
+                    <p class="text-sm font-bold">コアフィー収益</p>
+                </div>
+                <div class="p-4 bg-white rounded-lg shadow-lg text-center border-t-2 border-jp-accent">
+                    <i data-lucide="shield-check" class="w-6 h-6 mx-auto text-jp-accent mb-2"></i>
+                    <p class="text-sm font-bold">損保代理店収益</p>
+                </div>
+                <div class="p-4 bg-white rounded-lg shadow-lg text-center border-t-2 border-jp-accent">
+                    <i data-lucide="building-2" class="w-6 h-6 mx-auto text-jp-accent mb-2"></i>
+                    <p class="text-sm font-bold">修繕工事元請け収益</p>
+                </div>
+                <div class="p-4 bg-white rounded-lg shadow-lg text-center border-t-2 border-jp-accent">
+                    <i data-lucide="power" class="w-6 h-6 mx-auto text-jp-accent mb-2"></i>
+                    <p class="text-sm font-bold">ライフライン紹介マージン</p>
+                </div>
+                <!-- Final Hub is highlighted with a shadow and bold red border for maximum attention -->
+                <div class="p-4 bg-white rounded-lg shadow-xl ring-2 ring-red-500 text-center final-hub border-t-2 border-red-500">
+                    <i data-lucide="gem" class="w-6 h-6 mx-auto text-red-500 mb-2"></i>
+                    <p class="text-sm font-bold text-red-500">【最終】オーナー直買取ライン</p>
+                </div>
+            </div>
+            <p class="mt-4 text-base text-gray-700">建物管理事業は、これらの<span class="font-bold">5つの収益ハブ</span>を統合し、リスクを分散しながら安定成長を保証する、多角的な収益モデルを確立します。</p>
+        </div>
+
+        <!-- 4. SECTION: STRATEGIC LOGIC FLOW (拡大＆囲い込み戦略の図解) -->
+        <div class="mb-20 section-wrapper">
+            <h3 class="text-2xl font-bold section-heading text-jp-primary mb-8">
+                3.3. 拡大と囲い込み戦略のロジック・フロー
+            </h3>
+            <div class="flex flex-col lg:flex-row items-stretch justify-between">
+                
+                <!-- Step 1: 永続的な関係構築 -->
+                <div class="logic-step lg:w-1/4 p-4 lg:p-6 bg-jp-accent/10 border-b-4 lg:border-r-4 lg:border-b-0 border-jp-accent">
+                    <div class="text-3xl text-jp-accent mb-2 font-inter font-extrabold">STEP 1</div>
+                    <i data-lucide="users" class="w-8 h-8 text-jp-accent mx-auto mb-2"></i>
+                    <p class="text-lg font-bold">永続的な関係構築</p>
+                    <p class="text-sm mt-1 text-gray-600">建物管理を通じたオーナー資産への深い関与と信頼獲得</p>
+                </div>
+                
+                <div class="arrow-connector transform rotate-90 lg:rotate-0 text-jp-primary">
+                    <i data-lucide="arrow-right" class="w-8 h-8"></i>
+                </div>
+
+                <!-- Step 2: 買取再販案件の他社流出防止 -->
+                <div class="logic-step lg:w-1/4 p-4 lg:p-6 bg-jp-secondary border-b-4 lg:border-r-4 lg:border-b-0 border-jp-accent">
+                    <div class="text-3xl text-jp-primary mb-2 font-inter font-extrabold">STEP 2</div>
+                    <i data-lucide="lock" class="w-8 h-8 text-jp-primary mx-auto mb-2"></i>
+                    <p class="text-lg font-bold">売却案件の「囲い込み」（防御）</p>
+                    <p class="text-sm mt-1 text-gray-600">関係構築により、デベロッパーの囲い込みや他社への流出を徹底的に防御</p>
+                </div>
+
+                <div class="arrow-connector transform rotate-90 lg:rotate-0 text-jp-primary">
+                    <i data-lucide="arrow-right" class="w-8 h-8"></i>
+                </div>
+
+                <!-- Step 3: 先駆者利益の獲得 -->
+                <div class="logic-step lg:w-1/4 p-4 lg:p-6 bg-jp-secondary border-b-4 lg:border-r-4 lg:border-b-0 border-jp-accent">
+                    <div class="text-3xl text-jp-primary mb-2 font-inter font-extrabold">STEP 3</div>
+                    <i data-lucide="zap" class="w-8 h-8 text-jp-primary mx-auto mb-2"></i>
+                    <p class="text-lg font-bold">先駆者利益の享受（拡大）</p>
+                    <p class="text-sm mt-1 text-gray-600">投資業界初のスキーム導入により、競合の追随を許さず市場優位性を確立</p>
+                </div>
+
+                <div class="arrow-connector transform rotate-90 lg:rotate-0 text-red-500">
+                    <i data-lucide="arrow-right" class="w-8 h-8"></i>
+                </div>
+
+                <!-- Step 4: 最終目標 - 買取再販在庫の確保 -->
+                <div class="logic-step lg:w-1/4 p-4 lg:p-6 bg-red-500/10 border-b-4 lg:border-r-4 lg:border-b-0 border-red-500 ring-2 ring-red-500">
+                    <div class="text-3xl text-red-500 mb-2 font-inter font-extrabold">GOAL</div>
+                    <i data-lucide="package-open" class="w-8 h-8 text-red-500 mx-auto mb-2"></i>
+                    <p class="text-lg font-bold text-red-600">買取再販在庫の安定確保</p>
+                    <p class="text-sm mt-1 text-gray-600">コア事業の生命線である在庫を、排他的なラインで継続的に確保</p>
+                </div>
+
+            </div>
+        </div>
+        
+        <!-- NEW SECTION: Execution Team -->
+        <div class="mb-20 section-wrapper">
+            <h2 class="text-3xl font-bold section-heading text-jp-primary mb-8">
+                4. 実行体制: リスクを最小化する連携戦略
+            </h2>
+            <div class="grid md:grid-cols-2 gap-8 text-lg">
+                
+                <div class="p-6 bg-white rounded-lg shadow-lg border-l-4 border-jp-accent">
+                    <div class="flex items-center mb-4">
+                        <i data-lucide="briefcase" class="w-6 h-6 text-jp-primary mr-3"></i>
+                        <h3 class="font-bold text-xl">初期プロジェクト体制（他部署連携型）</h3>
+                    </div>
+                    <ul class="list-disc list-inside space-y-2 text-gray-700">
+                        <li>**プロジェクトリーダー:** <span class="font-bold text-jp-primary">山口</span> （新規事業の推進力と既存事業の知見を融合）</li>
+                        <li>**コアメンバー:** <span class="font-bold text-jp-primary">木村・小沢</span> （多角的な側面から初期戦略をフォロー）</li>
+                        <li class="mt-4">この体制により、既存事業のリソースと知見を最大限に活用し、<span class="font-bold">スモールスタート</span>のリスクを最小化します。</li>
+                    </ul>
+                </div>
+                
+                <div class="p-6 bg-white rounded-lg shadow-lg border-l-4 border-jp-accent">
+                    <div class="flex items-center mb-4">
+                        <i data-lucide="award" class="w-6 h-6 text-jp-primary mr-3"></i>
+                        <h3 class="font-bold text-xl">実行後想定人員と専門性</h3>
+                    </div>
+                    <ul class="list-disc list-inside space-y-2 text-gray-700">
+                        <li>**建物管理業務・管理組合運営経験者:** 必須。実務のクオリティを担保します。</li>
+                        <li>**マンション管理士資格者:** 理想。高度な専門知識と法令順守体制を構築します。</li>
+                        <li class="mt-4"><span class="font-bold">業務の外注</span>を前提としますが、専門性の高い人員が<span class="font-bold">品質管理と戦略立案</span>に専念することで、高い利益率を維持します。</li>
+                    </ul>
+                </div>
+            </div>
+        </div>
+
+        <!-- 5. SECTION: CONCLUSION (結論と戦略的必然) -->
+        <div class="mb-20 section-wrapper">
+            <h2 class="text-3xl font-bold section-heading text-jp-primary mb-8">
+                5. 最終結論: J.P.RETURNSの次なる必然
+            </h2>
+            <div class="p-8 bg-jp-primary text-white rounded-lg shadow-2xl">
+                <h3 class="text-2xl font-bold mb-4">戦略的必然性 (Strategic Imperative)</h3>
+                <p class="text-xl font-light leading-relaxed">
+                    この新規事業は、単なる収益の柱ではありません。既存の「不動産再販」事業の弱点、すなわち<span class="font-bold text-jp-accent">売却案件の他社流出</span>という致命的なリスクを、オーナー様との永続的な関係構築によって解消します。
+                </p>
+                <p class="text-xl font-light leading-relaxed mt-4">
+                    この戦略は、<span class="font-bold text-jp-accent">「好立地特化による市場拡大」</span>と<span class="font-bold text-jp-accent">「オーナー関係構築による在庫の囲い込み」</span>を両立させる、新築デベロッパーには実行不可能な戦略です。既に<span class="font-bold text-jp-accent">実需マーケットで広がっている建物管理会社の乗り換えスキームを、投資業界で初めて導入</span>することで、フロンティア・チャレンジの価値は計り知れません。
+                </p>
+                <p class="text-xl font-light leading-relaxed mt-4">
+                    これにより、他社の追随を引き離す<span class="font-bold text-jp-accent">先駆者利益</span>を享受し、管理物件数に比例してストック収益を積み上げ、最終的に<span class="font-bold text-jp-accent">J.P.RETURNSの中核事業である「買取再販事業」のための「安定した在庫」を確保する</span>、極めて論理的かつ防御力の高い戦略となります。
+                </p>
+                <!-- NEW VISION ADDITION: The Synergy for Core Business Growth -->
+                <p class="text-xl font-light leading-relaxed mt-4">
+                    究極的には、**業界トップクラスの賃上げ交渉力**と**管理費ダウンによる収益性UP**を背景とした<span class="font-bold text-jp-accent">買取囲い込み戦略</span>が、**買取数アップ**と**利益率増加**という**コアビジネスの成長**へ**両輪で加速**できるビジョンを確立します。
+                </p>
+                <!-- Small Start Logic -->
+                <p class="text-xl font-light leading-relaxed mt-4">
+                    また、本事業は、実務の外注を前提とした<span class="font-bold text-jp-accent">スモールスタート</span>での実践が可能であり、初期投資と固定費リスクを最小化しつつ、市場優位性と<span class="font-bold text-jp-accent">先駆者利益</span>の獲得を最速で目指せる点で、極めて高い価値があります。
+                </p>
+                <!-- ACTION CALL (Revised) -->
+                <p class="text-xl font-bold mt-8 text-yellow-300">
+                    この戦略の実現に向け、次なる一歩について、江馬社長のご指導を仰ぎたく存じます。
+                </p>
+            </div>
+        </div>
+
+    </div>
+    
+    <script>
+        // Initialize Lucide icons
+        lucide.createIcons();
+    </script>
+</body>
+</html>
+
+
