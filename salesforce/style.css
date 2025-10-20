@@ -32,7 +32,7 @@ body {
     margin-bottom: 15px;
     padding: 12px 20px;
     box-sizing: border-box;
-    background:  var(--main); /* グラデーション背景 */
+    background:  var(--main);
     color: white;
     font-size: 1rem;
     font-weight: 600;
@@ -63,7 +63,6 @@ body {
     padding: 20px;
     overflow-y: auto;
     scroll-behavior: smooth;
-    background: #f7fafc;
 }
 
 .message-bubble {
@@ -73,19 +72,18 @@ body {
     margin-bottom: 15px;
     line-height: 1.6;
     font-size: 1rem;
-    box-shadow: 0 1px 3px rgba(0, 0, 0, 0.05);
+    box-shadow: 0px 1px 4px rgba(0, 0, 0, 0.3);
 }
 
 .bot-message {
-    background-color: var(--main-light);
     color: var(--jp-text);
     margin-right: auto;
     border-bottom-left-radius: 4px;
 }
 
 .user-message {
-    background-color: #f0fff4;
-    color: var(--jp-text);
+    background:  var(--main);
+    color: white;
     margin-left: auto;
     border-bottom-right-radius: 4px;
 }
@@ -270,9 +268,8 @@ body {
     border-left: 5px solid var(--jp-gold);
 }
 .tax-block {
-    background-color: #fcefe6;
-    border-left: 5px solid #d97706;
-    margin-top: 15px;
+    background-color: #fce6e6;
+    border-left: 5px solid #d90606;
 }
 
 .block-title {
@@ -281,9 +278,9 @@ body {
     color: var(--jp-text);
 }
 .block-value {
-    font-size: 1.4rem;
+    font-size: 1.7rem;
     font-weight: 900;
-    margin-top: 2px;
+    margin: 0px 0px 0px 10px;
 }
 
 .cta-sign-flow {

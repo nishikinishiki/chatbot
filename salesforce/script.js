@@ -32,33 +32,33 @@ let userData = {};
 // **********************************************
 const steps = {
     'start': {
-        message: "Salesforce様 限定の戦略的資産形成プログラムへようこそ。まずは、あなたの現在の課題に最も近いものをお選びください。",
+        message: "Salesforce様 限定の戦略的資産形成プログラムへようこそ。<br>まずは、あなたの現在の課題に最も近いものをお選びください。",
         options: [
-            { text: "A. 信用力・タックスコントロールを<br>活用した資産拡大戦略を検討したい", next: 'Q1_age', score: 0 },
-            { text: "B. 節税の仕組みがわからないので、そこを学びたい", next: 'Q0_tax_approach', score: 0 },
-            { text: "C. 不動産相場が上がり過ぎてて買い時はもう遅い？", next: 'Q0_bubble', score: 0 },
-            { text: "D. 他社で検討中、<br>もしくは既に所有済み", next: 'Q0_status', score: 0 }
+            { text: "A. 信用力・タックスコントロールを活用した資産拡大戦略を検討したい", next: 'Q1_age', score: 0 },
+            { text: "B. 節税の仕組みが分からないので学びたい", next: 'Q0_tax_approach', score: 0 },
+            { text: "C. 不動産相場が上がり過ぎて、買い時はもう遅いと感じている", next: 'Q0_bubble', score: 0 },
+            { text: "D. 不動産投資を他社で検討中、または既に所有している", next: 'Q0_status', score: 0 }
         ]
     },
     'Q0_tax_approach': {
-        message: "承知いたしました。節税の仕組みについて、あなたの理想的なアプローチをお聞かせください。",
+        message: "承知いたしました。<br>節税への取り組みについて、あなたの理想をお聞かせください。",
         options: [
-            { text: "面倒なのは嫌なので、丸投げできるなら専門家に頼みたい", next: 'Q1_age', score: 0 },
-            { text: "全部理解しないと気が済まないので、じっくり仕組みが知りたい", next: 'end_video', score: 0 }
+            { text: "面倒なのは嫌なので、専門家に丸投げしたい", next: 'Q1_age', score: 0 },
+            { text: "全部理解しないと気が済まないので、自分で学びたい", next: 'end_video', score: 0 }
         ]
     },
     'Q0_bubble': {
-        message: "市場環境の懸念、承知いたしました。では、もし仮に相場よりまだ割安で手に入る「勝ち筋の物件」があるとしたら、あなたの考えはどちらに近いですか？",
+        message: "市場環境の懸念、承知いたしました。<br>では、もし仮に相場よりまだ割安で手に入る「勝ち筋の物件」があるとしたら、あなたの考えはどちらに近いですか？",
         options: [
-            { text: "相場より割安で手に入る物件なら、検討する価値あるかも", next: 'Q1_age', score: 0 },
+            { text: "相場より割安で手に入る物件なら検討する価値あるかも", next: 'Q1_age', score: 0 },
             { text: "バブルは怖いから無理かも", next: 'end_video', score: 0 }
         ]
     },
     'Q0_status': {
-        message: "承知いたしました。現在のご状況をお聞かせください。",
+        message: "承知いたしました。<br>現在のご状況をお聞かせください。",
         options: [
-            { text: "他社で具体的な物件提案を受け、<br>比較検討中です", next: 'Q1_age', score: 2500 },
-            { text: "既に不動産を所有しており、<br>運用・出口戦略を相談したい", next: 'Q1_age', score: 1000 }
+            { text: "他社で具体的な物件提案を受け、比較検討中", next: 'Q1_age', score: 2500 },
+            { text: "既に不動産を所有しており、運用・出口戦略を相談したい", next: 'Q1_age', score: 1000 }
         ]
     },
     'Q1_age': {
@@ -72,23 +72,22 @@ const steps = {
         next: 'Q3_loan'
     },
     'Q3_loan': {
-        message: "Q3. 住宅ローンや、投資物件ローン、車、その他本人名義の借り入れ（残債、万円単位）を概算でご入力ください。ない場合は「0」をご入力ください。",
+        message: "Q3. 住宅ローンや、投資物件ローン、車、その他本人名義の借り入れ（残債、万円単位）を概算でご入力ください。<br>ない場合は「0」をご入力ください。",
         is_input: true,
         next: 'Q4_experience'
     },
     'Q4_experience': {
-        message: "Q4. 過去にマンション投資を検討し、具体的な物件選定やシミュレーションまで進めた経験はありますか？",
+        message: "Q4. 過去に不動産投資を検討し、具体的な物件選定やシミュレーションまで進めた経験はありますか？",
         options: [
-            { text: "はい、具体的に動いたことがあります", next: 'Q5_barrier', score: 500 },
-            { text: "いいえ、情報収集段階です", next: 'Q5_barrier', score: 0 },
+            { text: "はい", next: 'Q5_barrier', score: 500 },
+            { text: "いいえ", next: 'Q5_barrier', score: 0 },
         ]
     },
     'Q5_barrier': {
         message: "Q5. その他に、現在の検討状況で『解消できていない明確な課題』はありますか？",
         options: [
-            { text: "はい、明確な課題（不安）がありました", next: 'calc_score', score: 500 },
-            { text: "いいえ、特にありません", next: 'calc_score', score: 250 },
-            { text: "特になく、すでに所有済みなので、その活用方法や出口戦略を相談したい", next: 'calc_score', score: 250 }
+            { text: "はい", next: 'calc_score', score: 500 },
+            { text: "いいえ", next: 'calc_score', score: 250 }
         ]
     },
     'calc_score': {
@@ -100,11 +99,11 @@ const steps = {
         message: "",
         options: [
             { text: ``, next: 'redirect_consult', is_cta: true, class: 'final-cta' },
-            { text: "② まずは無料動画を視聴する（キャンペーン対象外）", next: 'redirect_video', is_cta: true, class: 'option-button-2' },
+            { text: "② まずは無料動画を視聴する<br>（キャンペーン対象外）", next: 'redirect_video', is_cta: true, class: 'option-button-2' },
         ]
     },
     'end_video': {
-        message: "承知いたしました。まずは知識武装から始めるのが賢明です。高年収者が確実に資産を築くための「タックスコントロール基礎動画」を無料公開しています。こちらからご視聴ください。",
+        message: "まずは知識武装から始めるのが賢明です。<br>高年収者が確実に資産を築くための「タックスコントロール基礎動画」を無料公開しています。下記からご視聴ください。",
         options: [
             { text: "無料動画視聴ページへ進む", next: 'redirect_video', is_cta: true, class: 'option-button' },
         ]
@@ -150,12 +149,11 @@ function displayOptions(stepName) {
             if (stepName === 'final_result') {
                 if (option.next === 'redirect_consult') {
                     const signClass = IS_CAMPAIGN_ACTIVE ? '' : 'inactive';
-                    const signText = IS_CAMPAIGN_ACTIVE ? '✨ 社内福利厚生キャンペーン対象！今すぐご予約ください ✨' : '（キャンペーン対象外）';
+                    const signText = IS_CAMPAIGN_ACTIVE ? '✨ 社内福利厚生キャンペーン対象！<br>今すぐご予約ください ✨' : '（キャンペーン対象外）';
                     button.innerHTML = `
                         ① 【AI診断によるおすすめプラン】<br>専門家へ個別相談を予約する
                         <span class="cta-sign-flow">
-                            まずは日程確保。専門スタッフが電話でヒアリング<br>
-                            （コンサル選定・WEB/来社相談を決定）
+                            専門スタッフが電話でヒアリングいたします。
                         </span>
                         <span class="cta-sign ${signClass}">${signText}</span>`;
                 } else {
@@ -171,6 +169,7 @@ function displayOptions(stepName) {
     scrollToBottom();
 }
 
+// ★変更点: エンターキーでの送信処理を追加
 function displayInputField(stepName, inputType = 'number') {
     const placeholderText = stepName === 'Q1_age' ? "例: 35" :
         stepName === 'Q2_salary' ? "例: 1200 (万円)" :
@@ -182,20 +181,41 @@ function displayInputField(stepName, inputType = 'number') {
             <button onclick="handleInputSubmit('${stepName}', ${isNumber})">送信</button>
         </div>
         <div id="inputError" class="error-message"></div>`;
-    document.getElementById('userInput')?.focus();
+    
+    const inputElement = document.getElementById('userInput');
+    inputElement?.focus();
+
+    // ▼▼▼ ここから追加 ▼▼▼
+    // エンターキーが押されたら送信関数を実行
+    inputElement?.addEventListener('keydown', (event) => {
+        if (event.key === 'Enter') {
+            event.preventDefault(); // フォームのデフォルト送信をキャンセル
+            handleInputSubmit(stepName, isNumber);
+        }
+    });
+    // ▲▲▲ ここまで追加 ▲▲▲
 }
 
 async function handleInputSubmit(stepName, isNumber) {
     const inputElement = document.getElementById('userInput');
+    // ★変更点: inputElementがnullの場合を考慮して早期リターン
+    if (!inputElement) return; 
+
     const errorElement = document.getElementById('inputError');
     const inputValue = inputElement.value.trim();
-    errorElement.textContent = '';
+
+    // ★変更点: errorElementがnullの場合も考慮
+    if (errorElement) errorElement.textContent = ''; 
+
     if (!inputValue || (isNumber && (isNaN(parseInt(inputValue)) || parseInt(inputValue) < 0))) {
-        errorElement.textContent = isNumber ? '有効な数字を入力してください。' : '内容を入力してください。';
+        if (errorElement) errorElement.textContent = isNumber ? '有効な数字を入力してください。' : '内容を入力してください。';
         return;
     }
+
+    // ★変更点: 重複送信を防ぐため、一度ボタンを押したら入力をクリア
+    optionsDiv.innerHTML = ''; 
+
     displayMessage(inputValue, true);
-    optionsDiv.innerHTML = '';
     
     if (stepName === 'Q1_age') {
         userData.age = parseInt(inputValue);
@@ -282,19 +302,19 @@ function calculateAndDisplayResult() {
     const totalPotentialDisplay = formatTotalPotential(totalPotentialMan);
     let loanMessage;
     if (totalPotentialMan >= HYPER_CORE_THRESHOLD_AMOUNT) {
-        loanMessage = `<strong style="color:var(--jp-teal);">【AI診断による休眠信用試算（与信枠）】</strong><br>貴方の信用力は総額 ${totalPotentialDisplay}の超優良資産に匹敵します。このポテンシャルを活かすため、<strong class="score-value">部長クラスの敏腕コンサル</strong>が担当をお約束します。`;
+        loanMessage = `<strong style="color:var(--jp-teal);">【AI診断による休眠信用試算（与信枠）】</strong><br>貴方の信用力は総額 ${totalPotentialDisplay}の超優良資産に匹敵します。<br>このポテンシャルを活かすため、<strong class="score-value">部長クラスのコンサル</strong>が担当をお約束します。`;
     } else {
-        loanMessage = `貴方の信用力は**総額 ${totalPotentialDisplay}** の休眠信用資産に匹敵します。あなたのお悩みをしっかり解決へ導く、<strong class="score-value">ベテランコンサル</strong>が担当をお約束します。`;
+        loanMessage = `貴方の信用力は総額 ${totalPotentialDisplay}の休眠信用資産に匹敵します。<br>あなたのお悩みを解決へ導く、<strong class="score-value">ベテランコンサル</strong>が担当をお約束します。`;
     }
-    const solidValueDisplay = `${Math.floor(solidCredit).toLocaleString()} 万円`;
-    const maxValueDisplay = `${Math.floor(maxCredit).toLocaleString()} 万円`;
-    const taxValueDisplay = `${taxBenefitEstimate.min.toLocaleString()} 万円 〜 ${taxBenefitEstimate.max.toLocaleString()} 万円`;
+    const solidValueDisplay = `${Math.floor(solidCredit).toLocaleString()}万円`;
+    const maxValueDisplay = `${Math.floor(maxCredit).toLocaleString()}万円`;
+    const taxValueDisplay = `${taxBenefitEstimate.min.toLocaleString()}万円 ~${taxBenefitEstimate.max.toLocaleString()}万円`;
     let currentMaxMultiplier = (annualSalary >= 1201) ? 12 : (annualSalary >= 801) ? 10 : 8;
     const scoreDisplayHtml = `
         <div class="double-score-container">
-            <div class="score-block solid-block"><div class="block-title">① 堅実低金利安定枠（年収×9倍－残債）</div><div class="block-value" style="color: var(--jp-teal);">${solidValueDisplay}</div></div>
-            <div class="score-block full-block"><div class="block-title">② 信用力ポテンシャル最大活用枠（年収×${currentMaxMultiplier}倍－残債）</div><div class="block-value" style="color: var(--jp-gold);">${maxValueDisplay}</div></div>
-            <div class="score-block tax-block"><div class="block-title">③ TAX機会損失額（初年度概算）</div><div class="block-value" style="color: #d97706;">${taxValueDisplay}</div><p style="text-align: right; font-size: 0.8rem; color: #4a5568; margin-top: 5px;">※この効果は、中古物件なら初年度だけでなく、その後も4〜15年にわたって継続可能です</p></div>
+            <div class="score-block solid-block"><div class="block-title">① 堅実低金利安定枠<br>（年収×9倍－残債）</div><div class="block-value" style="color: var(--main);">${solidValueDisplay}</div></div>
+            <div class="score-block full-block"><div class="block-title">② 信用力ポテンシャル最大活用枠<br>（年収×${currentMaxMultiplier}倍－残債）</div><div class="block-value" style="color: var(--jp-gold);">${maxValueDisplay}</div></div>
+            <div class="score-block tax-block"><div class="block-title">③ 節税機会損失額（初年度概算）</div><div class="block-value" style="color: #d90606ff;">${taxValueDisplay}</div><p style="text-align: left; font-size: 0.8rem; color: #4a5568; margin-top: 5px;">※中古物件の場合は4〜15年にわたって継続可能</p></div>
         </div>
         <p style="margin-top: 15px;">${loanMessage}</p>`;
     messagesDiv.lastChild.innerHTML = steps['calc_score'].message + scoreDisplayHtml;
