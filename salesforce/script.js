@@ -91,7 +91,7 @@ const steps = {
         ]
     },
     'calc_score': {
-        message: "スコアリングが完了しました。あなたの「休眠信用資産（与信枠）」のポテンシャルを推定します...",
+        message: "スコアリングが完了しました。<br>あなたの「休眠信用資産（与信枠）」のポテンシャルは以下の通りです",
         next: 'final_result',
         options: []
     },
@@ -109,11 +109,11 @@ const steps = {
         ]
     },
     'redirect_consult': {
-        message: "個別電話ヒアリング予約ページへ移動します...",
+        message: "個別電話ヒアリング予約ページへ移動しました...",
         action: () => window.open(CONSULT_URL, '_blank')
     },
     'redirect_video': {
-        message: "無料動画視聴ページへ移動します...",
+        message: "無料動画視聴ページへ移動しました...",
         action: () => window.open(VIDEO_URL, '_blank')
     }
 };
