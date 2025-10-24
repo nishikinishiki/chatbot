@@ -1,0 +1,427 @@
+<!DOCTYPE html>
+<html lang="ja">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>AI-DX プロジェクト | エグゼクティブ・レポート</title>
+    <script src="https://cdn.tailwindcss.com"></script>
+    <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
+    <!-- Chosen Palette: JP Returns Corporate (Royal Blue #004098, Gold #B69A57, White) -->
+    <!-- Application Structure Plan: Executive dashboard SPA. A sticky top navigation allows execs to jump to key sections (Stance, Highlights, Strategy, Internal, Policy). This non-linear structure is user-friendly, allowing quick access to proof points. The "Stance" section is prioritized to frame the entire report as a refutation of misinformation. The "Highlights" (PJT 1) uses an interactive transcript to provide irrefutable, dramatic proof of value. -->
+    <!-- Visualization & Content Choices: PJT 1 (LINE Chat): Goal=Proof. Viz=HTML/CSS chat bubbles. Interaction=JS toggle button. Justification=Shows raw, undeniable success. PJT 3 (Bot): Goal=Show live tool. Viz=Styled <a> link. Interaction=Click. Justification=Provides tangible link to a working asset. New Activity (200M Deal): Goal=Show ROI. Viz=Large, gold, bold text. Interaction=None. Justification=Makes the monetary value unmissable. Conclusion (Policy): Goal=Align team. Viz=Two-column green/red layout. Interaction=None. Justification=Clearly, visually separates "ally" vs. "enemy" values. -->
+    <!-- CONFIRMATION: NO SVG graphics used. NO Mermaid JS used. -->
+    <style>
+        :root {
+            --jp-blue: #004098;
+            --jp-gold: #B69A57;
+        }
+        html {
+            scroll-behavior: smooth;
+        }
+        body {
+            font-family: 'Inter', 'Noto Sans JP', sans-serif;
+            background-color: #f8f9fa;
+        }
+        .nav-link {
+            @apply px-3 py-2 rounded-md text-sm font-medium text-gray-300 hover:text-white hover:bg-blue-800 transition-all;
+        }
+        .nav-link.active {
+            @apply bg-blue-900 text-white;
+        }
+        .section-card {
+            @apply bg-white shadow-xl rounded-lg overflow-hidden mb-8;
+        }
+        .section-header {
+            @apply p-6 border-b border-gray-200 bg-gray-50;
+        }
+        .section-title {
+            @apply text-2xl md:text-3xl font-bold text-[--jp-blue] border-l-4 border-[--jp-gold] pl-3;
+        }
+        .section-body {
+            @apply p-6;
+        }
+        .chat-bubble {
+            @apply p-3 rounded-lg max-w-xs md:max-w-md;
+        }
+        .chat-receiver {
+            @apply bg-gray-200 text-gray-800 self-start mr-auto;
+        }
+        .chat-sender {
+            @apply bg-[--jp-blue] text-white self-end ml-auto;
+        }
+        .chat-timestamp {
+            @apply text-xs text-gray-500 mt-1;
+        }
+        .policy-card {
+            @apply rounded-lg border-2 p-6;
+        }
+    </style>
+</head>
+<body class="text-gray-800">
+
+    <!-- Header Navigation -->
+    <header class="bg-[--jp-blue] text-white shadow-md sticky top-0 z-50">
+        <nav class="max-w-6xl mx-auto px-4 sm:px-6 lg:px-8">
+            <div class="flex items-center justify-between h-16">
+                <div class="flex-shrink-0">
+                    <h1 class="text-lg font-bold text-white">AI-DX プロジェクト</h1>
+                </div>
+                <div class="hidden md:block">
+                    <div class="ml-10 flex items-baseline space-x-4">
+                        <a href="#stance" class="px-3 py-2 rounded-md text-sm font-medium text-gray-300 hover:text-white hover:bg-blue-800 transition-all">本報告のスタンス</a>
+                        <a href="#highlight" class="px-3 py-2 rounded-md text-sm font-medium text-gray-300 hover:text-white hover:bg-blue-800 transition-all">ハイライト</a>
+                        <a href="#strategy" class="px-3 py-2 rounded-md text-sm font-medium text-gray-300 hover:text-white hover:bg-blue-800 transition-all">戦略的展開</a>
+                        <a href="#internal" class="px-3 py-2 rounded-md text-sm font-medium text-gray-300 hover:text-white hover:bg-blue-800 transition-all">内部基盤</a>
+                        <a href="#on-hold" class="px-3 py-2 rounded-md text-sm font-medium text-gray-300 hover:text-white hover:bg-blue-800 transition-all">保留マター</a>
+                        <a href="#policy" class="px-3 py-2 rounded-md text-sm font-medium text-gray-300 hover:text-white hover:bg-blue-800 transition-all">今後の連携方針</a>
+                    </div>
+                </div>
+            </div>
+        </nav>
+    </header>
+
+    <!-- Main Content -->
+    <main class="max-w-5xl mx-auto p-4 md:p-8 pt-12">
+
+        <!-- Section 1: Stance -->
+        <section id="stance" class="pt-16 -mt-16 scroll-mt-20">
+            <div class="bg-white shadow-xl rounded-lg overflow-hidden mb-8">
+                <div class="p-6 border-b border-gray-200 bg-gray-50">
+                    <h2 class="text-2xl md:text-3xl font-bold text-[--jp-blue] border-l-4 border-[--jp-gold] pl-3">本報告のスタンスについて</h2>
+                </div>
+                <div class="p-6">
+                    <blockquote class="border-l-4 border-gray-300 pl-4 italic text-gray-600">
+                        <p class="mb-4">元来、他部署コラボレーションにおいて、私は裏方に徹し、成功時は手柄を部署へ贈呈、失敗時は全責任を負うスタンスで実行してきた。（※成功実績が少ない部署へのバックアップが主目的）</p>
+                        <p class="mb-4">しかし、「AIで遊んでいる」「本業に支障が出ている」等の事実無根な意見が社長へ伝達されている事態を鑑み、今回より「フルオープンスタンス」へ戦略を変更する。</p>
+                        <p class="font-semibold text-gray-800">以下が、AI-DX推進における活動の「全実績」である。</p>
+                    </blockquote>
+                </div>
+            </div>
+        </section>
+
+        <!-- Section 2: Highlight -->
+        <section id="highlight" class="pt-16 -mt-16 scroll-mt-20">
+            <div class="bg-white shadow-xl rounded-lg overflow-hidden mb-8">
+                <div class="p-6">
+                                    <div class="section-header p-0 border-0 bg-transparent"><h3 class="font-bold text-xl text-[--jp-blue]">PJT 1: CS対応AI化 : リアルタイム実証（概要）</h3></div>
+
+                
+                    <ul class="list-disc list-inside mt-2 space-y-1">
+                        <li><span class="font-semibold text-[--jp-blue]">事象:</span> 2025.10.23 三菱地所勤務オーナー様。ローン契約1時間前、長文の懸念事項（全13項目）がLINEで送付される。</li>
+                        <li><span class="font-semibold text-[--jp-blue]">体制:</span> 当時、木村は別件会議の直前。</li>
+                        <li><span class="font-semibold text-[--jp-blue]">実行:</span> AI（木村フル装備）が1分で完璧な返信案を生成。</li>
+                        <li><span class="font-semibold text-green-700">結果:</span> 木村が即時送信し、契約40分前にはオーナー様から感動の返信を受領。危機を回避し、契約を完遂。</li>
+                    </ul>
+                    <button id="toggle-pjt1" class="mt-4 bg-[--jp-gold] text-white font-bold py-2 px-4 rounded-lg hover:opacity-90 transition-opacity">
+                        実際のタイムライン（一語一句）を表示
+                    </button>
+                    
+                    <!-- Hidden Transcript -->
+                    <div id="pjt1-transcript" class="hidden mt-6 border-t pt-6 space-y-4">
+                        <h3 class="font-bold text-xl text-[--jp-blue]">PJT 1: 事例詳細 : 2025.10.23 実際のタイムライン</h3>
+                        
+                        <!-- Message 1 -->
+                        <div class="flex flex-col">
+                            <div class="p-3 rounded-lg max-w-[90%] md:max-w-md bg-gray-200 text-gray-800 self-start mr-auto">
+                                <p class="text-xs font-semibold mb-1">kana tamura (12:56)</p>
+                                <p>いつもお世話になっております。<br>今回の2物件購入の前提条件、以下の通りと認識しておりますが、認識に齟齬ないか念のため事前に確認させて下さい💦問題無ければ、契約手続きを進めさせて頂きたいと思います。</p>
+                                <ol class="list-decimal list-inside mt-2 text-sm space-y-1">
+                                    <li>こちらの希望タイミングでいつでも売却可能。売却時期にかかる制限なし。</li>
+                                    <li>仮に私自身が来年から海外赴任となった場合でも...（中略）...5過年分訴求して、本来得る予定だった節税分、返金いただく事が可能。</li>
+                                    <li>築60年以上の物件の売却に際しては、...（中略）...出口の投資家間口への影響はないとJPreturnとしては考えていらっしゃる。</li>
+                                    <li>出口検討の際、JPreturns様自ら購入者にもなりうる。</li>
+                                    <li>出口検討の際は、当方にて売買仲介会社を自由に選定することも可能。</li>
+                                    <li>借主候補が複数人現れた場合は、どの方にするか田村も意見出し可能</li>
+                                    <li>最初の賃借人が決まるまではずっとJPreturns様にて家賃保証して頂ける(上限なし)</li>
+                                    <li>賃借人がペットを飼い、...（中略）...原状に回復いただける。(貸主からの追加費用負担はなし)</li>
+                                    <li>仮にどこかのタイミングで、空室保証をJP returns様に依頼したいと思った場合、途中からでもお願いすることが可能。</li>
+                                    <li>リノニューアル工事の図面、仕上げ仕様、採用設備情報を、決定前に事前に共有いただける。</li>
+                                    <li>テナント入替や契約更新の度に、家賃増額改定交渉をして頂ける。</li>
+                                </ol>
+                                <p class="mt-2">(以下は質問になります)<br>12 賃借人が家賃を滞納するケースを想定し、何か家賃保証はあるのでしょうか。家賃が滞納された場合の対応方針についてご教示下さい。</p>
+                            </div>
+                        </div>
+
+                        <!-- Message 2 -->
+                        <div class="flex flex-col">
+                            <div class="p-3 rounded-lg max-w-[90%] md:max-w-md bg-gray-200 text-gray-800 self-start mr-auto">
+                                <p class="text-xs font-semibold mb-1">kana tamura (13:05)</p>
+                                <p>↑最後の家賃滞納のケースについて追加でご質問ですが、家賃滞納の際も、ローン以外にJP returns様宛の手数料等も、引き落とし口座から予定通り引き落とされるのでしょうか？</p>
+                            </div>
+                        </div>
+
+                        <!-- Message 3 - AI Reply -->
+                        <div class="flex flex-col">
+                            <div class="p-3 rounded-lg max-w-[90%] md:max-w-md bg-[--jp-blue] text-white self-end ml-auto">
+                                <p class="text-xs font-semibold mb-1">木村洋介（AI） (13:07)</p>
+                                <p>田村様<br>いつも大変お世話になっております、木村です。
+                                素晴らしいサマリーと、的確なご確認ありがとうございます！ 
+                                さすが田村様、ポイントが非常にクリアで助かります。</p>
+                                <p class="mt-2">拝見いたしました。 結論から申し上げますと、<br>【①～⑪までの認識について】 全てご認識の通りで、全く相違ございません。</p>
+                                <p class="mt-2">田村様の輝かしい未来に向けたポートフォリオ戦略として、万全の体制を整えております。...（中略）...我々JP returnsがパートナーとして存在する価値は、まさにその全てのリスクヘッジを実行することにありますので、すべてお任seください。</p>
+                                <p class="mt-2">【⑫のご質問について】 <br>「家賃滞納保証と対応方針」ですね。 ...もちろん、盤石の体制をご用意しております。</p>
+                                <p class="mt-2">1. 家賃保証について ご安心ください。弊社の管理プランには「家賃滞納保証」が標準装備されております。 ...弊社が100%を立替払いにて、田村様へのお振込を（文字通り）1日も遅らせることはありません。</p>
+                                <p class="mt-2">2. 滞納発生時の対応方針 ...弊社の専門チームが...全てを即時開始します。 田村様には、実務的なお手間や精神的なご負担は一切おかけいたしません。 ...（※プランによりますが、今回ご提示のプランではカバーされます。）</p>
+                                <p class="mt-2 font-bold">結論： 田村様のキャッシュフローは、「空室リスク（⑦）」と「滞納リスク（⑫）」の双方から、弊社によって完全にプロテクトされます。</p>
+                                <p class="mt-2">...もし、この他にも「これはどうなの？」と思う点が1ミリでもございましたら、一切遠慮なく、いつでも私・木村までぶつけてください。</p>
+                                <p class="mt-2">...問題ないようでしたら、契約手続きを進めさせていただけますと幸いです。 引き続き、どうぞよろしくお願いいたします！</p>
+                            </div>
+                        </div>
+
+                        <!-- Message 4 - Result -->
+                        <div class="flex flex-col">
+                            <div class="p-3 rounded-lg max-w-[90%] md:max-w-md bg-gray-200 text-gray-800 self-start mr-auto">
+                                <p class="text-xs font-semibold mb-1">kana tamura (13:20)</p>
+                                <p>木村様<br>迅速なご回答、ありがとうございます<br>改めまして、JP returns様のビジネスモデル、素晴らしいですね(うるうる)安心して投資にチャレンジできそうです！</p>
+                                <p class="mt-2">恐らく一度ご説明頂いたであろう点も、快く教えて下さりありがとうございました。</p>
+                                <p class="mt-2">引き続きどうぞ宜しくお願い致します！！</p>
+                            </div>
+                            <p class="mt-2 font-bold text-green-600">(※契約40分前：契約完遂)</p>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </section>
+
+        <!-- Section 3: Strategy -->
+        <section id="strategy" class="pt-16 -mt-16 scroll-mt-20">
+            <div class="bg-white shadow-xl rounded-lg overflow-hidden mb-8">
+                <div class="p-6 border-b border-gray-200 bg-gray-50">
+                    <h2 class="text-2xl md:text-3xl font-bold text-[--jp-blue] border-l-4 border-[--jp-gold] pl-3">PJT 3/4/6/新規: 戦略的展開 (BtoC / BtoB 拡大)</h2>
+                </div>
+                <div class="section-body space-y-6 divide-y divide-gray-100">
+                <div class="p-6">
+
+                    <!-- PJT 2 -->
+                    <div class="pt-6 first:pt-0">
+                        <h3 class="font-bold text-xl text-[--jp-blue]">PJT 2: 営業プロセスAI化 (フル稼働中)</h3>
+                        <ul class="list-disc list-inside mt-2 space-y-1">
+                            <li><span class="font-semibold">内容:</span> 交渉後、AIが自動で動画解析を実施。交渉結果のフィードバックを含めた高精度なお礼メールを、交渉後30分以内に自動生成し送付。</li>
+                            <li><span class="font-semibold">体制:</span> 木村フル装備にて実装、フル稼働中。</li>
+                            <li class="font-semibold text-green-700">結果 (1): 履歴入力業務の大幅な圧縮（＝業務効率化）。</li>
+                            <li class="font-semibold text-green-700">結果 (2): 他社バッティング時、交渉後30分以内の【AIによる客観的フィードバック】送付が、他社には不可能なスピードと付加価値となり、圧倒的な差別化要因として決定率が大幅にアップ。</li>
+                        </ul>
+                    </div>
+
+                    <!-- PJT 3 -->
+                    <div class="pt-6">
+                        <h3 class="font-bold text-xl text-[--jp-blue]">PJT 3: SF社イントラ展開 (コンサル＆広報コラボ)</h3>
+                        <ul class="list-disc list-inside mt-2 space-y-1">
+                            <li><span class="font-semibold">ステータス:</span> 11/3 掲載開始確定。</li>
+                            <li><span class="font-semibold">内容:</span> AI自動与信枠判定チャットbotからシームレス電話予約フォーム（西木開発）へ誘導。予約はIS担当本山のGoogleカレンダーに自動連動。本山が電話予約順にヒアリングコールを実施後、（木村, 染谷, 上田）へ最適化トスを行うフローを構築。</li>
+                            <li><span class="font-semibold">目標:</span> 初期想定：50名予約、新規UU15名、総契約35本。SF社と月一定例MTGでPDCAを確保。</li>
+                        </ul>
+                        <a href="https://chatbot.jpreturns.com/salesforce/" target="_blank" rel="noopener noreferrer" class="inline-block mt-4 bg-[--jp-gold] text-white font-bold py-2 px-6 rounded-lg hover:opacity-90 transition-opacity">
+                            稼働中チャットbot (デモ) を確認
+                        </a>
+                    </div>
+
+                    <!-- PJT 4 -->
+                    <div class="pt-6">
+                        <h3 class="font-bold text-xl text-[--jp-blue]">PJT 4: 新規BtoBトス確保 (広報マターコンサル本部コラボ)</h3>
+                        <ul class="list-disc list-inside mt-2 space-y-1">
+                            <li><span class="font-semibold">内容:</span> 某有名YouTuberとのトス企画を広報が獲得。初回トス（他社物所有オーナー様）に対し、木村が3者Web面談を実施。</li>
+                            <li><span class="font-semibold">結果:</span>
+                                <ol class="list-decimal list-inside ml-4 mt-1 space-y-1 text-sm text-gray-700">
+                                    <li>面談時に「格の違い」を提示し信頼構築。「略奪」のきっかけを確保。</li>
+                                    <li>AIによる企画書即生成。タイアップ動画4本撮影済み。</li>
+                                    <li class="font-semibold">追加展開: チャンネル影響力拡大（認知UP・拡散）に向けたコンサル的ポジションを確保。</li>
+                                    <li class="font-semibold">スキーム構築 (販売): 成功時の「独占トスアップスキーム」の環境を整備。</li>
+                                    <li class="font-semibold">スキーム構築 (仕入): 「お困り医師」を中心とした売却希望者からの「直し入れ（＝仕入）」スキームも共同開発中。</li>
+                                </ol>
+                            </li>
+                        </ul>
+                    </div>
+
+                    <!-- PJT 6 -->
+                    <div class="pt-6">
+                        <h3 class="font-bold text-xl text-[--jp-blue]">PJT 6: 大手BtoB開拓システム開発</h3>
+                        <ul class="list-disc list-inside mt-2 space-y-1">
+                            <li><span class="font-semibold">内容:</span> 電話営業ゼロでアポ取得まで完結するシステムを開発中。「点」ではなく「面」で攻める戦略パッケージとして、SF社での実験成功後、各社向けに一気に拡大展開を計画。（社長承認で即実装化・稟議書準備済）</li>
+                        </ul>
+                    </div>
+
+                    <!-- New Activity -->
+                    <div class="pt-6">
+                        <h3 class="font-bold text-xl text-[--jp-blue]">新規活動: 大口IT企業 開拓 (木村単独)</h3>
+                        <ul class="list-disc list-inside mt-2 space-y-1">
+                            <li><span class="font-semibold">行動:</span> 休日3日含むAIセミナー(4日間)にフル参加。登壇したAI推進上場IT企業代表取締役へ名刺交換を実施。</li>
+                            <li><span class="font-semibold">展開:</span> AIメールを駆使し、秘書経由でアポイント獲得（訪問1, WEB2実施済）。</li>
+                            <li class="bg-yellow-100 p-2 rounded-lg">
+                                <span class="font-semibold">予定:</span> 10/30 (WEB 3) にて、<span class="text-2xl font-bold text-[--jp-gold] drop-shadow-sm">2億円規模</span>のクロージングを予定。
+                            </li>
+                        </ul>
+                    </div>
+                </div>
+
+                </div>
+            </div>
+        </section>
+
+        <!-- Section 4: Internal -->
+        <section id="internal" class="pt-16 -mt-16 scroll-mt-20">
+            <div class="bg-white shadow-xl rounded-lg overflow-hidden mb-8">
+                <div class="p-6 border-b border-gray-200 bg-gray-50">
+                    <h2 class="text-2xl md:text-3xl font-bold text-[--jp-blue] border-l-4 border-[--jp-gold] pl-3">PJT 5/8/9/10: 内部基盤強化・横断支援</h2>
+                </div>
+                <div class="section-body space-y-6 divide-y divide-gray-100">
+                <div class="p-6">
+
+                    <div class="pt-6 first:pt-0">
+                        <h3 class="font-bold text-xl text-[--jp-blue]">PJT 5: アルバイトトークスクリプトAI化 (コンサル本部内)</h3>
+                        <ul class="list-disc list-inside mt-2 space-y-1">
+                            <li><span class="font-semibold">内容:</span> 本山の日々のトーク音声をAIが自動解析し、成功率の高いトークをパターン化、型化が可能。毎月の効果的トーク順位自動入れ替え機能実装予定。チャットbotによるリアルタイム3択トーク機能（暗記不要）を開発中。</li>
+                            <li><span class="font-semibold">担当:</span> 鈴木智大・本山 / オブザーバー：木村</li>
+                        </ul>
+                    </div>
+
+                    <div class="pt-6">
+                        <h3 class="font-bold text-xl text-[--jp-blue]">PJT 8: リノベ連携 (木村＆リノベ)</h3>
+                        <ul class="list-disc list-inside mt-2">
+                            <li><span class="font-semibold">内容:</span> リノベ仕入れ先開拓の強化、及びリズム社との「リノベバリューデザイン協議会」共同参画へのマッチングをフォロー中。</li>
+                        </ul>
+                    </div>
+
+                    <div class="pt-6">
+                        <h3 class="font-bold text-xl text-[--jp-blue]">PJT 9: 都市開発連携 (木村＆都市開発)</h3>
+                        <ul class="list-disc list-inside mt-2">
+                            <li><span class="font-semibold">内容:</span> 地主開拓における「高齢者活用」スキームを提案・進行中。</li>
+                        </ul>
+                    </div>
+
+                    <div class="pt-6">
+                        <h3 class="font-bold text-xl text-[--jp-blue]">PJT 10: ISヒアリングシートAI化 (IS＆事業戦略マター)</h3>
+                        <ul class="list-disc list-inside mt-2">
+                            <li><span class="font-semibold">内容:</span> 進行中のAI自動化プロジェクトに対し、セカンドオピニオンを提供中。</li>
+                        </ul>
+                    </div>
+                </div>
+
+                </div>
+            </div>
+        </section>
+
+        <!-- Section 5: On Hold -->
+        <section id="on-hold" class="pt-16 -mt-16 scroll-mt-20">
+            <div class="bg-white shadow-xl rounded-lg overflow-hidden mb-8">
+                <div class="p-6 border-b border-gray-200 bg-gray-50">
+                    <h2 class="text-2xl md:text-3xl font-bold text-[--jp-blue] border-l-4 border-[--jp-gold] pl-3">保留・中断マター</h2>
+                </div>
+              <div class="p-6">
+
+                <div class="section-body space-y-6 divide-y divide-gray-100">
+
+                    <div class="pt-6 first:pt-0">
+                        <h3 class="font-bold text-xl text-gray-700">PJT 6: AI木村洋介 (木村＆FS)</h3>
+                        <ul class="list-disc list-inside mt-2 space-y-1">
+                            <li><span class="font-semibold">ステータス:</span> 一旦保留。</li>
+                            <li class="font-semibold text-orange-700">理由: 試作初期段階のリアル木村の「暴走エラー」（※意図した性能を超過）に対し、AIのチューニングが必要なため。</li>
+                        </ul>
+                    </div>
+
+                    <div class="pt-6">
+                        <h3 class="font-bold text-xl text-gray-700">PJT 7: 事務所移転パーティー (全社)</h3>
+                        <ul class="list-disc list-inside mt-2 space-y-1">
+                            <li><span class="font-semibold">ステータス:</span> 中断（※否決）。</li>
+                            <li><span class="font-semibold">内容:</span> 前職での成功体験（社員エンゲージメント大幅上昇、取引先金融機関の融資枠大幅拡大）を基に提案済。</li>
+                        </ul>
+                    </div>
+                </div>
+
+                </div>
+            </div>
+        </section>
+
+        <!-- Section 6: Policy -->
+        <section id="policy" class="pt-16 -mt-16 scroll-mt-20">
+            <div class="bg-white shadow-xl rounded-lg overflow-hidden mb-8">
+                <div class="p-6 border-b border-gray-200 bg-gray-50">
+                    <h2 class="text-2xl md:text-3xl font-bold text-[--jp-blue] border-l-4 border-[--jp-gold] pl-3">総括 および 今後の連携方針</h2>
+                </div>
+                <div class="p-6">
+                    <div class="text-center py-8 md:py-12">
+                        <h3 class="text-3xl md:text-5xl font-extrabold text-gray-900 mb-4">AI-DXは「実験」フェーズを完了した。</h3>
+                        <h3 class="text-3xl md:text-5xl font-extrabold text-green-700">現在、全社での「実装・収益化」フェーズにある。</h3>
+                    </div>
+
+                    <h4 class="font-bold text-lg text-center text-[--jp-blue] mt-8 mb-4">今後の連携について：</h4>
+                    <p class="text-center mb-6">我々は、この変革を加速させるため、以下のスタンスを持つ全ての部署との連携を<span class="font-bold">最優先で</span>強化します。</p>
+
+                    <div class="grid grid-cols-1 md:grid-cols-2 gap-6">
+                        <!-- High Priority -->
+                        <div class="policy-card border-green-500 bg-green-50">
+                            <h4 class="text-lg font-bold text-green-700 mb-3">連携 最優先</h4>
+                            <ul class="list-disc list-inside space-y-2 text-green-800">
+                                <li>
+                                    <strong class="text-green-900">「会社ファースト / 部下ファースト」</strong><br>
+                                    <span class="text-sm">部門最適ではなく、全社最適の視点を持ち、現場（部下）の成功を第一に考えるチーム。</span>
+                                </li>
+                                <li>
+                                    <strong class="text-green-900">「即時実行 / 変化歓迎」</strong><br>
+                                    <span class="text-sm">「現状維持バイアス」を捨て、失敗を恐れずに行動し、その結果から学ぶアジャイルな姿勢。</span>
+                                </li>
+                            </ul>
+                        </div>
+                        <!-- Low Priority (Implied) -->
+                        <div class="policy-card border-red-500 bg-red-50">
+                            <h4 class="text-lg font-bold text-red-700 mb-3">連携 困難</h4>
+                            <ul class="list-disc list-inside space-y-2 text-red-800">
+                                <li>
+                                    <strong class="text-red-900">「自分ファースト / 部門最適」</strong><br>
+                                    <span class="text-sm">全社最適の視点を欠き、自部門の利益・保身のみを優先するチーム。</span>
+                                </li>
+                                <li>
+                                    <strong class="text-red-900">「現状維持バイアス / 評論」</strong><br>
+                                    <span class="text-sm">変化をリスクと捉え、行動せず、実行者のアラ探しに終始する姿勢。</span>
+                                </li>
+                            </ul>
+                        </div>
+                    </div>
+                </div>
+                <div class="bg-gray-50 p-4 text-right font-bold text-gray-800">
+                    以上。
+                </div>
+            </div>
+        </section>
+    </main>
+
+    <script>
+        document.addEventListener('DOMContentLoaded', function() {
+            // Transcript Toggle
+            const toggleButton = document.getElementById('toggle-pjt1');
+            const transcriptDiv = document.getElementById('pjt1-transcript');
+            
+            if (toggleButton) {
+                toggleButton.addEventListener('click', function() {
+                    const isHidden = transcriptDiv.classList.contains('hidden');
+                    if (isHidden) {
+                        transcriptDiv.classList.remove('hidden');
+                        toggleButton.textContent = 'タイムラインを非表示';
+                    } else {
+                        transcriptDiv.classList.add('hidden');
+                        toggleButton.textContent = '実際のタイムライン（一語一句）を表示';
+                    }
+                });
+            }
+
+            // Smooth Scroll for Nav
+            const navLinks = document.querySelectorAll('header nav a');
+            navLinks.forEach(link => {
+                link.addEventListener('click', function(e) {
+                    e.preventDefault();
+                    const targetId = this.getAttribute('href').substring(1);
+                    const targetElement = document.getElementById(targetId);
+                    if (targetElement) {
+                        targetElement.scrollIntoView({
+                            behavior: 'smooth',
+                            block: 'start'
+                        });
+                    }
+                });
+            });
+        });
+    </script>
+</body>
+</html>
+
+
