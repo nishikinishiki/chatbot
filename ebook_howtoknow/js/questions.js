@@ -102,11 +102,11 @@ const additionalQuestions = [
       isHtmlQuestion: true,
       answer_method: "multi-choice",
       options: [
-        { label: "ネット検索", value: "ネット検索" },
+        { label: "Web検索", value: "ネット検索" },
         { label: "ポイントサイト", value: "ポイントサイト" },
         { label: "SNS広告", value: "SNS広告" },
         { label: "インフルエンサーの投稿", value: "インフルエンサーの投稿" },
-        { label: "ご紹介", value: "ご紹介" },
+        { label: "知人のご紹介", value: "知人紹介" },
         { label: "その他", value: "その他" }
       ], 
       key: "referral_source", 
