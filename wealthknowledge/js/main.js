@@ -436,7 +436,7 @@ async function submitDataToGAS(dataToSend, isAdditional) {
 
             clearChatMessages();
             await addBotMessage("送信が完了しました。<br>お問い合わせいただきありがとうございました！", true);
-            startAdditionalQuestionsFlow();
+            await addBotMessage("資料は<a href='https://storage.googleapis.com/stateless-jpreturns-com/2025/10/22c46cae-wp1024.pdf' target='_blank' rel='noopener noreferrer'>こちら</a>から閲覧可能です！", true);            startAdditionalQuestionsFlow();
 
         } else {
             await addBotMessage("全ての情報を承りました。ご回答ありがとうございました！<br>後ほど担当よりご連絡いたします。", true);
