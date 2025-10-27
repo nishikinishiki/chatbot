@@ -64,7 +64,7 @@ const initialQuestions = [
     ], 
     key: "age_group", validation: (v) => !!v, errorMessage: "選択してください。" 
   },
-  { id: 'name_kanji', item: "お名前（漢字）", pre_message_1: "ありがとうございます！", answer_method: "text-pair", 
+  { id: 'name_kanji', item: "お名前（漢字）", pre_message: "ありがとうございます！", answer_method: "text-pair", 
     prompt: "お名前を入力してください。", 
     inputs: [ 
       { label: "姓", key: "last_name", placeholder: "山田", type: "text" }, 
@@ -84,7 +84,7 @@ const initialQuestions = [
     combinedErrorMessage: "セイとメイの両方を全角カタカナで入力してください。", 
     key_group: "name_details" 
   },
-  { id: 'phone_number', item: "電話番号", pre_message_1: "残り2問です！", question: "電話番号を入力してください。", placeholder: "09012345678", answer_method: "text", type: "tel", key: "phone_number", validation: (v) => /^[0-9]{10,11}$/.test(v.replace(/-/g, "")), errorMessage: "有効な電話番号をハイフンなし半角数字で入力してください。" },
+  { id: 'phone_number', item: "電話番号", pre_message: "残り2問です！", question: "電話番号を入力してください。", placeholder: "09012345678", answer_method: "text", type: "tel", key: "phone_number", validation: (v) => /^[0-9]{10,11}$/.test(v.replace(/-/g, "")), errorMessage: "有効な電話番号をハイフンなし半角数字で入力してください。" },
   { id: 'email_address', item: "メールアドレス", question: "最後に、メールアドレスを入力してください！", placeholder: "user@example.com", answer_method: "text", type: "email", key: "email_address", validation: (v) => /^[^\s@]+@[^\s@]+\.[^\s@]+$/.test(v), errorMessage: "有効なメールアドレスを入力してください。" },
   {
     id: 'final_consent',

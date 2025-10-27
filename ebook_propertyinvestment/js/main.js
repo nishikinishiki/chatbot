@@ -145,8 +145,6 @@ async function askQuestion() {
     }
     
     if (currentQuestion.pre_message) await addBotMessage(currentQuestion.pre_message, true);
-    if (currentQuestion.pre_message_1) await addBotMessage(currentQuestion.pre_message_1);
-    if (currentQuestion.pre_message_2) await addBotMessage(currentQuestion.pre_message_2);
     
     if (currentQuestion.question && currentQuestion.answer_method !== 'text-pair') {
         await addBotMessage(currentQuestion.question, currentQuestion.isHtmlQuestion);

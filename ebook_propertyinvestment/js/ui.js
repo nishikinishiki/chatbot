@@ -5,7 +5,6 @@
 const dom = {
     chatContainer: null,
     chatMessages: null,
-    inputMethodWrapper: null,
     progressBar: null,
     giftTermsModal: null,
     modalTitle: null,
@@ -26,7 +25,6 @@ function adjustChatHeight() {
 function initializeUI() {
     dom.chatContainer = document.querySelector('.chat-container');
     dom.chatMessages = document.getElementById('chatMessages');
-    dom.inputMethodWrapper = document.getElementById('inputMethodWrapper');
     dom.progressBar = document.getElementById('progressBar');
     dom.giftTermsModal = document.getElementById('giftTermsModal');
     dom.modalTitle = document.getElementById('modalTitle');
@@ -57,11 +55,9 @@ function clearChatMessages() {
 }
 
 async function addBotMessage(messageText, isHtml = false, isError = false, isEbookBtn = false) {
-    showTypingIndicator();
     let msgElem;
     if (isEbookBtn) {
         msgElem = createEbookButtonMessage(messageText);
-        hideTypingIndicator();
     } else {
         msgElem = addMessage(messageText, 'bot', isHtml, isError);
     }
@@ -105,13 +101,6 @@ function showModal(title, content) {
 
 function hideModal() {
     if (dom.giftTermsModal) dom.giftTermsModal.style.display = 'none';
-}
-
-function clearInputArea() {
-    if (dom.inputMethodWrapper) {
-        dom.inputMethodWrapper.innerHTML = '';
-        dom.inputMethodWrapper.style.display = 'none';
-    }
 }
 
 function disableInputs(container) {
@@ -643,16 +632,6 @@ function scrollToBottom() {
     });
 }
 
-function showTypingIndicator() {
-    return;
-}
-
-function hideTypingIndicator() {
-    if (!dom.chatMessages) return;
-    const indicator = dom.chatMessages.querySelector('.typing-indicator-wrapper');
-    if (indicator) indicator.remove();
-}
-
 function createMessageWrapper(sender) {
     const wrapper = document.createElement('div');
     wrapper.classList.add('message-wrapper', `${sender}-message-wrapper`);
@@ -674,7 +653,6 @@ function createMessageWrapper(sender) {
 }
 
 function addMessage(text, sender, isHtml = false, isError = false) {
-    hideTypingIndicator();
     const wrapper = createMessageWrapper(sender);
     const messageElement = wrapper.querySelector('.message');
     
