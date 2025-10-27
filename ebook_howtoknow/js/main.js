@@ -436,14 +436,13 @@ async function submitDataToGAS(dataToSend, isAdditional) {
 
             clearChatMessages();
             await addBotMessage("送信が完了しました。<br>お問い合わせいただきありがとうございました！", true);
+            await addBotMessage("デジタル書籍は下記から閲覧できます！");
+            await addBotMessage("デジタル書籍を閲覧する", false, false, true);
             startAdditionalQuestionsFlow();
 
         } else {
             await addBotMessage("全ての情報を承りました。ご回答ありがとうございました！<br>後ほど担当よりご連絡いたします。", true);
             await addBotMessage("お問い合わせはお電話でも受け付けております。<br>電話番号：<a href='tel:0120147104'>0120-147-104</a><br>営業時間：10:00～22:00（お盆・年末年始除く）", true);
-            
-            await addBotMessage("デジタル書籍は下記から閲覧できます！");
-            await addBotMessage("デジタル書籍を閲覧する", false, false, true);
         }
 
     } catch (error) {

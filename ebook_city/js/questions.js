@@ -18,6 +18,7 @@ const initialQuestions = [
     validation: (v) => !!v, 
     errorMessage: "選択してください。" 
   },
+  
   { id: 'occupation', item: "職業", question: "ご職業を教えてください。", answer_method: "single-choice", 
     options: [
       { label: "会社員 (上場企業)", value: "会社員（上場企業）" },
@@ -93,5 +94,24 @@ const additionalQuestions = [
     { id: 'first_choice_time_other', item: "面談希望時間（第一希望その他）", question: "【第一希望】ご相談希望時間を入力ください", answer_method: "text", type: "text", key: "first_choice_time_other", condition: { key: "first_choice_time", value: "その他の時間" }, validation: (v) => v && v.trim().length > 0, errorMessage: "希望時間を入力してください。" },
     { id: 'second_choice_date', item: "面談希望日（第二希望）", question: "【第二希望】<br>ご相談希望日をお選びください", isHtmlQuestion: true, answer_method: "calendar", key: "second_choice_date", validation: (v) => /^\d{4}\/(0?[1-9]|1[0-2])\/(0?[1-9]|[12][0-9]|3[01])$/.test(v) && !isNaN(new Date(v)), errorMessage: "YYYY/MM/DD形式で有効な日付を入力してください。" },
     { id: 'second_choice_time', item: "面談希望時間（第二希望）", question: "【第二希望】<br>ご相談希望時間をお選びください", isHtmlQuestion: true, answer_method: "single-choice", options: ["10：00～12：00", "12：00～14：00", "14：00～16：00", "16：00～18：00", "18：00～20：00", "20：00 以降", "その他の時間"], key: "second_choice_time", validation: (v) => !!v, errorMessage: "選択してください。" },
-    { id: 'second_choice_time_other', item: "面談希望時間（第二希望その他）", question: "【第二希望】ご相談希望時間を入力ください", answer_method: "text", type: "text", key: "second_choice_time_other", condition: { key: "second_choice_time", value: "その他の時間" }, validation: (v) => v && v.trim().length > 0, errorMessage: "希望時間を入力してください。" }
+    { id: 'second_choice_time_other', item: "面談希望時間（第二希望その他）", question: "【第二希望】ご相談希望時間を入力ください", answer_method: "text", type: "text", key: "second_choice_time_other", condition: { key: "second_choice_time", value: "その他の時間" }, validation: (v) => v && v.trim().length > 0, errorMessage: "希望時間を入力してください。" },
+    { 
+      id: 'referral_source', 
+      item: "弊社を知ったきっかけ", 
+      question: "これが最後の質問です！<br>弊社を知ったきっかけを教えてください。（複数選択可）",
+      isHtmlQuestion: true,
+      answer_method: "multi-choice",
+      options: [
+        { label: "Web検索", value: "ネット検索" },
+        { label: "ポイントサイト", value: "ポイントサイト" },
+        { label: "SNS広告", value: "SNS広告" },
+        { label: "インフルエンサーの投稿", value: "インフルエンサーの投稿" },
+        { label: "知人のご紹介", value: "知人紹介" },
+        { label: "その他", value: "その他" }
+      ], 
+      key: "referral_source", 
+      // 選択された配列の長さが0より大きいことを検証
+      validation: (v) => Array.isArray(v) && v.length > 0, 
+      errorMessage: "少なくとも1つ選択してください。" 
+    }
 ];
