@@ -169,8 +169,8 @@ async function askQuestion() {
         case 'text-pair':
             handlePairedQuestion(currentQuestion);
             break;
-        case 'calendar':
-            displayCalendar(currentQuestion, (value, container) => handleCalendarInput(currentQuestion, value, container));
+        case 'time-table':
+            displayTimeTable(currentQuestion, (value, container) => handleTimeTableInput(currentQuestion, value, container));
             break;
         case 'final-consent':
              displayFinalConsentScreen(currentQuestion, state.userResponses, initialQuestions, (container) => {
@@ -321,17 +321,21 @@ async function handlePairedQuestion(question) {
     });
 }
 
-function handleCalendarInput(question, value, container) {
+function handleTimeTableInput(question, value, container) {
     if (!question.validation(value)) {
         addBotMessage(question.errorMessage, false, true);
         return;
     }
     if (container) disableInputs(container);
-    addUserMessage(value);
-    const responseSet = (state.currentFlow === 'initial') ? state.userResponses : state.additionalUserResponses;
-    responseSet[question.key] = value;
-    sendGaEvent(question, value);
-    sendAnswerToLog(question, value);
+    
+    const timeLabel = question.timeSlots.find(slot => slot.value === value.time)?.label || value.time;
+    addUserMessage(`${value.date} ${timeLabel}`);
+
+    const responseTarget = state.currentFlow === 'initial' ? state.userResponses : state.additionalUserResponses;
+    responseTarget[question.keys.date] = value.date;
+    responseTarget[question.keys.time] = value.time;
+
+    sendGaEvent(question);
     proceedToNextStep();
 }
 
