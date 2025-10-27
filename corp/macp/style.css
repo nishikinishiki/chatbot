@@ -1,8 +1,9 @@
 /* J.P.RETURNS ブランドカラー */
 :root {
     --main: #f88000;
+    --sub: #112d5c;
     --jp-gold: #BFA96F;
-    --jp-text: #2d3748;
+    --jp-text: #112d5c;
     --bg: #f8f9fa;
     --main-light: #eff8f8;
     --main-dark: #eb7b03;
@@ -32,7 +33,7 @@ body {
     margin-bottom: 15px;
     padding: 12px 20px;
     box-sizing: border-box;
-    background:  var(--main);
+    background:  var(--sub);
     color: white;
     font-size: 1rem;
     font-weight: 600;
@@ -82,7 +83,7 @@ body {
 }
 
 .user-message {
-    background:  var(--main);
+    background:  var(--sub);
     color: white;
     margin-left: auto;
     border-bottom-right-radius: 4px;
@@ -100,7 +101,7 @@ body {
 .option-button {
     width: 100%;
     padding: 14px 20px;
-    background-color: var(--main-dark);
+    background-color: var(--main);
     color: white;
     border: none;
     border-radius: 8px;

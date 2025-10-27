@@ -6,7 +6,7 @@ const messagesDiv = document.getElementById('messages');
 const optionsDiv = document.getElementById('options');
 
 // 【要設定】連携先URL
-const CONSULT_URL = "https://calendar.google.com/calendar/appointments/schedules/AcZssZ0hveDzBAYfcVixNRX-JL7uInchOSY4CTaS17GXTh1EVh7zoilZEVaMM8QjdlVSb6jJaawNFsgy";
+const CONSULT_URL = "https://calendar.google.com/calendar/u/0/appointments/schedules/AcZssZ2lrvt_PpoEGWxZLdLGchSq6TWNDPR04BddadCNUSNcGjTOahnPhCSRKdeUGf5BqkpHhQ7_BtoI";
 const VIDEO_URL = "https://www.youtube.com/watch?v=eqBnS-vwwlE";
 
 // 【キャンペーン設定】
@@ -98,23 +98,24 @@ const steps = {
     'final_result': {
         message: "",
         options: [
-            { text: ``, next: 'redirect_consult', is_cta: true, class: 'final-cta' },
-            { text: "② まずは無料動画を視聴する<br>（キャンペーン対象外）", next: 'redirect_video', is_cta: true, class: 'option-button-2' },
+            { text: ``,
+              action: () => window.open(CONSULT_URL, '_blank'),
+              is_cta: true,
+              class: 'final-cta' },
+            { text: "② まずは無料動画を視聴する<br>（キャンペーン対象外）",
+              action: () => window.open(VIDEO_URL, '_blank'),
+              is_cta: true, 
+              class: 'option-button-2' },
         ]
     },
     'end_video': {
         message: "まずは知識武装から始めるのが賢明です。<br>高年収者が確実に資産を築くための「タックスコントロール基礎動画」を無料公開しています。下記からご視聴ください。",
         options: [
-            { text: "無料動画視聴ページへ進む", next: 'redirect_video', is_cta: true, class: 'option-button' },
+            { text: "無料動画視聴ページへ進む", 
+              action: () => window.open(VIDEO_URL, '_blank'),
+              is_cta: true, 
+              class: 'option-button' },
         ]
-    },
-    'redirect_consult': {
-        message: "個別電話ヒアリング予約ページへ移動しました...",
-        action: () => window.open(CONSULT_URL, '_blank')
-    },
-    'redirect_video': {
-        message: "無料動画視聴ページへ移動しました...",
-        action: () => window.open(VIDEO_URL, '_blank')
     }
 };
 
@@ -147,7 +148,8 @@ function displayOptions(stepName) {
             button.className = 'option-button';
             if (option.class) button.classList.add(option.class);
             if (stepName === 'final_result') {
-                if (option.next === 'redirect_consult') {
+                // 'final-cta' クラスを持つボタンかどうかで判別
+                if (option.class && option.class.includes('final-cta')) { 
                     const signClass = IS_CAMPAIGN_ACTIVE ? '' : 'inactive';
                     const signText = IS_CAMPAIGN_ACTIVE ? '✨ 社内福利厚生キャンペーン対象！<br>今すぐご予約ください ✨' : '（キャンペーン対象外）';
                     button.innerHTML = `
@@ -157,9 +159,11 @@ function displayOptions(stepName) {
                         </span>
                         <span class="cta-sign ${signClass}">${signText}</span>`;
                 } else {
+                    // 2番目のボタン (option-button-2)
                     button.innerHTML = option.text;
                 }
             } else {
+                // 'final_result' 以外のすべてのステップのボタン
                 button.innerHTML = option.text;
             }
             button.onclick = () => handleOptionClick(option, stepName);
@@ -233,6 +237,10 @@ async function handleInputSubmit(stepName, isNumber) {
 }
 
 function handleOptionClick(option, stepName) {
+    if (option.action) {
+        option.action(); // actionを実行
+        return; // メッセージ追加やボタン消去を行わずに処理を終了
+    }
     const answerText = option.text.replace(/<br>/g, ' ');
     displayMessage(answerText, true);
 
