@@ -13,9 +13,7 @@ const dom = {
     modalCloseButton: null,
 };
 
-let isBotTyping = false;
 let loadingMessageElement = null;
-let scrollTimeout = null; 
 
 // --- Public UI Functions ---
 
@@ -58,19 +56,17 @@ function clearChatMessages() {
     }
 }
 
-function addBotMessage(messageText, isHtml = false, isError = false, isEbookBtn = false) {
+async function addBotMessage(messageText, isHtml = false, isError = false, isEbookBtn = false) {
     showTypingIndicator();
-    return new Promise(resolve => {
-        let msgElem;
-        if (isEbookBtn) {
-            msgElem = createEbookButtonMessage(messageText);
-            hideTypingIndicator();
-        } else {
-            msgElem = addMessage(messageText, 'bot', isHtml, isError);
-        }
-        scrollToBottom();
-        resolve(msgElem);
-    });
+    let msgElem;
+    if (isEbookBtn) {
+        msgElem = createEbookButtonMessage(messageText);
+        hideTypingIndicator();
+    } else {
+        msgElem = addMessage(messageText, 'bot', isHtml, isError);
+    }
+    scrollToBottom();
+    return msgElem;
 }
 
 function addUserMessage(messageText) {
@@ -208,12 +204,10 @@ function displayChoices(question, onSelect) {
     scrollToBottom();
 }
 
-// ★★★ 新規追加: 複数選択肢UIを表示する関数 ★★★
 function displayMultiChoices(question, onSelect) {
     const choicesAreaWrapper = document.createElement('div');
     choicesAreaWrapper.className = 'input-container-wrapper multi-choice-wrapper';
     
-    // カレンダーUIのように、内側にラッパーを設けてレイアウトを統一
     const innerWrapper = document.createElement('div');
     innerWrapper.className = 'multi-choice-inner-wrapper';
 
@@ -222,17 +216,14 @@ function displayMultiChoices(question, onSelect) {
 
     const selectedValues = new Set();
 
-    // 決定ボタン（先に定義して、選択肢ボタンのイベントで参照できるようにする）
     const submitActionsContainer = document.createElement('div');
     submitActionsContainer.className = 'multi-choice-submit-actions'; // カレンダーと類似のクラス名
 
     const submitButton = document.createElement('button');
     submitButton.className = 'multi-choice-submit-button'; // 新しい専用クラス
-    // 紙飛行機アイコン（カレンダーやテキスト入力と同じSVG）
     submitButton.innerHTML = `<svg xmlns="http://www.w3.org/2000/svg" width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" class="feather feather-send"><line x1="22" y1="2" x2="11" y2="13"></line><polygon points="22 2 15 22 11 13 2 9 22 2"></polygon></svg>`;
     submitButton.disabled = true; // 最初は無効
 
-    // 選択肢ボタンの生成
     question.options.forEach(option => {
         const button = document.createElement('button');
         button.className = 'choice-button';
@@ -241,7 +232,6 @@ function displayMultiChoices(question, onSelect) {
         const label = isObjectOption ? option.label : option;
         const value = isObjectOption ? option.value : option;
 
-        // HTML構造を変更: チェックマーク用span + ラベル用span
         button.innerHTML = `<span class="multi-choice-check">✓</span><span class="multi-choice-label">${label}</span>`;
         button.dataset.value = value;
 
@@ -288,7 +278,7 @@ function displayMultiChoices(question, onSelect) {
     scrollToBottom();
 }
 
-function displayPairedInputs(pairData, onSubmit) {
+function displayPairedInputs(question, onSubmit) {
     const pairedInputAreaWrapper = document.createElement('div');
     pairedInputAreaWrapper.className = 'input-container-wrapper paired-input-area-wrapper';
 
@@ -297,7 +287,7 @@ function displayPairedInputs(pairData, onSubmit) {
     
     const inputsArray = [];
 
-    pairData.inputs.forEach((inputConfig, index) => {
+    question.inputs.forEach((inputConfig, index) => {
         const inputRow = document.createElement('div');
         inputRow.className = 'paired-input-row';
         
@@ -313,7 +303,7 @@ function displayPairedInputs(pairData, onSubmit) {
         inputRow.appendChild(label);
         inputRow.appendChild(input);
 
-        if (index === pairData.inputs.length - 1) { 
+        if (index === question.inputs.length - 1) { 
             const sendPairedButton = document.createElement('button');
             sendPairedButton.className = 'paired-input-send-button'; 
             sendPairedButton.disabled = true; 
@@ -321,10 +311,10 @@ function displayPairedInputs(pairData, onSubmit) {
 
             const handleSubmit = () => {
                 const values = inputsArray.map(inp => inp.value.trim());
-                if (pairData.combinedValidation(...values)) {
+                if (question.combinedValidation(...values)) {
                     onSubmit(values, pairedInputAreaWrapper);
                 } else {
-                    addBotMessage(pairData.combinedErrorMessage, false, true);
+                    addBotMessage(question.combinedErrorMessage, false, true);
                 }
             };
 
@@ -332,7 +322,7 @@ function displayPairedInputs(pairData, onSubmit) {
 
             const validateAndToggleButton = () => {
                 const values = inputsArray.map(inp => inp.value.trim());
-                if (pairData.combinedValidation(...values)) {
+                if (question.combinedValidation(...values)) {
                     sendPairedButton.disabled = false;
                     sendPairedButton.classList.add('enabled');
                 } else {
@@ -579,7 +569,6 @@ function displayFinalConsentScreen(question, userResponses, initialQuestions, on
     scrollToBottom();
 }
 
-// ★修正: サマリー表示でlabelを使うように変更
 function displaySummaryArea(userResponses, initialQuestions) {
     const summaryMessageWrapper = createMessageWrapper('bot');
     summaryMessageWrapper.classList.add('summary-message-wrapper');
@@ -662,7 +651,6 @@ function hideTypingIndicator() {
     if (!dom.chatMessages) return;
     const indicator = dom.chatMessages.querySelector('.typing-indicator-wrapper');
     if (indicator) indicator.remove();
-    isBotTyping = false;
 }
 
 function createMessageWrapper(sender) {
@@ -672,7 +660,7 @@ function createMessageWrapper(sender) {
     if (sender === 'bot') {
         const botIcon = document.createElement('div');
         botIcon.className = 'bot-icon';
-        if (typeof BOT_ICON_URL !== 'undefined' && BOT_ICON_URL !== 'YOUR_BOT_ICON_URL_HERE') {
+        if (typeof BOT_ICON_URL !== 'undefined' && BOT_ICON_URL) {
             botIcon.style.backgroundImage = `url('${BOT_ICON_URL}')`;
         }
         wrapper.appendChild(botIcon);

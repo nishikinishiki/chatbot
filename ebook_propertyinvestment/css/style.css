@@ -276,8 +276,6 @@ body {
   align-items: center;
   justify-content: center;
   box-shadow: 0 1px 2px rgba(0,0,0,0.15);
-  /* ★★★ 削除: position: relative; */
-  /* ★★★ 削除: overflow: hidden; */
 }
 .choice-button:hover:not(:disabled) {
   background-color: var(--choice-button-hover-bg);
@@ -345,9 +343,6 @@ body {
   align-items: center; 
   justify-content: center; 
   transition: background-color 0.2s;
-  /* ★★★ 削除: position: relative; */
-  /* ★★★ 削除: overflow: hidden; */
-  /* ★★★ 削除: z-index: 1; */
 }
 .multi-choice-submit-button.enabled { 
   background-color: var(--primary-color); 
@@ -360,8 +355,6 @@ body {
   width: 20px; 
   height: 20px; 
   stroke: var(--text-color-light); 
-  /* ★★★ 削除: position: relative; */
-  /* ★★★ 削除: z-index: 2; */
 }
 
 
@@ -407,8 +400,6 @@ body {
   border-radius: 30px;
   box-shadow: 0 1px 2px rgba(0,0,0,0.15);
   padding: 15px;
-  /* ★★★ 削除: position: relative; */
-  /* ★★★ 削除: overflow: hidden; */
 }
 .paired-input-container {
   flex-direction: column;
@@ -482,9 +473,6 @@ body {
   justify-content: center; 
   transition: background-color 0.2s; 
   flex-shrink: 0;
-  /* ★★★ 削除: position: relative; */
-  /* ★★★ 削除: overflow: hidden; */
-  /* ★★★ 削除: z-index: 1; */
 }
 .paired-input-row .paired-input-send-button {
   width: 40px;
@@ -502,14 +490,10 @@ body {
 .input-area button svg { 
   width: 18px; 
   height: 18px; 
-  /* ★★★ 削除: position: relative; */
-  /* ★★★ 削除: z-index: 2; */
 }
 .paired-input-row .paired-input-send-button svg { 
   width: 20px; 
   height: 20px; 
-  /* ★★★ 削除: position: relative; */
-  /* ★★★ 削除: z-index: 2; */
 }
 .paired-input-row .placeholder { 
   visibility: hidden; 
@@ -792,5 +776,3 @@ body {
     transform: scale(1.0);
   }
 }
-
-

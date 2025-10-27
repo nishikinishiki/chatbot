@@ -188,10 +188,6 @@ async function askQuestion() {
 }
 
 function findNextQuestion() {
-    if (state.questions[state.currentStep]?.answer_method === 'text-pair' && state.subStep > 0) {
-        return state.questions[state.currentStep];
-    }
-
     while (state.currentStep < state.questions.length) {
         const q = state.questions[state.currentStep];
         if (q.condition) {
@@ -220,8 +216,8 @@ function proceedToNextStep() {
 }
 
 function handleSingleChoice(question, selection, container) {
-    const value = (typeof selection === 'object' && selection.value) ? selection.value : selection;
-    const label = (typeof selection === 'object' && selection.label) ? selection.label : selection;
+    const value = selection.value;
+    const label = selection.label;
 
     if (!question.validation(value)) {
         addBotMessage(question.errorMessage, false, true);
@@ -240,10 +236,9 @@ function handleSingleChoice(question, selection, container) {
     proceedToNextStep();
 }
 
-// ★★★ 新規追加: 複数選択の回答を処理する関数 ★★★
 function handleMultiChoice(question, selections, container) {
-    const values = selections.values; // 例: ["Google検索", "SNS (Facebook)"]
-    const labels = selections.labels; // 例: ["Google検索", "SNS (Facebook)"]
+    const values = selections.values;
+    const labels = selections.labels;
 
     // バリデーション (配列を渡す)
     if (!question.validation(values)) {
@@ -252,12 +247,10 @@ function handleMultiChoice(question, selections, container) {
     }
     if (container) disableInputs(container);
     
-    // ユーザーメッセージにはラベルをカンマ区切りで表示
-    const userMessageLabel = labels.join(', ');
+    const userMessageLabel = labels.join('、 ');
     addUserMessage(userMessageLabel);
     
-    // 送信データにはvalueをカンマ区切りで保存 (スプレッドシートで見やすいため)
-    const responseValue = values.join(',');
+    const responseValue = values.join(';');
     
     const responseSet = (state.currentFlow === 'initial') ? state.userResponses : state.additionalUserResponses;
     responseSet[question.key] = responseValue;
@@ -290,20 +283,18 @@ function handleTextInput(question, value, container) {
 }
 
 async function handlePairedQuestion(question) {
-    const currentPair = question.pairs[0];
-    
     if (state.subStep === 0 && question.question) {
         await addBotMessage(question.question);
     }
     
-    await addBotMessage(currentPair.prompt);
+    await addBotMessage(question.prompt);
     
-    displayPairedInputs(currentPair, (values, container) => {
+    displayPairedInputs(question, (values, container) => {
         if (container) disableInputs(container);
 
         const responseSet = (state.currentFlow === 'initial') ? state.userResponses : state.additionalUserResponses;
         
-        currentPair.inputs.forEach((inputConfig, index) => {
+        question.inputs.forEach((inputConfig, index) => {
             responseSet[inputConfig.key] = values[index];
         });
 
@@ -446,7 +437,7 @@ async function submitDataToGAS(dataToSend, isAdditional) {
 
         } else {
             await addBotMessage("全ての情報を承りました。ご回答ありがとうございました！<br>後ほど担当よりご連絡いたします。", true);
-            await addBotMessage("お問い合わせはお電話でも受け付けております。<br>電話番号：<a href='tel:0120147104'>0120-147-104</a><br>営業時間：10:00～22:00（お盆・年末年始除く）", true);
+            await addBotMessage("お問い合わせはお電話でも受け付けております。<br>電話番号：<a href='tel:0120147104'>0120147-104</a><br>営業時間：10:00～22:00（お盆・年末年始除く）", true);
         }
 
     } catch (error) {
