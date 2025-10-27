@@ -156,6 +156,9 @@ async function askQuestion() {
         case 'single-choice':
             displayChoices(currentQuestion, (selection, container) => handleSingleChoice(currentQuestion, selection, container));
             break;
+        case 'multi-choice':
+            displayMultiChoices(currentQuestion, (selections, container) => handleMultiChoice(currentQuestion, selections, container));
+            break;
         case 'text':
         case 'tel':
         case 'email':
@@ -234,6 +237,33 @@ function handleSingleChoice(question, selection, container) {
     
     sendGaEvent(question, value);
     sendAnswerToLog(question, value);
+    proceedToNextStep();
+}
+
+// ★★★ 新規追加: 複数選択の回答を処理する関数 ★★★
+function handleMultiChoice(question, selections, container) {
+    const values = selections.values; // 例: ["Google検索", "SNS (Facebook)"]
+    const labels = selections.labels; // 例: ["Google検索", "SNS (Facebook)"]
+
+    // バリデーション (配列を渡す)
+    if (!question.validation(values)) {
+        addBotMessage(question.errorMessage, false, true);
+        return;
+    }
+    if (container) disableInputs(container);
+    
+    // ユーザーメッセージにはラベルをカンマ区切りで表示
+    const userMessageLabel = labels.join(', ');
+    addUserMessage(userMessageLabel);
+    
+    // 送信データにはvalueをカンマ区切りで保存 (スプレッドシートで見やすいため)
+    const responseValue = values.join(',');
+    
+    const responseSet = (state.currentFlow === 'initial') ? state.userResponses : state.additionalUserResponses;
+    responseSet[question.key] = responseValue;
+    
+    sendGaEvent(question, responseValue);
+    sendAnswerToLog(question, responseValue);
     proceedToNextStep();
 }
 
@@ -406,14 +436,13 @@ async function submitDataToGAS(dataToSend, isAdditional) {
 
             clearChatMessages();
             await addBotMessage("送信が完了しました。<br>お問い合わせいただきありがとうございました！", true);
+            await addBotMessage("動画セミナーは下記から閲覧できます！");
+            await addBotMessage("動画セミナーを閲覧する", false, false, true);
             startAdditionalQuestionsFlow();
 
         } else {
             await addBotMessage("全ての情報を承りました。ご回答ありがとうございました！<br>後ほど担当よりご連絡いたします。", true);
             await addBotMessage("お問い合わせはお電話でも受け付けております。<br>電話番号：<a href='tel:0120147104'>0120-147-104</a><br>営業時間：10:00～22:00（お盆・年末年始除く）", true);
-            
-            await addBotMessage("デジタル書籍は下記から閲覧できます！");
-            await addBotMessage("デジタル書籍を閲覧する", false, false, true);
         }
 
     } catch (error) {

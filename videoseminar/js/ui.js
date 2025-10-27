@@ -167,8 +167,6 @@ function displayNormalInput(question, callbacks) {
             sendButton.classList.remove('enabled');
         }
     });
-
-    applyRippleEffect(sendButton);
     
     const handleSend = () => callbacks.onSend(userInput.value, inputContainer);
 
@@ -200,13 +198,92 @@ function displayChoices(question, onSelect) {
         button.innerHTML = label;
         button.dataset.value = value;
 
-        applyRippleEffect(button);
         button.addEventListener('click', () => onSelect({ label, value }, choicesAreaWrapper));
         choicesContainer.appendChild(button);
     });
 
     choicesAreaWrapper.appendChild(choicesContainer);
     
+    dom.chatMessages.appendChild(choicesAreaWrapper);
+    scrollToBottom();
+}
+
+// ★★★ 新規追加: 複数選択肢UIを表示する関数 ★★★
+function displayMultiChoices(question, onSelect) {
+    const choicesAreaWrapper = document.createElement('div');
+    choicesAreaWrapper.className = 'input-container-wrapper multi-choice-wrapper';
+    
+    // カレンダーUIのように、内側にラッパーを設けてレイアウトを統一
+    const innerWrapper = document.createElement('div');
+    innerWrapper.className = 'multi-choice-inner-wrapper';
+
+    const choicesContainer = document.createElement('div');
+    choicesContainer.className = 'choices-container';
+
+    const selectedValues = new Set();
+
+    // 決定ボタン（先に定義して、選択肢ボタンのイベントで参照できるようにする）
+    const submitActionsContainer = document.createElement('div');
+    submitActionsContainer.className = 'multi-choice-submit-actions'; // カレンダーと類似のクラス名
+
+    const submitButton = document.createElement('button');
+    submitButton.className = 'multi-choice-submit-button'; // 新しい専用クラス
+    // 紙飛行機アイコン（カレンダーやテキスト入力と同じSVG）
+    submitButton.innerHTML = `<svg xmlns="http://www.w3.org/2000/svg" width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" class="feather feather-send"><line x1="22" y1="2" x2="11" y2="13"></line><polygon points="22 2 15 22 11 13 2 9 22 2"></polygon></svg>`;
+    submitButton.disabled = true; // 最初は無効
+
+    // 選択肢ボタンの生成
+    question.options.forEach(option => {
+        const button = document.createElement('button');
+        button.className = 'choice-button';
+
+        const isObjectOption = typeof option === 'object' && option.hasOwnProperty('label') && option.hasOwnProperty('value');
+        const label = isObjectOption ? option.label : option;
+        const value = isObjectOption ? option.value : option;
+
+        // HTML構造を変更: チェックマーク用span + ラベル用span
+        button.innerHTML = `<span class="multi-choice-check">✓</span><span class="multi-choice-label">${label}</span>`;
+        button.dataset.value = value;
+
+        button.addEventListener('click', () => {
+            if (selectedValues.has(value)) {
+                selectedValues.delete(value);
+                button.classList.remove('multi-selected');
+            } else {
+                selectedValues.add(value);
+                button.classList.add('multi-selected');
+            }
+            
+            // バリデーションチェックして決定ボタンの有効/無効を切り替え
+            const currentSelectionArray = Array.from(selectedValues);
+            const isValid = question.validation(currentSelectionArray);
+            submitButton.disabled = !isValid;
+            if (isValid) {
+                submitButton.classList.add('enabled');
+            } else {
+                submitButton.classList.remove('enabled');
+            }
+        });
+        choicesContainer.appendChild(button);
+    });
+
+    // 決定ボタンのイベント
+    submitButton.addEventListener('click', () => {
+        const selectedArray = Array.from(selectedValues);
+        // ラベルは .multi-choice-label から取得
+        const selectedLabels = Array.from(choicesContainer.querySelectorAll('.choice-button.multi-selected .multi-choice-label'))
+                                   .map(span => span.innerText.replace(/<br>/g, ' '));
+                                   
+        // { values: [値...], labels: [ラベル...] } の形式でコールバックを呼ぶ
+        onSelect({ values: selectedArray, labels: selectedLabels }, choicesAreaWrapper);
+    });
+    
+    // 組み立て
+    innerWrapper.appendChild(choicesContainer);
+    submitActionsContainer.appendChild(submitButton);
+    innerWrapper.appendChild(submitActionsContainer);
+    choicesAreaWrapper.appendChild(innerWrapper);
+
     dom.chatMessages.appendChild(choicesAreaWrapper);
     scrollToBottom();
 }
@@ -241,7 +318,6 @@ function displayPairedInputs(pairData, onSubmit) {
             sendPairedButton.className = 'paired-input-send-button'; 
             sendPairedButton.disabled = true; 
             sendPairedButton.innerHTML = `<svg xmlns="http://www.w3.org/2000/svg" width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" class="feather feather-arrow-right"><line x1="5" y1="12" x2="19" y2="12"></line><polyline points="12 5 19 12 12 19"></polyline></svg>`;            
-            applyRippleEffect(sendPairedButton);
 
             const handleSubmit = () => {
                 const values = inputsArray.map(inp => inp.value.trim());
@@ -438,13 +514,9 @@ function displayFinalConsentScreen(question, userResponses, initialQuestions, on
         showModal(question.gift_terms_popup_title, question.gift_terms_popup_content);
     };
     summaryAdjacentConsentTextDiv.appendChild(privacyLinkSmall);
+    summaryAdjacentConsentTextDiv.appendChild(document.createTextNode("・"));
+    summaryAdjacentConsentTextDiv.appendChild(giftTermsLinkSmall);
     summaryAdjacentConsentTextDiv.appendChild(document.createTextNode("に同意する。"));
-    const brElement1 = document.createElement('br');
-    summaryAdjacentConsentTextDiv.appendChild(brElement1);
-    summaryAdjacentConsentTextDiv.appendChild(document.createTextNode("※お客様に内容を深くご理解頂くために複数回のご面談の機会を頂戴しております。"));
-    const brElement2 = document.createElement('br');
-    summaryAdjacentConsentTextDiv.appendChild(brElement2);
-    summaryAdjacentConsentTextDiv.appendChild(document.createTextNode("※お客様のご状況や提案状況に応じて面談回数は変動いたします。"));
     dom.chatMessages.appendChild(summaryAdjacentConsentTextDiv);
 
     const submitButtonAreaWrapper = document.createElement('div');
@@ -454,7 +526,6 @@ function displayFinalConsentScreen(question, userResponses, initialQuestions, on
     finalSubmitButton.className = 'choice-button final-consent-submit-button';
     finalSubmitButton.innerHTML = `<span>${question.submit_button_text}</span><svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round" class="feather feather-send"><line x1="22" y1="2" x2="11" y2="13"></line><polygon points="22 2 15 22 11 13 2 9 22 2"></polygon></svg>`;
     
-    applyRippleEffect(finalSubmitButton);
 
     finalSubmitButton.addEventListener('click', () => {
         finalSubmitButton.disabled = true;
@@ -599,7 +670,7 @@ function createEbookButtonMessage(text) {
     if(messageContainer){
         messageContainer.classList.add('ebook-button-message-content');
         const buttonLink = document.createElement('a');
-        buttonLink.href = "https://jpreturns.com/ebook/";
+        buttonLink.href = "https://jpreturns.com/seminar-movie";
         buttonLink.target = "_blank";
         buttonLink.rel = "noopener noreferrer";
         buttonLink.className = "ebook-button-link";
@@ -616,24 +687,6 @@ function createEbookButtonMessage(text) {
     return wrapper;
 }
 
-function applyRippleEffect(buttonElement) {
-    buttonElement.addEventListener('mousedown', function(e) {
-        const rect = this.getBoundingClientRect();
-        const x = e.clientX - rect.left;
-        const y = e.clientY - rect.top;
-
-        const ripple = document.createElement('span');
-        ripple.className = 'ripple';
-        ripple.style.left = `${x}px`;
-        ripple.style.top = `${y}px`;
-        
-        this.appendChild(ripple);
-
-        ripple.addEventListener('animationend', () => {
-            ripple.remove();
-        });
-    });
-}
 
 function displayBannerImage(imageUrl) {
     if (!dom.chatMessages) return;
