@@ -4,6 +4,8 @@
 const app = document.getElementById('chatbot-container');
 const messagesDiv = document.getElementById('messages');
 const optionsDiv = document.getElementById('options');
+const BOT_IDENTIFIER = 'macp';
+
 
 // 【要設定】連携先URL
 const CONSULT_URL = "https://calendar.google.com/calendar/u/0/appointments/schedules/AcZssZ2lrvt_PpoEGWxZLdLGchSq6TWNDPR04BddadCNUSNcGjTOahnPhCSRKdeUGf5BqkpHhQ7_BtoI";
@@ -334,7 +336,8 @@ function calculateAndDisplayResult() {
 }
 
 async function sendDataToSheet(data) {
-    const GAS_WEB_APP_URL = 'https://script.google.com/macros/s/AKfycbzlUz67WU1KI_GxSmhckR2duh94pnE5pOwMpr119rAjfDQNM1EF6s0CSv-SiXTVZb4L/exec';
+    data.botIdentifier = BOT_IDENTIFIER;
+    const GAS_WEB_APP_URL = 'https://script.google.com/macros/s/AKfycbxwhMNiNUatpOaP6Dtok9pYUBBQO0_HZc7GCERMhJN3pnYy7Cr66ju6dPmthd1jSSTw/exec';
     if (GAS_WEB_APP_URL.includes('ここに')) {
         console.warn('GASのURLが設定されていません。スプレッドシートへのデータ送信はスキップされました。');
         return;

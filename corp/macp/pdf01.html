@@ -1,0 +1,534 @@
+<!DOCTYPE html>
+<html lang="ja">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>【印刷用・A4・2枚組 v2】潜在資産活用 特別プログラム</title>
+    
+    <script src="https://cdn.tailwindcss.com"></script>
+    <script>
+        tailwind.config = {
+            theme: {
+                extend: {
+                    colors: {
+                        macp: {
+                            DEFAULT: '#00738a', 
+                            /* ▼▼▼ 変更点 ▼▼▼ */
+                            dark: '#00738a',  /* #003A70 から変更 */
+                            /* ▲▲▲ 変更点 ▲▲▲ */
+                            light: '#f0f6fa', 
+                            ring: '#d6e6f2'   
+                        },
+                        campaign: '#f97316' 
+                    },
+                    fontFamily: {
+                        sans: ['Noto Sans JP', 'Inter', 'sans-serif'],
+                    }
+                }
+            }
+        }
+    </script>
+    <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;600;700;900&family=Noto+Sans+JP:wght@400;700;900;900&display=swap" rel="stylesheet">
+    <style>
+        body {
+            font-family: ui-sans-serif, system-ui, -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, "Helvetica Neue", Arial, "Noto Sans JP", sans-serif;
+            margin: 0;
+            padding: 0;
+            background-color: #ffffff;
+        }
+        /* Chart.jsのコンテナ */
+        .chart-container {
+            position: relative;
+            margin-left: auto;
+            margin-right: auto;
+            width: 100%;
+            max-width: 400px;
+            height: 280px; 
+        }
+        @media (min-width: 640px) {
+            .chart-container {
+                height: 320px; 
+            }
+        }
+        /* 静的なFAQのスタイル */
+        .faq-item {
+            border-bottom: 1px solid #e5e7eb;
+            padding-bottom: 1rem;
+        }
+        .faq-summary {
+            padding-top: 1rem;
+            padding-bottom: 0.5rem;
+            display: flex;
+            align-items: center;
+        }
+        .faq-summary::-webkit-details-marker,
+        .faq-summary::before,
+        details[open] .faq-summary::before {
+            display: none;
+        }
+
+        /* --- JP式・資産加速クアドラント™ のための調整 (変更なし) --- */
+        .quadrant-grid {
+            display: grid;
+            grid-template-columns: repeat(2, minmax(0, 1fr));
+            gap: 0.75rem;
+        }
+        .quadrant-item {
+            min-height: 150px;
+            padding: 1rem;
+        }
+        .y-axis-label {
+            display: flex;
+            flex-direction: column;
+            justify-content: space-between;
+            align-items: center;
+            padding-top: 1rem;
+            padding-bottom: 1rem;
+            padding-left: 0.5rem;
+            padding-right: 0.5rem;
+            width: 50px;
+            flex-shrink: 0;
+        }
+        .y-axis-text {
+            writing-mode: vertical-rl;
+            text-orientation: upright;
+            white-space: nowrap;
+        }
+        .x-axis-label {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            width: 100%;
+            padding-left: 0.5rem;
+            padding-right: 0.5rem;
+            margin-top: 0.5rem;
+        }
+
+        @media (min-width: 640px) {
+            .quadrant-grid {
+                gap: 1.5rem;
+            }
+            .quadrant-item {
+                min-height: 180px;
+            }
+            .y-axis-label {
+                padding-top: 1rem;
+                padding-bottom: 1rem;
+                padding-left: 0.5rem;
+                padding-right: 0.5rem;
+                width: auto;
+            }
+            .x-axis-label {
+                padding-left: 1rem;
+                padding-right: 1rem;
+            }
+        }
+        @media (min-width: 640px) {
+            .x-axis-label.lg-pl-12 {
+                padding-left: 3rem;
+            }
+            .x-axis-label.lg-pr-4 {
+                padding-right: 1rem;
+            }
+        }
+
+        /* 印刷用のQRコードCTAブロック */
+        .qr-cta-block {
+            background-color: #ffffff;
+            padding: 1.5rem; /* p-6 */
+            border-radius: 0.5rem; /* rounded-lg */
+            text-align: center;
+            max-width: 24rem; /* max-w-sm */
+            margin-left: auto;
+            margin-right: auto;
+            border: 2px solid #f97316; /* border-2 border-campaign */
+        }
+        .qr-image-wrapper {
+            background-color: #ffffff;
+            padding: 0.5rem; /* p-2 */
+            border: 1px solid #d1d5db; /* border border-gray-300 */
+            border-radius: 0.375rem; /* rounded-md */
+            display: inline-block;
+        }
+    </style>
+</head>
+<body class="bg-white text-gray-800">
+
+    <main class="max-w-5xl mx-auto p-4 md:p-8">
+
+        <section class="bg-white text-macp-dark p-8 md:p-12"> <div class="max-w-5xl mx-auto text-center">
+                <h2 class="text-sm font-semibold tracking-wider uppercase opacity-80">国内最高峰エグゼクティブの皆様へ</h2>
+                <h1 class="text-4xl md:text-5xl font-black mt-2 mb-4 tracking-tight">今年の節税、今年のうちに！？</h1>
+                <h3 class="text-xl md:text-2xl font-bold text-campaign mt-2 mb-4 tracking-tight">特別優遇：優良物件確保＆最優遇金利(1%台)利用可能</h3>
+                <p class="text-lg md:text-xl font-light max-w-3xl mx-auto text-gray-700">
+                    国内トップクラスの平均年収（アドバイザー平均4,537万円※2023年9月期実績）を誇る皆様へ。 </p>
+            </div>
+        </section>
+
+        <section class="bg-white rounded-lg p-6 md:p-10 mb-8 overflow-hidden">
+            <h2 class="text-3xl sm:text-4xl font-bold text-center text-macp-dark mb-8"> <strong class="text-macp">国内最高峰の報酬水準</strong>である皆様が直面する現実
+            </h2>
+            <div class="grid grid-cols-1 md:grid-cols-2 gap-8 items-center">
+                
+                <div>
+                    <h3 class="text-xl font-bold text-center mb-2">希少な「0.97%」の存在</h3>
+                    <div class="chart-container h-64 sm:h-80">
+                        <canvas id="chartIncomeBracket"></canvas>
+                    </div>
+                    <p class="text-center text-gray-600 mt-4">
+                        皆様は、給与所得者全体のわずか <strong class="text-macp">0.97%</strong> しか存在しない、日本最高峰の市場価値をお持ちです。
+                    </p>
+                </div>
+                
+                <div>
+                    <h3 class="text-xl font-bold text-center mb-2">「税額の1/3」を負担</h3>
+                    <div class="chart-container h-64 sm:h-80">
+                        <canvas id="chartTaxContribution"></canvas>
+                    </div>
+                    <p class="text-center text-gray-600 mt-4">
+                        しかし、それは同時に日本の給与所得税額全体の <strong class="text-macp">約1/3</strong> を、その <strong class="text-macp">0.97%</strong> の層で負担しているという現実でもあります。
+                    </p>
+                </div>
+            </div>
+            <p class="text-xs text-gray-500 text-center mt-6">
+                出典：国税庁「令和4年分 民間給与実態統計調査」（給与所得1,500万円超のデータ）
+            </p>
+        </section>
+
+        <section class="bg-macp-light text-macp-dark rounded-lg p-8 md:p-10 mb-8 text-center"> <h2 class="text-3xl sm:text-4xl font-bold mb-4">その「信用力」、最高税率のまま眠らせていませんか？</h2>
+            <p class="text-lg md:text-xl opacity-90 mb-6 max-w-2xl mx-auto">
+                所得税・住民税の負担（実行税率50%超）により、稼いだ資産の半分近くが失われている可能性があります。皆様が持つ最大の資産「信用力（与信枠）」の未活用は、もはや「機会損失」です。
+            </p>
+            <h3 class="text-2xl font-bold mb-4 text-campaign">潜在的キャパシティ（休眠資産）を即座に「資産価値（時価）」へ転換しませんか？</h3>
+        </section>
+
+        <section class="mb-8">
+            <h2 class="text-3xl sm:text-4xl font-bold text-center text-macp-dark mb-8"> その「信用力」を「可処分所得」に変える。
+            </h2>
+            <p class="text-lg text-center text-gray-700 max-w-3xl mx-auto mb-8">
+                富裕層特化・丸の内24年の実績を持つJ.P.RETURNSが、皆様専用の「資産形成システム」をご提案します。
+            </p>
+            <div class="grid grid-cols-1 md:grid-cols-3 gap-6">
+                
+                <div class="bg-white rounded-lg p-6 text-center border-t-4 border-macp">
+                    <div class="text-5xl mb-4" role="img" aria-label="お金の袋">💰</div>
+                    <h3 class="text-xl font-bold mb-2">Point 1: 圧倒的な節税効果</h3>
+                    <p class="text-gray-600">所得税・住民税の負担を劇的に圧縮し、可処分所得を最大化します。</p>
+                </div>
+                
+                <div class="bg-white rounded-lg p-6 text-center border-t-4 border-macp">
+                    <div class="text-5xl mb-4" role="img" aria-label="クレジットカード">💳</div>
+                    <h3 class="text-xl font-bold mb-2">Point 2: 「与信枠」をM&Aにおける「のれん」に見立てマネタイズ</h3>
+                    <p class="text-gray-600">実質自己資金ゼロからでも、休眠資産を「収益を生む資産」に転換します。</p>
+                </div>
+                
+                <div class="bg-white rounded-lg p-6 text-center border-t-4 border-macp">
+                    <div class="text-5xl mb-4" role="img" aria-label="ロボット">🤖</div>
+                    <h3 class="text-xl font-bold mb-2">Point 3: 完全なる「自動化」</h3>
+                    <p class="text-gray-600">M&Aという激務な皆様の手を一切煩わせません。本業に100%集中できます。</p>
+                </div>
+            </div>
+        </section>
+        
+        <section class="bg-white rounded-lg p-6 md:p-10 mb-8 break-after-page">
+            <h2 class="text-3xl sm:text-4xl font-bold text-center text-macp-dark mb-4"> なぜ、トップエグゼクティブが「都心・中古区分マンション」を選ぶのか？
+            </h2>
+            <p class="text-lg text-center text-gray-700 max-w-3xl mx-auto mb-8">
+                皆様なら、「ディール」における「<strong class="text-macp-dark">リスク・リターン・プロファイル</strong>」の最適化の重要性はご存知のはずです。
+                <br>私たちがご提供するのは、ギャンブル的な投資ではなく、「管理の容易性・安全性」と「税務メリット」を唯一両立させるソリューションです。 </p>
+            
+            <h3 class="text-2xl font-bold text-center mb-6 text-macp">【JP式・資産加速クアドラント™】</h3>
+            
+            <div class="max-w-3xl mx-auto">
+                <div class="flex items-stretch w-full">
+                    
+                    <div class="y-axis-label hidden sm:flex">
+                        <span class="font-bold text-xl mb-2">高</span>
+                        <span class="text-lg font-bold text-gray-700 p-2 y-axis-text">税務メリット</span>
+                        <span class="font-bold text-xl mt-2">低</span> 
+                    </div>
+                    
+                    <div class="quadrant-grid flex-1">
+                        
+                        <div class="bg-gray-100 border-2 border-gray-300 rounded-lg quadrant-item flex flex-col justify-center">
+                            <h4 class="font-bold text-lg text-gray-800">1棟中古アパート・<br>海外不動産</h4>
+                            <p class="text-sm text-gray-600 mt-1">高い節税効果が期待できる一方、<br>管理の手間、空室、修繕追加課金、<br>為替などのリスクも大きい。</p>
+                        </div>
+                        
+                        <div class="bg-macp-light border-2 border-macp rounded-lg quadrant-item flex flex-col justify-center ring-4 ring-macp-ring">
+                            <h4 class="font-bold text-lg text-macp-dark">【私たちがご提供する領域】<br>都心・中古区分マンション</h4> <p class="text-sm text-macp-dark mt-1 font-semibold">本業に集中できる管理の手軽さと<br>高い節税効果、資産価値の安定性を<br>両立。</p> </div>
+                        
+                        <div class="bg-gray-100 border-2 border-gray-300 rounded-lg quadrant-item flex flex-col justify-center">
+                            <h4 class="font-bold text-lg text-gray-800">値上がり期待ありきの<br>ハイリスク投機</h4>
+                            <p class="text-sm text-gray-600 mt-1">期待外れの際にはダメージ大、<br>税務メリットも限定的。</p>
+                        </div>
+                        
+                        <div class="bg-gray-100 border-2 border-gray-300 rounded-lg quadrant-item flex flex-col justify-center">
+                            <h4 class="font-bold text-lg text-gray-800">一般的な金融商品</h4>
+                            <p class="text-sm text-gray-600 mt-1">管理は容易だが、<br>大きな節税効果は見込めない。</p>
+                        </div>
+                    </div>
+                </div>
+                
+                <div class="x-axis-label mt-2 lg-pl-12 lg-pr-4">
+                    <span class="font-bold text-xl">低</span>
+                    <span class="text-lg font-bold text-gray-700 p-2 text-center">管理の容易性・安全性</span>
+                    <span class="font-bold text-xl">高</span>
+                </div>
+            </div>
+        </section>
+
+
+        <section class="bg-orange-100 rounded-lg p-8 md:p-10 text-center">
+            <h2 class="text-2xl font-bold uppercase tracking-wide text-orange-700">トップエグゼクティブ 限定</h2>
+            <h3 class="text-4xl md:text-5xl font-black mt-2 mb-4 text-orange-600">特別キャンペーン</h3>
+            <p class="text-lg md:text-xl font-light mb-6 text-gray-700">年末調整・確定申告シーズン目前！<br>「今年の節税」について、専門家との個別相談（オンライン可）にお申し込みいただいた方</p>
+            
+            <div class="bg-white text-orange-600 rounded-lg p-8 max-w-lg mx-auto mb-6"> 
+                <span class="font-bold text-xl text-yellow-700">特典①：休眠資産（与信枠）6,000万円以上と判定され、個別相談された方</span><br> 
+                <div class="text-macp-dark text-center my-2"> <span class="text-5xl font-black block leading-none">Amazonギフト券</span>
+                    <span class="text-5xl sm:text-6xl font-black leading-none inline-block">10,000</span><span class="text-2xl sm:text-3xl font-black align-bottom">円分</span> 
+                </div>
+                <h4 class="text-4xl font-bold">プレゼント！</h4> 
+                <p class="text-xl text-gray-800 mt-2">(先着30名様 限定)</p>
+            </div>
+
+            <ul class="text-left max-w-2xl mx-auto list-none space-y-5 mb-8 opacity-95 text-lg"> 
+                <li>
+                    <span class="font-bold text-xl text-orange-700">特典②：休眠資産（与信枠）2億円以上と判定された方</span><br> 
+                    <p class="mt-3 text-gray-800"> 
+                        休眠資産活用プログラム立案に携わった<strong class="text-orange-700">当社のコンサル</strong>が、担当としてサポート致します。
+                    </p>
+                    
+                    <p class="text-base mt-3 text-gray-700 opacity-80"> 
+                        ※年内節税希望枠の定員に達した時点で、予告なく受付終了させて頂くケースがございます。その際は、部長クラスの担当者が責任を持ってサポートさせて頂きますのでご安心ください。
+                    </p>
+                </li>
+            </ul>
+
+            <div class="qr-cta-block">
+                <h4 class="text-xl font-bold text-macp-dark mb-3">＜3分・匿名OK＞<br>無料チャットbotで今すぐ診断</h4> <div class="qr-image-wrapper">
+                    <img src="QR.png" alt="無料診断チャットbot QRコード" class="w-40 h-40">
+                    </div>
+            </div>
+        </section>
+
+        <section class="bg-white rounded-lg p-6 md:p-10 my-8">
+            <h2 class="text-3xl sm:text-4xl font-bold text-center text-macp-dark mb-8"> よくあるご質問 (Q&A)
+            </h2>
+            <div class="max-w-3xl mx-auto space-y-2"> 
+                
+                <div class="faq-item"> 
+                    <div class="faq-summary text-lg font-bold text-macp-dark rounded-md"> <span class="ml-4">Q.</span>初期費用はどれくらいかかりますか？
+                    </div>
+                    <p class="text-gray-700 ml-10 sm:ml-12 pt-2">
+                        <span class="font-bold text-xl mr-1 text-gray-600 align-top">A.</span>
+                        ご安心ください。MACPの皆様の信用力を最大限に活かし、物件価格だけでなく別途必要な諸費用も含めた<strong class="text-macp">フルローンが可能</strong>です。<br>
+                        つまり、運用資金2〜3億を<strong class="text-macp">1%台の調達コストでフルレバ投資を活用できます。</strong>
+                        多数の提携銀行の中から、MACP様が適用される最優遇金利をご案内します。
+                        <span class="text-sm block mt-2 text-gray-600">（ご契約時に1件につき10万円の手付金、引き渡し時に数万円が別途必要となります。）</span>
+                    </p>
+                </div>
+                
+                <div class="faq-item"> 
+                    <div class="faq-summary text-lg font-bold text-macp-dark rounded-md"> <span class="ml-4">Q.</span>収入に変動があるため、将来が少し心配です。
+                    </div>
+                    <p class="text-gray-700 ml-10 sm:ml-12 pt-2">
+                        <span class="font-bold text-xl mr-1 text-gray-600 align-top">A.</span>
+                        ハイパフォーマンスな皆様だからこそ、収入が変動する可能性も考慮されますよね。<br>
+                        確かに、課税所得が1800万円を下回った場合、節税効果が薄れていく可能性はございます。
+                        無料の個別相談では、そうした<strong class="text-macp">最悪のケースも想定した詳細なシミュレーション</strong>を、皆様の状況に合わせて即時にご提示できます。<br>
+                        どの程度のインパクトがあるかをしっかりご確認いただけますので、ご安心ください。
+                    </p>
+                </div>
+                
+                <div class="faq-item"> 
+                    <div class="faq-summary text-lg font-bold text-macp-dark rounded-md"> <span class="ml-4">Q.</span>将来、住宅ローンが組めなくなるのではと心配です。
+                    </div>
+                    <p class="text-gray-700 ml-10 sm:ml-12 pt-2">
+                        <span class="font-bold text-xl mr-1 text-gray-600 align-top">A.</span>
+                        将来のマイホーム購入など、大切なライフプランへの影響もご心配ですよね。<br>
+                        ご安心ください。今回の無料与信枠診断（チャットbot）の結果を元に、個別相談の場で<strong class="text-macp">「住宅ローン枠にどの程度影響があるか」も併せて診断</strong>いたします。<br>
+                        皆様の将来設計に寄り添ったプランをご提案しますので、ぜひ専門家にご相談ください。
+                    </p>
+                </div>
+                
+                <div class="faq-item"> 
+                    <div class="faq-summary text-lg font-bold text-macp-dark rounded-md"> <span class="ml-4">Q.</span>転職したばかりで、勤続年数が短いのですが…
+                    </div>
+                    <p class="text-gray-700 ml-10 sm:ml-12 pt-2">
+                        <span class="font-bold text-xl mr-1 text-gray-600 align-top">A.</span>
+                        転職直後はローン審査がご不安になるお気持ち、よく分かります。ですが、MACPの皆様の信用力は別格です。<br>
+                        実際に、<strong class="text-macp">転職後わずか半年でフルローンの与信枠1億円を確保</strong>された事例も、MACPの皆様の中では多数ございます。一般的な基準に当てはまらないケースも多いため、まずは専門家にご相談ください。
+                    </p>
+                </div>
+                
+                <div class="faq-item"> 
+                    <div class="faq-summary text-lg font-bold text-macp-dark rounded-md"> <span class="ml-4">Q.</span>投資ワンルーム業者から電話営業が頻繁にきて正直迷惑なのですが...
+                    </div>
+                    <p class="text-gray-700 ml-10 sm:ml-12 pt-2">
+                        <span class="font-bold text-xl mr-1 text-gray-600 align-top">A.</span>
+                        皆様の貴重なお時間を尊重します。当社のサービスは、お客様からのご相談を「<strong class="text-macp">完全受身型</strong>」とし、<strong class="text-macp">こちらからの執拗な勧誘活動は一切行いません</strong>のでご安心ください。<br>
+                        まずはお気軽に、オンラインチャットでご自身の与信枠診断からお試しください。
+                    </p>
+                </div>
+                
+                <div class="faq-item" style="border-bottom: none; padding-bottom: 0;"> 
+                    <div class="faq-summary text-lg font-bold text-macp-dark rounded-md"> <span class="ml-4">Q.</span>忙しくて、書類準備や銀行窓口に行く時間がありません。
+                    </div>
+                    <p class="text-gray-700 ml-10 sm:ml-12 pt-2">
+                        <span class="font-bold text-xl mr-1 text-gray-600 align-top">A.</span>
+                        皆様の貴重なお時間を、お手続きで無駄にすることはございません。<br>
+                        提携のネット銀行をご利用いただくことで、お手続きは<strong class="text-macp">来店不要、すべてネットとお電話で完結</strong>します。<br>
+                        さらに、審査に必要な公的書類の取得も、委任状をいただくだけで私たちが代行する<strong class="text-macp">フルサポート体制</strong>をご用意しています。面倒な作業はすべてお任せください。
+                        <span class="text-sm block mt-2 text-gray-600">（書類取得代行には、別途手数料が発生します）</span>
+                    </p>
+                </div>
+
+            </div>
+        </section>
+    </main>
+
+    <footer class="bg-white text-gray-500 p-8 mt-10">
+        <div class="max-w-5xl mx-auto text-center border-t border-gray-200 pt-8">
+            <h4 class="text-lg font-bold text-gray-800 mb-4">J.P.RETURNS株式会社</h4>
+            
+            <div class="space-y-2 max-w-sm mx-auto text-gray-600 text-sm">
+                <p>
+                    東京都千代田区丸の内2-6-1丸の内パークビルディング23F
+                </p>
+            </div>
+            
+            <div class="mt-8 pt-6 text-xs text-gray-400">
+                <p>&copy; 2025 J.P.RETURNS Inc. All Rights Reserved. このプログラムは、ハイパフォーマー層のエグゼクティブを対象とした特別ご提案です。</p>
+            </div>
+        </div>
+    </footer>
+    <script>
+        // 日本語ラベルの折り返し処理 (文字数ベースで判断)
+        function processChartLabels(labels) {
+            const maxLabelLength = 16;
+            return labels.map(label => {
+                if (typeof label === 'string' && label.length > maxLabelLength) {
+                    // 日本語はスペースで区切れないため、文字数で強制的に改行
+                    let lines = [];
+                    for (let i = 0; i < label.length; i += maxLabelLength) {
+                        lines.push(label.substring(i, i + maxLabelLength));
+                    }
+                    return lines;
+                }
+                return label;
+            });
+        }
+
+        // ツールチップのタイトルを結合して表示 (改行されたラベルに対応)
+        const tooltipTitleCallback = function(tooltipItems) {
+            const item = tooltipItems[0];
+            let label = item.chart.data.labels[item.dataIndex];
+            if (Array.isArray(label)) {
+                return label.join(' ');
+            } else {
+                return label;
+            }
+        };
+        
+        // チャートで使用する色
+        const chartColors = {
+            primary: '#004b8d', // Note: This is macp.DEFAULT, not macp.dark. This remains unchanged as requested.
+            secondary: '#f97316', 
+            gray: '#9ca3af' 
+        };
+
+        // Chart 1: Income Bracket (0.97%)
+        const ctxIncome = document.getElementById('chartIncomeBracket').getContext('2d');
+        const labelsIncome = processChartLabels(['給与所得者全体 (99.03%)', 'MACP従業員様 (0.97%)']);
+        new Chart(ctxIncome, {
+            type: 'doughnut',
+            data: {
+                labels: labelsIncome,
+                datasets: [{
+                    label: '給与所得者 割合',
+                    data: [99.03, 0.97],
+                    backgroundColor: [
+                        chartColors.gray,
+                        chartColors.secondary
+                    ],
+                    borderColor: '#ffffff',
+                    borderWidth: 3
+                }]
+            },
+            options: {
+                responsive: true,
+                maintainAspectRatio: false,
+                cutout: '70%',
+                plugins: {
+                    legend: {
+                        position: 'bottom',
+                    },
+                    tooltip: {
+                        callbacks: {
+                            title: tooltipTitleCallback,
+                            label: function(context) {
+                                let label = context.dataset.label || '';
+                                if (label) {
+                                    label += ': ';
+                                }
+                                if (context.parsed !== null) {
+                                    label += context.parsed.toFixed(2) + '%';
+                                }
+                                return label;
+                            }
+                        }
+                    }
+                }
+            }
+        });
+
+        // Chart 2: Tax Contribution (1/3)
+        const ctxTax = document.getElementById('chartTaxContribution').getContext('2d');
+        const labelsTax = processChartLabels(['その他 (約 2/3)', '高所得者層 (約 1/3)']);
+        new Chart(ctxTax, {
+            type: 'doughnut',
+            data: {
+                labels: labelsTax,
+                datasets: [{
+                    label: '所得税額 負担割合',
+                    data: [66.7, 33.3],
+                    backgroundColor: [
+                        chartColors.gray,
+                        chartColors.primary // This uses #004b8d
+                    ],
+                    borderColor: '#ffffff',
+                    borderWidth: 3
+                }]
+            },
+            options: {
+                responsive: true,
+                maintainAspectRatio: false,
+                cutout: '70%',
+                plugins: {
+                    legend: {
+                        position: 'bottom',
+                    },
+                    tooltip: {
+                        callbacks: {
+                            title: tooltipTitleCallback,
+                            label: function(context) {
+                                let label = context.dataset.label || '';
+                                if (label) {
+                                    label += ': ';
+                                }
+                                if (context.parsed !== null) {
+                                    label += context.parsed.toFixed(1) + '%';
+                                }
+                                return label;
+                            }
+                        }
+                    }
+                }
+            }
+        });
+    </script>
+    </body>
+</html>
