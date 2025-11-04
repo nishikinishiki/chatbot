@@ -253,7 +253,7 @@ function handleMultiChoice(question, selections, container) {
     if (container) disableInputs(container);
     
     // ユーザーメッセージにはラベルをカンマ区切りで表示
-    const userMessageLabel = labels.join(', ');
+    const userMessageLabel = labels.join('、 ');
     addUserMessage(userMessageLabel);
     
     const responseValue = values.join(';');
