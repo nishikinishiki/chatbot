@@ -256,8 +256,7 @@ function handleMultiChoice(question, selections, container) {
     const userMessageLabel = labels.join(', ');
     addUserMessage(userMessageLabel);
     
-    // 送信データにはvalueをカンマ区切りで保存 (スプレッドシートで見やすいため)
-    const responseValue = values.join(',');
+    const responseValue = values.join(';');
     
     const responseSet = (state.currentFlow === 'initial') ? state.userResponses : state.additionalUserResponses;
     responseSet[question.key] = responseValue;
