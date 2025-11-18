@@ -308,9 +308,9 @@ async function submitDataToGAS(dataToSend) {
 
         clearInputArea(); // 入力エリアをクリア
         await addBotMessage("送信が完了しました。<br>お問い合わせいただきありがとうございました！", true);
-        await addBotMessage("後ほど担当よりご連絡いたします。", true);
+        await addBotMessage("ご情報を確認し、後ほど担当よりご連絡いたします。", true);
         await addBotMessage("お問い合わせはお電話でも受け付けております。<br>電話番号：<a href='tel:0120147104'>0120-147-104</a><br>営業時間：10:00～22:00（お盆・年末年始除く）", true);
-        await addBotMessage("デジタル書籍は下記から閲覧できます！");
+        await addBotMessage("デジタル書籍が以下から閲覧可能です！<br>不動産投資と節税の仕組み等、役立つ情報が満載ですのでぜひご覧ください。", true);
         await addBotMessage("デジタル書籍を閲覧する", false, false, true);
 
     } catch (error) {
