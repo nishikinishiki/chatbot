@@ -1,0 +1,116 @@
+<!DOCTYPE html>
+<html lang="ja">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>不動産投資LP | スワイプ型</title>
+    <link rel="stylesheet" href="style.css">
+</head>
+<body>
+
+    <div id="lp-container" class="lp-container">
+        <div id="slide-wrapper" class="slide-wrapper">
+
+            <div class="slide image-slide" data-slide-index="1">
+                <img src="images/slide1.png" alt="スライド1" class="slide-image">
+            </div>
+            <div class="slide image-slide" data-slide-index="2">
+                <img src="images/slide2.png" alt="スライド2" class="slide-image">
+            </div>
+            <div class="slide image-slide" data-slide-index="3">
+                <img src="images/slide3.png" alt="スライド3" class="slide-image">
+            </div>
+            <div class="slide image-slide" data-slide-index="4">
+                <img src="images/slide4.png" alt="スライド4" class="slide-image">
+            </div>
+            <div class="slide image-slide" data-slide-index="5">
+                <img src="images/slide5.png" alt="スライド5" class="slide-image">
+            </div>
+
+            <div class="slide form-slide" data-slide-index="6">
+                <div class="form-content">
+                    <h2>Q1. 投資経験はありますか？</h2>
+                    <div class="options-container" data-question="investment_experience">
+                        <button class="option-btn" data-value="はい">はい</button>
+                        <button class="option-btn" data-value="いいえ">いいえ</button>
+                    </div>
+                </div>
+            </div>
+
+            <div class="slide form-slide" data-slide-index="7">
+                <div class="form-content">
+                    <h2>Q2. 職業は何ですか？</h2>
+                    <div class="options-container" data-question="occupation">
+                        <button class="option-btn" data-value="会社員">会社員</button>
+                        <button class="option-btn" data-value="公務員">公務員</button>
+                        <button class="option-btn" data-value="医師・弁護士等">医師・弁護士等</button>
+                        <button class="option-btn" data-value="自営業・経営者">自営業・経営者</button>
+                        <button class="option-btn" data-value="その他">その他</button>
+                    </div>
+                </div>
+            </div>
+
+            <div class="slide form-slide" data-slide-index="8">
+                <div class="form-content">
+                    <h2>Q3. 年齢はおいくつですか？</h2>
+                    <div class="options-container" data-question="age_group">
+                        <button class="option-btn" data-value="20代">20代</button>
+                        <button class="option-btn" data-value="30代">30代</button>
+                        <button class="option-btn" data-value="40代">40代</button>
+                        <button class="option-btn" data-value="50代">50代</button>
+                        <button class="option-btn" data-value="60代以上">60代以上</button>
+                    </div>
+                </div>
+            </div>
+
+            <div class="slide form-slide" data-slide-index="9">
+                <div class="form-content">
+                    <h2>Q4. 年収はいくらですか？</h2>
+                    <div class="options-container" data-question="annual_income">
+                        <button class="option-btn" data-value="500万未満">500万未満</button>
+                        <button class="option-btn" data-value="500万〜700万未満">500万〜</button>
+                        <button class="option-btn" data-value="700万〜1000万未満">700万〜</button>
+                        <button class="option-btn" data-value="1000万〜1500万未満">1000万〜</button>
+                        <button class="option-btn" data-value="1500万以上">1500万〜</button>
+                    </div>
+                </div>
+            </div>
+
+            <div class="slide form-slide text-input-slide" data-slide-index="10">
+                <div class="form-content">
+                    <h2>Q5. メールアドレスをご入力ください</h2>
+                    <input type="email" id="email" placeholder="メールアドレス" data-question="email_address">
+                    <button class="next-btn" disabled>次へ</button>
+                </div>
+            </div>
+
+            <div class="slide form-slide text-input-slide" data-slide-index="11">
+                <div class="form-content">
+                    <h2>Q6. 電話番号をご入力ください</h2>
+                    <input type="tel" id="tel" placeholder="電話番号（ハイフンなし）" data-question="phone_number">
+                    <button class="next-btn" disabled>次へ</button>
+                </div>
+            </div>
+
+            <div class="slide form-slide text-input-slide name-input-slide" data-slide-index="12">
+                <div class="form-content">
+                    <h2>Q7. お名前（全角カナ）をご入力ください</h2>
+                    <div class="name-inputs-wrapper">
+                        <input type="text" id="last-name" placeholder="セイ" data-question="last_name_kana">
+                        <input type="text" id="first-name" placeholder="メイ" data-question="first_name_kana">
+                    </div>
+                    <button class="next-btn" disabled>次へ</button>
+                </div>
+            </div>
+
+            <div class="slide thanks-slide" data-slide-index="13">
+                <div class="form-content">
+                    </div>
+            </div>
+
+        </div>
+    </div>
+
+    <script src="script.js"></script>
+</body>
+</html>
