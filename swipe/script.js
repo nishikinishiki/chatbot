@@ -13,24 +13,21 @@ document.addEventListener('DOMContentLoaded', () => {
     
     // Pardot連携のためのフォームデータ
     const formData = {
-        // Q1 投資経験 (Pardot連携では使用しないが、ここでは保持)
+        // Q1 投資経験
         investment_experience: null, 
-        
         // Q2 職業
         occupation: null,
         // Q3 年齢
         age_group: null,
         // Q4 年収
         annual_income: null,
-        
         // Q5 メールアドレス
         email_address: '',
         // Q6 電話番号
         phone_number: '',
         // Q7 名前 (分割)
-        last_name_kana: '',
-        first_name_kana: '',
-        
+        last_name: '',
+        first_name: '',
         // UTMパラメータ (Thanksページには表示しないが、送信データとして保持)
         utm_source: '',
         utm_campaign: '',
@@ -61,22 +58,17 @@ document.addEventListener('DOMContentLoaded', () => {
      */
     function updateSelectedButtonState() {
         const currentSlideElement = slides[currentSlide];
+        if (currentSlideElement.dataset.type !== 'option') return;
+
         const container = currentSlideElement.querySelector('.options-container');
+        const questionKey = container.dataset.question;
+        const selectedValue = formData[questionKey];
 
-        if (container) {
-            const questionKey = container.dataset.question;
-            const selectedValue = formData[questionKey];
+        currentSlideElement.querySelectorAll('.option-btn').forEach(btn => btn.classList.remove('selected'));
 
-            currentSlideElement.querySelectorAll('.option-btn').forEach(btn => {
-                btn.classList.remove('selected');
-            });
-
-            if (selectedValue) {
-                const selectedBtn = currentSlideElement.querySelector(`.option-btn[data-value="${selectedValue}"]`);
-                if (selectedBtn) {
-                    selectedBtn.classList.add('selected');
-                }
-            }
+        if (selectedValue) {
+            const selectedBtn = container.querySelector(`.option-btn[data-value="${selectedValue}"]`);
+            if (selectedBtn) selectedBtn.classList.add('selected');
         }
     }
     
@@ -85,52 +77,36 @@ document.addEventListener('DOMContentLoaded', () => {
      * ★修正箇所: UTMパラメータを非表示にする
      */
     function renderSummary() {
-        const summaryElement = document.querySelector('.thanks-slide .form-content');
-        if (!summaryElement) return;
+        const container = document.querySelector('.answers-summary');
+        if (!container) return;
 
-        let summaryHTML = `
-            <h1>ご登録ありがとうございます！</h1>
-            <p>ご入力いただいた内容をご確認ください。</p>
-            <dl class="answers-summary">
-        `;
-
-        // ユーザーに提示する回答項目のみを定義
-        const userFacingQuestions = {
+        const fields = {
             investment_experience: "Q1. 投資経験",
             occupation: "Q2. 職業区分",
             age_group: "Q3. 年齢帯",
             annual_income: "Q4. ご年収",
             email_address: "Q5. メールアドレス",
             phone_number: "Q6. 携帯電話番号",
-            last_name_kana: "Q7. お名前(姓)",
-            first_name_kana: "Q7. お名前(名)",
+            last_name: "Q7. お名前(姓)",
+            first_name: "Q7. お名前(名)",
         };
-        
-        // ユーザー向け項目のみをループ
-        for (const key in userFacingQuestions) {
-            // formDataにキーが存在することを確認
-            if (formData.hasOwnProperty(key)) {
-                const label = userFacingQuestions[key];
-                const value = formData[key] || '';
-                
-                const displayValue = value.trim() === '' || value === null ? '未回答' : value;
 
-                summaryHTML += `
-                    <dt>${label}</dt>
-                    <dd>${displayValue}</dd>
-                `;
-            }
+        let summaryHTML = ''; // ←ここを追加
+
+        for (const key in fields) {
+            const label = fields[key];
+            const value = (formData[key]?.trim() || '未回答');
+                
+            summaryHTML += `
+                <dt>${label}</dt>
+                <dd>${value}</dd>
+            `;
         }
 
-        summaryHTML += `
-            </dl>
-            <p style="margin-top: 30px; font-size: 1rem;">上記内容にて担当者よりご連絡させていただきます。</p>
-        `;
-        
-        summaryElement.innerHTML = summaryHTML;
-        
-        console.log("Final Form Data ready for GAS submission (including hidden UTMs):", formData);
-    }
+        container.innerHTML = summaryHTML; // ←ここで反映
+        console.log("Final Form Data ready for GAS submission:", formData);
+    } 
+
 
 
     /**
@@ -159,18 +135,23 @@ document.addEventListener('DOMContentLoaded', () => {
      * 現在のスライドで回答/入力が完了しているか判定する
      */
     function isFormAnswered(slideIndex) {
-        if (slideIndex < FIRST_FORM_SLIDE_INDEX || slideIndex === slideCount - 1) {
-            return true;
-        }
+        const slide = slides[slideIndex];
+        const type = slide.dataset.type;
 
-        if (slideIndex >= 5 && slideIndex <= 8) {
-            const currentSlideElement = slides[slideIndex];
-            const questionKey = currentSlideElement.querySelector('.options-container')?.dataset.question;
+        if (type === 'image' || type === 'thanks') return true;
+
+        if (type === 'option') {
+            const questionKey = slide.querySelector('.options-container')?.dataset.question;
             return questionKey && formData[questionKey] !== null;
         }
 
-        if (slideIndex >= 9 && slideIndex <= 11) {
-            const nextBtn = slides[slideIndex].querySelector('.next-btn');
+        if (type === 'text') {
+            const nextBtn = slide.querySelector('.next-btn');
+            return nextBtn ? !nextBtn.disabled : false;
+        }
+
+        if (type === 'name') {
+            const nextBtn = slide.querySelector('.next-btn');
             return nextBtn ? !nextBtn.disabled : false;
         }
 
@@ -309,7 +290,7 @@ document.addEventListener('DOMContentLoaded', () => {
 
     // --- フォーム処理 (テキスト入力 - Q5, Q6) ---
     
-    const singleTextInputSlides = document.querySelectorAll('.text-input-slide:not(.name-input-slide)');
+    const singleTextInputSlides = document.querySelectorAll('.slide[data-type="text"]');
 
     singleTextInputSlides.forEach(slide => {
         const input = slide.querySelector('input');
@@ -322,7 +303,7 @@ document.addEventListener('DOMContentLoaded', () => {
             if (questionKey === 'email_address') {
                 isValid = isValid && /^[^\s@]+@[^\s@]+\.[^\s@]+$/.test(input.value.trim());
             } else if (questionKey === 'phone_number') {
-                isValid = isValid && /^\d{7,}$/.test(input.value.trim());
+                isValid = isValid && /^\d{9,}$/.test(input.value.trim());
             }
 
             nextBtn.disabled = !isValid;
@@ -366,10 +347,10 @@ document.addEventListener('DOMContentLoaded', () => {
 
     // --- フォーム処理 (テキスト入力 - Q7 名前分割) ---
 
-    const nameSlide = document.querySelector('.name-input-slide');
+    const nameSlide = document.querySelector('.slide[data-type="name"]');
     if (nameSlide) {
-        const lastNameInput = nameSlide.querySelector('input[data-question="last_name_kana"]');
-        const firstNameInput = nameSlide.querySelector('input[data-question="first_name_kana"]');
+        const lastNameInput = nameSlide.querySelector('input[data-question="last_name"]');
+        const firstNameInput = nameSlide.querySelector('input[data-question="first_name"]');
         const nextBtn = nameSlide.querySelector('.next-btn');
 
         const runNameValidationAndStore = () => {
@@ -380,8 +361,8 @@ document.addEventListener('DOMContentLoaded', () => {
             
             nextBtn.disabled = !isValid;
             
-            formData.last_name_kana = lastName;
-            formData.first_name_kana = firstName;
+            formData.last_name = lastName;
+            formData.first_name = firstName;
         };
         
         [lastNameInput, firstNameInput].forEach(input => {
@@ -397,9 +378,9 @@ document.addEventListener('DOMContentLoaded', () => {
             input.addEventListener('keydown', (e) => {
                 if (e.key === 'Enter') {
                     e.preventDefault(); 
-                    if (input.dataset.question === 'last_name_kana') {
+                    if (input.dataset.question === 'last_name') {
                         firstNameInput.focus();
-                    } else if (input.dataset.question === 'first_name_kana' && !nextBtn.disabled) {
+                    } else if (input.dataset.question === 'first_name' && !nextBtn.disabled) {
                         nextBtn.click();
                     }
                 }
@@ -410,7 +391,7 @@ document.addEventListener('DOMContentLoaded', () => {
 
         nextBtn.addEventListener('click', () => {
             if (!nextBtn.disabled) {
-                console.log(`Answered last_name_kana: ${formData.last_name_kana}, first_name_kana: ${formData.first_name_kana}`);
+                console.log(`Answered last_name: ${formData.last_name}, first_name: ${formData.first_name}`);
                 goToSlide(currentSlide + 1);
             }
         });
