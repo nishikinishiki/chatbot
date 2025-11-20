@@ -1,4 +1,7 @@
 document.addEventListener('DOMContentLoaded', () => {
+    // 【重要】ここにデプロイしたGoogle Apps ScriptのウェブアプリURLを貼り付けてください
+    const GAS_WEB_APP_URL = 'https://script.google.com/macros/s/AKfycby60rT7x9jTaZYSQoLLC9mW8l2I6EPFmQ2B25-eFlj2TPr_KRHAKA36bxfHMwl6HoDA/exec';
+    
     const lpContainer = document.getElementById('lp-container');
     const slideWrapper = document.getElementById('slide-wrapper');
     const slides = document.querySelectorAll('.slide');
@@ -11,6 +14,10 @@ document.addEventListener('DOMContentLoaded', () => {
     
     let swipeDirection = null; // 'horizontal' or 'vertical'
     
+    // セッションIDの生成 (簡易的なUUID)
+    const sessionId = 's_' + Date.now().toString(36) + Math.random().toString(36).substring(2, 5);
+
+
     // Pardot連携のためのフォームデータ
     const formData = {
         // Q1 投資経験
@@ -73,8 +80,8 @@ document.addEventListener('DOMContentLoaded', () => {
     }
     
     /**
-     * Thanksページに回答内容を動的に挿入する
-     * ★修正箇所: UTMパラメータを非表示にする
+     * Thanksページに回答内容を動的に挿入し、GASへ送信する
+     * ★修正箇所: GAS送信処理の呼び出しを追加
      */
     function renderSummary() {
         const container = document.querySelector('.answers-summary');
@@ -91,7 +98,7 @@ document.addEventListener('DOMContentLoaded', () => {
             first_name: "Q7. お名前(名)",
         };
 
-        let summaryHTML = ''; // ←ここを追加
+        let summaryHTML = ''; 
 
         for (const key in fields) {
             const label = fields[key];
@@ -103,10 +110,52 @@ document.addEventListener('DOMContentLoaded', () => {
             `;
         }
 
-        container.innerHTML = summaryHTML; // ←ここで反映
+        container.innerHTML = summaryHTML; 
         console.log("Final Form Data ready for GAS submission:", formData);
+        
+        // ★追加: 最終スライド表示時にGASへデータを送信
+        sendFormDataToGas(); 
     } 
 
+
+    /**
+     * GASのウェブアプリURLへフォームデータを送信する
+     */
+    function sendFormDataToGas() {
+        // GASで必要とされる追加項目をデータに追加
+        const finalData = {
+            ...formData, // 既存のフォームデータとUTMパラメータ
+            "Session_ID": sessionId,
+            "Timestamp": new Date().toISOString(),
+            "final_consent_given": true // Thanksページに到達したことで同意と見なす
+        };
+
+        if (!GAS_WEB_APP_URL || GAS_WEB_APP_URL.includes('【ここにデプロイしたGASのURLを貼り付けます】')) {
+            console.error("GAS_WEB_APP_URLが設定されていません。データ送信はスキップされました。");
+            return;
+        }
+
+        console.log("Sending Data to GAS:", finalData);
+        
+        // Fetch APIを使用してPOSTリクエストを送信
+        fetch(GAS_WEB_APP_URL, {
+            method: 'POST',
+            // GASへの送信ではCORSエラーを避けるため 'no-cors' が一般的
+            mode: 'no-cors', 
+            headers: {
+                'Content-Type': 'application/json',
+            },
+            body: JSON.stringify(finalData),
+        })
+        .then(response => {
+            // no-corsモードではレスポンス内容を確認できないため、ログのみ
+            console.log("GAS request sent. (Response check limited due to no-cors mode.)");
+        })
+        .catch(error => {
+            console.error('GAS POST Error:', error);
+            // エラーが発生してもLPの動作は止めない
+        });
+    }
 
 
     /**
@@ -301,8 +350,10 @@ document.addEventListener('DOMContentLoaded', () => {
             let isValid = input.value.trim() !== '';
 
             if (questionKey === 'email_address') {
+                // 簡易的なメールアドレス検証
                 isValid = isValid && /^[^\s@]+@[^\s@]+\.[^\s@]+$/.test(input.value.trim());
             } else if (questionKey === 'phone_number') {
+                // ハイフンなし9桁以上の数値検証
                 isValid = isValid && /^\d{9,}$/.test(input.value.trim());
             }
 
@@ -331,6 +382,7 @@ document.addEventListener('DOMContentLoaded', () => {
             }
         });
 
+        // ページ再読み込み時などにデータが残っていた場合の対応
         if (formData[questionKey] && formData[questionKey].length > 0) {
              input.value = formData[questionKey]; 
              runValidationAndStore(); 
@@ -374,7 +426,7 @@ document.addEventListener('DOMContentLoaded', () => {
             });
             input.addEventListener('change', runNameValidationAndStore);
             
-            // Enterキーでの処理
+            // Enterキーでの処理 (姓でEnterを押すと名に移動、名でEnterを押すと次へ)
             input.addEventListener('keydown', (e) => {
                 if (e.key === 'Enter') {
                     e.preventDefault(); 
