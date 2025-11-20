@@ -1,6 +1,6 @@
 document.addEventListener('DOMContentLoaded', () => {
     // 【重要】ここにデプロイしたGoogle Apps ScriptのウェブアプリURLを貼り付けてください
-    const GAS_WEB_APP_URL = 'https://script.google.com/macros/s/AKfycby60rT7x9jTaZYSQoLLC9mW8l2I6EPFmQ2B25-eFlj2TPr_KRHAKA36bxfHMwl6HoDA/exec';
+    const GAS_WEB_APP_URL = 'https://script.google.com/macros/s/AKfycbwl46_zCUTKtbGV9dQlYfeu0hFHHzLJKfVdefea_zKDxMZ0DGAqiyfVWlFrqOJEsjET/exec';
     
     const lpContainer = document.getElementById('lp-container');
     const slideWrapper = document.getElementById('slide-wrapper');
