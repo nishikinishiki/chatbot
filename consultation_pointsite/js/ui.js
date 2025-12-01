@@ -490,7 +490,7 @@ function displayFinalConsentScreen(question, userResponses, initialQuestions, on
     summaryAdjacentConsentTextDiv.appendChild(document.createTextNode("に同意する。"));
     const brElement1 = document.createElement('br');
     summaryAdjacentConsentTextDiv.appendChild(brElement1);
-    summaryAdjacentConsentTextDiv.appendChild(document.createTextNode("※お客様に内容を深くご理解頂くために複数回のご面談の機会を頂戴しております。"));
+    summaryAdjacentConsentTextDiv.appendChild(document.createTextNode("※お客様に内容を深くご理解頂くために3回程度のご面談の機会を頂戴しております。"));
     const brElement2 = document.createElement('br');
     summaryAdjacentConsentTextDiv.appendChild(brElement2);
     summaryAdjacentConsentTextDiv.appendChild(document.createTextNode("※お客様のご状況や提案状況に応じて面談回数は変動いたします。"));

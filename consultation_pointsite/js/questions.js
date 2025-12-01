@@ -1,18 +1,4 @@
 const questions = [
-    { 
-    id: 'digital_gift_choice', 
-    item: "希望デジタルギフト", 
-    question: "ご希望のデジタルギフトをお選びください！", 
-    answer_method: "single-choice", 
-    options: [
-      { label: "Amazonギフトカード", value: "Amazonギフトカード" },
-      { label: "PayPayポイント", value: "PayPayポイント" },
-      { label: "楽天ポイント", value: "楽天ポイント" }
-    ], 
-    key: "digital_gift_choice", 
-    validation: (v) => !!v, 
-    errorMessage: "選択してください。" 
-    },
     {
         id: 'first_choice_date',
         item: "面談希望日時（第一希望）",

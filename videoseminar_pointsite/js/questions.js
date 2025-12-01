@@ -3,22 +3,7 @@
 
 const katakanaRegex = /^[ァ-ヶー　]+$/;
 
-const initialQuestions = [
-  { 
-    id: 'digital_gift_choice', 
-    item: "希望デジタルギフト", 
-    question: "ご希望のデジタルギフトをお選びください！", 
-    answer_method: "single-choice", 
-    options: [
-      { label: "Amazonギフトカード", value: "Amazonギフトカード" },
-      { label: "PayPayポイント", value: "PayPayポイント" },
-      { label: "楽天ポイント", value: "楽天ポイント" }
-    ], 
-    key: "digital_gift_choice", 
-    validation: (v) => !!v, 
-    errorMessage: "選択してください。" 
-  },
-  
+const initialQuestions = [  
   { id: 'occupation', item: "職業", question: "ご職業を教えてください。", answer_method: "single-choice", 
     options: [
       { label: "会社員 (上場企業)", value: "会社員（上場企業）" },
