@@ -1,0 +1,62 @@
+/* Base Styles */
+body {
+    font-family: 'Noto Sans JP', sans-serif;
+    color: #333;
+    background-color: #f9fafb;
+}
+
+/* Accent Colors */
+.bg-accent { background-color: #45B6A5; }
+.text-accent { color: #45B6A5; }
+.border-accent { border-color: #45B6A5; }
+.hover-bg-accent:hover { background-color: #3da394; }
+
+/* Custom Form Styles */
+.form-input {
+    transition: all 0.3s ease;
+}
+.form-input:focus {
+    border-color: #45B6A5;
+    ring-color: #45B6A5;
+    outline: none;
+    box-shadow: 0 0 0 3px rgba(69, 182, 165, 0.2);
+}
+
+/* Hero Image Overlay */
+.hero-bg {
+    background-image: linear-gradient(rgba(0, 0, 0, 0.5), rgba(0, 0, 0, 0.5)), url('https://images.unsplash.com/photo-1486406146926-c627a92ad1ab?ixlib=rb-1.2.1&auto=format&fit=crop&w=1920&q=80');
+    background-size: cover;
+    background-position: center;
+}
+
+/* Animations */
+.animation-fade-in {
+    animation: fadeIn 0.8s ease-out forwards;
+}
+
+@keyframes fadeIn {
+    from { opacity: 0; transform: translateY(20px); }
+    to { opacity: 1; transform: translateY(0); }
+}
+
+/* Utility - Badges */
+.required::after {
+    content: "必須";
+    background-color: #ef4444;
+    color: white;
+    font-size: 0.7rem;
+    padding: 2px 6px;
+    border-radius: 4px;
+    margin-left: 8px;
+    vertical-align: middle;
+}
+.optional::after {
+    content: "任意";
+    background-color: #9ca3af;
+    color: white;
+    font-size: 0.7rem;
+    padding: 2px 6px;
+    border-radius: 4px;
+    margin-left: 8px;
+    vertical-align: middle;
+}
