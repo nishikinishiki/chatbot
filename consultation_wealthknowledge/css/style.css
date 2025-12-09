@@ -4,14 +4,14 @@
    =============================================================== */
 :root {
   /* --- カラーパレット --- */
-  --primary-color: #00748A;
+  --primary-color: #2190aa;
   --primary-dark: #005f70;
-  --primary-gradient-start: #61b265;
-  --primary-gradient-end: #007f87;
-  --secondary-color: #00848C;
+  --primary-gradient-start: #3aad90;
+  --primary-gradient-end: #2190aa;
+  --secondary-color: #00848C; /* ★ 選択肢の背景色にこれを使用 */
   --body-bg: #8297ac;
   --chat-container-bg: #ffffff;
-  --chat-messages-bg: #efede0;
+  --chat-messages-bg: #fefeff;
   --bot-message-bg: #ffffff;
   --user-message-bg: var(--secondary-color);
   --text-color-light: #ffffff;

@@ -5,7 +5,7 @@ const katakanaRegex = /^[ァ-ヶー　]+$/;
 
 const initialQuestions = [
   
-  { id: 'occupation', item: "職業", question: "ご職業を教えてください。", answer_method: "single-choice", 
+  { id: 'occupation', item: "職業", question: "まず、ご職業を教えてください。", answer_method: "single-choice", 
     options: [
       { label: "会社員 (上場企業)", value: "会社員（上場企業）" },
       { label: "会社員 (その他)", value: "会社員（その他）" },
