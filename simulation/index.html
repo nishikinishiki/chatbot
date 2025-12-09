@@ -1,0 +1,550 @@
+<!DOCTYPE html>
+<html lang="ja">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>不動産投資 節税シミュレーター</title>
+    <!-- Tailwind CSS (Design) -->
+    <script src="https://cdn.tailwindcss.com"></script>
+    <!-- Chart.js (Graph) -->
+    <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
+    <!-- Chart.js DataLabel Plugin (Optional for labels inside, but we use tooltip mainly) -->
+    
+    <style>
+        /* Custom Styles for Slider */
+        input[type=range] {
+            -webkit-appearance: none; /* Hides the slider so that custom slider can be made */
+            width: 100%; /* Specific width is required for Firefox. */
+            background: transparent; /* Otherwise white in Chrome */
+        }
+        input[type=range]::-webkit-slider-thumb {
+            -webkit-appearance: none;
+            height: 20px;
+            width: 20px;
+            border-radius: 50%;
+            background: #2190AA;
+            cursor: pointer;
+            margin-top: -8px; /* You need to specify a margin in Chrome, but in Firefox and IE it is automatic */
+            box-shadow: 0 1px 3px rgba(0,0,0,0.3);
+        }
+        input[type=range]::-moz-range-thumb {
+            height: 20px;
+            width: 20px;
+            border-radius: 50%;
+            background: #2190AA;
+            cursor: pointer;
+            box-shadow: 0 1px 3px rgba(0,0,0,0.3);
+        }
+        input[type=range]::-webkit-slider-runnable-track {
+            width: 100%;
+            height: 4px;
+            cursor: pointer;
+            background: #e2e8f0;
+            border-radius: 2px;
+        }
+        input[type=range]::-moz-range-track {
+            width: 100%;
+            height: 4px;
+            cursor: pointer;
+            background: #e2e8f0;
+            border-radius: 2px;
+        }
+        
+        /* Animation Utilities */
+        .fade-in {
+            animation: fadeIn 0.3s ease-in-out;
+        }
+        @keyframes fadeIn {
+            from { opacity: 0; transform: translateY(-5px); }
+            to { opacity: 1; transform: translateY(0); }
+        }
+        
+        /* Hide number input spinners */
+        input[type=number]::-webkit-inner-spin-button, 
+        input[type=number]::-webkit-outer-spin-button { 
+            -webkit-appearance: none; 
+            margin: 0; 
+        }
+    </style>
+</head>
+<body class="bg-gray-100 p-4 flex justify-center items-start min-h-screen font-sans text-gray-800">
+
+    <!-- Main Container -->
+    <div class="w-full max-w-3xl bg-white border border-gray-300 shadow-sm mx-auto">
+        
+        <!-- Header -->
+        <div class="p-4 md:p-6 border-b border-gray-200">
+            <h2 class="text-lg md:text-2xl font-bold text-gray-800 flex items-center gap-2">
+                <span style="color: #2190AA;">●</span>
+                年収・手取りシミュレーション
+            </h2>
+            <p class="text-xs md:text-sm text-gray-500 mt-2 leading-relaxed">
+                現在の年収と家族構成から、あなたの「本当の手取り」と「不動産投資による節税効果」をリアルタイムに可視化します。
+            </p>
+        </div>
+
+        <div class="flex flex-col md:flex-row">
+            <!-- Left Column: Input Controls -->
+            <div class="w-full md:w-1/2 p-4 md:p-6 space-y-6 md:space-y-8 bg-gray-50 border-b md:border-b-0 md:border-r border-gray-200">
+                
+                <!-- Income Slider -->
+                <div>
+                    <div class="flex justify-between items-end mb-3">
+                        <label class="font-bold text-gray-700 text-sm md:text-base">ご年収</label>
+                        <span class="text-2xl font-bold" style="color: #2190AA;">
+                            <span id="income-display">1200</span><span class="text-sm text-gray-600">万円</span>
+                        </span>
+                    </div>
+                    <input type="range" id="income-slider" min="1000" max="2000" step="10" value="1200" class="w-full h-2 bg-gray-300 rounded-lg appearance-none cursor-pointer focus:outline-none">
+                    <div class="flex justify-between text-[10px] md:text-xs text-gray-400 mt-2">
+                        <span>1000万</span>
+                        <span>1500万</span>
+                        <span>2000万</span>
+                    </div>
+                </div>
+
+                <!-- Age Toggle -->
+                <div>
+                    <label class="font-bold text-gray-700 block mb-2 text-sm md:text-base">
+                        ご年齢 <span class="text-[10px] md:text-xs font-normal text-gray-500 ml-1">※40歳以上は介護保険料あり</span>
+                    </label>
+                    <div class="flex border border-gray-300 bg-white">
+                        <button id="age-under-40" class="flex-1 py-2 text-sm transition-colors text-white" style="background-color: #2190AA;">40歳未満</button>
+                        <div class="w-px bg-gray-300"></div>
+                        <button id="age-over-40" class="flex-1 py-2 text-sm transition-colors text-gray-600 hover:bg-gray-50">40歳以上</button>
+                    </div>
+                </div>
+
+                <!-- Dependents Accordion -->
+                <div class="border border-gray-300 bg-white">
+                    <button id="toggle-dependents" class="w-full flex justify-between items-center p-3 text-sm font-bold text-gray-700 hover:bg-gray-50 transition-colors">
+                        <span>配偶者・扶養親族の設定</span>
+                        <!-- Chevron Down Icon -->
+                        <svg id="icon-chevron-down" xmlns="http://www.w3.org/2000/svg" width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="m6 9 6 6 6-6"/></svg>
+                        <!-- Chevron Up Icon (Hidden by default) -->
+                        <svg id="icon-chevron-up" class="hidden" xmlns="http://www.w3.org/2000/svg" width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="m18 15-6-6-6 6"/></svg>
+                    </button>
+                    
+                    <div id="dependents-content" class="hidden p-4 border-t border-gray-200 space-y-4 fade-in">
+                        <!-- Spouse Toggle -->
+                        <div class="flex items-center justify-between">
+                            <span class="text-sm text-gray-600">配偶者有無</span>
+                            <div id="spouse-toggle" class="w-12 h-6 flex items-center p-1 cursor-pointer transition-colors bg-gray-300 rounded-full-none" style="border-radius: 9999px;">
+                                <div id="spouse-knob" class="bg-white w-4 h-4 rounded-full shadow-sm transform transition-transform duration-200"></div>
+                            </div>
+                        </div>
+                        <!-- Dependents Counter -->
+                        <div class="flex items-center justify-between">
+                            <span class="text-sm text-gray-600">扶養親族人数</span>
+                            <div class="flex items-center gap-3">
+                                <button id="dep-minus" class="w-8 h-8 flex items-center justify-center border border-gray-300 hover:bg-gray-100 text-gray-600 transition-colors">
+                                    <svg xmlns="http://www.w3.org/2000/svg" width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M5 12h14"/></svg>
+                                </button>
+                                <span id="dep-count" class="w-6 text-center text-base font-bold text-gray-700">0</span>
+                                <button id="dep-plus" class="w-8 h-8 flex items-center justify-center border border-gray-300 hover:bg-gray-100 text-gray-600 transition-colors">
+                                    <svg xmlns="http://www.w3.org/2000/svg" width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M5 12h14"/><path d="M12 5v14"/></svg>
+                                </button>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+
+                <!-- Property Count (Counter Style) -->
+                <div class="bg-blue-50/50 p-4 border border-blue-100 rounded-sm">
+                    <label class="font-bold text-gray-700 block mb-2 text-sm md:text-base">
+                        不動産投資での節税
+                        <span class="block text-[10px] md:text-xs font-normal text-gray-500 mt-1">
+                            3000万円の物件を買った場合（初年度イメージ）
+                        </span>
+                    </label>
+                    
+                    <div class="flex items-center justify-between mt-3 bg-white p-2 border border-blue-200">
+                        <span class="text-sm font-bold text-gray-600 flex items-center gap-2">
+                            <svg class="text-gray-400" xmlns="http://www.w3.org/2000/svg" width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><rect width="16" height="20" x="4" y="2" rx="2" ry="2"/><path d="M9 22v-4h6v4"/><path d="M8 6h.01"/><path d="M16 6h.01"/><path d="M8 10h.01"/><path d="M16 10h.01"/><path d="M8 14h.01"/><path d="M16 14h.01"/><path d="M8 18h.01"/><path d="M16 18h.01"/></svg>
+                            所有物件数
+                        </span>
+                        <div class="flex items-center gap-4">
+                            <button id="prop-minus" class="w-10 h-10 flex items-center justify-center border border-gray-300 text-gray-600 hover:bg-gray-50 active:bg-gray-100 transition-colors">
+                                <svg xmlns="http://www.w3.org/2000/svg" width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M5 12h14"/></svg>
+                            </button>
+                            <span id="prop-count" class="w-4 text-center text-xl font-bold text-gray-800">0</span>
+                            <button id="prop-plus" class="w-10 h-10 flex items-center justify-center border border-gray-300 text-gray-600 hover:bg-gray-50 active:bg-gray-100 transition-colors">
+                                <svg xmlns="http://www.w3.org/2000/svg" width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M5 12h14"/><path d="M12 5v14"/></svg>
+                            </button>
+                        </div>
+                    </div>
+                    
+                    <p id="prop-hint" class="text-right text-[10px] text-gray-400 mt-2">
+                        ＋ボタンを押してシミュレーション
+                    </p>
+                </div>
+
+            </div>
+
+            <!-- Right Column: Visualization & Results -->
+            <div class="w-full md:w-1/2 p-4 md:p-6 flex flex-col bg-white relative">
+                
+                <!-- Chart Section -->
+                <div class="relative h-64 w-full mb-6 flex justify-center items-center">
+                    <!-- Chart Canvas -->
+                    <div style="width: 100%; height: 100%; max-width: 280px; max-height: 280px; position: relative;">
+                        <canvas id="taxChart"></canvas>
+                        
+                        <!-- Center Text in Donut -->
+                        <div class="absolute inset-0 flex flex-col items-center justify-center pointer-events-none pb-2">
+                            <span class="text-[10px] md:text-xs text-gray-500 mb-1">実質手取り額</span>
+                            <span class="text-2xl md:text-3xl font-bold text-gray-800 tracking-tight">
+                                <span id="net-income-display">--</span><span class="text-sm font-normal ml-1">万円</span>
+                            </span>
+                        </div>
+                    </div>
+                </div>
+
+                <!-- Analysis Text -->
+                <div class="space-y-4 mt-auto">
+                    <!-- Tax Burden Display -->
+                    <div class="flex justify-between items-center text-sm border-b border-gray-100 pb-3">
+                        <span class="text-gray-500 flex items-center gap-1">
+                            <span class="w-2 h-2 inline-block rounded-full" style="background-color: #D87850;"></span>
+                            本来の税金・社保負担
+                        </span>
+                        <span class="font-bold text-lg" style="color: #D87850;">
+                            約<span id="tax-burden-display">--</span>万円
+                        </span>
+                    </div>
+
+                    <!-- Savings Highlight -->
+                    <div id="savings-container" class="transition-all duration-500 transform opacity-40 translate-y-1">
+                        <div class="bg-yellow-50 p-4 border-l-4" style="border-left-color: #FBBF24;">
+                            <p class="text-xs md:text-sm font-bold text-gray-600 mb-1 flex items-center gap-2">
+                                <span class="w-2 h-2 inline-block rounded-full" style="background-color: #FBBF24;"></span>
+                                不動産投資による還付・節税
+                            </p>
+                            <div class="flex items-baseline gap-2">
+                                <span class="text-3xl md:text-4xl font-bold tracking-tight" style="color: #FBBF24;">
+                                    <span id="savings-display">0</span>
+                                </span>
+                                <span class="text-sm font-bold text-yellow-600">万円</span>
+                                <span class="text-[10px] md:text-xs text-gray-400 ml-auto">年間想定</span>
+                            </div>
+                            <p id="savings-desc" class="text-[10px] md:text-xs text-gray-500 mt-2 leading-relaxed">
+                                本来払うはずだった税金（赤色部分）の一部が、投資効果により手元に戻る（黄色部分）イメージです。
+                            </p>
+                        </div>
+                    </div>
+                </div>
+
+            </div>
+        </div>
+
+        <!-- Footer / Disclaimer -->
+        <div class="bg-gray-100 p-4 text-[10px] text-gray-400 leading-normal border-t border-gray-200">
+            <p>
+                ※本シミュレーションは概算です。2025年時点の税制に基づき、基礎控除・給与所得控除・社会保険料（標準報酬月額上限考慮）を簡易計算しています。
+                ※不動産投資の節税効果は、初年度の諸費用・減価償却費等により会計上の赤字が発生した場合を想定しています。物件の築年数、構造、金利等により変動します。
+                ※実際の税額は個別の状況により異なるため、詳細は税理士等にご確認ください。
+            </p>
+        </div>
+    </div>
+
+    <!-- JavaScript Logic -->
+    <script>
+        document.addEventListener('DOMContentLoaded', () => {
+            // --- State ---
+            const state = {
+                income: 1200,
+                isOver40: false,
+                hasSpouse: false,
+                dependentCount: 0,
+                propertyCount: 0
+            };
+
+            // --- Constants ---
+            const COLOR_MAIN = '#2190AA';
+            const COLOR_TAX = '#D87850';
+            const COLOR_SAVINGS = '#FBBF24';
+            const COLOR_BG = '#F3F4F6';
+
+            // --- Elements ---
+            const els = {
+                incomeSlider: document.getElementById('income-slider'),
+                incomeDisplay: document.getElementById('income-display'),
+                ageUnder40: document.getElementById('age-under-40'),
+                ageOver40: document.getElementById('age-over-40'),
+                toggleDependents: document.getElementById('toggle-dependents'),
+                dependentsContent: document.getElementById('dependents-content'),
+                iconChevronDown: document.getElementById('icon-chevron-down'),
+                iconChevronUp: document.getElementById('icon-chevron-up'),
+                spouseToggle: document.getElementById('spouse-toggle'),
+                spouseKnob: document.getElementById('spouse-knob'),
+                depMinus: document.getElementById('dep-minus'),
+                depPlus: document.getElementById('dep-plus'),
+                depCount: document.getElementById('dep-count'),
+                propMinus: document.getElementById('prop-minus'),
+                propPlus: document.getElementById('prop-plus'),
+                propCount: document.getElementById('prop-count'),
+                propHint: document.getElementById('prop-hint'),
+                netIncomeDisplay: document.getElementById('net-income-display'),
+                taxBurdenDisplay: document.getElementById('tax-burden-display'),
+                savingsContainer: document.getElementById('savings-container'),
+                savingsDisplay: document.getElementById('savings-display'),
+                savingsDesc: document.getElementById('savings-desc'),
+                taxChartCanvas: document.getElementById('taxChart')
+            };
+
+            // --- Chart Initialization ---
+            let chartInstance = null;
+
+            function initChart() {
+                const ctx = els.taxChartCanvas.getContext('2d');
+                chartInstance = new Chart(ctx, {
+                    type: 'doughnut',
+                    data: {
+                        labels: ['手取り', '節税メリット', '税金・社保'],
+                        datasets: [{
+                            data: [0, 0, 0], // Initial dummy data
+                            backgroundColor: [COLOR_MAIN, COLOR_SAVINGS, COLOR_TAX],
+                            borderWidth: 2,
+                            borderColor: '#ffffff',
+                            hoverOffset: 4
+                        }]
+                    },
+                    options: {
+                        responsive: true,
+                        maintainAspectRatio: false,
+                        cutout: '65%', // Hole size
+                        plugins: {
+                            legend: {
+                                position: 'bottom',
+                                labels: {
+                                    usePointStyle: true,
+                                    pointStyle: 'rectRounded',
+                                    font: { size: 11 },
+                                    boxWidth: 10
+                                }
+                            },
+                            tooltip: {
+                                callbacks: {
+                                    label: function(context) {
+                                        let label = context.label || '';
+                                        if (label) {
+                                            label += ': ';
+                                        }
+                                        if (context.parsed !== null) {
+                                            label += '約' + Math.round(context.parsed / 10000) + '万円';
+                                        }
+                                        return label;
+                                    }
+                                },
+                                backgroundColor: 'rgba(255, 255, 255, 0.95)',
+                                titleColor: '#1f2937',
+                                bodyColor: '#1f2937',
+                                borderColor: '#e5e7eb',
+                                borderWidth: 1,
+                                padding: 10,
+                                displayColors: true
+                            }
+                        },
+                        animation: {
+                            animateScale: true,
+                            animateRotate: true,
+                            duration: 500
+                        }
+                    }
+                });
+            }
+
+            // --- Calculation Logic ---
+            function calculate() {
+                const { income, isOver40, hasSpouse, dependentCount, propertyCount } = state;
+
+                // 1. 給与所得控除 (年収850万超は上限195万円固定)
+                const salaryDeduction = 1950000;
+                
+                // 2. 社会保険料 (概算)
+                const socialInsBase = income > 1000 ? 1500000 + (income - 1000) * 1000 : income * 10000 * 0.15;
+                const kaigoIns = isOver40 ? 150000 : 0;
+                const socialInsurance = Math.min(socialInsBase + kaigoIns, 2000000); 
+
+                // 3. 基礎控除
+                const basicDeduction = 480000;
+
+                // 4. 配偶者・扶養控除
+                const spouseDeduction = hasSpouse ? 380000 : 0;
+                const dependentDeductionAmount = dependentCount * 380000;
+
+                // 所得控除合計
+                const totalDeductions = basicDeduction + socialInsurance + spouseDeduction + dependentDeductionAmount;
+
+                // 課税所得
+                const taxableIncomeRaw = (income * 10000) - salaryDeduction - totalDeductions;
+                const taxableIncome = Math.max(taxableIncomeRaw, 0);
+
+                // --- 税額計算関数 (所得税 + 住民税) ---
+                const calculateTaxAmount = (targetTaxable) => {
+                    let incomeTax = 0;
+                    if (targetTaxable <= 1950000) incomeTax = targetTaxable * 0.05;
+                    else if (targetTaxable <= 3300000) incomeTax = targetTaxable * 0.10 - 97500;
+                    else if (targetTaxable <= 6950000) incomeTax = targetTaxable * 0.20 - 427500;
+                    else if (targetTaxable <= 9000000) incomeTax = targetTaxable * 0.23 - 636000;
+                    else if (targetTaxable <= 18000000) incomeTax = targetTaxable * 0.33 - 1536000;
+                    else if (targetTaxable <= 40000000) incomeTax = targetTaxable * 0.40 - 2796000;
+                    else incomeTax = targetTaxable * 0.45 - 4796000;
+
+                    incomeTax = incomeTax * 1.021; // 復興特別所得税
+                    const residentTax = targetTaxable * 0.10 + 5000; // 住民税
+
+                    return { incomeTax, residentTax, total: incomeTax + residentTax };
+                };
+
+                // 元々の税金
+                const originalTax = calculateTaxAmount(taxableIncome);
+
+                // --- 不動産投資による節税効果 ---
+                // 3000万円の物件1件あたり約200万円の赤字を作れると仮定
+                const taxLossPerProperty = 2000000; 
+                const totalTaxLoss = propertyCount * taxLossPerProperty;
+                
+                // 損益通算後の課税所得
+                const newTaxableIncome = Math.max(taxableIncome - totalTaxLoss, 0);
+                
+                // 対策後の税金
+                const newTax = calculateTaxAmount(newTaxableIncome);
+
+                // 節税額
+                const taxSavings = originalTax.total - newTax.total;
+
+                // 最終的な手取り (元の手取り + 節税額)
+                const originalNetIncome = (income * 10000) - socialInsurance - originalTax.total;
+                
+                // 結果を返す
+                return {
+                    originalTaxTotal: originalTax.total,
+                    currentTaxTotal: newTax.total,
+                    socialInsurance: socialInsurance,
+                    taxSavings: taxSavings,
+                    netIncome: originalNetIncome,
+                    finalNetIncome: originalNetIncome + taxSavings
+                };
+            }
+
+            // --- UI Update ---
+            function updateUI() {
+                const res = calculate();
+
+                // Format helper
+                const fmt = (n) => new Intl.NumberFormat('ja-JP', { maximumSignificantDigits: 3 }).format(n / 10000);
+                const fmtFull = (n) => new Intl.NumberFormat('ja-JP').format(Math.round(n / 10000));
+
+                // Text Updates
+                els.incomeDisplay.textContent = state.income;
+                els.netIncomeDisplay.textContent = fmt(res.finalNetIncome);
+                els.taxBurdenDisplay.textContent = fmt(res.originalTaxTotal + res.socialInsurance);
+                els.savingsDisplay.textContent = state.propertyCount === 0 ? '0' : '+' + fmt(res.taxSavings);
+
+                // Age Toggle Style
+                if (state.isOver40) {
+                    els.ageUnder40.className = "flex-1 py-2 text-sm transition-colors text-gray-600 hover:bg-gray-50";
+                    els.ageUnder40.style.backgroundColor = "";
+                    els.ageOver40.className = "flex-1 py-2 text-sm transition-colors text-white";
+                    els.ageOver40.style.backgroundColor = COLOR_MAIN;
+                } else {
+                    els.ageUnder40.className = "flex-1 py-2 text-sm transition-colors text-white";
+                    els.ageUnder40.style.backgroundColor = COLOR_MAIN;
+                    els.ageOver40.className = "flex-1 py-2 text-sm transition-colors text-gray-600 hover:bg-gray-50";
+                    els.ageOver40.style.backgroundColor = "";
+                }
+
+                // Spouse Toggle Style
+                if (state.hasSpouse) {
+                    els.spouseToggle.style.backgroundColor = COLOR_MAIN;
+                    els.spouseKnob.classList.add('translate-x-6');
+                } else {
+                    els.spouseToggle.style.backgroundColor = '#d1d5db'; // gray-300
+                    els.spouseKnob.classList.remove('translate-x-6');
+                }
+
+                // Count Displays
+                els.depCount.textContent = state.dependentCount;
+                els.propCount.textContent = state.propertyCount;
+
+                // Savings Visibility
+                if (state.propertyCount > 0) {
+                    els.savingsContainer.classList.remove('opacity-40', 'translate-y-1');
+                    els.savingsContainer.classList.add('opacity-100', 'translate-y-0');
+                } else {
+                    els.savingsContainer.classList.add('opacity-40', 'translate-y-1');
+                    els.savingsContainer.classList.remove('opacity-100', 'translate-y-0');
+                }
+
+                // Chart Update
+                if (chartInstance) {
+                    // Data Order: [Net Income, Savings, Tax/Social]
+                    chartInstance.data.datasets[0].data = [
+                        res.netIncome,
+                        res.taxSavings,
+                        res.currentTaxTotal + res.socialInsurance
+                    ];
+                    chartInstance.update();
+                }
+            }
+
+            // --- Event Listeners ---
+            
+            // Income
+            els.incomeSlider.addEventListener('input', (e) => {
+                state.income = Number(e.target.value);
+                updateUI();
+            });
+
+            // Age
+            els.ageUnder40.addEventListener('click', () => { state.isOver40 = false; updateUI(); });
+            els.ageOver40.addEventListener('click', () => { state.isOver40 = true; updateUI(); });
+
+            // Dependents Accordion
+            els.toggleDependents.addEventListener('click', () => {
+                const isHidden = els.dependentsContent.classList.contains('hidden');
+                if (isHidden) {
+                    els.dependentsContent.classList.remove('hidden');
+                    els.iconChevronDown.classList.add('hidden');
+                    els.iconChevronUp.classList.remove('hidden');
+                } else {
+                    els.dependentsContent.classList.add('hidden');
+                    els.iconChevronDown.classList.remove('hidden');
+                    els.iconChevronUp.classList.add('hidden');
+                }
+            });
+
+            // Spouse
+            els.spouseToggle.addEventListener('click', () => {
+                state.hasSpouse = !state.hasSpouse;
+                updateUI();
+            });
+
+            // Dependent Count
+            els.depMinus.addEventListener('click', () => {
+                state.dependentCount = Math.max(0, state.dependentCount - 1);
+                updateUI();
+            });
+            els.depPlus.addEventListener('click', () => {
+                state.dependentCount = Math.min(5, state.dependentCount + 1);
+                updateUI();
+            });
+
+            // Property Count
+            els.propMinus.addEventListener('click', () => {
+                state.propertyCount = Math.max(0, state.propertyCount - 1);
+                updateUI();
+            });
+            els.propPlus.addEventListener('click', () => {
+                state.propertyCount = Math.min(5, state.propertyCount + 1);
+                updateUI();
+            });
+
+            // Init
+            initChart();
+            updateUI();
+        });
+    </script>
+</body>
+</html>

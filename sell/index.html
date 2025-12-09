@@ -4,94 +4,64 @@
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>投資用マンション売却査定 | J.P.Returns</title>
-    <!-- Tailwind CSS (CDN) -->
-    <script src="https://cdn.tailwindcss.com"></script>
-    <!-- Google Fonts -->
+    
     <link href="https://fonts.googleapis.com/css2?family=Noto+Sans+JP:wght@400;500;700&display=swap" rel="stylesheet">
-    <!-- Font Awesome -->
     <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
-    <!-- Custom CSS -->
     <link rel="stylesheet" href="assets/css/style.css">
 </head>
-<body class="flex flex-col min-h-screen">
-
-    <!-- 1. Header -->
-    <header class="bg-white shadow-sm fixed w-full z-50">
-        <div class="container mx-auto px-4 h-16 flex items-center justify-between">
-            <div class="text-2xl font-bold text-accent tracking-tighter">
-                <i class="fa-solid fa-building me-2"></i>J.P.Returns
-            </div>
-            <nav class="hidden md:flex gap-6 text-sm font-medium text-gray-600">
-                <a href="#strengths" class="hover:text-accent transition">強み</a>
-                <a href="#cases" class="hover:text-accent transition">事例</a>
-                <a href="#faq" class="hover:text-accent transition">よくある質問</a>
-            </nav>
-            <a href="#assessment" class="bg-accent text-white px-4 py-2 rounded-full text-sm font-bold hover:opacity-90 transition shadow-lg">
-                無料査定スタート
+<body>
+    <section class="hero-section">
+        <div class="hero-logo-area">
+            <a href="index.html">
+                <img src="images/logo.png" alt="J.P.Returns" class="hero-logo-img">
             </a>
         </div>
-    </header>
-
-    <!-- 2. First View (Hero) -->
-    <section class="hero-bg h-[600px] flex items-center justify-center pt-16 relative">
-        <div class="container mx-auto px-4 text-center text-white relative z-10">
-            <h1 class="text-3xl md:text-5xl font-bold mb-4 leading-tight">
-                あなたの投資用マンション、<br>
-                <span class="text-accent bg-white px-2 mt-2 inline-block rounded">今いくらで売れる？</span>
+        <div class="container hero-content">
+            <h1 class="hero-title">
+                投資用マンションの売却なら<br>JPリターンズ
             </h1>
-            <p class="text-lg md:text-xl mb-8 font-light text-gray-100">
+            <p class="hero-desc">
                 市況が高騰している今がチャンス。<br>
                 最短60秒でAI概算査定。
             </p>
-            <a href="#assessment" class="inline-block bg-accent hover:bg-teal-600 text-white text-xl font-bold py-4 px-12 rounded-full shadow-xl transform transition hover:scale-105">
+            <a href="#assessment" class="btn-accent hero-btn">
                 今すぐ無料で査定する <i class="fa-solid fa-arrow-right ml-2"></i>
             </a>
         </div>
-        <!-- Wave Divider -->
-        <div class="absolute bottom-0 left-0 w-full overflow-hidden leading-none">
-            <svg class="relative block w-full h-[50px]" data-name="Layer 1" xmlns="http://www.w3.org/2000/svg" viewBox="0 0 1200 120" preserveAspectRatio="none">
-                <path d="M321.39,56.44c58-10.79,114.16-30.13,172-41.86,82.39-16.72,168.19-17.73,250.45-.39C823.78,31,906.67,72,985.66,92.83c70.05,18.48,146.53,26.09,214.34,3V0H0V27.35A600.21,600.21,0,0,0,321.39,56.44Z" class="fill-[#f9fafb]"></path>
-            </svg>
-        </div>
     </section>
 
-    <!-- 3. CTA / Assessment Form -->
-    <section id="assessment" class="py-16 -mt-10 relative z-20">
-        <div class="container mx-auto px-4">
-            <div class="max-w-3xl mx-auto bg-white rounded-2xl shadow-2xl overflow-hidden border border-gray-100">
-                <div class="bg-gray-50 p-6 border-b border-gray-100 text-center">
-                    <h2 class="text-2xl font-bold text-gray-800">
+    <section id="assessment" class="assessment-section">
+        <div class="container">
+            <div class="assessment-card">
+                <div class="assessment-header">
+                    <h2>
                         <i class="fa-solid fa-calculator text-accent mr-2"></i>クイック査定
                     </h2>
-                    <p class="text-sm text-gray-500 mt-2">物件情報を入力して、概算価格をチェック</p>
+                    <p>物件情報を入力して、概算価格をチェック</p>
                 </div>
                 
-                <div class="p-6 md:p-10">
-                    <!-- Step 1: Basic Input -->
-                    <form id="simpleForm" class="space-y-6">
-                        <div class="grid grid-cols-1 md:grid-cols-2 gap-6">
-                            <!-- Prefecture -->
-                            <div>
-                                <label class="block text-sm font-bold text-gray-700 mb-2 required">都道府県</label>
-                                <select id="prefecture" class="w-full px-4 py-3 rounded-lg border border-gray-300 focus:border-teal-500 focus:ring-2 focus:ring-teal-200 outline-none transition" onchange="updateCities()">
+                <div class="assessment-body">
+                    <form id="simpleForm">
+                        <div class="form-grid">
+                            <div class="form-group">
+                                <label class="form-label badge-required">都道府県</label>
+                                <select id="prefecture" class="form-input" onchange="updateCities()">
                                     <option value="">選択してください</option>
                                     <option value="tokyo">東京都</option>
                                     <option value="kanagawa">神奈川県</option>
                                 </select>
                             </div>
                             
-                            <!-- City -->
-                            <div>
-                                <label class="block text-sm font-bold text-gray-700 mb-2 required">市区町村</label>
-                                <select id="city" class="w-full px-4 py-3 rounded-lg border border-gray-300 focus:border-teal-500 focus:ring-2 focus:ring-teal-200 outline-none transition" disabled>
+                            <div class="form-group">
+                                <label class="form-label badge-required">市区町村</label>
+                                <select id="city" class="form-input" disabled>
                                     <option value="">都道府県を選択してください</option>
                                 </select>
                             </div>
 
-                            <!-- Layout -->
-                            <div>
-                                <label class="block text-sm font-bold text-gray-700 mb-2 required">間取り</label>
-                                <select id="layout" class="w-full px-4 py-3 rounded-lg border border-gray-300 focus:border-teal-500 focus:ring-2 focus:ring-teal-200 outline-none transition">
+                            <div class="form-group">
+                                <label class="form-label badge-required">間取り</label>
+                                <select id="layout" class="form-input">
                                     <option value="">選択してください</option>
                                     <option value="1R">1R</option>
                                     <option value="1K">1K</option>
@@ -100,79 +70,73 @@
                                 </select>
                             </div>
 
-                            <!-- Area -->
-                            <div>
-                                <label class="block text-sm font-bold text-gray-700 mb-2 optional">専有面積 (㎡)</label>
-                                <input type="number" id="area" placeholder="例: 25.5" class="w-full px-4 py-3 rounded-lg border border-gray-300 focus:border-teal-500 focus:ring-2 focus:ring-teal-200 outline-none transition" min="10" step="0.01">
+                            <div class="form-group">
+                                <label class="form-label badge-optional">専有面積 (㎡)</label>
+                                <input type="number" id="area" placeholder="例: 25.5" class="form-input" min="10" step="0.01">
                             </div>
 
-                            <!-- Floor -->
-                            <div class="md:col-span-2">
-                                <label class="block text-sm font-bold text-gray-700 mb-2 optional">階数</label>
-                                <input type="number" id="floor" placeholder="例: 5" class="w-full px-4 py-3 rounded-lg border border-gray-300 focus:border-teal-500 focus:ring-2 focus:ring-teal-200 outline-none transition" min="1">
+                            <div class="form-group span-col-2">
+                                <label class="form-label badge-optional">階数</label>
+                                <input type="number" id="floor" placeholder="例: 5" class="form-input" min="1">
                             </div>
                         </div>
 
-                        <div class="pt-4">
-                            <button type="button" onclick="calculateEstimate()" class="w-full bg-accent hover:bg-teal-600 text-white font-bold py-4 rounded-lg shadow-lg transition duration-300 text-lg">
+                        <div class="form-action-area">
+                            <button type="button" onclick="calculateEstimate()" class="btn-accent btn-calc">
                                 概算価格を見る
                             </button>
                         </div>
                     </form>
 
-                    <!-- Result Section (Initially Hidden) -->
-                    <div id="resultSection" class="hidden mt-10 pt-8 border-t-2 border-dashed border-gray-200 animation-fade-in">
-                        <div class="bg-teal-50 border border-teal-100 rounded-xl p-6 text-center mb-8">
-                            <h3 class="text-gray-600 font-bold mb-2 text-sm md:text-base">
+                    <div id="resultSection" class="result-section hidden animation-fade-in">
+                        <div class="result-box">
+                            <h3 class="result-title">
                                 <span id="resLocation">東京都豊島区</span> <span id="resLayout">1K</span> の想定売却価格
                             </h3>
-                            <div class="text-4xl md:text-5xl font-extrabold text-accent mb-2">
-                                <span id="priceMin">0</span><span class="text-2xl text-gray-500 mx-2">~</span><span id="priceMax">0</span>
-                                <span class="text-xl text-gray-600">万円</span>
+                            <div class="result-price-container">
+                                <span id="priceMin">0</span><span class="price-tilde">~</span><span id="priceMax">0</span>
+                                <span class="price-unit-text">万円</span>
                             </div>
-                            <p class="text-sm text-gray-500">
-                                想定㎡単価: <span id="unitPrice" class="font-bold">0</span> 万円/㎡
+                            <p class="result-unit-price">
+                                想定㎡単価: <span id="unitPrice" class="unit-price-val">0</span> 万円/㎡
                             </p>
                         </div>
 
-                        <!-- Step 2: Detail Form -->
-                        <div class="text-center mb-6">
-                            <h3 class="text-xl font-bold text-gray-800">
-                                より正確な査定結果をメールでお届けします
-                            </h3>
-                            <p class="text-sm text-gray-500 mt-1">詳細情報を入力して、正式な査定書を受け取りましょう</p>
+                        <div class="detail-form-header">
+                            <h3>より正確な査定結果をメールでお届けします</h3>
+                            <p>詳細情報を入力して、正式な査定書を受け取りましょう</p>
                         </div>
 
-                        <form id="detailForm" class="space-y-6">
+                        <form id="detailForm">
                             <input type="hidden" name="pref_hidden" id="pref_hidden">
                             
-                            <div class="grid grid-cols-1 md:grid-cols-2 gap-6">
-                                <div>
-                                    <label class="block text-sm font-bold text-gray-700 mb-2 optional">マンション名</label>
-                                    <input type="text" placeholder="例: パークタワー池袋" class="w-full px-4 py-3 rounded-lg border border-gray-300 focus:border-teal-500 focus:ring-2 focus:ring-teal-200 outline-none transition">
+                            <div class="form-grid">
+                                <div class="form-group">
+                                    <label class="form-label badge-optional">マンション名</label>
+                                    <input type="text" placeholder="例: パークタワー池袋" class="form-input">
                                 </div>
-                                <div>
-                                    <label class="block text-sm font-bold text-gray-700 mb-2 optional">部屋番号</label>
-                                    <input type="text" placeholder="例: 501" class="w-full px-4 py-3 rounded-lg border border-gray-300 focus:border-teal-500 focus:ring-2 focus:ring-teal-200 outline-none transition">
+                                <div class="form-group">
+                                    <label class="form-label badge-optional">部屋番号</label>
+                                    <input type="text" placeholder="例: 501" class="form-input">
                                 </div>
-                                <div>
-                                    <label class="block text-sm font-bold text-gray-700 mb-2 required">お名前</label>
-                                    <input type="text" required placeholder="山田 太郎" class="w-full px-4 py-3 rounded-lg border border-gray-300 focus:border-teal-500 focus:ring-2 focus:ring-teal-200 outline-none transition">
+                                <div class="form-group">
+                                    <label class="form-label badge-required">お名前</label>
+                                    <input type="text" required placeholder="山田 太郎" class="form-input">
                                 </div>
-                                <div>
-                                    <label class="block text-sm font-bold text-gray-700 mb-2 required">メールアドレス</label>
-                                    <input type="email" required placeholder="example@email.com" class="w-full px-4 py-3 rounded-lg border border-gray-300 focus:border-teal-500 focus:ring-2 focus:ring-teal-200 outline-none transition">
+                                <div class="form-group">
+                                    <label class="form-label badge-required">メールアドレス</label>
+                                    <input type="email" required placeholder="example@email.com" class="form-input">
                                 </div>
-                                <div class="md:col-span-2">
-                                    <label class="block text-sm font-bold text-gray-700 mb-2 required">電話番号</label>
-                                    <input type="tel" required placeholder="090-1234-5678" class="w-full px-4 py-3 rounded-lg border border-gray-300 focus:border-teal-500 focus:ring-2 focus:ring-teal-200 outline-none transition">
+                                <div class="form-group span-col-2">
+                                    <label class="form-label badge-required">電話番号</label>
+                                    <input type="tel" required placeholder="090-1234-5678" class="form-input">
                                 </div>
                             </div>
 
-                            <button type="button" onclick="submitFinal()" class="w-full bg-orange-500 hover:bg-orange-600 text-white font-bold py-4 rounded-lg shadow-lg transition duration-300 text-lg mt-4">
+                            <button type="button" onclick="submitFinal()" class="btn-final">
                                 詳細な査定結果を受け取る
                             </button>
-                            <p class="text-xs text-center text-gray-400 mt-2">※プライバシーポリシーに同意の上、送信してください。</p>
+                            <p class="form-note">※プライバシーポリシーに同意の上、送信してください。</p>
                         </form>
                     </div>
                 </div>
@@ -180,42 +144,38 @@
         </div>
     </section>
 
-    <!-- 4. Strengths -->
-    <section id="strengths" class="py-16 bg-white">
-        <div class="container mx-auto px-4">
-            <div class="text-center mb-12">
-                <h2 class="text-3xl font-bold text-gray-800 mb-4">J.P.Returnsが選ばれる理由</h2>
-                <div class="w-16 h-1 bg-accent mx-auto"></div>
+    <section id="strengths" class="strengths-section">
+        <div class="container">
+            <div class="section-title-area">
+                <h2 class="section-title">J.P.Returnsが選ばれる理由</h2>
+                <div class="title-underline"></div>
             </div>
 
-            <div class="grid grid-cols-1 md:grid-cols-3 gap-8">
-                <!-- Strength 1 -->
-                <div class="text-center p-6 rounded-xl hover:bg-gray-50 transition">
-                    <div class="w-20 h-20 bg-teal-100 rounded-full flex items-center justify-center mx-auto mb-6 text-accent text-3xl">
+            <div class="strengths-grid">
+                <div class="strength-card">
+                    <div class="strength-icon">
                         <i class="fa-solid fa-bolt"></i>
                     </div>
-                    <h3 class="text-xl font-bold mb-3">圧倒的なスピード査定</h3>
-                    <p class="text-gray-600 text-sm leading-relaxed">
+                    <h3 class="strength-title">圧倒的なスピード査定</h3>
+                    <p class="strength-desc">
                         独自のデータベースとAI技術により、最短即日で査定結果をご提示。売却のタイミングを逃しません。
                     </p>
                 </div>
-                <!-- Strength 2 -->
-                <div class="text-center p-6 rounded-xl hover:bg-gray-50 transition">
-                    <div class="w-20 h-20 bg-teal-100 rounded-full flex items-center justify-center mx-auto mb-6 text-accent text-3xl">
+                <div class="strength-card">
+                    <div class="strength-icon">
                         <i class="fa-solid fa-hand-holding-dollar"></i>
                     </div>
-                    <h3 class="text-xl font-bold mb-3">高値売却の実績多数</h3>
-                    <p class="text-gray-600 text-sm leading-relaxed">
+                    <h3 class="strength-title">高値売却の実績多数</h3>
+                    <p class="strength-desc">
                         投資家ネットワークを豊富に保有しているため、相場以上の価格でのマッチングが可能です。
                     </p>
                 </div>
-                <!-- Strength 3 -->
-                <div class="text-center p-6 rounded-xl hover:bg-gray-50 transition">
-                    <div class="w-20 h-20 bg-teal-100 rounded-full flex items-center justify-center mx-auto mb-6 text-accent text-3xl">
+                <div class="strength-card">
+                    <div class="strength-icon">
                         <i class="fa-solid fa-users-gear"></i>
                     </div>
-                    <h3 class="text-xl font-bold mb-3">売却後も手厚くサポート</h3>
-                    <p class="text-gray-600 text-sm leading-relaxed">
+                    <h3 class="strength-title">売却後も手厚くサポート</h3>
+                    <p class="strength-desc">
                         確定申告のサポートや、次の投資物件のご提案まで、トータルで資産形成をお手伝いします。
                     </p>
                 </div>
@@ -223,74 +183,70 @@
         </div>
     </section>
 
-    <!-- 5. Case Studies -->
-    <section id="cases" class="py-16 bg-gray-50">
-        <div class="container mx-auto px-4">
-            <div class="text-center mb-12">
-                <h2 class="text-3xl font-bold text-gray-800 mb-4">売却事例</h2>
-                <div class="w-16 h-1 bg-accent mx-auto"></div>
+    <section id="cases" class="cases-section">
+        <div class="container">
+            <div class="section-title-area">
+                <h2 class="section-title">売却事例</h2>
+                <div class="title-underline"></div>
             </div>
 
-            <div class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
-                <!-- Case 1 -->
-                <div class="bg-white rounded-lg shadow-md p-6">
-                    <div class="flex justify-between items-center mb-4 border-b pb-4">
-                        <span class="bg-gray-200 text-gray-700 text-xs px-2 py-1 rounded">東京都新宿区</span>
-                        <span class="font-bold text-gray-500">1K / 25㎡</span>
+            <div class="cases-grid">
+                <div class="case-card">
+                    <div class="case-header">
+                        <span class="case-badge">東京都新宿区</span>
+                        <span class="case-meta">1K / 25㎡</span>
                     </div>
-                    <div class="flex justify-between items-end">
-                        <div>
-                            <p class="text-xs text-gray-500">購入時価格</p>
-                            <p class="font-bold text-gray-700">2,100万円</p>
+                    <div class="case-prices">
+                        <div class="case-price-left">
+                            <p class="price-label">購入時価格</p>
+                            <p class="price-value-old">2,100万円</p>
                         </div>
-                        <div class="text-right">
-                            <p class="text-xs text-accent font-bold">売却価格</p>
-                            <p class="text-2xl font-bold text-accent">2,450万円</p>
+                        <div class="case-price-right">
+                            <p class="price-label label-highlight">売却価格</p>
+                            <p class="price-value-new">2,450万円</p>
                         </div>
                     </div>
-                    <div class="mt-4 bg-teal-50 text-accent text-xs font-bold text-center py-2 rounded">
+                    <div class="case-result">
                         収益 +350万円
                     </div>
                 </div>
 
-                <!-- Case 2 -->
-                <div class="bg-white rounded-lg shadow-md p-6">
-                    <div class="flex justify-between items-center mb-4 border-b pb-4">
-                        <span class="bg-gray-200 text-gray-700 text-xs px-2 py-1 rounded">神奈川県横浜市</span>
-                        <span class="font-bold text-gray-500">1LDK / 40㎡</span>
+                <div class="case-card">
+                    <div class="case-header">
+                        <span class="case-badge">神奈川県横浜市</span>
+                        <span class="case-meta">1LDK / 40㎡</span>
                     </div>
-                    <div class="flex justify-between items-end">
-                        <div>
-                            <p class="text-xs text-gray-500">購入時価格</p>
-                            <p class="font-bold text-gray-700">3,200万円</p>
+                    <div class="case-prices">
+                        <div class="case-price-left">
+                            <p class="price-label">購入時価格</p>
+                            <p class="price-value-old">3,200万円</p>
                         </div>
-                        <div class="text-right">
-                            <p class="text-xs text-accent font-bold">売却価格</p>
-                            <p class="text-2xl font-bold text-accent">3,580万円</p>
+                        <div class="case-price-right">
+                            <p class="price-label label-highlight">売却価格</p>
+                            <p class="price-value-new">3,580万円</p>
                         </div>
                     </div>
-                    <div class="mt-4 bg-teal-50 text-accent text-xs font-bold text-center py-2 rounded">
+                    <div class="case-result">
                         収益 +380万円
                     </div>
                 </div>
 
-                 <!-- Case 3 -->
-                 <div class="bg-white rounded-lg shadow-md p-6">
-                    <div class="flex justify-between items-center mb-4 border-b pb-4">
-                        <span class="bg-gray-200 text-gray-700 text-xs px-2 py-1 rounded">東京都港区</span>
-                        <span class="font-bold text-gray-500">2LDK / 55㎡</span>
+                 <div class="case-card">
+                    <div class="case-header">
+                        <span class="case-badge">東京都港区</span>
+                        <span class="case-meta">2LDK / 55㎡</span>
                     </div>
-                    <div class="flex justify-between items-end">
-                        <div>
-                            <p class="text-xs text-gray-500">購入時価格</p>
-                            <p class="font-bold text-gray-700">5,800万円</p>
+                    <div class="case-prices">
+                        <div class="case-price-left">
+                            <p class="price-label">購入時価格</p>
+                            <p class="price-value-old">5,800万円</p>
                         </div>
-                        <div class="text-right">
-                            <p class="text-xs text-accent font-bold">売却価格</p>
-                            <p class="text-2xl font-bold text-accent">6,500万円</p>
+                        <div class="case-price-right">
+                            <p class="price-label label-highlight">売却価格</p>
+                            <p class="price-value-new">6,500万円</p>
                         </div>
                     </div>
-                    <div class="mt-4 bg-teal-50 text-accent text-xs font-bold text-center py-2 rounded">
+                    <div class="case-result">
                         収益 +700万円
                     </div>
                 </div>
@@ -298,23 +254,19 @@
         </div>
     </section>
 
-    <!-- 6. Footer -->
-    <footer class="bg-gray-800 text-white py-10">
-        <div class="container mx-auto px-4 text-center">
-            <h2 class="text-2xl font-bold mb-6 tracking-wider">J.P.Returns</h2>
-            <div class="flex justify-center gap-6 mb-8 text-sm text-gray-400">
-                <a href="#" class="hover:text-white transition">会社概要</a>
-                <a href="#" class="hover:text-white transition">プライバシーポリシー</a>
-                <a href="#" class="hover:text-white transition">お問い合わせ</a>
+    <footer class="site-footer">
+        <div class="container footer-content">
+            <h2 class="footer-logo">J.P.Returns</h2>
+            <div class="footer-links">
+                <a href="#">会社概要</a>
+                <a href="#">プライバシーポリシー</a>
+                <a href="#">お問い合わせ</a>
             </div>
-            <p class="text-xs text-gray-500">&copy; 2023 J.P.Returns All Rights Reserved.</p>
+            <p class="footer-copy">&copy; 2023 J.P.Returns All Rights Reserved.</p>
         </div>
     </footer>
 
-    <!-- Scripts -->
-    <!-- 1. Logic -->
     <script src="assets/js/estimate.js"></script>
-    <!-- 2. UI Control -->
     <script src="assets/js/main.js"></script>
 </body>
 </html>
