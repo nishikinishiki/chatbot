@@ -128,7 +128,7 @@ async function initializeChat() {
         displayBannerImage(BANNER_IMAGE_URL);
     }
 
-    await addBotMessage("J.P.Returnsにご興味いただきありがとうございます！<br>30秒程度の簡単な質問をさせてください。", true);
+    await addBotMessage("非公開の優良物件情報をご希望の方は<br>以下よりお申込みください！", true);
     
     setTimeout(askQuestion, 150);
 }
