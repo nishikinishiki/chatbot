@@ -2,7 +2,7 @@ const questions = [
     { 
     id: 'digital_gift_choice', 
     item: "希望デジタルギフト", 
-    question: "ご希望のデジタルギフトをお選びください！", 
+    question: "まずはご希望のデジタルギフトをお選びください！", 
     answer_method: "single-choice", 
     options: [
       { label: "Amazonギフトカード", value: "Amazonギフトカード" },

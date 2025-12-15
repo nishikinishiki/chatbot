@@ -62,7 +62,7 @@ async function initializeChat() {
         displayBannerImage(BANNER_IMAGE_URL);
     }
 
-    await addBotMessage("お問い合わせありがとうございます！30秒程度の簡単な質問をさせてください。", true);
+    await addBotMessage("お問い合わせありがとうございます！", true);
     
     setTimeout(askQuestion, 150);
 }
