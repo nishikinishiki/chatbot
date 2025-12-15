@@ -4,11 +4,11 @@
    =============================================================== */
 :root {
   /* --- カラーパレット --- */
-  --primary-color: #00748A;
-  --primary-dark: #005f70;
-  --primary-gradient-start: #61b265;
-  --primary-gradient-end: #007f87;
-  --secondary-color: #00848C;
+  --primary-color: #092142;
+  --primary-dark: #b3b3b3;
+  --primary-gradient-start: #07111f;
+  --primary-gradient-end: #092142;
+  --secondary-color: #092142;
   --body-bg: #8297ac;
   --chat-container-bg: #ffffff;
   --chat-messages-bg: #efede0;
@@ -18,8 +18,8 @@
   --text-color-dark: #212121;
   --text-color-medium: #555;
   --text-color-default: #111111;
-  --choice-button-text: #007387;
-  --choice-button-border: #007387;
+  --choice-button-text: #092142;
+  --choice-button-border: #092142;
   --choice-button-bg: #ffffff;
   --choice-button-hover-bg: #e5f1f4;
   --disabled-bg: #f0f0f0;
