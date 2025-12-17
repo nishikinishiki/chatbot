@@ -168,6 +168,7 @@ const additionalQuestions = [
         { label: "SNS広告", value: "SNS広告" },
         { label: "インフルエンサーの投稿", value: "インフルエンサーの投稿" },
         { label: "知人のご紹介", value: "知人紹介" },
+        { label: "ホリエモンチャンネル", value: "ホリエモンチャンネル" },
         { label: "その他", value: "その他" }
       ], 
       key: "referral_source", 
