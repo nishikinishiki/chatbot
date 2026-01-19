@@ -197,26 +197,6 @@ const questions = [
         validation: (v) => /^[^\s@]+@[^\s@]+\.[^\s@]+$/.test(v), 
         errorMessage: "有効なメールアドレスを入力してください。" 
     },
-    { 
-      id: 'referral_source', 
-      item: "弊社を知ったきっかけ", 
-      question: "これが最後の質問です！<br>弊社を知ったきっかけを教えてください。（複数選択可）",
-      isHtmlQuestion: true,
-      answer_method: "multi-choice",
-      options: [
-        { label: "Web検索", value: "ネット検索" },
-        { label: "ポイントサイト", value: "ポイントサイト" },
-        { label: "SNS広告", value: "SNS広告" },
-        { label: "インフルエンサーの投稿", value: "インフルエンサーの投稿" },
-        { label: "知人のご紹介", value: "知人紹介" },
-        { label: "ホリエモンチャンネル", value: "ホリエモンチャンネル" },
-        { label: "その他", value: "その他" }
-      ], 
-      key: "referral_source", 
-      // 選択された配列の長さが0より大きいことを検証
-      validation: (v) => Array.isArray(v) && v.length > 0, 
-      errorMessage: "少なくとも1つ選択してください。" 
-    },
     {
         id: 'final_consent',
         item: "最終確認",
@@ -303,3 +283,4 @@ const questions = [
         key: "final_consent_given"
     }
 ];
+

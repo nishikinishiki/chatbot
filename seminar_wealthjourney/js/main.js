@@ -312,7 +312,6 @@ async function submitDataToGAS(dataToSend) {
         await addBotMessage("お問い合わせはお電話でも受け付けております。<br>電話番号：<a href='tel:0120147104'>0120-147-104</a><br>営業時間：10:00～22:00（お盆・年末年始除く）", true);
         await addBotMessage("デジタル書籍が以下から閲覧可能です！<br>不動産投資と節税の仕組み等、役立つ情報が満載ですのでぜひご覧ください。", true);
         await addBotMessage("デジタル書籍を閲覧する", false, false, true);
-            startAdditionalQuestionsFlow();
 
     } catch (error) {
         hideLoadingMessage();
