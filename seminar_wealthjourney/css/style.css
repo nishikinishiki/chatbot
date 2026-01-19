@@ -4,11 +4,12 @@
    =============================================================== */
 :root {
   /* --- カラーパレット --- */
-  --primary-color: #00748A;
-  --primary-dark: #005f70;
-  --primary-gradient-start: #61b265;
-  --primary-gradient-end: #007f87;
-  --secondary-color: #00848C;
+  --primary-color: #3eb7a5;
+  --primary-dark: #38a796;
+  --primary-gradient-start: #3eb7a5;
+  --primary-gradient-end: #88c9a3;
+  --progress-bar: #b3b3b3;
+  --secondary-color: #3eb7a5;
   --body-bg: #8297ac;
   --chat-container-bg: #ffffff;
   --chat-messages-bg: #efede0;
@@ -78,7 +79,7 @@ body {
 }
 
 .chat-header {
-  background: linear-gradient(135deg, var(--primary-gradient-start) 0%, var(--primary-gradient-end) 60%);
+  background: linear-gradient(135deg, var(--primary-gradient-start) 0%, var(--primary-gradient-end) 80%);
   color: var(--text-color-light);
   padding: 10px 16px;
   padding-top: calc(10px + env(safe-area-inset-top));
@@ -97,7 +98,7 @@ body {
 .progress-bar-container {
   width: 100%; 
   height: 8px;
-  background-color: var(--primary-dark);
+  background-color: var(--progress-bar);
   border-radius: 4px;
   overflow: hidden;
 }
