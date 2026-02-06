@@ -2,7 +2,6 @@ document.addEventListener('DOMContentLoaded', function() {
     // === 1. Privacy Modal Logic ===
     const modal = document.getElementById('privacy-modal');
     const openBtn = document.getElementById('open-privacy-modal');
-    const closeBtn = document.getElementById('close-modal-btn');
     const closeX = document.getElementById('close-modal-x');
 
     const openModal = (e) => {
@@ -16,7 +15,7 @@ document.addEventListener('DOMContentLoaded', function() {
     };
 
     openBtn.addEventListener('click', openModal);
-    closeBtn.addEventListener('click', closeModal);
+    // 修正: 閉じるボタンのイベントリスナーを削除しました
     closeX.addEventListener('click', closeModal);
     
     // 背景クリックで閉じる
