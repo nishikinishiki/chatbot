@@ -4,273 +4,173 @@
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>JPリターンズ奨学金 | J.P.RETURNS</title>
-    <script src="https://cdn.tailwindcss.com"></script>
     <link href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0/css/all.min.css" rel="stylesheet">
     <link rel="preconnect" href="https://fonts.googleapis.com">
     <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
     <link href="https://fonts.googleapis.com/css2?family=Noto+Sans+JP:wght@400;500;700&display=swap" rel="stylesheet">
-    <style>
-        body {
-            font-family: 'Noto Sans JP', sans-serif;
-            background-color: #F4F2E3; /* 公式サイトのベースカラーに近いクリーム色 */
-            color: #333333;
-        }
-        .brand-green {
-            color: #007387; /* J.P.Returns 特徴的なグリーン */
-        }
-        .bg-brand-green {
-            background-color: #007387;
-        }
-        .brand-accent {
-            color: #DA665F; /* J.P.Returns アクセントのサーモンピンク */
-        }
-        .bg-brand-accent {
-            background-color: #D66B5E;
-        }
-        .section-title-en {
-            font-size: 0.8rem;
-            letter-spacing: 0.1em;
-            font-weight: bold;
-            display: block;
-            margin-bottom: 0.5rem;
-        }
-        .hover-lift {
-            transition: transform 0.2s ease, box-shadow 0.2s ease;
-        }
-        .hover-lift:hover {
-            transform: translateY(-2px);
-            box-shadow: 0 10px 20px rgba(0,0,0,0.1);
-        }
-    </style>
+    
+    <link rel="stylesheet" href="style.css">
 </head>
-<body class="antialiased">
+<body>
 
-    <!-- Header (Simplified based on brand) -->
-    <header class="w-full py-4 px-6 fixed top-0 bg-[#F4F2E3]/90 backdrop-blur-md z-50 border-b border-gray-200">
-        <div class="max-w-5xl mx-auto flex justify-between items-center">
-            <a href="#" class="block">
-                <img src="images/logo.png" alt="J.P.RETURNS" class="h-6 md:h-6 w-auto">
-            </a>
-            <a href="https://official.jpreturns.com/l/894951/2025-12-01/j2fmm" target="_blank" class="hidden md:block bg-brand-accent text-white px-6 py-2 rounded-full text-sm font-bold hover:opacity-90 transition-opacity">
-                エントリーはこちら
+    <header class="o-header">
+        <div class="o-header__inner">
+            <a href="#" class="a-logo-link">
+                <img src="images/logo.png" alt="J.P.RETURNS" style="height: 20px; width: auto;">
             </a>
         </div>
     </header>
 
-    <!-- Hero Section -->
-    <section class="pt-32 pb-20 px-4 text-center relative overflow-hidden">
-        <div class="max-w-4xl mx-auto relative z-10">
-            <span class="brand-accent font-bold tracking-widest text-sm mb-4 block">SCHOLARSHIP</span>
-            <h1 class="text-4xl md:text-5xl font-bold brand-green mb-6 leading-tight">
-                JPリターンズ奨学金
-            </h1>
-            <p class="text-gray-600 leading-relaxed mb-10 max-w-2xl mx-auto">
+    <section class="o-hero">
+        <div class="l-container l-container--narrow">
+            <span style="color:var(--color-brand-accent); font-weight:bold; letter-spacing:0.1em; display:block; margin-bottom:1rem; font-size: 0.8rem;">SCHOLARSHIP</span>
+            <h1 class="o-hero__title">JPリターンズ奨学金</h1>
+            <p style="color:var(--color-text-sub); margin-bottom: 2.5rem; max-width: 600px; margin-left: auto; margin-right: auto; font-size: 0.95rem;">
                 経済的な理由で夢を諦めてほしくない。<br>
                 J.P.RETURNSは、次世代を担う学生の皆さまへ返済不要の給付型奨学金をお届けします。
             </p>
-            <div class="flex flex-col sm:flex-row justify-center gap-4 mb-10">
-                <div class="bg-white p-6 rounded-lg shadow-sm border border-gray-100 flex items-center gap-3 w-full sm:w-72 text-center">
-                    <i class="fas fa-hand-holding-heart brand-accent text-2xl flex-shrink-0"></i>
-                    <div class="text-left">
-                        <div class="text-xs text-gray-500">種類</div>
-                        <div class="font-bold brand-green">給付型（返済不要）</div>
+
+            <div class="l-grid-center" style="margin-bottom: 2.5rem;">
+                <div class="m-feature-card">
+                    <i class="fas fa-hand-holding-heart" style="color:var(--color-brand-accent); font-size:1.5rem;"></i>
+                    <div>
+                        <div style="font-size:0.75rem; color:var(--color-text-sub);">種類</div>
+                        <div style="font-weight:bold; color:var(--color-brand-main);">給付型（返済不要）</div>
                     </div>
                 </div>
-                <div class="bg-white p-6 rounded-lg shadow-sm border border-gray-100 flex items-center gap-3 w-full sm:w-72 text-center">
-                    <i class="fas fa-yen-sign brand-accent text-2xl flex-shrink-0 w-8 text-center"></i>
-                    <div class="text-left">
-                        <div class="text-xs text-gray-500">給付金額</div>
-                        <div class="font-bold brand-green">1回 10万円</div>
+                <div class="m-feature-card">
+                    <i class="fas fa-yen-sign" style="color:var(--color-brand-accent); font-size:1.5rem; width:1.5rem; text-align:center;"></i>
+                    <div>
+                        <div style="font-size:0.75rem; color:var(--color-text-sub);">給付金額</div>
+                        <div style="font-weight:bold; color:var(--color-brand-main);">1回 5万円</div>
                     </div>
                 </div>
             </div>
-            <a href="https://official.jpreturns.com/l/894951/2025-12-01/j2fmm" target="_blank" 
-                class="inline-block bg-brand-accent text-white font-bold text-lg px-12 py-4 rounded-full shadow-lg transform transition hover:scale-105 hover:opacity-90 transition-opacity">
+
+            <a href="#entry-form" class="a-btn a-btn--lg">
                 エントリーはこちら
-            </a>       
+            </a>      
         </div>
     </section>
 
-    <!-- Representative Message -->
-    <section class="py-20 bg-white">
-        <div class="max-w-5xl mx-auto px-4">
-            <div class="text-center mb-16">
-                <span class="section-title-en brand-accent">MESSAGE</span>
-                <h2 class="text-3xl font-bold brand-green">代表メッセージ</h2>
-                <div class="w-12 h-1 bg-brand-green mx-auto mt-4"></div>
+    <section class="l-section l-section--white">
+        <div class="l-container l-container--narrow">
+            <div class="a-section-header">
+                <span class="a-section-header__en">REQUIREMENTS</span>
+                <h2 class="a-section-header__jp">募集要項</h2>
+                <div class="a-section-header__line"></div>
             </div>
 
-            <div class="bg-white p-8 md:p-12 rounded-xl shadow-sm border border-gray-100 flex flex-col md:flex-row gap-10 items-start">
-                <div class="w-full md:w-1/3 text-center">
-                    <!-- Placeholder for CEO Image -->
-                    <div class="bg-gray-200 rounded-lg aspect-[3/4] flex items-center justify-center text-gray-400 mb-4 mx-auto md:mx-0 max-w-[240px]">
-                        <img src="images/ema.jpg" alt="代表取締役 江馬 由行" class="w-full h-full object-cover">
-                    </div>
-                    <p class="font-bold brand-green">代表取締役<br>江馬 由行</p>
-                </div>
-                <div class="w-full md:w-2/3">
-                    <h3 class="text-xl font-bold mb-6 text-gray-800">
-                        「人」という資産への投資が豊かな未来を創り出す。
-                    </h3>
-                    <p class="text-gray-600 leading-loose mb-6">
-                        私たちJ.P.RETURNSの社名は、「Joint（共に）」「Property（資産）」「Returns（収益をもたらす）」という言葉に由来しています。創業以来、私たちは不動産という資産を通じて、お客様と共に豊かさを創り出すことを理念としてきました。<br>
-                        <br>
-                        社会にとっての「真の資産」とは何でしょうか。<br>
-                        それは建物や土地だけでなく、これからの時代を切り拓く「人」そのものであると考えています。<br>
-                        <br>
-                        この奨学金は単なる資金援助ではなく、未来を担うあなたへの「投資」です。<br>
-                        私たちがお客様の良きパートナーであり続けることを目指すように、夢に向かって歩むあなたの良きパートナーでありたいと願っています。
-                    </p>
-                </div>
-            </div>
-        </div>
-    </section>
-
-    <!-- Requirements (募集要項) -->
-    <section class="py-20 bg-[#F4F2E3]">
-        <div class="max-w-4xl mx-auto px-4">
-            <div class="text-center mb-16">
-                <span class="section-title-en brand-accent">REQUIREMENTS</span>
-                <h2 class="text-3xl font-bold brand-green">募集要項</h2>
-                <div class="w-12 h-1 bg-brand-green mx-auto mt-4"></div>
-            </div>
-
-            <div class="bg-white rounded-xl shadow-sm border border-gray-200 overflow-hidden">
-                <!-- Table Row 1 -->
-                <div class="flex flex-col md:flex-row border-b border-gray-200">
-                    <div class="w-full md:w-1/4 bg-[#F9F8F2] p-4 md:p-6 font-bold text-gray-700 flex items-center">
-                        奨学金の種類
-                    </div>
-                    <div class="w-full md:w-3/4 p-4 md:p-6 flex items-center">
-                        <span class="inline-block bg-brand-accent text-white text-xs px-2 py-1 rounded mr-3">給付型</span>
+            <div class="m-def-list">
+                <div class="m-def-list__row">
+                    <div class="m-def-list__term">奨学金の種類</div>
+                    <div class="m-def-list__desc">
+                        <span class="a-badge a-badge--accent">給付型</span>
                         <span>返済不要</span>
                     </div>
                 </div>
-                <!-- Table Row 2 -->
-                <div class="flex flex-col md:flex-row border-b border-gray-200">
-                    <div class="w-full md:w-1/4 bg-[#F9F8F2] p-4 md:p-6 font-bold text-gray-700 flex items-center">
-                        募集の方法
-                    </div>
-                    <div class="w-full md:w-3/4 p-4 md:p-6">
+                <div class="m-def-list__row">
+                    <div class="m-def-list__term">募集の方法</div>
+                    <div class="m-def-list__desc">
                         J.P.Returns奨学金ホームページからの直接応募による申請
                     </div>
                 </div>
-                <!-- Table Row 3 -->
-                <div class="flex flex-col md:flex-row border-b border-gray-200">
-                    <div class="w-full md:w-1/4 bg-[#F9F8F2] p-4 md:p-6 font-bold text-gray-700 flex items-center">
-                        給付金額
-                    </div>
-                    <div class="w-full md:w-3/4 p-4 md:p-6 font-bold text-lg brand-green">
-                        1回 10万円（返済不要）
-                    </div>
-                </div>
-                <!-- Table Row 5 -->
-                <div class="flex flex-col md:flex-row border-b border-gray-200">
-                    <div class="w-full md:w-1/4 bg-[#F9F8F2] p-4 md:p-6 font-bold text-gray-700 flex items-center">
-                        募集人数
-                    </div>
-                    <div class="w-full md:w-3/4 p-4 md:p-6">
-                        年間10~15名程度
+                <div class="m-def-list__row">
+                    <div class="m-def-list__term">募集期間</div>
+                    <div class="m-def-list__desc">
+                        <div>
+                            <strong>第1期：</strong>2026年9月1日～12月31日（締め切り2026年12月31日）<br>
+                            <strong>第2期：</strong>2027年3月1日～6月30日（締め切り2027年6月30日）
+                        </div>
                     </div>
                 </div>
-                <!-- Table Row 6 -->
-                <div class="flex flex-col md:flex-row border-b border-gray-200">
-                    <div class="w-full md:w-1/4 bg-[#F9F8F2] p-4 md:p-6 font-bold text-gray-700 flex items-center">
-                        他の奨学金との併用
+                <div class="m-def-list__row">
+                    <div class="m-def-list__term">給付金額</div>
+                    <div class="m-def-list__desc" style="font-size:1.125rem; font-weight:bold; color:var(--color-brand-main);">
+                        1回 5万円（返済不要）
                     </div>
-                    <div class="w-full md:w-3/4 p-4 md:p-6">
+                </div>
+                <div class="m-def-list__row">
+                    <div class="m-def-list__term">募集人数</div>
+                    <div class="m-def-list__desc">
+                        各回15名（年間合計30名）
+                    </div>
+                </div>
+                <div class="m-def-list__row">
+                    <div class="m-def-list__term">他の奨学金との併用</div>
+                    <div class="m-def-list__desc">
                         併用可
                     </div>
                 </div>
-                <!-- Table Row 7 -->
-                <div class="flex flex-col md:flex-row border-b border-gray-200">
-                    <div class="w-full md:w-1/4 bg-[#F9F8F2] p-4 md:p-6 font-bold text-gray-700 flex items-center">
-                        応募資格
-                    </div>
-                    <div class="w-full md:w-3/4 p-4 md:p-6">
-                        <ul class="list-disc list-inside space-y-2 text-gray-700">
-                            <li>2026年4月1日時点で日本国内の高校・高等専門学校・大学・短期大学・専門学校に在籍していること</li>
-                            <li>2026年4月1日時点で年齢20才以下であること</li>
-                        </ul>
+                <div class="m-def-list__row">
+                    <div class="m-def-list__term">応募資格</div>
+                    <div class="m-def-list__desc">
+                        <div style="color:var(--color-text-sub);">
+                            <p style="margin-top:0; margin-bottom:0.5rem; font-weight:bold;">以下を全て満たす方。</p>
+                            <ul style="list-style-type: disc; list-style-position: outside; margin-left: 1.5rem;">
+                                <li><strong>在学状況：</strong>2026年4月1日時点で日本国内の高校・高等専門学校・大学・大学院・短期大学・専門学校に在籍。</li>
+                                <li><strong>志向性：</strong>宅地建物取引士やマンション管理士等の不動産関連資格の取得を目指している、もしくは不動産業界や資産運用分野に関心を持つ方。</li>
+                            </ul>
+                        </div>
                     </div>
                 </div>
             </div>
         </div>
     </section>
 
-    <!-- Flow Section -->
-    <section class="py-20 bg-white">
-        <div class="max-w-5xl mx-auto px-4">
-            <div class="text-center mb-16">
-                <span class="section-title-en brand-accent">FLOW</span>
-                <h2 class="text-3xl font-bold brand-green">選考から給付までの流れ</h2>
-                <div class="w-12 h-1 bg-brand-green mx-auto mt-4"></div>
+    <section class="l-section l-section--base">
+        <div class="l-container l-container--narrow">
+            <div class="a-section-header">
+                <span class="a-section-header__en">FLOW</span>
+                <h2 class="a-section-header__jp">選考から給付までの流れ</h2>
+                <div class="a-section-header__line"></div>
             </div>
 
-            <div class="bg-white rounded-xl shadow-sm border border-gray-200 overflow-hidden">
-                <!-- Step 1 -->
-                <div class="flex flex-col md:flex-row border-b border-gray-100 last:border-b-0">
-                    <div class="w-full md:w-1/4 bg-[#F9F8F2] p-6 flex flex-col items-center justify-center text-center border-b md:border-b-0 md:border-r border-gray-100">
-                        <div class="bg-brand-green text-white w-8 h-8 rounded-full flex items-center justify-center font-bold mb-2 shadow-sm">1</div>
-                        <h3 class="font-bold text-lg brand-green">募集受付</h3>
+            <div class="m-def-list">
+                <div class="m-step-item">
+                    <div class="m-step-item__head">
+                        <div class="a-icon-circle" style="background-color:var(--color-brand-main); margin-bottom:0.5rem;">1</div>
+                        <h3 style="font-weight:bold; color:var(--color-brand-main); margin:0;">募集受付</h3>
                     </div>
-                    <div class="w-full md:w-3/4 p-6 flex flex-col justify-center">
-                        <p class="text-gray-700">
+                    <div class="m-step-item__body">
+                        <p style="margin:0; color:var(--color-text-sub);">
                             【前期】2026年6月1日 ～ 2026年9月30日<br>
                             【後期】2026年10月1日 ～ 2027年1月31日
                         </p>
-                    </div>                    
-                </div>
-
-                <!-- Step 2 -->
-                <div class="flex flex-col md:flex-row border-b border-gray-100 last:border-b-0">
-                     <div class="w-full md:w-1/4 bg-[#F9F8F2] p-6 flex flex-col items-center justify-center text-center border-b md:border-b-0 md:border-r border-gray-100">
-                        <div class="bg-brand-green text-white w-8 h-8 rounded-full flex items-center justify-center font-bold mb-2 shadow-sm">2</div>
-                        <h3 class="font-bold text-lg brand-green">選考</h3>
                     </div>
-                    <div class="w-full md:w-3/4 p-6 flex flex-col justify-center">
-                        <div class="mb-2">
-                            <span class="inline-block bg-brand-accent/10 text-brand-accent text-xs font-bold py-1 rounded-full">
-                                各募集期間終了の翌月中
-                            </span>
-                        </div>
-                        <p class="text-gray-700">
+                </div>
+                <div class="m-step-item">
+                    <div class="m-step-item__head">
+                        <div class="a-icon-circle" style="background-color:var(--color-brand-main); margin-bottom:0.5rem;">2</div>
+                        <h3 style="font-weight:bold; color:var(--color-brand-main); margin:0;">選考</h3>
+                    </div>
+                    <div class="m-step-item__body">
+                        <p style="margin:0; color:var(--color-text-sub);">
                             選考の結果（合否）をメールでお知らせします。
                         </p>
                     </div>
                 </div>
-
-                <!-- Step 3 -->
-                 <div class="flex flex-col md:flex-row border-b border-gray-100 last:border-b-0">
-                     <div class="w-full md:w-1/4 bg-[#F9F8F2] p-6 flex flex-col items-center justify-center text-center border-b md:border-b-0 md:border-r border-gray-100">
-                        <div class="bg-brand-green text-white w-8 h-8 rounded-full flex items-center justify-center font-bold mb-2 shadow-sm">3</div>
-                        <h3 class="font-bold text-lg brand-green">採用者の手続き</h3>
+                <div class="m-step-item">
+                    <div class="m-step-item__head">
+                        <div class="a-icon-circle" style="background-color:var(--color-brand-main); margin-bottom:0.5rem;">3</div>
+                        <h3 style="font-weight:bold; color:var(--color-brand-main); margin:0;">採用者の手続き</h3>
                     </div>
-                    <div class="w-full md:w-3/4 p-6 flex flex-col justify-center">
-                        <div class="mb-2">
-                            <span class="inline-block bg-brand-accent/10 text-brand-accent text-xs font-bold py-1 rounded-full">
-                                各募集期間終了の2か月後までに
-                            </span>
-                        </div>
-                        <p class="text-gray-700">
+                    <div class="m-step-item__body">
+                        <p style="margin:0; color:var(--color-text-sub);">
                             奨学金の振込口座登録フォームへの回答や、在学証明書の原本提出をご依頼します。
                         </p>
                     </div>
                 </div>
-
-                <!-- Step 4 -->
-                 <div class="flex flex-col md:flex-row border-b border-gray-100 last:border-b-0">
-                     <div class="w-full md:w-1/4 bg-[#F9F8F2] p-6 flex flex-col items-center justify-center text-center border-b md:border-b-0 md:border-r border-gray-100">
-                        <div class="bg-brand-green text-white w-8 h-8 rounded-full flex items-center justify-center font-bold mb-2 shadow-sm">4</div>
-                        <h3 class="font-bold text-lg brand-green">奨学金の給付</h3>
+                <div class="m-step-item">
+                    <div class="m-step-item__head">
+                        <div class="a-icon-circle" style="background-color:var(--color-brand-main); margin-bottom:0.5rem;">4</div>
+                        <h3 style="font-weight:bold; color:var(--color-brand-main); margin:0;">奨学金の給付</h3>
                     </div>
-                    <div class="w-full md:w-3/4 p-6 flex flex-col justify-center">
-                        <div class="mb-2">
-                            <span class="inline-block bg-brand-accent/10 text-brand-accent text-xs font-bold py-1 rounded-full">
-                                各募集期間終了の2か月後までに
-                            </span>
+                    <div class="m-step-item__body">
+                        <div style="margin-bottom:0.5rem;">
+                            <span class="a-badge a-badge--sub">各募集期間終了の2か月後までに</span>
                         </div>
-                        <p class="text-gray-700">
+                        <p style="margin:0; color:var(--color-text-sub);">
                             手続き完了後、ご指定の口座へ奨学金をお振込みします。
                         </p>
                     </div>
@@ -279,41 +179,39 @@
         </div>
     </section>
 
-
-    <!-- FAQ Section -->
-    <section class="py-20 bg-[#F4F2E3]">
-        <div class="max-w-3xl mx-auto px-4">
-            <div class="text-center mb-16">
-                <span class="section-title-en brand-accent">FAQ</span>
-                <h2 class="text-3xl font-bold brand-green">よくある質問</h2>
-                <div class="w-12 h-1 bg-brand-green mx-auto mt-4"></div>
+    <section class="l-section l-section--white">
+        <div class="l-container l-container--sm">
+            <div class="a-section-header">
+                <span class="a-section-header__en">FAQ</span>
+                <h2 class="a-section-header__jp">よくある質問</h2>
+                <div class="a-section-header__line"></div>
             </div>
 
-            <div class="space-y-4">
-                <div class="bg-white border border-gray-200 rounded-lg p-6 hover:border-brand-green transition-colors">
-                    <h3 class="font-bold brand-green mb-2 flex items-start gap-3">
-                        <span class="bg-brand-green text-white text-xs px-2 py-1 rounded mt-1">Q</span>
+            <div style="display:flex; flex-direction:column; gap:1rem;">
+                <div class="m-faq-card">
+                    <h3 class="m-faq-card__q">
+                        <span class="a-badge a-badge--green">Q</span>
                         成績の基準はありますか？
                     </h3>
-                    <p class="text-gray-600 pl-10 text-sm">
+                    <p class="m-faq-card__a">
                         特定の評定平均値などの足切り基準は設けていません。学業への意欲や、将来のビジョンなどを総合的に判断いたします。
                     </p>
                 </div>
-                <div class="bg-white border border-gray-200 rounded-lg p-6 hover:border-brand-green transition-colors">
-                    <h3 class="font-bold brand-green mb-2 flex items-start gap-3">
-                        <span class="bg-brand-green text-white text-xs px-2 py-1 rounded mt-1">Q</span>
+                <div class="m-faq-card">
+                    <h3 class="m-faq-card__q">
+                        <span class="a-badge a-badge--green">Q</span>
                         親の所得制限はありますか？
                     </h3>
-                    <p class="text-gray-600 pl-10 text-sm">
+                    <p class="m-faq-card__a">
                         所得制限は設けておりません。
                     </p>
                 </div>
-                <div class="bg-white border border-gray-200 rounded-lg p-6 hover:border-brand-green transition-colors">
-                    <h3 class="font-bold brand-green mb-2 flex items-start gap-3">
-                        <span class="bg-brand-green text-white text-xs px-2 py-1 rounded mt-1">Q</span>
+                <div class="m-faq-card">
+                    <h3 class="m-faq-card__q">
+                        <span class="a-badge a-badge--green">Q</span>
                         返済の義務はありますか？
                     </h3>
-                    <p class="text-gray-600 pl-10 text-sm">
+                    <p class="m-faq-card__a">
                         ございません。卒業後の進路拘束なども一切ありません。
                     </p>
                 </div>
@@ -321,40 +219,162 @@
         </div>
     </section>
 
-    <!-- Company Info -->
-    <section class="py-20 bg-white">
-        <div class="max-w-4xl mx-auto px-4">
-            <div class="text-center mb-10">
-                <span class="section-title-en brand-accent">COMPANY</span>
-                <h2 class="text-3xl font-bold brand-green">運営会社情報</h2>
-                <div class="w-12 h-1 bg-brand-green mx-auto mt-4"></div>                
+    <section id="entry-form" class="l-section l-section--base">
+        <div class="l-container l-container--narrow">
+            <div class="a-section-header">
+                <span class="a-section-header__en">ENTRY</span>
+                <h2 class="a-section-header__jp">エントリーフォーム</h2>
+                <div class="a-section-header__line"></div>
+            </div>
+
+            <div class="m-form-card" id="form-container">
+                <form id="scholarship-form" method="post">
+                    
+                    <h3 class="a-form-heading">基本情報</h3>
+                    
+                    <div class="m-form-item">
+                        <label class="a-label">氏名 <span class="a-badge a-badge--accent">必須</span></label>
+                        <input type="text" name="name" class="a-input" placeholder="例：山田 太郎" required>
+                    </div>
+                    
+                    <div class="m-form-item">
+                        <label class="a-label">フリガナ <span class="a-badge a-badge--accent">必須</span></label>
+                        <input type="text" name="furigana" class="a-input" placeholder="例：ヤマダ タロウ" required>
+                    </div>
+
+                    <div class="m-form-item">
+                        <label class="a-label">生年月日 <span class="a-badge a-badge--accent">必須</span></label>
+                        <input type="date" name="birthday" class="a-input" required>
+                    </div>
+
+                    <div class="m-form-item">
+                        <label class="a-label">電話番号 <span class="a-badge a-badge--accent">必須</span></label>
+                        <input type="tel" name="phone" class="a-input" placeholder="例：090-1234-5678" required>
+                    </div>
+                    
+                    <div class="m-form-item">
+                        <label class="a-label">メールアドレス <span class="a-badge a-badge--accent">必須</span></label>
+                        <input type="email" name="email" class="a-input" placeholder="例：example@jpreturns.com" required>
+                    </div>
+
+                    <div class="m-form-item">
+                        <label class="a-label">郵便番号 <span class="a-badge a-badge--accent">必須</span></label>
+                        <input type="text" name="zipcode" class="a-input" placeholder="例：100-6923" required>
+                    </div>
+                    
+                    <div class="m-form-item">
+                        <label class="a-label">住所 <span class="a-badge a-badge--accent">必須</span></label>
+                        <input type="text" name="address" class="a-input" placeholder="例：東京都千代田区丸の内2-6-1..." required>
+                    </div>
+
+                    <h3 class="a-form-heading">学校情報</h3>
+                    
+                    <div class="m-form-item">
+                        <label class="a-label">学校区分 <span class="a-badge a-badge--accent">必須</span></label>
+                        <select name="school_type" class="a-select" required>
+                            <option value="">選択してください</option>
+                            <option value="高校">高校</option>
+                            <option value="高専">高専</option>
+                            <option value="大学">大学</option>
+                            <option value="大学院">大学院</option>
+                            <option value="短大">短大</option>
+                            <option value="専門">専門</option>
+                            <option value="その他">その他</option>
+                        </select>
+                    </div>
+
+                    <div class="m-form-item">
+                        <label class="a-label">学校名 <span class="a-badge a-badge--accent">必須</span></label>
+                        <input type="text" name="school_name" class="a-input" placeholder="例：〇〇大学" required>
+                    </div>
+                    
+                    <div class="m-form-item">
+                        <label class="a-label">学部学科 <span class="a-badge a-badge--accent">必須</span></label>
+                        <input type="text" name="department" class="a-input" placeholder="例：経済学部 経済学科" required>
+                    </div>
+
+                    <div class="m-form-item">
+                        <label class="a-label">学年 <span class="a-badge a-badge--accent">必須</span></label>
+                        <input type="text" name="grade" class="a-input" placeholder="例：3年" required>
+                    </div>
+                    
+                    <div class="m-form-item">
+                        <label class="a-label">卒業予定年月 <span class="a-badge a-badge--accent">必須</span></label>
+                        <input type="text" name="graduation_date" class="a-input" placeholder="例：2027年3月" required>
+                    </div>
+
+                    <h3 class="a-form-heading">志望動機</h3>
+
+                    <div class="m-form-item">
+                        <label class="a-label">
+                            本奨学金を活用して、不動産分野についてどのような知識・能力を身につけたいと考えているか。<br>また、その学びを将来どのように活かしたいかを述べてください。（400字程度）
+                            <span class="a-badge a-badge--accent">必須</span>
+                        </label>
+                        <textarea name="essay" class="a-textarea" placeholder="ここに志望動機を入力してください..." required></textarea>
+                    </div>
+
+                    <div class="m-privacy-check">
+                        <label style="cursor: pointer; display: flex; align-items: center; justify-content: center; gap: 0.5rem;">
+                            <input type="checkbox" name="privacy_policy" required style="transform: scale(1.5);">
+                            <span>
+                                <a href="#" id="open-privacy-modal" style="color:var(--color-brand-main); text-decoration:underline;">プライバシーポリシー</a>に同意する
+                            </span>
+                        </label>
+                    </div>
+
+                    <div style="text-align: center;">
+                        <button type="submit" id="submit-btn" class="a-btn a-btn--lg">上記の内容で応募する</button>
+                    </div>
+
+                </form>
+            </div>
+
+            <div id="success-view" class="m-form-card success-message">
+                <div class="success-icon"><i class="fas fa-check-circle"></i></div>
+                <h3 style="font-size:1.5rem; font-weight:bold; margin-bottom:1rem;">応募を受け付けました</h3>
+                <p>
+                    この度はJPリターンズ奨学金にご応募いただき、誠にありがとうございます。<br>
+                    ご入力いただいたメールアドレスへ確認メールをお送りしましたのでご確認ください。<br>
+                    選考結果につきましては、追ってご連絡させていただきます。
+                </p>
+                <a href="#" onclick="location.reload();" class="a-btn a-btn--sm" style="margin-top:2rem;">トップへ戻る</a>
+            </div>
+        </div>
+    </section>
+
+    <section class="l-section l-section--white">
+        <div class="l-container l-container--narrow">
+            <div class="a-section-header">
+                <span class="a-section-header__en">COMPANY</span>
+                <h2 class="a-section-header__jp">運営会社情報</h2>
+                <div class="a-section-header__line"></div>
             </div>
             
-            <div class="bg-white border border-gray-200 text-sm">
-                <div class="flex flex-col md:flex-row border-b border-gray-100">
-                    <div class="w-full md:w-1/4 bg-[#F9F8F2] p-4 font-bold text-gray-700">会社名</div>
-                    <div class="w-full md:w-3/4 p-4">株式会社J.P.RETURNS</div>
+            <div class="m-def-list">
+                <div class="m-def-list__row">
+                    <div class="m-def-list__term">会社名</div>
+                    <div class="m-def-list__desc">株式会社J.P.RETURNS</div>
                 </div>
-                <div class="flex flex-col md:flex-row border-b border-gray-100">
-                    <div class="w-full md:w-1/4 bg-[#F9F8F2] p-4 font-bold text-gray-700">代表取締役</div>
-                    <div class="w-full md:w-3/4 p-4">江馬 由行</div>
+                <div class="m-def-list__row">
+                    <div class="m-def-list__term">代表取締役</div>
+                    <div class="m-def-list__desc">江馬 由行</div>
                 </div>
-                 <div class="flex flex-col md:flex-row border-b border-gray-100">
-                    <div class="w-full md:w-1/4 bg-[#F9F8F2] p-4 font-bold text-gray-700">所在地</div>
-                    <div class="w-full md:w-3/4 p-4">
-                        本社<br>
+                 <div class="m-def-list__row">
+                    <div class="m-def-list__term">所在地</div>
+                    <div class="m-def-list__desc">
+                        <div>
+                            本社<br>
                             〒100-6923<br>
-                            東京都千代田区丸の内2-6-1
-                            丸の内パークビルディング23階<br><br>
-                        大阪支店<br>
+                            東京都千代田区丸の内2-6-1 丸の内パークビルディング23階<br><br>
+                            大阪支店<br>
                             〒530-0001<br>
-                            大阪府大阪市北区梅田1-1-3
-                            大阪駅前第3ビル15階
+                            大阪府大阪市北区梅田1-1-3 大阪駅前第3ビル15階
+                        </div>
                     </div>
                 </div>
-                <div class="flex flex-col md:flex-row">
-                    <div class="w-full md:w-1/4 bg-[#F9F8F2] p-4 font-bold text-gray-700">事業内容</div>
-                    <div class="w-full md:w-3/4 p-4">
+                <div class="m-def-list__row">
+                    <div class="m-def-list__term">事業内容</div>
+                    <div class="m-def-list__desc">
                         不動産売買事業、不動産賃貸管理事業、リノベーション事業、投資用物件の販売・仲介
                     </div>
                 </div>
@@ -362,10 +382,53 @@
         </div>
     </section>
 
-    <!-- Footer -->
-    <footer class="bg-gray-800 text-white py-8 text-center text-sm">
+    <footer class="o-footer">
         <p>&copy; J.P.RETURNS Inc. All Rights Reserved.</p>
     </footer>
 
+    <div id="privacy-modal" class="modal-overlay">
+        <div class="modal-container">
+            <div class="modal-header">
+                <h2 class="modal-title">個人情報の取り扱いについて</h2>
+                <button id="close-modal-x" class="modal-close-btn">&times;</button>
+            </div>
+            <div class="modal-body">
+                <p>株式会社J.P.RETURNS（以下「当社」といいます）は、JPリターンズ奨学金（以下「本奨学金」といいます）への応募にあたりご提供いただく個人情報を以下の通り適切に取り扱います。</p>
+
+                <h3>1. 個人情報の利用目的</h3>
+                <p>当社は、取得した個人情報を以下の目的でのみ利用いたします。</p>
+                <ul>
+                    <li>本奨学金制度の選考、結果通知、および給付手続きのため</li>
+                    <li>応募者からの問い合わせ対応のため</li>
+                    <li>当社のインターンシップ、セミナー、採用選考に関するご案内のため</li>
+                    <li>個人を特定できない形式による統計データの作成のため</li>
+                </ul>
+
+                <h3>2. 個人情報の第三者提供</h3>
+                <p>当社は、法令に基づく場合を除き、応募者の同意なく個人情報を第三者に提供することはございません。</p>
+
+                <h3>3. 個人情報の委託</h3>
+                <p>当社は、利用目的の達成に必要な範囲内で、個人情報の取り扱いの全部または一部を外部に委託する場合があります。その際は、委託先に対して必要かつ適切な監督を行います。</p>
+
+                <h3>4. 個人情報の管理</h3>
+                <p>当社は、個人情報の漏洩、滅失またはき損の防止、その他個人情報の安全管理のために必要かつ適切な措置を講じます。また、選考終了後、不採用となった方の応募書類データは、当社規定に基づき速やかにかつ適切な方法で破棄・削除いたします。</p>
+
+                <h3>5. 個人情報の開示・訂正・削除等</h3>
+                <p>応募者ご本人から、個人情報の開示、訂正、追加、削除、利用停止等のご請求があった場合は、ご本人であることを確認の上、法令に従い速やかに対応いたします。</p>
+
+                <h3>6. お問い合わせ窓口</h3>
+                <p>
+                    株式会社J.P.RETURNS 個人情報保護管理者<br>
+                    〒100-6923 東京都千代田区丸の内2-6-1 丸の内パークビルディング23階<br>
+                    Email: scholarship@jpreturns.com
+                </p>
+            </div>
+            <div class="modal-footer">
+                <button id="close-modal-btn" class="a-btn a-btn--sm" style="min-width: 120px;">閉じる</button>
+            </div>
+        </div>
+    </div>
+
+    <script src="script.js"></script>
 </body>
 </html>

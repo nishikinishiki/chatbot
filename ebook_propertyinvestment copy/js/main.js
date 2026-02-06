@@ -16,6 +16,38 @@ const state = {
     isTestMode: false, // ★★★ テストモードの状態を管理する変数を追加 ★★★
 };
 
+// --- ログ送信 ---
+/**
+ * 回答データをログ用スプレッドシートに送信する関数
+ * @param {object} question
+ * @param {string} answerValue
+ */
+function sendAnswerToLog(question, answerValue) {
+    if (!GAS_LOG_APP_URL || GAS_LOG_APP_URL === 'ここに新しく取得したログ用GASのURLを貼り付け') {
+        return; // ログ用URLが設定されていない場合は何もしない
+    }
+
+    const payload = {
+        sessionId: state.currentSessionId,
+        questionId: question.id.toString(),
+        answerValue: answerValue,
+        is_test: state.isTestMode,
+        form_variant: window.location.pathname
+    };
+
+    // 'no-cors'モードでエラーをコンソールに出さないように送信
+    fetch(GAS_LOG_APP_URL, {
+        method: 'POST',
+        mode: 'no-cors',
+        cache: 'no-cache',
+        headers: { 'Content-Type': 'text/plain;charset=utf-8' },
+        body: JSON.stringify(payload)
+    }).catch(error => {
+        // 意図的にエラーを無視する（バックグラウンドでの軽量なログ送信のため）
+    });
+}
+
+
 // --- GAイベント送信 ---
 /**
  * GA4にイベントを送信する関数
@@ -143,6 +175,7 @@ async function askQuestion() {
                 if (container) disableInputs(container);
                 state.userResponses[currentQuestion.key] = true;
                 sendGaEvent(currentQuestion, 'true');
+                sendAnswerToLog(currentQuestion, 'true');
                 submitDataToGAS(state.userResponses, false);
              });
             break;
@@ -197,6 +230,7 @@ function handleSingleChoice(question, selection, container) {
     responseSet[question.key] = value;
     
     sendGaEvent(question, value);
+    sendAnswerToLog(question, value);
     proceedToNextStep();
 }
 
@@ -220,6 +254,7 @@ function handleMultiChoice(question, selections, container) {
     responseSet[question.key] = responseValue;
     
     sendGaEvent(question, responseValue);
+    sendAnswerToLog(question, responseValue);
     proceedToNextStep();
 }
 
@@ -233,6 +268,8 @@ function handleTextInput(question, value, container) {
     addUserMessage(trimmedValue);
     const responseSet = (state.currentFlow === 'initial') ? state.userResponses : state.additionalUserResponses;
     responseSet[question.key] = trimmedValue;
+
+    sendAnswerToLog(question, trimmedValue);
     
     let gaAnswerValue = trimmedValue;
     if (question.type === 'email' || question.type === 'tel') {
@@ -262,6 +299,7 @@ async function handlePairedQuestion(question) {
         const userMessageText = values.join(' ');
         addUserMessage(userMessageText);
         
+        sendAnswerToLog(question, userMessageText);
         sendGaEvent(question, '[REDACTED]');
 
         state.currentStep++;

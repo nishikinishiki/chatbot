@@ -4,15 +4,23 @@
    =============================================================== */
 :root {
   /* --- カラーパレット --- */
-  --primary: #00748A;
+  --primary-color: #00748A;
   --primary-dark: #005f70;
-  --primary-light: #00848C;  
   --primary-gradient-start: #61b265;
-  --sub: #ffffff;
-  --body-bg: #f8f8f8;
-  --chat-messages-bg: #efede0;  
-  --text-color: #212121;
+  --primary-gradient-end: #007f87;
+  --secondary-color: #00848C; /* ★ 選択肢の背景色にこれを使用 */
+  --body-bg: #8297ac;
+  --chat-container-bg: #ffffff;
+  --chat-messages-bg: #efede0;
+  --bot-message-bg: #ffffff;
+  --user-message-bg: var(--secondary-color);
+  --text-color-light: #ffffff;
+  --text-color-dark: #212121;
   --text-color-medium: #555;
+  --text-color-default: #111111;
+  --choice-button-text: #007387;
+  --choice-button-border: #007387;
+  --choice-button-bg: #ffffff;
   --choice-button-hover-bg: #e5f1f4;
   --disabled-bg: #f0f0f0;
   --disabled-text: #aaa;
@@ -20,14 +28,7 @@
   --error-color: red;
   --link-color: #007bff;
   --link-hover-color: #0056b3;
-
-  --chat-container-bg:  var(--sub);
-  --primary-gradient-end: var(--primary);
-  --bot-message-bg:  var(--sub);
-  --user-message-bg: var(--primary);
-  --text-color-light:  var(--sub);
-  --choice-button-bg:  var(--sub);
-  --icon-placeholder-bg:  var(--sub);  
+  --icon-placeholder-bg: #ddd;
 }
 
 *,
@@ -42,7 +43,7 @@ html, body {
   height: 100%;
   overflow: auto; 
   font-family: 'Noto Sans JP', sans-serif;
-  color: var(--text-color);
+  color: var(--text-color-default);
 }
 
 body {
@@ -103,7 +104,7 @@ body {
 .progress-bar {
   width: 0%;
   height: 100%;
-  background-color: var(--sub);
+  background-color: var(--text-color-light);
   border-radius: 4px;
   transition: width 0.3s ease-in-out;
 }
@@ -133,7 +134,7 @@ body {
   height: auto;
   display: block;
   border-radius: 0;
-  box-shadow: 0 1px 3px rgba(0,0,0,0.3);  
+  box-shadow: 0 2px 5px rgba(0,0,0,0.1);  
 }
 
 /* ===============================================================
@@ -176,7 +177,7 @@ body {
 .bot-message-wrapper .message { 
   max-width: 80%;
   background-color: var(--bot-message-bg);
-  color: var(--text-color);
+  color: var(--text-color-dark);
   border-bottom-left-radius: 4px;
 }
 .bot-message-wrapper .message.error-text {
@@ -209,7 +210,7 @@ body {
   justify-content: center; 
   width: 100%; 
   padding: 12px 15px;
-  background-color: var(--primary); 
+  background-color: var(--primary-color); 
   color: var(--text-color-light) !important; 
   border: none;
   border-radius: 8px; 
@@ -258,8 +259,8 @@ body {
 
 .choice-button {
   background-color: var(--choice-button-bg);
-  border: 1px solid var(--primary);
-  color: var(--primary);
+  border: 1px solid var(--choice-button-border);
+  color: var(--choice-button-text);
   padding: 12px 6px;
   font-size: 0.8em;
   border-radius: 20px;
@@ -298,9 +299,9 @@ body {
 }
 
 .choice-button.multi-selected {
-  background-color: var(--primary-light); 
+  background-color: var(--secondary-color); 
   color: var(--text-color-light); 
-  border-color: var(--primary-light); 
+  border-color: var(--secondary-color); 
   font-weight: 500;
   box-shadow: 0 1px 2px rgba(0,0,0,0.3), 0 1px 3px 1px rgba(0,0,0,0.15);
 }
@@ -344,7 +345,7 @@ body {
   transition: background-color 0.2s;
 }
 .multi-choice-submit-button.enabled { 
-  background-color: var(--primary); 
+  background-color: var(--primary-color); 
   cursor: pointer; 
 }
 .multi-choice-submit-button.enabled:hover { 
@@ -358,7 +359,7 @@ body {
 
 
 .final-consent-submit-button {
-  background-color: var(--primary); 
+  background-color: var(--primary-color); 
   color: var(--text-color-light);
   border-color: var(--primary-dark); 
   max-width: 480px;
@@ -369,7 +370,7 @@ body {
   background-color: var(--primary-dark); 
 }
 .final-consent-submit-button:not(:disabled).enabled {
-    background-color: var(--primary); 
+    background-color: var(--primary-color); 
     cursor: pointer; 
 }
 .final-consent-submit-button:not(:disabled).enabled:hover {
@@ -454,7 +455,7 @@ body {
   border-color: #a0a0a0; 
 }
 .paired-input-row input:focus {
-  border-color: var(--primary) !important; 
+  border-color: var(--primary-color) !important; 
   box-shadow: 0 0 0 2px rgba(0, 116, 138, 0.2) !important; 
 }
 .input-area button,
@@ -479,7 +480,7 @@ body {
 }
 .input-area button.enabled,
 .paired-input-row .paired-input-send-button.enabled { 
-  background-color: var(--primary) !important; 
+  background-color: var(--primary-color) !important; 
   cursor: pointer; 
 }
 .input-area button.enabled:hover,
@@ -528,8 +529,8 @@ body {
 }
 .time-table-nav {
   background: none;
-  border: 1px solid var(--primary);
-  color: var(--primary);
+  border: 1px solid var(--primary-color);
+  color: var(--primary-color);
   cursor: pointer;
   width: 25px;
   height: 25px;
@@ -540,7 +541,7 @@ body {
   justify-content: center;
 }
 .time-table-nav:hover:not(:disabled) {
-  background-color: var(--primary);
+  background-color: var(--primary-color);
   color: var(--text-color-light);
 }
 .time-table-nav:disabled {
@@ -577,7 +578,7 @@ body {
 }
 .time-slot-cell {
   border: 1px solid #eee;
-  color: var(--primary);
+  color: var(--choice-button-text);
   padding: 8px 0;
   cursor: pointer;
   transition: background-color 0.2s, color 0.2s;
@@ -594,7 +595,7 @@ body {
     background-color: var(--choice-button-hover-bg);
 }
 .time-slot-cell.selected {
-    background-color: var(--primary);
+    background-color: var(--primary-color);
     color: var(--text-color-light);
     font-weight: bold;
 }
@@ -619,7 +620,7 @@ body {
   transition: background-color 0.2s;
 }
 .time-table-submit-button.enabled {
-  background-color: var(--primary);
+  background-color: var(--primary-color);
   cursor: pointer;
 }
 .time-table-submit-button.enabled:hover {
@@ -647,7 +648,7 @@ body {
 .summary-area-wrapper h3 {
   font-size: 1em;
   font-weight: 500;
-  color: var(--primary);
+  color: var(--primary-color);
   margin: 0 0 10px 0;
 }
 .summary-area-wrapper ul {
@@ -736,7 +737,7 @@ body {
   font-weight: bold;
   margin-top: 1.5em;
   margin-bottom: 0.8em;
-  border-left: 4px solid var(--primary);
+  border-left: 4px solid var(--primary-color);
   padding-left: 8px;
 }
 #modalBody p, #modalBody ul {
