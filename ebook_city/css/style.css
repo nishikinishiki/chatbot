@@ -4,22 +4,22 @@
    =============================================================== */
 :root {
   /* --- カラーパレット --- */
-  --primary-color: #00748A;
+  --primary-color: #03708F;
   --primary-dark: #005f70;
-  --primary-gradient-start: #61b265;
-  --primary-gradient-end: #007f87;
-  --secondary-color: #00848C; /* ★ 選択肢の背景色にこれを使用 */
+  --primary-gradient-start: #6BB9B0;
+  --primary-gradient-end: #03708F;
+  --secondary-color: #03708F;
   --body-bg: #8297ac;
   --chat-container-bg: #ffffff;
-  --chat-messages-bg: #efede0;
+  --chat-messages-bg: #F9F9F9;
   --bot-message-bg: #ffffff;
   --user-message-bg: var(--secondary-color);
   --text-color-light: #ffffff;
   --text-color-dark: #212121;
   --text-color-medium: #555;
   --text-color-default: #111111;
-  --choice-button-text: #007387;
-  --choice-button-border: #007387;
+  --choice-button-text: #03708F;
+  --choice-button-border: #03708F;
   --choice-button-bg: #ffffff;
   --choice-button-hover-bg: #e5f1f4;
   --disabled-bg: #f0f0f0;
