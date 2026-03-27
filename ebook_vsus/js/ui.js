@@ -606,12 +606,30 @@ function hideModal() {
     dom.giftTermsModal.classList.remove('show'); 
 }
 
-function displayBannerImage(url) {
+function displayBannerImage(url, giftConfig = null) {
     const wrapper = document.createElement('div');
     wrapper.className = 'banner-image-wrapper';
+
+    // 1. 画像を作成
     const img = document.createElement('img');
-    img.src = url; img.className = 'chat-banner-image';
-    img.onerror = () => wrapper.remove();
+    img.src = url;
+    img.className = 'chat-banner-image';
+    img.onerror = () => wrapper.remove(); // 画像がない場合は箱ごと消す
     wrapper.appendChild(img);
+
+    // 2. 規約データがあればリンクを作成
+    if (giftConfig) {
+        const link = document.createElement('a');
+        link.className = 'banner-gift-link';
+        link.textContent = giftConfig.text;
+        // サマリーエリアと同じモーダル表示機能を紐付け
+        link.onclick = (e) => {
+            e.preventDefault();
+            showModal(giftConfig.title, giftConfig.content);
+        };
+        wrapper.appendChild(link);
+    }
+
+    // チャットの一番上に追加
     dom.chatMessages.prepend(wrapper);
 }

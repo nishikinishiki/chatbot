@@ -125,8 +125,17 @@ async function initializeChat() {
             faviconLink.rel = 'icon'; faviconLink.href = FAVICON_URL;
             document.head.appendChild(faviconLink);
         }
-        if (typeof BANNER_IMAGE_URL !== 'undefined' && BANNER_IMAGE_URL) displayBannerImage(BANNER_IMAGE_URL);
+        if (typeof BANNER_IMAGE_URL !== 'undefined' && BANNER_IMAGE_URL) {
+        // 最終確認の質問データ(final_consent)から規約の内容を抽出
+        const q = initialQuestions.find(q => q.id === 'final_consent');
+        const giftConfig = q ? {
+            text: q.gift_terms_link_text,
+            title: q.gift_terms_popup_title,
+            content: q.gift_terms_popup_content
+        } : null;
 
+        displayBannerImage(BANNER_IMAGE_URL, giftConfig);
+    }
         state.isRestoring = true;
         
         // 挿入位置の特定（最後のユーザー発言の直後）

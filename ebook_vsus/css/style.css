@@ -141,16 +141,31 @@ body {
    3. Component: Banner
    バナー画像
    =============================================================== */
+/* バナーとリンクを包む箱 */
 .banner-image-wrapper {
-  margin-bottom: 5px;
+  width: 100%;
+  text-align: right; /* 中身（リンク）を右に寄せる */
+  margin-bottom: 10px;
 }
 
 .chat-banner-image {
   width: 100%;
   height: auto;
   display: block;
-  border-radius: 0;
-  box-shadow: var(--shadow-sm); /* 階層1: バナー */
+  margin-bottom: 5px; /* 画像とリンクの間の隙間 */
+  box-shadow: var(--shadow-sm);
+}
+
+/* 規約リンク（サマリーエリアのリンクと同じような見た目にする） */
+.banner-gift-link {
+  font-size: 0.75em;
+  color: var(--link-color);
+  text-decoration: underline;
+  cursor: pointer;
+  padding: 0 5px;
+}
+.banner-gift-link:hover {
+  color: var(--link-hover-color);
 }
 
 /* ===============================================================
