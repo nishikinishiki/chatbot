@@ -12,41 +12,8 @@ const state = {
     utmParameters: {},
     completedEffectiveQuestions: 0,
     questions: [],
-    gaStepCounter: 0, // GAイベント用のステップカウンターを追加
-    isTestMode: false, // ★★★ テストモードの状態を管理する変数を追加 ★★★
+    gaStepCounter: 0 // GAイベント用のステップカウンターを追加
 };
-
-// --- ログ送信 ---
-/**
- * 回答データをログ用スプレッドシートに送信する関数
- * @param {object} question
- * @param {string} answerValue
- */
-function sendAnswerToLog(question, answerValue) {
-    if (!GAS_LOG_APP_URL || GAS_LOG_APP_URL === 'ここに新しく取得したログ用GASのURLを貼り付け') {
-        return; // ログ用URLが設定されていない場合は何もしない
-    }
-
-    const payload = {
-        sessionId: state.currentSessionId,
-        questionId: question.id.toString(),
-        answerValue: answerValue,
-        is_test: state.isTestMode,
-        form_variant: window.location.pathname
-    };
-
-    // 'no-cors'モードでエラーをコンソールに出さないように送信
-    fetch(GAS_LOG_APP_URL, {
-        method: 'POST',
-        mode: 'no-cors',
-        cache: 'no-cache',
-        headers: { 'Content-Type': 'text/plain;charset=utf-8' },
-        body: JSON.stringify(payload)
-    }).catch(error => {
-        // 意図的にエラーを無視する（バックグラウンドでの軽量なログ送信のため）
-    });
-}
-
 
 // --- GAイベント送信 ---
 /**
@@ -55,12 +22,6 @@ function sendAnswerToLog(question, answerValue) {
  * @param {string} answerValue
  */
 function sendGaEvent(question, answerValue) {
-    // ★★★ テストモードの場合はGAイベントを送信しない ★★★
-    if (state.isTestMode) {
-        console.log("Test mode is active. GA event was not sent.");
-        return;
-    }
-    
     if (!window.dataLayer) {
         console.warn("dataLayer is not available. GA event was not sent.");
         return;
@@ -80,7 +41,6 @@ function sendGaEvent(question, answerValue) {
     window.dataLayer.push(eventData);
     console.log("GA Event Sent:", eventData);
 }
-
 
 // --- 初期化 ---
 document.addEventListener('DOMContentLoaded', initializeChat);
@@ -104,11 +64,6 @@ async function initializeChat() {
     });
 
     const urlParams = new URLSearchParams(window.location.search);
-    
-    state.isTestMode = urlParams.get('test_mode') === 'true';
-    if (state.isTestMode) {
-        console.log("Test mode is active. Data will not be saved to spreadsheets.");
-    }
     
     getUtmParameters(urlParams);
     state.currentFlow = 'initial';
@@ -175,7 +130,6 @@ async function askQuestion() {
                 if (container) disableInputs(container);
                 state.userResponses[currentQuestion.key] = true;
                 sendGaEvent(currentQuestion, 'true');
-                sendAnswerToLog(currentQuestion, 'true');
                 submitDataToGAS(state.userResponses, false);
              });
             break;
@@ -213,49 +167,41 @@ function proceedToNextStep() {
     setTimeout(askQuestion, 150);
 }
 
-function handleSingleChoice(question, selection, container) {
-    const value = selection.value;
-    const label = selection.label;
-
-    if (!question.validation(value)) {
-        addBotMessage(question.errorMessage, false, true);
-        return;
-    }
+// ==========================================
+// 回答の保存と画面遷移を行う共通関数
+// ==========================================
+function saveAndProceed(question, saveValue, displayLabel, container, gaValue = saveValue) {
     if (container) disableInputs(container);
     
-    const userMessageLabel = label.replace(/<br>/g, ' ');
-    addUserMessage(userMessageLabel);
+    // ユーザーの回答をチャットに表示
+    addUserMessage(displayLabel);
     
+    // 状態（state）に保存
     const responseSet = (state.currentFlow === 'initial') ? state.userResponses : state.additionalUserResponses;
-    responseSet[question.key] = value;
+    responseSet[question.key] = saveValue;
     
-    sendGaEvent(question, value);
-    sendAnswerToLog(question, value);
+    // GAイベント送信と次への進行
+    sendGaEvent(question, gaValue);
     proceedToNextStep();
 }
 
-function handleMultiChoice(question, selections, container) {
-    const values = selections.values;
-    const labels = selections.labels;
-
-    // バリデーション (配列を渡す)
-    if (!question.validation(values)) {
+function handleSingleChoice(question, selection, container) {
+    if (!question.validation(selection.value)) {
         addBotMessage(question.errorMessage, false, true);
         return;
     }
-    if (container) disableInputs(container);
-    
-    const userMessageLabel = labels.join('、 ');
-    addUserMessage(userMessageLabel);
-    
-    const responseValue = values.join(';');
-    
-    const responseSet = (state.currentFlow === 'initial') ? state.userResponses : state.additionalUserResponses;
-    responseSet[question.key] = responseValue;
-    
-    sendGaEvent(question, responseValue);
-    sendAnswerToLog(question, responseValue);
-    proceedToNextStep();
+    const displayLabel = selection.label.replace(/<br>/g, ' ');
+    saveAndProceed(question, selection.value, displayLabel, container);
+}
+
+function handleMultiChoice(question, selections, container) {
+    if (!question.validation(selections.values)) {
+        addBotMessage(question.errorMessage, false, true);
+        return;
+    }
+    const responseValue = selections.values.join(';');
+    const displayLabel = selections.labels.join('、 ');
+    saveAndProceed(question, responseValue, displayLabel, container);
 }
 
 function handleTextInput(question, value, container) {
@@ -264,20 +210,13 @@ function handleTextInput(question, value, container) {
         addBotMessage(question.errorMessage, false, true);
         return;
     }
-    if (container) disableInputs(container);
-    addUserMessage(trimmedValue);
-    const responseSet = (state.currentFlow === 'initial') ? state.userResponses : state.additionalUserResponses;
-    responseSet[question.key] = trimmedValue;
-
-    sendAnswerToLog(question, trimmedValue);
     
     let gaAnswerValue = trimmedValue;
     if (question.type === 'email' || question.type === 'tel') {
-        gaAnswerValue = '[REDACTED]';
+        gaAnswerValue = '[REDACTED]'; // 個人情報はGAに送らない
     }
-    sendGaEvent(question, gaAnswerValue);
-
-    proceedToNextStep();
+    
+    saveAndProceed(question, trimmedValue, trimmedValue, container, gaAnswerValue);
 }
 
 async function handlePairedQuestion(question) {
@@ -299,7 +238,6 @@ async function handlePairedQuestion(question) {
         const userMessageText = values.join(' ');
         addUserMessage(userMessageText);
         
-        sendAnswerToLog(question, userMessageText);
         sendGaEvent(question, '[REDACTED]');
 
         state.currentStep++;
@@ -327,7 +265,6 @@ function handleTimeTableInput(question, value, container) {
     sendGaEvent(question);
     proceedToNextStep();
 }
-
 
 function calculateProgress() {
     const questionsArray = (state.currentFlow === 'initial') ? initialQuestions : additionalQuestions;
@@ -377,7 +314,6 @@ async function submitDataToGAS(dataToSend, isAdditional) {
     if (isAdditional) {
         payload.isAdditionalData = true;
     }
-    payload.is_test = state.isTestMode; 
 
     try {
         await fetch(GAS_WEB_APP_URL, {
@@ -391,7 +327,7 @@ async function submitDataToGAS(dataToSend, isAdditional) {
         hideLoadingMessage();
         
         if (!isAdditional) {
-            if (window.dataLayer && !state.isTestMode) { 
+            if (window.dataLayer) { 
                 const email = state.userResponses.email_address;
                 const phoneNumber = state.userResponses.phone_number;
                 const lastName = state.userResponses.last_name;
@@ -435,7 +371,7 @@ async function submitDataToGAS(dataToSend, isAdditional) {
 
         } else {
             await addBotMessage("全ての情報を承りました。ご回答ありがとうございました！<br>後ほど担当よりご連絡いたします。", true);
-            await addBotMessage("お問い合わせはお電話でも受け付けております。<br>電話番号：<a href='tel:0120147104'>0120147-104</a><br>営業時間：10:00～22:00（お盆・年末年始除く）", true);
+            await addBotMessage("お問い合わせはお電話でも受け付けております。<br>電話番号：<a href='tel:0120147104'>0120-147-104</a><br>営業時間：10:00～22:00（お盆・年末年始除く）", true);
         }
 
     } catch (error) {

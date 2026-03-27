@@ -102,6 +102,15 @@ const initialQuestions = [
   }
 ];
 
+const TIME_SLOTS = [
+    { label: "10:00~", value: "10：00～12：00" },
+    { label: "12:00~", value: "12：00～14：00" },
+    { label: "14:00~", value: "14：00～16：00" },
+    { label: "16:00~", value: "16：00～18：00" },
+    { label: "18:00~", value: "18：00～20：00" },
+    { label: "20:00~", value: "20：00 以降" },
+    { label: "その他", value: "その他の時間" }
+];
 const additionalQuestions = [
     {
         id: 'first_choice_date',
@@ -112,15 +121,7 @@ const additionalQuestions = [
         isHtmlQuestion: true,
         answer_method: "time-table",
         keys: { date: 'first_choice_date', time: 'first_choice_time' },
-        timeSlots: [
-            { label: "10:00~", value: "10：00～12：00" },
-            { label: "12:00~", value: "12：00～14：00" },
-            { label: "14:00~", value: "14：00～16：00" },
-            { label: "16:00~", value: "16：00～18：00" },
-            { label: "18:00~", value: "18：00～20：00" },
-            { label: "20:00~", value: "20：00 以降" },
-            { label: "その他", value: "その他の時間" }
-        ],
+        timeSlots: TIME_SLOTS,
         validation: (v) => !!v,
         errorMessage: "ご希望の日時を選択してください。"
     },
@@ -145,15 +146,7 @@ const additionalQuestions = [
         isHtmlQuestion: true,
         answer_method: "time-table",
         keys: { date: 'second_choice_date', time: 'second_choice_time' },
-        timeSlots: [
-            { label: "10:00~", value: "10：00～12：00" },
-            { label: "12:00~", value: "12：00～14：00" },
-            { label: "14:00~", value: "14：00～16：00" },
-            { label: "16:00~", value: "16：00～18：00" },
-            { label: "18:00~", value: "18：00～20：00" },
-            { label: "20:00~", value: "20：00 以降" },
-            { label: "その他", value: "その他の時間" }
-        ],
+        timeSlots: TIME_SLOTS,
         validation: (v) => !!v,
         errorMessage: "ご希望の日時を選択してください。"
     },
@@ -186,7 +179,6 @@ const additionalQuestions = [
         { label: "その他", value: "その他" }
       ], 
       key: "referral_source", 
-      // 選択された配列の長さが0より大きいことを検証
       validation: (v) => Array.isArray(v) && v.length > 0, 
       errorMessage: "少なくとも1つ選択してください。" 
     }
