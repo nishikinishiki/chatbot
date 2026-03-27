@@ -1,5 +1,28 @@
-// js/questions.js
-// 質問の定義データ
+// --- システムメッセージ定義 ---
+const SYSTEM_MESSAGES = {
+    // ウェルカムメッセージ
+    welcome: [
+        { text: "JPリターンズにご興味を持っていただきありがとうございます！<br>30秒程度の簡単な質問をさせてください。", isHtml: true }
+        // メッセージを増やしたい場合は、以下のように追加できます。
+        // , { text: "2つ目の吹き出しです。", isHtml: false }
+        // , { text: "3つ目の吹き出しです。", isHtml: false }
+    ],
+    // 前半フロー完了メッセージ
+    initial_complete: [
+        { text: "送信が完了しました。<br>お問い合わせいただきありがとうございました！", isHtml: true },
+        { text: "デジタル書籍は下記から閲覧できます！", isHtml: false },
+        { text: "デジタル書籍を閲覧する", isHtml: false, isEbookBtn: true }
+    ],
+    // 全フロー完了メッセージ
+    final_complete: [
+        { text: "全ての情報を承りました。ご回答ありがとうございました！<br>後ほど担当よりご連絡いたします。", isHtml: true },
+        { text: "お問い合わせはお電話でも受け付けております。<br>電話番号：<a href='tel:0120147104'>0120-147-104</a><br>営業時間：10:00～22:00（お盆・年末年始除く）", isHtml: true }
+    ],
+    // エラーメッセージ
+    error: [
+        { text: "エラーが発生し、データを送信できませんでした。お手数ですが、時間をおいて再度お試しください。", isHtml: false, isError: true }
+    ]
+};
 
 const katakanaRegex = /^[ァ-ヶー　]+$/;
 
@@ -102,6 +125,15 @@ const initialQuestions = [
   }
 ];
 
+const TIME_SLOTS = [
+    { label: "10:00~", value: "10：00～12：00" },
+    { label: "12:00~", value: "12：00～14：00" },
+    { label: "14:00~", value: "14：00～16：00" },
+    { label: "16:00~", value: "16：00～18：00" },
+    { label: "18:00~", value: "18：00～20：00" },
+    { label: "20:00~", value: "20：00 以降" },
+    { label: "その他", value: "その他の時間" }
+];
 const additionalQuestions = [
     {
         id: 'first_choice_date',
@@ -112,15 +144,7 @@ const additionalQuestions = [
         isHtmlQuestion: true,
         answer_method: "time-table",
         keys: { date: 'first_choice_date', time: 'first_choice_time' },
-        timeSlots: [
-            { label: "10:00~", value: "10：00～12：00" },
-            { label: "12:00~", value: "12：00～14：00" },
-            { label: "14:00~", value: "14：00～16：00" },
-            { label: "16:00~", value: "16：00～18：00" },
-            { label: "18:00~", value: "18：00～20：00" },
-            { label: "20:00~", value: "20：00 以降" },
-            { label: "その他", value: "その他の時間" }
-        ],
+        timeSlots: TIME_SLOTS,
         validation: (v) => !!v,
         errorMessage: "ご希望の日時を選択してください。"
     },
@@ -145,15 +169,7 @@ const additionalQuestions = [
         isHtmlQuestion: true,
         answer_method: "time-table",
         keys: { date: 'second_choice_date', time: 'second_choice_time' },
-        timeSlots: [
-            { label: "10:00~", value: "10：00～12：00" },
-            { label: "12:00~", value: "12：00～14：00" },
-            { label: "14:00~", value: "14：00～16：00" },
-            { label: "16:00~", value: "16：00～18：00" },
-            { label: "18:00~", value: "18：00～20：00" },
-            { label: "20:00~", value: "20：00 以降" },
-            { label: "その他", value: "その他の時間" }
-        ],
+        timeSlots: TIME_SLOTS,
         validation: (v) => !!v,
         errorMessage: "ご希望の日時を選択してください。"
     },
@@ -186,7 +202,6 @@ const additionalQuestions = [
         { label: "その他", value: "その他" }
       ], 
       key: "referral_source", 
-      // 選択された配列の長さが0より大きいことを検証
       validation: (v) => Array.isArray(v) && v.length > 0, 
       errorMessage: "少なくとも1つ選択してください。" 
     }

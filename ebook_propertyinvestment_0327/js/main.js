@@ -12,7 +12,8 @@ const state = {
     utmParameters: {},
     completedEffectiveQuestions: 0,
     questions: [],
-    gaStepCounter: 0 // GAイベント用のステップカウンターを追加
+    gaStepCounter: 0, // GAイベント用のステップカウンターを追加
+    isTestMode: false, // ★★★ テストモードの状態を管理する変数を追加 ★★★
 };
 
 // --- GAイベント送信 ---
@@ -22,6 +23,12 @@ const state = {
  * @param {string} answerValue
  */
 function sendGaEvent(question, answerValue) {
+    // ★★★ テストモードの場合はGAイベントを送信しない ★★★
+    if (state.isTestMode) {
+        console.log("Test mode is active. GA event was not sent.");
+        return;
+    }
+    
     if (!window.dataLayer) {
         console.warn("dataLayer is not available. GA event was not sent.");
         return;
@@ -41,6 +48,7 @@ function sendGaEvent(question, answerValue) {
     window.dataLayer.push(eventData);
     console.log("GA Event Sent:", eventData);
 }
+
 
 // --- 初期化 ---
 document.addEventListener('DOMContentLoaded', initializeChat);
@@ -64,6 +72,11 @@ async function initializeChat() {
     });
 
     const urlParams = new URLSearchParams(window.location.search);
+    
+    state.isTestMode = urlParams.get('test_mode') === 'true';
+    if (state.isTestMode) {
+        console.log("Test mode is active. Data will not be saved to spreadsheets.");
+    }
     
     getUtmParameters(urlParams);
     state.currentFlow = 'initial';
@@ -167,41 +180,47 @@ function proceedToNextStep() {
     setTimeout(askQuestion, 150);
 }
 
-// ==========================================
-// 回答の保存と画面遷移を行う共通関数
-// ==========================================
-function saveAndProceed(question, saveValue, displayLabel, container, gaValue = saveValue) {
+function handleSingleChoice(question, selection, container) {
+    const value = selection.value;
+    const label = selection.label;
+
+    if (!question.validation(value)) {
+        addBotMessage(question.errorMessage, false, true);
+        return;
+    }
     if (container) disableInputs(container);
     
-    // ユーザーの回答をチャットに表示
-    addUserMessage(displayLabel);
+    const userMessageLabel = label.replace(/<br>/g, ' ');
+    addUserMessage(userMessageLabel);
     
-    // 状態（state）に保存
     const responseSet = (state.currentFlow === 'initial') ? state.userResponses : state.additionalUserResponses;
-    responseSet[question.key] = saveValue;
+    responseSet[question.key] = value;
     
-    // GAイベント送信と次への進行
-    sendGaEvent(question, gaValue);
+    sendGaEvent(question, value);
     proceedToNextStep();
 }
 
-function handleSingleChoice(question, selection, container) {
-    if (!question.validation(selection.value)) {
-        addBotMessage(question.errorMessage, false, true);
-        return;
-    }
-    const displayLabel = selection.label.replace(/<br>/g, ' ');
-    saveAndProceed(question, selection.value, displayLabel, container);
-}
-
 function handleMultiChoice(question, selections, container) {
-    if (!question.validation(selections.values)) {
+    const values = selections.values;
+    const labels = selections.labels;
+
+    // バリデーション (配列を渡す)
+    if (!question.validation(values)) {
         addBotMessage(question.errorMessage, false, true);
         return;
     }
-    const responseValue = selections.values.join(';');
-    const displayLabel = selections.labels.join('、 ');
-    saveAndProceed(question, responseValue, displayLabel, container);
+    if (container) disableInputs(container);
+    
+    const userMessageLabel = labels.join('、 ');
+    addUserMessage(userMessageLabel);
+    
+    const responseValue = values.join(';');
+    
+    const responseSet = (state.currentFlow === 'initial') ? state.userResponses : state.additionalUserResponses;
+    responseSet[question.key] = responseValue;
+    
+    sendGaEvent(question, responseValue);
+    proceedToNextStep();
 }
 
 function handleTextInput(question, value, container) {
@@ -210,13 +229,18 @@ function handleTextInput(question, value, container) {
         addBotMessage(question.errorMessage, false, true);
         return;
     }
+    if (container) disableInputs(container);
+    addUserMessage(trimmedValue);
+    const responseSet = (state.currentFlow === 'initial') ? state.userResponses : state.additionalUserResponses;
+    responseSet[question.key] = trimmedValue;
     
     let gaAnswerValue = trimmedValue;
     if (question.type === 'email' || question.type === 'tel') {
-        gaAnswerValue = '[REDACTED]'; // 個人情報はGAに送らない
+        gaAnswerValue = '[REDACTED]';
     }
-    
-    saveAndProceed(question, trimmedValue, trimmedValue, container, gaAnswerValue);
+    sendGaEvent(question, gaAnswerValue);
+
+    proceedToNextStep();
 }
 
 async function handlePairedQuestion(question) {
@@ -266,6 +290,7 @@ function handleTimeTableInput(question, value, container) {
     proceedToNextStep();
 }
 
+
 function calculateProgress() {
     const questionsArray = (state.currentFlow === 'initial') ? initialQuestions : additionalQuestions;
     const responseSet = (state.currentFlow === 'initial') ? state.userResponses : state.additionalUserResponses;
@@ -314,6 +339,7 @@ async function submitDataToGAS(dataToSend, isAdditional) {
     if (isAdditional) {
         payload.isAdditionalData = true;
     }
+    payload.is_test = state.isTestMode; 
 
     try {
         await fetch(GAS_WEB_APP_URL, {
@@ -327,7 +353,7 @@ async function submitDataToGAS(dataToSend, isAdditional) {
         hideLoadingMessage();
         
         if (!isAdditional) {
-            if (window.dataLayer) { 
+            if (window.dataLayer && !state.isTestMode) { 
                 const email = state.userResponses.email_address;
                 const phoneNumber = state.userResponses.phone_number;
                 const lastName = state.userResponses.last_name;
@@ -371,7 +397,7 @@ async function submitDataToGAS(dataToSend, isAdditional) {
 
         } else {
             await addBotMessage("全ての情報を承りました。ご回答ありがとうございました！<br>後ほど担当よりご連絡いたします。", true);
-            await addBotMessage("お問い合わせはお電話でも受け付けております。<br>電話番号：<a href='tel:0120147104'>0120-147-104</a><br>営業時間：10:00～22:00（お盆・年末年始除く）", true);
+            await addBotMessage("お問い合わせはお電話でも受け付けております。<br>電話番号：<a href='tel:0120147104'>0120147-104</a><br>営業時間：10:00～22:00（お盆・年末年始除く）", true);
         }
 
     } catch (error) {

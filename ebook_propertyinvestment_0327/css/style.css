@@ -4,13 +4,13 @@
    =============================================================== */
 :root {
   /* --- カラーパレット --- */
-  --primary: rgb(62,183,165);
-  --primary-dark: rgb(50, 153, 138);
-  --primary-light: rgb(0, 132, 140);
-  --primary-gradient-start: #ffffff;
+  --primary: #00748A;
+  --primary-dark: #005f70;
+  --primary-light: #00848C;  
+  --primary-gradient-start: #61b265;
   --sub: #ffffff;
   --body-bg: #f8f8f8;
-  --chat-messages-bg: #fff;  
+  --chat-messages-bg: #efede0;  
   --text-color: #212121;
   --text-color-medium: #555;
   --choice-button-hover-bg: #e5f1f4;
@@ -20,17 +20,11 @@
   --error-color: red;
   --link-color: #007bff;
   --link-hover-color: #0056b3;
-  --black:rgb(51,51,51);
-  --grey:rgb(179,179,179);
-  --grey-2:rgb(242,242,242);
-  --green:rgb(62,183,165);
-  --green-dark:rgb(50, 153, 138);
-  --background: #f6f4ea;
 
   --chat-container-bg:  var(--sub);
-  --primary-gradient-end: var(--primary-gradient-start);
-  --bot-message-bg:  var(--grey-2);
-  --user-message-bg: var(--green);
+  --primary-gradient-end: var(--primary);
+  --bot-message-bg:  var(--sub);
+  --user-message-bg: var(--primary);
   --text-color-light:  var(--sub);
   --choice-button-bg:  var(--sub);
   --icon-placeholder-bg:  var(--sub);  
@@ -52,7 +46,7 @@ html, body {
 }
 
 body {
-  background-color: var(--background);
+  background-color: var(--body-bg);
   display: flex;
   justify-content: center;
   align-items: center;
@@ -84,7 +78,7 @@ body {
 
 .chat-header {
   background: linear-gradient(135deg, var(--primary-gradient-start) 0%, var(--primary-gradient-end) 60%);
-  color: var(--black);
+  color: var(--text-color-light);
   padding: 10px 16px;
   padding-top: calc(10px + env(safe-area-inset-top));
   text-align: center;
@@ -102,14 +96,14 @@ body {
 .progress-bar-container {
   width: 100%; 
   height: 8px;
-  background-color: var(--grey);
+  background-color: var(--primary-dark);
   border-radius: 4px;
   overflow: hidden;
 }
 .progress-bar {
   width: 0%;
   height: 100%;
-  background-color: var(--black);
+  background-color: var(--sub);
   border-radius: 4px;
   transition: width 0.3s ease-in-out;
 }
@@ -249,7 +243,7 @@ body {
   box-sizing: border-box;
 }
 .input-container-wrapper.inputs-disabled {
-  opacity: 0.5;
+  opacity: 0.6;
   pointer-events: none;
 }
 
@@ -264,8 +258,8 @@ body {
 
 .choice-button {
   background-color: var(--choice-button-bg);
-  border: 1px solid var(--green);
-  color: var(--black);
+  border: 1px solid var(--primary);
+  color: var(--primary);
   padding: 12px 6px;
   font-size: 0.8em;
   border-radius: 20px;
@@ -320,7 +314,7 @@ body {
 
 
 .multi-choice-inner-wrapper {
-  background-color: var(--sub); 
+  background-color: var(--bot-message-bg); 
   border-radius: 8px; 
   padding: 15px; 
   width: 100%;
@@ -364,9 +358,9 @@ body {
 
 
 .final-consent-submit-button {
-  background-color: var(--green); 
+  background-color: var(--primary); 
   color: var(--text-color-light);
-  border-color: var(--green-dark); 
+  border-color: var(--primary-dark); 
   max-width: 480px;
   padding: 12px;
   font-size: 1em;
@@ -401,9 +395,9 @@ body {
   display: flex;
   width: 100%; 
   max-width: 480px;
-  background-color: var(--sub);
+  background-color: var(--bot-message-bg);
   border-radius: 30px;
-  box-shadow: 0 1px 5px rgba(0,0,0,0.25);
+  box-shadow: 0 1px 2px rgba(0,0,0,0.15);
   padding: 15px;
 }
 .paired-input-container {
@@ -417,7 +411,7 @@ body {
 .paired-input-row {
   display: flex;
   align-items: center;
-  gap: 6px;
+  gap: 8px;
 }
 .paired-input-row label {
   font-size: 0.9em;
@@ -434,6 +428,8 @@ body {
   margin: 0 8px 0 5px;
 }
 .input-icon-container svg {
+  width: 20px; 
+  height: 20px;
   stroke: var(--text-color-medium); 
 }
 .input-area input,
@@ -451,14 +447,14 @@ body {
   border: 1px solid #ccc;
   border-radius: 15px;
   font-size: 1em;
-  background-color: var(--sub);
+  background-color: var(--bot-message-bg);
   transition: border-color 0.2s, box-shadow 0.2s;
 }
 .paired-input-row input:hover {
   border-color: #a0a0a0; 
 }
 .paired-input-row input:focus {
-  border-color: var(--green) !important; 
+  border-color: var(--primary) !important; 
   box-shadow: 0 0 0 2px rgba(0, 116, 138, 0.2) !important; 
 }
 .input-area button,
@@ -477,14 +473,18 @@ body {
   transition: background-color 0.2s; 
   flex-shrink: 0;
 }
+.paired-input-row .paired-input-send-button {
+  width: 40px;
+  height: 40px;
+}
 .input-area button.enabled,
 .paired-input-row .paired-input-send-button.enabled { 
-  background-color: var(--green) !important; 
+  background-color: var(--primary) !important; 
   cursor: pointer; 
 }
 .input-area button.enabled:hover,
 .paired-input-row .paired-input-send-button.enabled:hover { 
-  background-color: var(--green-dark) !important; 
+  background-color: var(--primary-dark) !important; 
 }
 .input-area button svg { 
   width: 18px; 
@@ -502,7 +502,7 @@ body {
 
 /* --- 5c. Time Table (タイムテーブル) --- */
 .time-table-container {
-  background-color: var(--sub);
+  background-color: var(--bot-message-bg);
   border-radius: 8px;
   padding: 15px;
   width: 100%;
@@ -619,11 +619,11 @@ body {
   transition: background-color 0.2s;
 }
 .time-table-submit-button.enabled {
-  background-color: var(--green);
+  background-color: var(--primary);
   cursor: pointer;
 }
 .time-table-submit-button.enabled:hover {
-  background-color: var(--green-dark);
+  background-color: var(--primary-dark);
 }
 .time-table-submit-button svg {
   width: 20px;
@@ -636,7 +636,7 @@ body {
    最終確認画面と同意文
    =============================================================== */
 .summary-area-wrapper {
-  background-color: var(--sub);
+  background-color: var(--bot-message-bg);
   border-radius: 20px; 
   padding: 15px;
   overflow-y: auto;
@@ -647,7 +647,7 @@ body {
 .summary-area-wrapper h3 {
   font-size: 1em;
   font-weight: 500;
-  color: var(--green);
+  color: var(--primary);
   margin: 0 0 10px 0;
 }
 .summary-area-wrapper ul {
