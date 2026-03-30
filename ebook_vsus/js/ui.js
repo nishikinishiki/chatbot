@@ -501,6 +501,25 @@ function displayTimeTable(question, onSubmit) {
     mountInputWrapper(wrapper);
 }
 
+// 最終確認画面
+function displayFinalConsentScreen(question, userResponses, initialQuestions, onSubmit) {
+    displaySummaryArea(userResponses, initialQuestions);
+    
+    const consentText = document.createElement('div');
+    consentText.className = 'summary-adjacent-consent-text';
+    consentText.innerHTML = `<a href="${question.privacy_policy_url}" target="_blank">${question.privacy_policy_link_text}</a>に同意する。`;
+    dom.chatMessages.appendChild(consentText);
+
+    const wrapper = createInputWrapper();
+    const btn = document.createElement('button');
+    btn.className = 'choice-button final-consent-submit-button';
+    btn.innerHTML = `<span>${question.submit_button_text}</span>${ICONS.SEND}`;
+    btn.onclick = () => { btn.disabled = true; onSubmit(wrapper); };
+    
+    wrapper.appendChild(btn);
+    mountInputWrapper(wrapper);
+}
+
 // 入力サマリー表示
 function displaySummaryArea(responses, questions) {
     const wrapper = createMessageWrapper('bot');
@@ -582,60 +601,31 @@ function hideModal() {
     dom.giftTermsModal.classList.remove('show'); 
 }
 
-// バナー表示関数
-function displayBannerImage(url, giftConfig = null) {
+function displayBannerImage(url) {
+    // 1つのラッパー（箱）だけを用意する
     const wrapper = document.createElement('div');
     wrapper.className = 'banner-image-wrapper';
 
-    // 1. 画像を作成
     const img = document.createElement('img');
-    img.src = url;
+    img.src = url; 
     img.className = 'chat-banner-image';
+    
+    // 画像エラー時は、この箱ごと（テキストも含めて）削除する
     img.onerror = () => wrapper.remove();
     wrapper.appendChild(img);
 
-    // 2. 規約データがあれば「進呈条件はこちら」を生成
-    if (giftConfig) {
-        const linkContainer = document.createElement('div');
-        linkContainer.className = 'banner-gift-link-container';
+    // 同じ箱の中に、画像に続けてリンクテキストを追加する
+    if (typeof GIFT_TERMS_CONFIG !== 'undefined') {
+        const termsText = document.createElement('div');
+        termsText.className = 'banner-gift-terms-link';
+        termsText.innerHTML = `${GIFT_TERMS_CONFIG.link_text_prefix}<a href="#" id="bannerGiftLink">${GIFT_TERMS_CONFIG.link_text_clickable}</a>`;
         
-        // テキスト部分
-        const label = document.createElement('span');
-        label.textContent = '※進呈条件は';
-        linkContainer.appendChild(label);
-
-        // リンク部分
-        const link = document.createElement('a');
-        link.className = 'banner-gift-link';
-        link.textContent = giftConfig.text; // 「こちら」が入る
-        link.onclick = (e) => {
+        termsText.querySelector('#bannerGiftLink').onclick = (e) => {
             e.preventDefault();
-            showModal(giftConfig.title, giftConfig.content);
+            showModal(GIFT_TERMS_CONFIG.popup_title, GIFT_TERMS_CONFIG.popup_content);
         };
-        linkContainer.appendChild(link);
-        
-        wrapper.appendChild(linkContainer);
+        wrapper.appendChild(termsText);
     }
 
     dom.chatMessages.prepend(wrapper);
-}
-
-// 最終確認画面の表示関数 (サマリー下の規約リンクを削除)
-function displayFinalConsentScreen(question, userResponses, initialQuestions, onSubmit) {
-    displaySummaryArea(userResponses, initialQuestions);
-    
-    const consentText = document.createElement('div');
-    consentText.className = 'summary-adjacent-consent-text';
-    // 個人情報へのリンクのみを表示
-    consentText.innerHTML = `<a href="${question.privacy_policy_url}" target="_blank">${question.privacy_policy_link_text}</a>に同意する。`;
-    dom.chatMessages.appendChild(consentText);
-
-    const wrapper = createInputWrapper();
-    const btn = document.createElement('button');
-    btn.className = 'choice-button final-consent-submit-button';
-    btn.innerHTML = `<span>${question.submit_button_text}</span>${ICONS.SEND}`;
-    btn.onclick = () => { btn.disabled = true; onSubmit(wrapper); };
-    
-    wrapper.appendChild(btn);
-    mountInputWrapper(wrapper);
 }

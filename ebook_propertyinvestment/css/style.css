@@ -141,16 +141,28 @@ body {
    3. Component: Banner
    バナー画像
    =============================================================== */
-.banner-image-wrapper {
-  margin-bottom: 5px;
-}
-
 .chat-banner-image {
   width: 100%;
   height: auto;
   display: block;
   border-radius: 0;
-  box-shadow: var(--shadow-sm); /* 階層1: バナー */
+  box-shadow: var(--shadow-sm); 
+}
+.banner-gift-terms-link {
+  font-size: 0.6em;
+  color: var(--text-sub);
+  text-align: right; /* 右寄せにする */
+  width: 100%;
+  padding-right: 2px;
+  margin-top: 2px;
+}
+.banner-gift-terms-link a {
+  color: var(--text-sub);
+  text-decoration: underline;
+  cursor: pointer;
+}
+.banner-gift-terms-link a:hover {
+  color: var(--text-main);
 }
 
 /* ===============================================================
@@ -766,7 +778,7 @@ body {
   justify-content: center;
   font-size: 0.75em;
   color: var(--text-sub);
-  margin: 20px 0;
+  margin: 15px 0;
   position: relative;
   width: 100%;
 }
@@ -790,10 +802,10 @@ body {
   gap: 4px;
 }
 .system-timeline-message a {
-  color: var(--theme-primary);
+  color: var(--link-color);
   text-decoration: underline;
   cursor: pointer;
 }
 .system-timeline-message a:hover {
-  color: var(--theme-primary-dark);
+  color: var(--link-hover-color);
 }
