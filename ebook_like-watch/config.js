@@ -10,4 +10,4 @@ const BOT_ICON_URL = 'images/icon.png';
 const FAVICON_URL = 'images/favicon.png'; 
 
 // 4. チャット開始時に表示するバナー画像のURL
-const BANNER_IMAGE_URL = 'images/banner_ebook_like-watch.jpg';
+const BANNER_IMAGE_URL = 'images/banner_ebook_like-watch.png';
