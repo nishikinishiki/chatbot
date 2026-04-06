@@ -4,9 +4,9 @@
    =============================================================== */
 :root {
   /* --- 1. ブランドカラー (メインテーマ) --- */
-  --theme-primary: rgb(62, 183, 165);       /* 基本のメインカラー */
-  --theme-primary-dark: rgb(50, 153, 138);  /* ホバー時などの濃い色 */
-  --theme-primary-light: rgb(0, 132, 140);  /* 選択時などのアクセント色 */
+  --theme-primary: #42bead;       /* 基本のメインカラー */
+  --theme-primary-dark: #32998a;  /* ホバー時などの濃い色 */
+  --theme-primary-light: #00848c;  /* 選択時などのアクセント色 */
   --theme-white: #ffffff;                   /* 白 */
   --theme-black: rgb(51, 51, 51);           /* 黒 */
 
@@ -19,7 +19,11 @@
 
   /* --- 3. ヘッダー設定 --- */
   /* --header-background: var(--theme-white);   */
-  --header-background: linear-gradient(135deg, var(--theme-primary) 0%, #85ccd7 100%);
+  --header-background: 
+    /* 1. 上層: 右上半分を覆う半透明の白い三角形 */
+    linear-gradient(to top right, transparent 50%, rgba(255, 255, 255, 0.15) 50%),
+    /* 2. 下層: ベースのグラデーション (SVGのカラーコードと位置を適用) */
+    linear-gradient(135deg, var(--theme-primary) 46%, #71c7d5 100%);
 
   /* --- 4. テキスト・リンク色 --- */
   --text-main: #212121;                     /* 基本の文字色 */
