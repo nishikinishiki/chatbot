@@ -23,7 +23,7 @@
     /* 1. 上層: 右上半分を覆う半透明の白い三角形 */
     linear-gradient(to top right, transparent 50%, rgba(255, 255, 255, 0.15) 50%),
     /* 2. 下層: ベースのグラデーション (SVGのカラーコードと位置を適用) */
-    linear-gradient(135deg, var(--theme-primary) 46%, #71c7d5 100%);
+    linear-gradient(120deg, var(--theme-primary) 46%, #71c7d5 100%);
 
   /* --- 4. テキスト・リンク色 --- */
   --text-main: #212121;                     /* 基本の文字色 */
