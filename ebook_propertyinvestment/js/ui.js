@@ -252,6 +252,10 @@ function displayChoices(question, onSelect) {
     container.className = 'choices-container';
 
     question.options.forEach(opt => {
+        // isVisible関数が存在し、かつ false を返した場合は描画をスキップ
+        if (typeof opt.isVisible === 'function' && !opt.isVisible(state.utmParameters)) {
+            return; 
+        }
         const btn = document.createElement('button');
         btn.className = 'choice-button';
         const label = typeof opt === 'object' ? opt.label : opt;
@@ -280,7 +284,14 @@ function displayMultiChoices(question, onSelect) {
     submitBtn.innerHTML = ICONS.SEND;
     submitBtn.disabled = true;
 
+    // main.js で定義されている state.utmParameters を安全に取得
+    const utmParams = (typeof state !== 'undefined' && state.utmParameters) ? state.utmParameters : {};
+
     question.options.forEach(opt => {
+        // ★新規: 複数選択でも同様に条件判定を追加
+        if (typeof opt.isVisible === 'function' && !opt.isVisible(utmParams)) {
+            return;
+        }
         const btn = document.createElement('button');
         btn.className = 'choice-button';
         const label = typeof opt === 'object' ? opt.label : opt;

@@ -236,6 +236,11 @@ function findNextQuestion() {
             state.currentStep++;
             continue;
         }
+        // 将来的に `shouldSkip: (utmParams) => boolean` を設定した際、ここでスキップします
+        if (typeof q.shouldSkip === 'function' && q.shouldSkip(state.utmParameters)) {
+            state.currentStep++;
+            continue;
+        }
         return q;
     }
     return null;

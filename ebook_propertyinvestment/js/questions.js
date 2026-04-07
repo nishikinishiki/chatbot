@@ -1,3 +1,16 @@
+// --- UTM条件定義 ---
+const UTM_RULES = {
+    hideIncomeUnder500: [
+        'ALA_gift_ebook_2529PM',
+        'ALA_gift_ebook_2529',
+        'ALA_gift_ebook_2529y',
+        'ALA_gift_ebook_5791',
+        'ALA_gift_ebook_5791PM',
+        'ALA_gift_ebook_7026',
+        'ALA_gift_ebook_84739273'
+    ]
+};
+
 // --- システムメッセージ定義 ---
 const SYSTEM_MESSAGES = {
     // ウェルカムメッセージ
@@ -63,7 +76,9 @@ const initialQuestions = [
   },
   { id: 'annual_income', item: "年収", question: "続いて、現在の年収を教えてください。", answer_method: "single-choice", 
     options: [
-      { label: "500万未満",   value: "0～399万" },
+      { label: "500万未満",   value: "0～399万", 
+        isVisible: (utmParams) => !UTM_RULES.hideIncomeUnder500.includes(utmParams?.utm_source)
+      },
       { label: "500万～",   value: "500～599万" },
       { label: "600万～",   value: "600～699万" },
       { label: "700万～",   value: "700～799万" },
