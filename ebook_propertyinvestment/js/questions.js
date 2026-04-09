@@ -7,7 +7,9 @@ const UTM_RULES = {
         'ALA_gift_ebook_5791',
         'ALA_gift_ebook_5791PM',
         'ALA_gift_ebook_7026',
-        'ALA_gift_ebook_84739273'
+        'ALA_gift_ebook_84739273',
+        'BKR_gift_ebook_87911',
+        'ALA_gift_ebook_5791y'
     ]
 };
 
