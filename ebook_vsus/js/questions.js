@@ -2,7 +2,7 @@
 const SYSTEM_MESSAGES = {
     // ウェルカムメッセージ
     welcome: [
-        { text: "JPリターンズにご興味を持っていただきありがとうございます！<br>30秒程度の簡単な質問をさせてください。", isHtml: true }
+        { text: "ご面談に際し簡単なご質問にお答えください。", isHtml: true }
         // メッセージを増やしたい場合は、以下のように追加できます。
         // , { text: "2つ目の吹き出しです。", isHtml: false }
         // , { text: "3つ目の吹き出しです。", isHtml: false }
@@ -33,20 +33,6 @@ const GIFT_TERMS_CONFIG = {
 const katakanaRegex = /^[ァ-ヶー　]+$/;
 
 const initialQuestions = [
-  { 
-    id: 'digital_gift_choice', 
-    item: "希望デジタルギフト", 
-    question: "ご希望のデジタルギフトをお選びください！", 
-    answer_method: "single-choice", 
-    options: [
-      { label: "Amazonギフトカード", value: "Amazonギフトカード" },
-      { label: "PayPayポイント", value: "PayPayポイント" },
-      { label: "楽天ポイント", value: "楽天ポイント" }
-    ], 
-    key: "digital_gift_choice", 
-    validation: (v) => !!v, 
-    errorMessage: "選択してください。" 
-  },
   
   { id: 'occupation', item: "職業", question: "ご職業を教えてください。", answer_method: "single-choice", 
     options: [
@@ -78,7 +64,7 @@ const initialQuestions = [
     ], 
     key: "annual_income", validation: (v) => !!v, errorMessage: "選択してください。" 
   },
-  { id: 'age_group', item: "年齢", question: "ご年齢はおいくつでしょうか？", answer_method: "single-choice",
+  { id: 'age_group', item: "年齢", question: "ご年齢を教えてください", answer_method: "single-choice",
     options: [
       { label: "20歳未満",  value: "20歳未満" },
       { label: "20～24歳",  value: "20～24歳" },
@@ -93,7 +79,7 @@ const initialQuestions = [
     ], 
     key: "age_group", validation: (v) => !!v, errorMessage: "選択してください。" 
   },
-  { id: 'name_kanji', item: "お名前（漢字）", pre_message: "ありがとうございます！", answer_method: "text-pair", 
+  { id: 'name_kanji', item: "お名前（漢字）", pre_message: "ありがとうございます。", answer_method: "text-pair", 
     prompt: "お名前を入力してください。", 
     inputs: [ 
       { label: "姓", key: "last_name", placeholder: "山田", type: "text" }, 
@@ -113,12 +99,27 @@ const initialQuestions = [
     combinedErrorMessage: "セイとメイの両方を全角カタカナで入力してください。", 
     key_group: "name_details" 
   },
-  { id: 'phone_number', item: "電話番号", pre_message: "残り2問です！", question: "電話番号を入力してください。", placeholder: "09012345678", answer_method: "text", type: "tel", key: "phone_number", validation: (v) => /^[0-9]{10,11}$/.test(v.replace(/-/g, "")), errorMessage: "有効な電話番号をハイフンなし半角数字で入力してください。" },
-  { id: 'email_address', item: "メールアドレス", question: "最後に、メールアドレスを入力してください！", placeholder: "user@example.com", answer_method: "text", type: "email", key: "email_address", validation: (v) => /^[^\s@]+@[^\s@]+\.[^\s@]+$/.test(v), errorMessage: "有効なメールアドレスを入力してください。" },
+  { id: 'phone_number', item: "電話番号", pre_message: "残り2問です。", question: "電話番号を入力してください。", placeholder: "09012345678", answer_method: "text", type: "tel", key: "phone_number", validation: (v) => /^[0-9]{10,11}$/.test(v.replace(/-/g, "")), errorMessage: "有効な電話番号をハイフンなし半角数字で入力してください。" },
+  { id: 'email_address', item: "メールアドレス", question: "メールアドレスを入力してください。", placeholder: "user@example.com", answer_method: "text", type: "email", key: "email_address", validation: (v) => /^[^\s@]+@[^\s@]+\.[^\s@]+$/.test(v), errorMessage: "有効なメールアドレスを入力してください。" },
+  
+  { 
+    id: 'digital_gift_choice', 
+    item: "希望デジタルギフト", 
+    question: "最後に、ご希望のデジタルギフトをお選びください。", 
+    answer_method: "single-choice", 
+    options: [
+      { label: "Amazonギフトカード", value: "Amazonギフトカード" },
+      { label: "PayPayポイント", value: "PayPayポイント" },
+      { label: "楽天ポイント", value: "楽天ポイント" }
+    ], 
+    key: "digital_gift_choice", 
+    validation: (v) => !!v, 
+    errorMessage: "選択してください。" 
+  },
   {
     id: 'final_consent',
     item: "最終確認",
-    pre_message: "ご回答ありがとうございました！",
+    pre_message: "ご回答ありがとうございました。",
     question: "入力内容・利用規約をご確認の上、「同意して送信」を押してください。",
     answer_method: "final-consent",
     privacy_policy_link_text: "個人情報のお取り扱い",
