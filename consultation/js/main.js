@@ -347,6 +347,43 @@ async function submitDataToGAS(dataToSend, isAdditional) {
             body: JSON.stringify(payload)
         });
         hideLoadingMessage();
+
+        if (!isAdditional && window.dataLayer) {
+            const email = state.userResponses.email_address;
+            const phoneNumber = state.userResponses.phone_number;
+            const lastName = state.userResponses.last_name;
+            const firstName = state.userResponses.first_name;
+
+            let modifiedPhoneNumber = '';
+            if (phoneNumber && typeof phoneNumber === 'string') {
+                modifiedPhoneNumber = phoneNumber.substring(3);
+            }
+
+            let formattedPhoneNumber = '';
+            if (phoneNumber && typeof phoneNumber === 'string') {
+                if (phoneNumber.startsWith('0')) {
+                    formattedPhoneNumber = '+81' + phoneNumber.substring(1);
+                } else {
+                    formattedPhoneNumber = '+81' + phoneNumber;
+                }
+            }
+
+            const userData = {
+                'email': email,
+                'phone_number': formattedPhoneNumber,
+                'address': {
+                    'last_name': lastName,
+                    'first_name': firstName
+                }
+            };
+
+            window.dataLayer.push({
+                'event': 'chat_form_submission_success',
+                'user_data': userData,
+                'modified_phone': modifiedPhoneNumber
+            });
+        }
+
         if (!isAdditional) {
             clearChatMessages();
             state.chatHistory = [];
