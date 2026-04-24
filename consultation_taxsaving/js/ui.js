@@ -507,11 +507,7 @@ function displayFinalConsentScreen(question, userResponses, initialQuestions, on
     
     const consentText = document.createElement('div');
     consentText.className = 'summary-adjacent-consent-text';
-    consentText.innerHTML = `<a href="${question.privacy_policy_url}" target="_blank">${question.privacy_policy_link_text}</a>・<a href="#" id="giftLink">${question.gift_terms_link_text}</a>に同意する。`;
-    consentText.querySelector('#giftLink').onclick = (e) => {
-        e.preventDefault();
-        showModal(question.gift_terms_popup_title, question.gift_terms_popup_content);
-    };
+    consentText.innerHTML = `<a href="${question.privacy_policy_url}" target="_blank">${question.privacy_policy_link_text}</a>に同意する。`;
     dom.chatMessages.appendChild(consentText);
 
     const wrapper = createInputWrapper();
