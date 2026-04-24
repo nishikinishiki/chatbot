@@ -1,0 +1,320 @@
+<!DOCTYPE html>
+<html lang="ja">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
+    <title>RSU資産形成診断</title>
+    <script src="https://cdn.tailwindcss.com"></script>
+    <script>
+        tailwind.config = {
+            theme: {
+                extend: {
+                    colors: {
+                        sfBlue: '#00A1E0',
+                        sfRed: '#E53935',
+                        appBg: '#F3F4F6',
+                    },
+                    fontFamily: {
+                        sans: ['"Helvetica Neue"', 'Arial', '"Hiragino Kaku Gothic ProN"', '"Hiragino Sans"', 'Meiryo', 'sans-serif'],
+                    },
+                    boxShadow: {
+                        'app': '0 4px 20px rgba(0, 0, 0, 0.05)',
+                        'app-lg': '0 10px 30px rgba(0, 0, 0, 0.08)',
+                    }
+                }
+            }
+        }
+    </script>
+    <style>
+        /* 数値入力のスピンボタンを非表示 */
+        input[type=number]::-webkit-inner-spin-button, 
+        input[type=number]::-webkit-outer-spin-button { 
+            -webkit-appearance: none; 
+            margin: 0; 
+        }
+        input[type=number] {
+            -moz-appearance: textfield;
+        }
+        
+        /* フェードインアニメーション */
+        .fade-in-up {
+            animation: fadeInUp 0.6s cubic-bezier(0.16, 1, 0.3, 1) forwards;
+        }
+        @keyframes fadeInUp {
+            from {
+                opacity: 0;
+                transform: translateY(20px);
+            }
+            to {
+                opacity: 1;
+                transform: translateY(0);
+            }
+        }
+    </style>
+</head>
+<body class="bg-gray-200 text-gray-800 font-sans antialiased flex justify-center selection:bg-sfBlue selection:text-white">
+
+    <!-- アプリコンテナ（モバイルサイズ固定） -->
+    <div class="w-full max-w-md bg-appBg min-h-screen relative shadow-app-lg overflow-x-hidden">
+        
+        <!-- ヘッダー (Sticky) -->
+        <header class="sticky top-0 bg-white/95 backdrop-blur-sm z-50 border-b border-gray-100 px-4 py-3 shadow-sm flex items-center justify-center">
+            <h1 class="text-lg font-bold text-sfBlue tracking-wide flex items-center">
+                <svg xmlns="http://www.w3.org/2000/svg" width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round" class="mr-2"><path d="M2 12h4l3-9 5 18 3-9h5"/></svg>
+                RSU資産形成診断
+            </h1>
+        </header>
+
+        <main class="p-4 pb-24 space-y-6">
+            
+            <!-- ヒーローセクション -->
+            <div class="bg-gradient-to-br from-sfBlue to-blue-600 rounded-3xl p-6 text-white shadow-app relative overflow-hidden">
+                <div class="relative z-10">
+                    <h2 class="text-xl font-extrabold mb-2 leading-tight">RSUの税金、<br>そのまま払っていませんか？</h2>
+                    <p class="text-sm opacity-90 leading-relaxed mt-3">
+                        高額になりがちな税金を、不動産投資の<span class="font-bold text-yellow-300">「減価償却」</span>を活用して賢くコントロールしましょう。
+                    </p>
+                </div>
+                <!-- 装飾用サークル -->
+                <div class="absolute -bottom-10 -right-10 w-32 h-32 bg-white opacity-10 rounded-full blur-2xl"></div>
+                <div class="absolute -top-10 -left-10 w-24 h-24 bg-white opacity-10 rounded-full blur-xl"></div>
+            </div>
+
+            <!-- 入力フォームカード -->
+            <div class="bg-white rounded-3xl p-6 shadow-app">
+                <h3 class="font-bold text-gray-800 mb-5 flex items-center text-base">
+                    <svg xmlns="http://www.w3.org/2000/svg" width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" class="mr-2 text-sfBlue"><rect x="4" y="2" width="16" height="20" rx="2" ry="2"/><line x1="8" y1="6" x2="16" y2="6"/><line x1="16" y1="14" x2="16" y2="14"/><line x1="16" y1="18" x2="16" y2="18"/><line x1="12" y1="14" x2="12" y2="14"/><line x1="12" y1="18" x2="12" y2="18"/><line x1="8" y1="14" x2="8" y2="14"/><line x1="8" y1="18" x2="8" y2="18"/></svg>
+                    1分で簡単シミュレーション
+                </h3>
+                
+                <div class="space-y-5">
+                    <!-- 年齢 -->
+                    <div>
+                        <label for="age" class="block text-xs font-bold text-gray-500 mb-1.5 pl-1">年齢</label>
+                        <div class="relative flex items-center">
+                            <input type="number" id="age" value="40" class="w-full bg-gray-50 border border-gray-200 text-gray-800 rounded-2xl px-4 py-3.5 text-lg font-semibold focus:outline-none focus:ring-2 focus:ring-sfBlue/40 focus:border-sfBlue transition-all shadow-inner" />
+                            <span class="absolute right-4 text-gray-400 font-medium">歳</span>
+                        </div>
+                    </div>
+                    
+                    <!-- 年収 -->
+                    <div>
+                        <label for="income" class="block text-xs font-bold text-gray-500 mb-1.5 pl-1">現在の年収（額面）</label>
+                        <div class="relative flex items-center">
+                            <input type="number" id="income" value="1400" class="w-full bg-gray-50 border border-gray-200 text-gray-800 rounded-2xl px-4 py-3.5 text-lg font-semibold focus:outline-none focus:ring-2 focus:ring-sfBlue/40 focus:border-sfBlue transition-all shadow-inner" />
+                            <span class="absolute right-4 text-gray-400 font-medium">万円</span>
+                        </div>
+                    </div>
+                    
+                    <!-- RSU概算チェックボックス -->
+                    <div class="pt-1">
+                        <label class="flex items-start space-x-3 cursor-pointer p-2 rounded-xl hover:bg-gray-50 transition-colors">
+                            <div class="flex-shrink-0 mt-0.5">
+                                <input type="checkbox" id="isApprox" class="w-5 h-5 text-sfBlue bg-white border-gray-300 rounded focus:ring-sfBlue focus:ring-2 accent-sfBlue" />
+                            </div>
+                            <span class="text-sm text-gray-600 leading-snug">RSU株数が不明なため、年収の20%で概算する</span>
+                        </label>
+                    </div>
+
+                    <!-- RSU株数入力 -->
+                    <div id="rsuWrapper" class="grid transition-all duration-300 ease-in-out grid-rows-[1fr] opacity-100">
+                        <div class="overflow-hidden">
+                            <div class="pt-1 pb-1">
+                                <label for="rsuShares" class="block text-xs font-bold text-gray-500 mb-1.5 pl-1">今年度 Vest(確定) するRSU株数</label>
+                                <div class="relative flex items-center">
+                                    <input type="number" id="rsuShares" value="150" class="w-full bg-gray-50 border border-gray-200 text-gray-800 rounded-2xl px-4 py-3.5 text-lg font-semibold focus:outline-none focus:ring-2 focus:ring-sfBlue/40 focus:border-sfBlue transition-all shadow-inner" />
+                                    <span class="absolute right-4 text-gray-400 font-medium">株</span>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+
+                <button id="calcBtn" class="w-full mt-7 bg-gray-900 hover:bg-black text-white font-bold py-4 rounded-2xl shadow-md transition-transform transform active:scale-[0.98] flex justify-center items-center group">
+                    <span>結果を見る</span>
+                    <svg xmlns="http://www.w3.org/2000/svg" width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" class="ml-2 group-hover:translate-x-1 transition-transform"><path d="M5 12h14"/><path d="m12 5 7 7-7 7"/></svg>
+                </button>
+            </div>
+
+            <!-- 結果表示エリア (初期非表示) -->
+            <div id="resultArea" class="hidden space-y-6">
+                
+                <!-- サマリー -->
+                <div class="bg-white rounded-3xl p-6 shadow-app text-center border-t-4 border-sfBlue relative">
+                    <p class="text-xs font-bold text-gray-500 tracking-wider mb-1">今年度の予想総税額</p>
+                    <div class="flex items-baseline justify-center">
+                        <span class="text-4xl font-extrabold text-gray-900 tracking-tight" id="resTotalTax">--</span>
+                        <span class="text-lg font-bold text-gray-600 ml-1">万円</span>
+                    </div>
+                    
+                    <div class="mt-6 flex space-x-3">
+                        <div class="flex-1 bg-gray-50 rounded-2xl p-4 border border-gray-100">
+                            <p class="text-[11px] font-bold text-gray-500 mb-1">基本給の税金</p>
+                            <p class="text-xl font-bold text-gray-800"><span id="resBaseTax">--</span><span class="text-xs ml-0.5 text-gray-500">万円</span></p>
+                        </div>
+                        <div class="flex-1 bg-red-50 rounded-2xl p-4 border border-red-100 relative overflow-hidden">
+                            <div class="absolute -right-2 -top-2 opacity-10">
+                                <svg xmlns="http://www.w3.org/2000/svg" width="48" height="48" viewBox="0 0 24 24" fill="none" stroke="#E53935" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="m18 15-6-6-6 6"/></svg>
+                            </div>
+                            <p class="text-[11px] font-bold text-sfRed mb-1 relative z-10">RSUによる増税分</p>
+                            <p class="text-2xl font-black text-sfRed relative z-10"><span id="resRsuTax">--</span><span class="text-xs ml-0.5 font-bold">万円</span></p>
+                        </div>
+                    </div>
+                </div>
+
+                <!-- パーソナライズメッセージ -->
+                <div class="bg-blue-50 border border-blue-100 rounded-3xl p-6 shadow-sm">
+                    <h4 class="font-bold text-sfBlue mb-3 flex items-center text-sm">
+                        <svg xmlns="http://www.w3.org/2000/svg" width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" class="mr-2"><circle cx="12" cy="12" r="10"/><path d="M12 16v-4"/><path d="M12 8h.01"/></svg>
+                        AIによる分析結果
+                    </h4>
+                    <p class="text-sm text-gray-700 leading-relaxed" id="resMessage">
+                        <!-- JSで動的に生成されます -->
+                    </p>
+                </div>
+
+                <!-- CTAエリア -->
+                <div class="bg-white border border-gray-100 rounded-3xl p-6 shadow-app text-center">
+                    <h4 class="font-bold text-gray-800 mb-2">税金をコントロールしませんか？</h4>
+                    <p class="text-xs text-gray-500 mb-5 leading-relaxed text-left">
+                        不動産の「減価償却」を活用して課税所得を圧縮することで、高くなった限界税率（現在<span id="resMarginalRate" class="font-bold text-sfRed text-sm">--%</span>）の分だけ効率的に税金を取り戻せる可能性があります。
+                    </p>
+                    
+                    <a href="https://calendar.google.com/calendar/u/0/appointments/schedules/YOUR_ID_HERE" target="_blank" rel="noopener noreferrer" class="block w-full bg-sfBlue hover:bg-blue-500 text-white font-bold py-4 rounded-2xl shadow-[0_8px_20px_rgba(0,161,224,0.3)] transition-all transform hover:-translate-y-0.5 active:translate-y-0 active:scale-[0.98] flex justify-center items-center">
+                        <svg xmlns="http://www.w3.org/2000/svg" width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" class="mr-2"><rect x="3" y="4" width="18" height="18" rx="2" ry="2"/><line x1="16" y1="2" x2="16" y2="6"/><line x1="8" y1="2" x2="8" y2="6"/><line x1="3" y1="10" x2="21" y2="10"/></svg>
+                        無料の個別面談を予約する
+                    </a>
+                    <p class="text-[10px] text-gray-400 mt-3">※お名前やメールアドレスは予約画面でご入力いただきます</p>
+                </div>
+            </div>
+            
+            <!-- 注釈・免責事項 -->
+            <div class="pt-4 border-t border-gray-200">
+                <ul class="text-[10px] text-gray-400 space-y-2 list-none pl-1">
+                    <li class="flex items-start"><span class="mr-1">※1</span>本シミュレーションは概算であり、実際の税額を保証するものではありません。</li>
+                    <li class="flex items-start"><span class="mr-1">※2</span>参照株価：$301.20、参照為替：151.40円/ドル（シミュレーション前提値）を用いて計算しています。</li>
+                    <li class="flex items-start"><span class="mr-1">※3</span>税金計算は、所得税（累進課税、基礎控除48万円、給与所得控除を年収の20%として概算）および住民税（一律10%）を前提とし、復興特別所得税や社会保険料、各種控除（配偶者控除、扶養控除など）は考慮していません。</li>
+                    <li class="flex items-start"><span class="mr-1">※4</span>具体的な税務相談については、税理士等の専門家にご確認ください。</li>
+                </ul>
+            </div>
+
+        </main>
+    </div>
+
+    <script>
+        // --- 定数定義 ---
+        const STOCK_PRICE = 301.20;
+        const FX_RATE = 151.40;
+
+        // --- 税金計算ロジック ---
+        function calculateTax(totalIncomeYen) {
+            // 簡易給与所得控除 (要件に従い年収の20%と仮定)
+            let deduction = totalIncomeYen * 0.2;
+            // 基礎控除
+            let basicDeduction = 480000;
+            
+            let taxableIncome = totalIncomeYen - deduction - basicDeduction;
+            if (taxableIncome < 0) taxableIncome = 0;
+
+            // 所得税計算 (簡易累進課税)
+            let incomeTax = 0;
+            let taxRate = 0;
+            
+            if (taxableIncome <= 1949000) { incomeTax = taxableIncome * 0.05; taxRate = 5; }
+            else if (taxableIncome <= 3299000) { incomeTax = taxableIncome * 0.10 - 97500; taxRate = 10; }
+            else if (taxableIncome <= 6949000) { incomeTax = taxableIncome * 0.20 - 427500; taxRate = 20; }
+            else if (taxableIncome <= 8999000) { incomeTax = taxableIncome * 0.23 - 636000; taxRate = 23; }
+            else if (taxableIncome <= 17999000) { incomeTax = taxableIncome * 0.33 - 1536000; taxRate = 33; }
+            else if (taxableIncome <= 39999000) { incomeTax = taxableIncome * 0.40 - 2796000; taxRate = 40; }
+            else { incomeTax = taxableIncome * 0.45 - 4796000; taxRate = 45; }
+
+            // 住民税計算 (一律10%)
+            let residentTax = taxableIncome * 0.10;
+            
+            return {
+                totalTax: incomeTax + residentTax,
+                marginalRate: taxRate + 10 // 所得税率 + 住民税率
+            };
+        }
+
+        // --- イベントリスナー ---
+        
+        // チェックボックスの連動（入力欄の開閉）
+        document.getElementById('isApprox').addEventListener('change', (e) => {
+            const rsuWrapper = document.getElementById('rsuWrapper');
+            const rsuInput = document.getElementById('rsuShares');
+            
+            if (e.target.checked) {
+                rsuWrapper.classList.remove('grid-rows-[1fr]', 'opacity-100');
+                rsuWrapper.classList.add('grid-rows-[0fr]', 'opacity-0');
+                rsuInput.disabled = true;
+            } else {
+                rsuWrapper.classList.remove('grid-rows-[0fr]', 'opacity-0');
+                rsuWrapper.classList.add('grid-rows-[1fr]', 'opacity-100');
+                rsuInput.disabled = false;
+            }
+        });
+
+        // 計算ボタン押下時
+        document.getElementById('calcBtn').addEventListener('click', () => {
+            // 入力値の取得
+            const age = parseInt(document.getElementById('age').value) || 0;
+            const incomeMan = parseInt(document.getElementById('income').value) || 0;
+            const isApprox = document.getElementById('isApprox').checked;
+            const rsuShares = parseInt(document.getElementById('rsuShares').value) || 0;
+
+            // 円単位に変換
+            const baseIncomeYen = incomeMan * 10000;
+            
+            // RSU評価額の算出
+            let rsuValueYen = 0;
+            if (isApprox) {
+                rsuValueYen = baseIncomeYen * 0.2;
+            } else {
+                rsuValueYen = rsuShares * STOCK_PRICE * FX_RATE;
+            }
+
+            const totalIncomeYen = baseIncomeYen + rsuValueYen;
+
+            // 税金計算の実行
+            const baseTaxObj = calculateTax(baseIncomeYen);
+            const totalTaxObj = calculateTax(totalIncomeYen);
+
+            // RSUによる税金増加分
+            const rsuTaxYen = totalTaxObj.totalTax - baseTaxObj.totalTax;
+
+            // フォーマット関数 (万円単位に変換して四捨五入、カンマ区切り)
+            const formatMan = (yen) => Math.round(yen / 10000).toLocaleString();
+
+            // UIへの反映
+            document.getElementById('resTotalTax').innerText = formatMan(totalTaxObj.totalTax);
+            document.getElementById('resBaseTax').innerText = formatMan(baseTaxObj.totalTax);
+            document.getElementById('resRsuTax').innerText = formatMan(rsuTaxYen);
+            document.getElementById('resMarginalRate').innerText = totalTaxObj.marginalRate;
+
+            // パーソナライズメッセージの生成
+            const msgHtml = `<span class="font-bold text-gray-900">${age}歳、基本年収${incomeMan}万円</span>のあなた。<br><br>
+                RSUの確定（Vest）による給与上乗せ効果は嬉しい反面、その分税率も跳ね上がります。<br>
+                今回のシミュレーションでは、あなたの現在の最高税率（限界税率）は<span class="font-bold text-sfRed text-base">${totalTaxObj.marginalRate}%</span>に達する見込みです。<br><br>
+                RSUによって増えた<span class="font-bold text-sfRed text-base">約${formatMan(rsuTaxYen)}万円</span>の税金は、ただ支払うだけでなく、<span class="font-bold text-sfBlue">不動産投資の減価償却</span>を活用することで手元に大きく残せる可能性があります。<br><br>
+                まずは無料のオンライン面談で、あなた専用の節税ポテンシャルを確認してみませんか？`;
+            
+            document.getElementById('resMessage').innerHTML = msgHtml;
+
+            // 結果エリアの表示とアニメーション
+            const resultArea = document.getElementById('resultArea');
+            resultArea.classList.remove('hidden');
+            
+            // クラスを付け直してアニメーションをリセット
+            resultArea.classList.remove('fade-in-up');
+            void resultArea.offsetWidth; // リフロー強制
+            resultArea.classList.add('fade-in-up');
+
+            // スムーズスクロール
+            setTimeout(() => {
+                resultArea.scrollIntoView({ behavior: 'smooth', block: 'start' });
+            }, 100);
+        });
+    </script>
+</body>
+</html>
