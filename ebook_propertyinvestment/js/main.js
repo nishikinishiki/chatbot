@@ -99,6 +99,23 @@ async function showSystemMessages(messageArray) {
     }
 }
 
+// ==========================================
+// ★ 新規: バナー画像の出し分け判定ロジック
+// ==========================================
+function getBannerUrl() {
+    let url = typeof BANNER_IMAGE_URL !== 'undefined' ? BANNER_IMAGE_URL : null;
+    
+    // 現在のセッションの utm_source の値を取得
+    const currentSource = state.utmParameters.utm_source;
+    
+    // config.js に対応表があり、かつ一致するキャンペーンがあればURLを上書き
+    if (currentSource && typeof CAMPAIGN_BANNERS !== 'undefined' && CAMPAIGN_BANNERS[currentSource]) {
+        url = CAMPAIGN_BANNERS[currentSource];
+    }
+    
+    return url;
+}
+
 // --- 初期化 ---
 document.addEventListener('DOMContentLoaded', initializeChat);
 
@@ -125,7 +142,10 @@ async function initializeChat() {
             faviconLink.rel = 'icon'; faviconLink.href = FAVICON_URL;
             document.head.appendChild(faviconLink);
         }
-        if (typeof BANNER_IMAGE_URL !== 'undefined' && BANNER_IMAGE_URL) displayBannerImage(BANNER_IMAGE_URL);
+        const bannerUrl = getBannerUrl();
+        if (bannerUrl) {
+            displayBannerImage(bannerUrl);
+        }
 
         state.isRestoring = true;
         
@@ -169,7 +189,10 @@ async function initializeChat() {
             faviconLink.rel = 'icon'; faviconLink.href = FAVICON_URL;
             document.head.appendChild(faviconLink);
         }
-        if (typeof BANNER_IMAGE_URL !== 'undefined' && BANNER_IMAGE_URL) displayBannerImage(BANNER_IMAGE_URL);
+        const bannerUrl = getBannerUrl();
+        if (bannerUrl) {
+            displayBannerImage(bannerUrl);
+        }
 
         await showSystemMessages(SYSTEM_MESSAGES.welcome);
         setTimeout(askQuestion, 150);

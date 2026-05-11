@@ -11,3 +11,8 @@ const FAVICON_URL = 'images/favicon.png';
 
 // 4. チャット開始時に表示するバナー画像のURL
 const BANNER_IMAGE_URL = 'images/banner_ebook_gift.webp';
+
+const CAMPAIGN_BANNERS = {
+    'special': 'images/banner_renovation1.webp',
+    // キャンペーンが増えたらここに追加
+};
