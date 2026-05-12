@@ -259,9 +259,9 @@ function findNextQuestion() {
             state.currentStep++;
             continue;
         }
-        // 将来的に `shouldSkip: (utmParams) => boolean` を設定した際、ここでスキップします
+        // スキップ判定
         if (typeof q.shouldSkip === 'function' && q.shouldSkip(state.utmParameters)) {
-            state.currentStep++;
+            state.currentStep++; // 質問を飛ばして次へ
             continue;
         }
         return q;
@@ -349,6 +349,8 @@ function calculateProgress() {
     let totalEffectiveQuestions = 0;
     for (const q of questionsArray) {
         if (q.condition && responseSet[q.condition.key] !== q.condition.value) continue;
+        // ★スキップされる質問は「有効な質問数（分母）」にカウントしない
+        if (typeof q.shouldSkip === 'function' && q.shouldSkip(state.utmParameters)) continue;
         if (q.answer_method === 'text-pair' || (q.answer_method !== 'final-consent')) totalEffectiveQuestions++;
     }
     if (totalEffectiveQuestions === 0) { updateProgressBar(0); return; }

@@ -16,6 +16,11 @@ const UTM_RULES = {
         'ALA_gift_ebook_4456',
         'ALA_gift_ebook_583',
         'ALA_gift_ebook_2927'
+    ],
+    // ★追加: 「お申し込みの決め手」を表示する対象UTM
+    showApplicationReason: [
+        'ALA_gift_ebook_4362',
+        'ALA_gift_ebook_4362PM'
     ]
 };
 
@@ -24,9 +29,7 @@ const SYSTEM_MESSAGES = {
     // ウェルカムメッセージ
     welcome: [
         { text: "JPリターンズにご興味を持っていただきありがとうございます！<br>30秒程度の簡単な質問をさせてください。", isHtml: true }
-        // メッセージを増やしたい場合は、以下のように追加できます。
         // , { text: "2つ目の吹き出しです。", isHtml: false }
-        // , { text: "3つ目の吹き出しです。", isHtml: false }
     ],
     // 前半フロー完了メッセージ
     initial_complete: [
@@ -211,6 +214,24 @@ const additionalQuestions = [
         condition: { key: "second_choice_time", value: "その他の時間" }, 
         validation: (v) => v && v.trim().length > 0, 
         errorMessage: "希望時間を入力してください。" 
+    },
+    { 
+        id: 'application_reason', 
+        item: "お申し込みの決め手", 
+        question: "お申し込みの決め手を教えてください。（複数選択可）",
+        answer_method: "multi-choice",
+        options: [
+            { label: "特別レポートの配布", value: "特別レポートの配布" },
+            { label: "デジタルギフトの付与", value: "デジタルギフトの付与" },
+            { label: "ランキング1位掲載", value: "ランキング1位掲載" },
+            { label: "その他", value: "その他" }
+        ], 
+        key: "application_reason", 
+        validation: (v) => Array.isArray(v) && v.length > 0, 
+        errorMessage: "少なくとも1つ選択してください。",
+        
+        // ★該当のutm_sourceに含まれていない場合はスキップする
+        shouldSkip: (utmParams) => !UTM_RULES.showApplicationReason.includes(utmParams?.utm_source)
     },
     { 
       id: 'referral_source', 
