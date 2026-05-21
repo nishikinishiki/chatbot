@@ -15,7 +15,9 @@ const UTM_RULES = {
         'ALA_gift_ebook_3033',
         'ALA_gift_ebook_4456',
         'ALA_gift_ebook_583',
-        'ALA_gift_ebook_2927'
+        'ALA_gift_ebook_2927',
+        'ALA_gift_ebook_4362',
+        'ALA_gift_ebook_4362PM'
     ],
     // ★追加: 「お申し込みの決め手」を表示する対象UTM
     showApplicationReason: [
