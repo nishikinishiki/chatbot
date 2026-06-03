@@ -1,28 +1,10 @@
 // --- UTM条件定義 ---
 const UTM_RULES = {
-  hideIncomeUnder500: [
-    'ALA_gift_ebook_2529PM',
-    'ALA_gift_ebook_2529',
-    'ALA_gift_ebook_2529y',
-    'ALA_gift_ebook_5791',
-    'ALA_gift_ebook_5791PM',
-    'ALA_gift_ebook_84739273',
-    'BKR_gift_ebook_87911',
-    'ALA_gift_ebook_5791y',
-    'ALA_gift_ebook_7300',
-    'ALA_gift_ebook_7883',
-    'ALA_gift_ebook_5312',
-    'ALA_gift_ebook_3033',
-    'ALA_gift_ebook_4456',
-    'ALA_gift_ebook_583',
-    'ALA_gift_ebook_2927',
-    'ALA_gift_ebook_4362',
-    'ALA_gift_ebook_4362PM',
-    'ALA_gift_ebook_11489707',
-    'ALA_gift_ebook_11489707PM',
-    'ALA_gift_ebook_11489707mt'
+  hideIncomeUnder500Keywords: [
+    'ALA_gift_ebook',
+    'BKR_gift_ebook'
   ],
-  // ★追加: 「お申し込みの決め手」を表示する対象UTM
+  //「お申し込みの決め手」を表示する対象UTM
   showApplicationReason: [
     'ALA_gift_ebook_4362',
     'ALA_gift_ebook_4362PM'
@@ -34,12 +16,11 @@ const SYSTEM_MESSAGES = {
   // ウェルカムメッセージ
   welcome: [
     { text: "JPリターンズにご興味を持っていただきありがとうございます！<br>30秒程度の簡単な質問をさせてください。", isHtml: true }
-    // , { text: "2つ目の吹き出しです。", isHtml: false }
   ],
   // 前半フロー完了メッセージ
   initial_complete: [
     { text: "送信が完了しました。<br>お問い合わせいただきありがとうございました！", isHtml: true },
-    { text: "デジタル書籍は下記から閲覧できます！", isHtml: false },
+    { text: "デジタル書籍は下記から閲覧できます！" },
     { text: "デジタル書籍を閲覧する", isHtml: false, isEbookBtn: true }
   ],
   // 全フロー完了メッセージ
@@ -63,21 +44,6 @@ const katakanaRegex = /^[ァ-ヶー　]+$/;
 
 const initialQuestions = [
   {
-    id: 'digital_gift_choice',
-    item: "希望デジタルギフト",
-    question: "ご希望のデジタルギフトをお選びください！",
-    answer_method: "single-choice",
-    options: [
-      { label: "Amazonギフトカード", value: "Amazonギフトカード" },
-      { label: "PayPayポイント", value: "PayPayポイント" },
-      { label: "楽天ポイント", value: "楽天ポイント" }
-    ],
-    key: "digital_gift_choice",
-    validation: (v) => !!v,
-    errorMessage: "選択してください。"
-  },
-
-  {
     id: 'occupation', item: "職業", question: "ご職業を教えてください。", answer_method: "single-choice",
     options: [
       { label: "会社員 (上場企業)", value: "会社員（上場企業）" },
@@ -96,7 +62,10 @@ const initialQuestions = [
     options: [
       {
         label: "500万未満", value: "0～399万",
-        isVisible: (utmParams) => !UTM_RULES.hideIncomeUnder500.includes(utmParams?.utm_source)
+        isVisible: (utmParams) => {
+          const source = utmParams?.utm_source || '';
+          return !UTM_RULES.hideIncomeUnder500Keywords.some(keyword => source.includes(keyword));
+        }
       },
       { label: "500万～", value: "500～599万" },
       { label: "600万～", value: "600～699万" },
@@ -150,8 +119,23 @@ const initialQuestions = [
     combinedErrorMessage: "セイとメイの両方を全角カタカナで入力してください。",
     key_group: "name_details"
   },
-  { id: 'phone_number', item: "電話番号", pre_message: "残り2問です！", question: "電話番号を入力してください。", placeholder: "09012345678", answer_method: "text", type: "tel", key: "phone_number", validation: (v) => /^[0-9]{10,11}$/.test(v.replace(/-/g, "")), errorMessage: "有効な電話番号をハイフンなし半角数字で入力してください。" },
-  { id: 'email_address', item: "メールアドレス", question: "最後に、メールアドレスを入力してください！", placeholder: "user@example.com", answer_method: "text", type: "email", key: "email_address", validation: (v) => /^[^\s@]+@[^\s@]+\.[^\s@]+$/.test(v), errorMessage: "有効なメールアドレスを入力してください。" },
+  { id: 'phone_number', item: "電話番号", pre_message: "ありがとうございます。残り3問です！", question: "電話番号を入力してください。", placeholder: "09012345678", answer_method: "text", type: "tel", key: "phone_number", validation: (v) => /^[0-9]{10,11}$/.test(v.replace(/-/g, "")), errorMessage: "有効な電話番号をハイフンなし半角数字で入力してください。" },
+  { id: 'email_address', item: "メールアドレス", question: "次に、メールアドレスを入力してください！", placeholder: "user@example.com", answer_method: "text", type: "email", key: "email_address", validation: (v) => /^[^\s@]+@[^\s@]+\.[^\s@]+$/.test(v), errorMessage: "有効なメールアドレスを入力してください。" },
+  {
+    id: 'digital_gift_choice',
+    item: "希望デジタルギフト",
+    pre_message: "面談完了でえらべるデジタルギフト<span style='color: red;'>最大50,000円分</span>プレゼントの対象となります！", isHtmlPreMessage: true,
+    question: "最後に、ご希望のデジタルギフトをお選びください。",
+    answer_method: "single-choice",
+    options: [
+      { label: "Amazonギフトカード", value: "Amazonギフトカード" },
+      { label: "PayPayマネーライト", value: "PayPayポイント" },
+      { label: "楽天ポイント", value: "楽天ポイント" }
+    ],
+    key: "digital_gift_choice",
+    validation: (v) => !!v,
+    errorMessage: "選択してください。"
+  },
   {
     id: 'final_consent',
     item: "最終確認",
