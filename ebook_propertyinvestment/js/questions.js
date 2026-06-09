@@ -4,6 +4,10 @@ const UTM_RULES = {
     'ALA_gift_ebook',
     'BKR_gift_ebook'
   ],
+  hideOccupationSelfEmployedKeywords: [
+    'ALA_gift_ebook',
+    'BKR_gift_ebook'
+  ],
   //「お申し込みの決め手」を表示する対象UTM
   showApplicationReason: [
     'ALA_gift_ebook_4362',
@@ -52,7 +56,13 @@ const initialQuestions = [
       { label: "経営者,役員", value: "経営者" },
       { label: "医師,看護師", value: "士業（医師、看護師、弁護士、税護士など）" },
       { label: "士業 (弁護士,税理士等)", value: "士業（医師、看護師、弁護士、税護士など）" },
-      { label: "自営業", value: "自営業・その他" },
+      {
+        label: "自営業", value: "自営業・その他",
+        isVisible: (utmParams) => {
+          const source = utmParams?.utm_source || '';
+          return !UTM_RULES.hideOccupationSelfEmployedKeywords.some(keyword => source.includes(keyword));
+        }
+      },
       { label: "その他", value: "自営業・その他" }
     ],
     key: "occupation", validation: (v) => !!v, errorMessage: "選択してください。"
