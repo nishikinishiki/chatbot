@@ -115,7 +115,7 @@ body {
 
 .chat-messages {
   flex-grow: 1;
-  padding: 16px 20px 50px;
+  padding: 14px 14px 50px;
   overflow-y: auto;
   background-color: var(--chat-messages-bg);
   display: flex;
