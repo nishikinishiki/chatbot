@@ -19,7 +19,7 @@ const UTM_RULES = {
 const SYSTEM_MESSAGES = {
   // ウェルカムメッセージ
   welcome: [
-    { text: "JPリターンズにご興味を持っていただきありがとうございます！<br>30秒程度の簡単な質問をさせてください。", isHtml: true }
+    { text: "こちらはJPリターンズの資料請求フォームです。<br>30秒程度の質問にご回答ください。", isHtml: true }
   ],
   // 前半フロー完了メッセージ
   initial_complete: [
@@ -48,7 +48,7 @@ const katakanaRegex = /^[ァ-ヶー　]+$/;
 
 const initialQuestions = [
   {
-    id: 'occupation', item: "職業", question: "ご職業を教えてください。", answer_method: "single-choice",
+    id: 'occupation', item: "職業", question: "まずは、ご職業を教えてください。", answer_method: "single-choice",
     options: [
       { label: "会社員 (上場企業)", value: "会社員（上場企業）" },
       { label: "会社員 (その他)", value: "会社員（その他）" },
@@ -56,13 +56,6 @@ const initialQuestions = [
       { label: "経営者,役員", value: "経営者" },
       { label: "医師,看護師", value: "士業（医師、看護師、弁護士、税護士など）" },
       { label: "士業 (弁護士,税理士等)", value: "士業（医師、看護師、弁護士、税護士など）" },
-      {
-        label: "自営業", value: "自営業・その他",
-        isVisible: (utmParams) => {
-          const source = utmParams?.utm_source || '';
-          return !UTM_RULES.hideOccupationSelfEmployedKeywords.some(keyword => source.includes(keyword));
-        }
-      },
       { label: "その他", value: "自営業・その他" }
     ],
     key: "occupation", validation: (v) => !!v, errorMessage: "選択してください。"
@@ -70,13 +63,6 @@ const initialQuestions = [
   {
     id: 'annual_income', item: "年収", question: "続いて、現在の年収を教えてください。", answer_method: "single-choice",
     options: [
-      {
-        label: "500万未満", value: "0～399万",
-        isVisible: (utmParams) => {
-          const source = utmParams?.utm_source || '';
-          return !UTM_RULES.hideIncomeUnder500Keywords.some(keyword => source.includes(keyword));
-        }
-      },
       { label: "500万～", value: "500～599万" },
       { label: "600万～", value: "600～699万" },
       { label: "700万～", value: "700～799万" },
@@ -86,8 +72,7 @@ const initialQuestions = [
       { label: "1200万～", value: "1200～1299万" },
       { label: "1500万～", value: "1500～1999万" },
       { label: "2000万～", value: "2000～2499万" },
-      { label: "3000万～", value: "3000～3999万" },
-      { label: "5000万～", value: "5000万～1億未満" }
+      { label: "3000万～", value: "3000～3999万" }
     ],
     key: "annual_income", validation: (v) => !!v, errorMessage: "選択してください。"
   },

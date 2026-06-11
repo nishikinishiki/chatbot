@@ -247,7 +247,6 @@ body {
   padding: 10px 14px;
   border-radius: 18px;
   word-wrap: break-word;
-  font-size: 0.95em;
   box-shadow: var(--shadow-sm);
 }
 
@@ -349,7 +348,6 @@ body {
   border: 1px solid var(--theme-primary);
   color: var(--theme-black);
   padding: 12px 6px;
-  font-size: 0.8em;
   border-radius: 20px;
   cursor: pointer;
   text-align: center;
