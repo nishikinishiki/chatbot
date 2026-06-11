@@ -61,9 +61,8 @@ async function initializeChat() {
         faviconLink.rel = 'icon'; faviconLink.href = FAVICON_URL;
         document.head.appendChild(faviconLink);
     }
-    const bannerUrl = getBannerUrl();
-    if (bannerUrl) {
-        displayBannerImage(bannerUrl);
+    if (typeof BANNER_IMAGE_URL !== 'undefined' && BANNER_IMAGE_URL) {
+        displayBannerImage(BANNER_IMAGE_URL);
     }
 
     await showSystemMessages(SYSTEM_MESSAGES.welcome);
