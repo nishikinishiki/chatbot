@@ -13,80 +13,20 @@ const state = {
     completedEffectiveQuestions: 0,
     questions: [],
     gaStepCounter: 0,
-    chatHistory: [],  
-    isRestoring: false,
     waitingForInput: false // 増殖バグ防止用フラグ
 };
 
-// ==========================================
-// ★ かご落ち対策のフックと保存・復元ロジック
-// ==========================================
 
-// ボットメッセージの保存
-const originalAddBotMessage = addBotMessage;
-addBotMessage = async function(text, isHtml = false, isError = false, isEbookBtn = false) {
-    if (!state.isRestoring) {
-        state.chatHistory.push({ sender: 'bot', text, isHtml, isError, isEbookBtn });
-        saveState();
-    }
-    return await originalAddBotMessage(text, isHtml, isError, isEbookBtn);
-};
-
-// ユーザーメッセージの保存
-const originalAddUserMessage = addUserMessage;
-addUserMessage = function(text) {
-    if (!state.isRestoring) {
-        state.chatHistory.push({ sender: 'user', text });
-        saveState();
-    }
-    return originalAddUserMessage(text);
-};
-
-function saveState() {
-    if (state.isRestoring) return;
-    const stateToSave = { ...state };
-    delete stateToSave.questions;
-    delete stateToSave.isRestoring;
-    localStorage.setItem('jp_returns_chat_state', JSON.stringify(stateToSave));
-}
-
-function clearState() {
-    localStorage.removeItem('jp_returns_chat_state');
-}
-
-// タイムラインへのシステムメッセージ挿入
-function insertTimelineSystemMessage() {
-    const chatMessages = document.getElementById('chatMessages');
-    if (!chatMessages) return;
-    
-    const wrapper = document.createElement('div');
-    wrapper.className = 'system-timeline-message';
-    wrapper.innerHTML = `
-        <div class="system-timeline-message-content">
-            <span>前回の回答の続きから表示しています。</span>
-            <a href="#" onclick="window.resetChatAndReload(event)">最初から回答する</a>
-        </div>
-    `;
-    chatMessages.appendChild(wrapper);
-    requestAnimationFrame(() => { chatMessages.scrollTop = chatMessages.scrollHeight; });
-}
-
-// リセット処理（アラートなし）
-window.resetChatAndReload = function(e) {
-    e.preventDefault();
-    clearState();
-    window.location.reload();
-};
 
 // --- GAイベント送信 ---
 function sendGaEvent(question, answerValue) {
     if (!window.dataLayer) return;
-    state.gaStepCounter++; 
+    state.gaStepCounter++;
     window.dataLayer.push({
         'event': 'question_answered',
         'form_variant': window.location.pathname,
         'step_number': state.gaStepCounter,
-        'question_id': question.id.toString(), 
+        'question_id': question.id.toString(),
         'question_item': question.item,
         'answer_value': answerValue
     });
@@ -105,15 +45,15 @@ async function showSystemMessages(messageArray) {
 function getBannerUrl() {
     // まずデフォルトの画像をセット
     let url = typeof BANNER_IMAGE_URL !== 'undefined' ? BANNER_IMAGE_URL : null;
-    
+
     // 現在のセッションの utm_campaign の値を取得
     const currentCampaign = state.utmParameters.utm_campaign;
-    
+
     // config.js に対応表があり、かつ一致するキャンペーンがあればURLを上書き
     if (currentCampaign && typeof CAMPAIGN_BANNERS !== 'undefined' && CAMPAIGN_BANNERS[currentCampaign]) {
         url = CAMPAIGN_BANNERS[currentCampaign];
     }
-    
+
     return url;
 }
 
@@ -126,78 +66,26 @@ async function initializeChat() {
     window.addEventListener('resize', adjustChatHeight);
     window.addEventListener('orientationchange', adjustChatHeight);
 
-    const savedStateJson = localStorage.getItem('jp_returns_chat_state');
-    
-    if (savedStateJson) {
-        // 【復元フロー】
-        const savedState = JSON.parse(savedStateJson);
-        Object.assign(state, savedState);
-        state.questions = state.currentFlow === 'initial' ? initialQuestions : additionalQuestions;
-        
-        const urlParams = new URLSearchParams(window.location.search);
-        getUtmParameters(urlParams);
-        Object.assign(state.userResponses, state.utmParameters);
+    // 常に新規フローとして開始する
+    const urlParams = new URLSearchParams(window.location.search);
+    getUtmParameters(urlParams);
+    state.currentFlow = 'initial';
+    state.questions = initialQuestions;
+    Object.assign(state.userResponses, state.utmParameters);
+    state.currentSessionId = generateSessionId();
 
-        if (typeof FAVICON_URL !== 'undefined' && FAVICON_URL) {
-            const faviconLink = document.createElement('link');
-            faviconLink.rel = 'icon'; faviconLink.href = FAVICON_URL;
-            document.head.appendChild(faviconLink);
-        }
-        
-        // ★修正箇所: 単純なBANNER_IMAGE_URLの読み込みから、出し分け関数経由に変更
-        const bannerUrl = getBannerUrl();
-        if (bannerUrl) displayBannerImage(bannerUrl);
-
-        state.isRestoring = true;
-        
-        // 挿入位置の特定（最後のユーザー発言の直後）
-        let sysMsgInsertIndex = 0;
-        for (let i = state.chatHistory.length - 1; i >= 0; i--) {
-            if (state.chatHistory[i].sender === 'user') {
-                sysMsgInsertIndex = i + 1;
-                break;
-            }
-        }
-
-        for (let i = 0; i < state.chatHistory.length; i++) {
-            if (i === sysMsgInsertIndex) insertTimelineSystemMessage();
-
-            const msg = state.chatHistory[i];
-            if (msg.sender === 'bot') {
-                await originalAddBotMessage(msg.text, msg.isHtml, msg.isError, msg.isEbookBtn);
-            } else if (msg.sender === 'user') {
-                originalAddUserMessage(msg.text);
-            }
-        }
-        
-        if (sysMsgInsertIndex === state.chatHistory.length) insertTimelineSystemMessage();
-
-        state.isRestoring = false;
-        calculateProgress();
-        setTimeout(askQuestion, 150);
-
-    } else {
-        // 【新規フロー】
-        const urlParams = new URLSearchParams(window.location.search);
-        getUtmParameters(urlParams);
-        state.currentFlow = 'initial';
-        state.questions = initialQuestions;
-        Object.assign(state.userResponses, state.utmParameters);
-        state.currentSessionId = generateSessionId();
-
-        if (typeof FAVICON_URL !== 'undefined' && FAVICON_URL) {
-            const faviconLink = document.createElement('link');
-            faviconLink.rel = 'icon'; faviconLink.href = FAVICON_URL;
-            document.head.appendChild(faviconLink);
-        }
-        
-        // ★修正箇所: 単純なBANNER_IMAGE_URLの読み込みから、出し分け関数経由に変更
-        const bannerUrl = getBannerUrl();
-        if (bannerUrl) displayBannerImage(bannerUrl);
-
-        await showSystemMessages(SYSTEM_MESSAGES.welcome);
-        setTimeout(askQuestion, 150);
+    if (typeof FAVICON_URL !== 'undefined' && FAVICON_URL) {
+        const faviconLink = document.createElement('link');
+        faviconLink.rel = 'icon'; faviconLink.href = FAVICON_URL;
+        document.head.appendChild(faviconLink);
     }
+    const bannerUrl = getBannerUrl();
+    if (bannerUrl) {
+        displayBannerImage(bannerUrl);
+    }
+
+    await showSystemMessages(SYSTEM_MESSAGES.welcome);
+    setTimeout(askQuestion, 150);
 }
 
 // --- メイン会話フロー ---
@@ -208,7 +96,7 @@ async function askQuestion() {
         handleFlowCompletion();
         return;
     }
-    
+
     const wasWaiting = state.waitingForInput;
 
     if (!wasWaiting) {
@@ -217,36 +105,36 @@ async function askQuestion() {
             await addBotMessage(currentQuestion.question, currentQuestion.isHtmlQuestion);
         }
     }
-    
-    switch(currentQuestion.answer_method) {
+
+    switch (currentQuestion.answer_method) {
         case 'single-choice':
             displayChoices(currentQuestion, (selection, container) => handleSingleChoice(currentQuestion, selection, container));
-            state.waitingForInput = true; saveState(); 
+            state.waitingForInput = true;
             break;
         case 'multi-choice':
             displayMultiChoices(currentQuestion, (selections, container) => handleMultiChoice(currentQuestion, selections, container));
-            state.waitingForInput = true; saveState();
+            state.waitingForInput = true;
             break;
         case 'text': case 'tel': case 'email':
-             displayNormalInput(currentQuestion, { onSend: (value, container) => handleTextInput(currentQuestion, value, container) });
-             state.waitingForInput = true; saveState();
+            displayNormalInput(currentQuestion, { onSend: (value, container) => handleTextInput(currentQuestion, value, container) });
+            state.waitingForInput = true;
             break;
         case 'text-pair':
             handlePairedQuestion(currentQuestion, wasWaiting);
             break;
         case 'time-table':
             displayTimeTable(currentQuestion, (value, container) => handleTimeTableInput(currentQuestion, value, container));
-            state.waitingForInput = true; saveState();
+            state.waitingForInput = true;
             break;
         case 'final-consent':
-             displayFinalConsentScreen(currentQuestion, state.userResponses, initialQuestions, (container) => {
+            displayFinalConsentScreen(currentQuestion, state.userResponses, initialQuestions, (container) => {
                 if (container) disableInputs(container);
-                state.waitingForInput = false; 
+                state.waitingForInput = false;
                 state.userResponses[currentQuestion.key] = true;
                 sendGaEvent(currentQuestion, 'true');
                 submitDataToGAS(state.userResponses, false);
-             });
-             state.waitingForInput = true; saveState();
+            });
+            state.waitingForInput = true;
             break;
         default:
             proceedToNextStep();
@@ -278,14 +166,14 @@ function proceedToNextStep() {
     state.completedEffectiveQuestions++;
     state.currentStep++;
     state.subStep = 0;
-    saveState();
+
     setTimeout(askQuestion, 150);
 }
 
 function saveAndProceed(question, saveValue, displayLabel, container, gaValue = saveValue) {
     if (container) disableInputs(container);
-    state.waitingForInput = false; 
-    addUserMessage(displayLabel); 
+    state.waitingForInput = false;
+    addUserMessage(displayLabel);
     const responseSet = (state.currentFlow === 'initial') ? state.userResponses : state.additionalUserResponses;
     responseSet[question.key] = saveValue;
     sendGaEvent(question, gaValue);
@@ -319,24 +207,24 @@ async function handlePairedQuestion(question, wasWaiting) {
         state.waitingForInput = false;
         const responseSet = (state.currentFlow === 'initial') ? state.userResponses : state.additionalUserResponses;
         question.inputs.forEach((inputConfig, index) => { responseSet[inputConfig.key] = values[index]; });
-        addUserMessage(values.join(' ')); 
+        addUserMessage(values.join(' '));
         sendGaEvent(question, '[REDACTED]');
         state.currentStep++;
         state.subStep = 0;
         state.completedEffectiveQuestions++;
-        saveState();
-        calculateProgress(); 
+
+        calculateProgress();
         setTimeout(askQuestion, 150);
     });
-    state.waitingForInput = true; saveState();
+    state.waitingForInput = true;
 }
 
 function handleTimeTableInput(question, value, container) {
     if (!question.validation(value)) return;
     if (container) disableInputs(container);
     const timeLabel = question.timeSlots.find(slot => slot.value === value.time)?.label || value.time;
-    state.waitingForInput = false; 
-    addUserMessage(`${value.date} ${timeLabel}`); 
+    state.waitingForInput = false;
+    addUserMessage(`${value.date} ${timeLabel}`);
     const responseTarget = state.currentFlow === 'initial' ? state.userResponses : state.additionalUserResponses;
     responseTarget[question.keys.date] = value.date;
     responseTarget[question.keys.time] = value.time;
@@ -409,12 +297,12 @@ async function submitDataToGAS(dataToSend, isAdditional) {
                 });
             }
             clearChatMessages();
-            state.chatHistory = [];
+
             await showSystemMessages(SYSTEM_MESSAGES.initial_complete);
             startAdditionalQuestionsFlow();
         } else {
             await showSystemMessages(SYSTEM_MESSAGES.final_complete);
-            clearState();
+
         }
     } catch (error) {
         hideLoadingMessage();
@@ -428,7 +316,7 @@ function startAdditionalQuestionsFlow() {
     state.questions = additionalQuestions;
     state.currentStep = 0;
     state.completedEffectiveQuestions = 0;
-    saveState();
-    if(typeof updateProgressBar === 'function') updateProgressBar(0);
+
+    if (typeof updateProgressBar === 'function') updateProgressBar(0);
     askQuestion();
 }

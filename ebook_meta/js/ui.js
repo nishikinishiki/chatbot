@@ -110,7 +110,7 @@ function createEbookButtonMessage(text) {
     link.target = "_blank";
     link.className = "ebook-button-link";
     link.innerHTML = `${ICONS.BOOK}<span>${text}</span>`;
-    
+
     container.appendChild(link);
     dom.chatMessages.appendChild(wrapper);
     return wrapper;
@@ -135,22 +135,22 @@ function mountInputWrapper(wrapper) {
 // ==========================================
 function formatInputValue(value, type, key) {
     let val = value;
-    
+
     // 1. 全角英数記号を半角に変換 (電話番号・メール)
     if (type === 'tel' || type === 'email' || key === 'email_address') {
         val = val.replace(/[Ａ-Ｚａ-ｚ０-９]/g, s => String.fromCharCode(s.charCodeAt(0) - 0xFEE0));
     }
-    
+
     // 2. ハイフン等を除去 (電話番号)
     if (type === 'tel') {
         val = val.replace(/[ー－‐-]/g, '');
     }
-    
+
     // 3. ひらがなを全角カタカナに変換 (フリガナ)
     if (key && key.includes('kana')) {
         val = val.replace(/[ぁ-ん]/g, s => String.fromCharCode(s.charCodeAt(0) + 0x60));
     }
-    
+
     return val;
 }
 
@@ -161,9 +161,87 @@ function disableInputs(container) {
     container.classList.add('inputs-disabled');
 }
 
+// ==========================================
+// ★新規: 入力イベントとUI制御を統合する共通関数
+// ==========================================
+function setupInputEvents({ inputs, btn, errorMsg, validationFn, formatConfigs, onValidSubmit }) {
+    let hasInteractedLast = false;
+    let isComposing = false;
+
+    // バリデーションとUIの更新処理
+    const checkValidation = () => {
+        const vals = inputs.map(i => i.value.trim());
+        const isValid = validationFn(...vals);
+        const hasAnyInput = vals.some(v => v.length > 0);
+
+        btn.disabled = !isValid;
+        btn.classList.toggle('enabled', isValid);
+
+        if (isValid) {
+            errorMsg.classList.remove('show');
+        } else if (hasInteractedLast && hasAnyInput) {
+            errorMsg.classList.add('show');
+        } else {
+            errorMsg.classList.remove('show');
+        }
+
+        return { isValid, vals };
+    };
+
+    // 送信処理
+    const handleSubmit = () => {
+        const { isValid, vals } = checkValidation();
+        if (isValid) onValidSubmit(vals);
+    };
+
+    // 送信ボタンのクリックイベント
+    btn.addEventListener('click', handleSubmit);
+
+    // 各入力欄へのイベント付与
+    inputs.forEach((input, idx) => {
+        const conf = Array.isArray(formatConfigs) ? formatConfigs[idx] : formatConfigs;
+
+        input.addEventListener('compositionstart', () => isComposing = true);
+
+        input.addEventListener('compositionend', () => {
+            isComposing = false;
+            input.value = formatInputValue(input.value, conf.type, conf.key);
+            checkValidation();
+        });
+
+        input.addEventListener('input', () => {
+            if (!isComposing) {
+                input.value = formatInputValue(input.value, conf.type, conf.key);
+                checkValidation();
+            }
+        });
+
+        input.addEventListener('blur', () => {
+            if (idx === inputs.length - 1) hasInteractedLast = true;
+            input.value = formatInputValue(input.value, conf.type, conf.key);
+            checkValidation();
+        });
+
+        input.addEventListener('keydown', (e) => {
+            if (e.key === 'Enter') {
+                e.preventDefault();
+                if (idx < inputs.length - 1) {
+                    inputs[idx + 1].focus(); // 次の入力欄へ移動
+                } else {
+                    if (!btn.disabled) {
+                        handleSubmit();
+                    } else {
+                        hasInteractedLast = true;
+                        checkValidation();
+                    }
+                }
+            }
+        });
+    });
+}
+
 // 通常入力 (電話・メール等)
 function displayNormalInput(question, callbacks) {
-    // 共通化関数を使用
     const wrapper = createInputWrapper('column-layout');
 
     wrapper.innerHTML = `
@@ -173,7 +251,7 @@ function displayNormalInput(question, callbacks) {
           <button class="circular-submit-btn" disabled>${ICONS.ARROW_RIGHT}</button>
         </div>
         <div class="input-error-message">${question.errorMessage || '入力内容を確認してください。'}</div>`;
-    
+
     mountInputWrapper(wrapper);
 
     const input = wrapper.querySelector('.user-input-field');
@@ -187,62 +265,55 @@ function displayNormalInput(question, callbacks) {
     input.type = question.type || "text";
     input.focus();
 
-    let hasInteracted = false;
-    let isComposing = false; // IME入力中フラグ
-
-    const checkInput = () => {
-        const val = input.value.trim();
-        const isValid = question.validation(val);
-        
-        btn.disabled = !isValid;
-        btn.classList.toggle('enabled', isValid);
-        
-        if (isValid) {
-            errorMsg.classList.remove('show');
-        } else if (hasInteracted && val.length > 0) {
-            errorMsg.classList.add('show');
-        } else {
-            errorMsg.classList.remove('show');
-        }
-    };
-
-    // 日本語入力（IME）の開始・終了を検知
-    input.addEventListener('compositionstart', () => isComposing = true);
-    input.addEventListener('compositionend', () => {
-        isComposing = false;
-        input.value = formatInputValue(input.value, question.type, question.key);
-        checkInput();
+    // 共通関数を呼び出すだけ
+    setupInputEvents({
+        inputs: [input],
+        btn: btn,
+        errorMsg: errorMsg,
+        validationFn: question.validation,
+        formatConfigs: { type: question.type, key: question.key },
+        onValidSubmit: (vals) => callbacks.onSend(vals[0], wrapper) // 通常入力は値が1つなので vals[0] を渡す
     });
+}
 
-    input.addEventListener('input', () => {
-        // IME入力中でなければ即座にフォーマット
-        if (!isComposing) {
-            input.value = formatInputValue(input.value, question.type, question.key);
-            checkInput();
-        }
-    });
+// ペア入力 (名前・フリガナ)
+function displayPairedInputs(question, onSubmit) {
+    const wrapper = createInputWrapper('column-layout');
 
-    input.addEventListener('blur', () => {
-        hasInteracted = true;
-        // フォーカスが外れた際にも念のためフォーマット
-        input.value = formatInputValue(input.value, question.type, question.key);
-        checkInput();
-    });
-    
-    const handleSend = () => callbacks.onSend(input.value, wrapper);
-    btn.addEventListener('click', handleSend);
-
-    input.addEventListener('keydown', (e) => {
-        if (e.key === 'Enter') {
-            e.preventDefault();
-            if (!btn.disabled) {
-                handleSend();
-            } else {
-                hasInteracted = true;
-                checkInput();
+    let html = `<div class="paired-input-container">`;
+    question.inputs.forEach((conf, idx) => {
+        const isLast = idx === question.inputs.length - 1;
+        html += `
+            <div class="paired-input-row">
+                <label>${conf.label}</label>
+                <input type="${conf.type || 'text'}" placeholder="${conf.placeholder || ''}" data-idx="${idx}">
+                ${isLast
+                ? `<button class="circular-submit-btn" disabled>${ICONS.ARROW_RIGHT}</button>`
+                : `<div class="circular-submit-btn placeholder"></div>`
             }
-        }
+            </div>`;
     });
+    html += `</div>`;
+    html += `<div class="input-error-message">${question.combinedErrorMessage || '入力内容を確認してください。'}</div>`;
+
+    wrapper.innerHTML = html;
+    mountInputWrapper(wrapper);
+
+    const inputs = Array.from(wrapper.querySelectorAll('input'));
+    const btn = wrapper.querySelector('button.circular-submit-btn');
+    const errorMsg = wrapper.querySelector('.input-error-message');
+
+    // 共通関数を呼び出すだけ
+    setupInputEvents({
+        inputs: inputs,
+        btn: btn,
+        errorMsg: errorMsg,
+        validationFn: question.combinedValidation,
+        formatConfigs: question.inputs, // 複数の設定配列をそのまま渡す
+        onValidSubmit: (vals) => onSubmit(vals, wrapper)
+    });
+
+    inputs[0].focus();
 }
 
 // 単一選択
@@ -251,15 +322,11 @@ function displayChoices(question, onSelect) {
     const container = document.createElement('div');
     container.className = 'choices-container';
 
-    // main.js で定義されている state.utmParameters を安全に取得
-    const utmParams = (typeof state !== 'undefined' && state.utmParameters) ? state.utmParameters : {};
-
     question.options.forEach(opt => {
-        // ★新規: isVisible条件が定義されており、かつ評価結果がfalseなら描画をスキップ
-        if (typeof opt.isVisible === 'function' && !opt.isVisible(utmParams)) {
+        // isVisible関数が存在し、かつ false を返した場合は描画をスキップ
+        if (typeof opt.isVisible === 'function' && !opt.isVisible(state.utmParameters)) {
             return;
         }
-
         const btn = document.createElement('button');
         btn.className = 'choice-button';
         const label = typeof opt === 'object' ? opt.label : opt;
@@ -276,7 +343,7 @@ function displayChoices(question, onSelect) {
 // 複数選択
 function displayMultiChoices(question, onSelect) {
     const wrapper = createInputWrapper('multi-choice-wrapper');
-    
+
     const inner = document.createElement('div');
     inner.className = 'multi-choice-inner-wrapper';
     const choicesContainer = document.createElement('div');
@@ -292,11 +359,10 @@ function displayMultiChoices(question, onSelect) {
     const utmParams = (typeof state !== 'undefined' && state.utmParameters) ? state.utmParameters : {};
 
     question.options.forEach(opt => {
-        // ★新規: 複数選択でも同様に条件判定を追加（将来の拡張用）
+        // ★新規: 複数選択でも同様に条件判定を追加
         if (typeof opt.isVisible === 'function' && !opt.isVisible(utmParams)) {
             return;
         }
-
         const btn = document.createElement('button');
         btn.className = 'choice-button';
         const label = typeof opt === 'object' ? opt.label : opt;
@@ -327,113 +393,6 @@ function displayMultiChoices(question, onSelect) {
     mountInputWrapper(wrapper);
 }
 
-// ペア入力 (名前・フリガナ)
-function displayPairedInputs(question, onSubmit) {
-    const wrapper = createInputWrapper('column-layout');
-
-    let html = `<div class="paired-input-container">`;
-    question.inputs.forEach((conf, idx) => {
-        const isLast = idx === question.inputs.length - 1;
-        html += `
-            <div class="paired-input-row">
-                <label>${conf.label}</label>
-                <input type="${conf.type || 'text'}" placeholder="${conf.placeholder || ''}" data-idx="${idx}">
-                ${isLast 
-                    ? `<button class="circular-submit-btn" disabled>${ICONS.ARROW_RIGHT}</button>` 
-                    : `<div class="circular-submit-btn placeholder"></div>`
-                }
-            </div>`;
-    });
-    html += `</div>`;
-    html += `<div class="input-error-message">${question.combinedErrorMessage || '入力内容を確認してください。'}</div>`;
-    
-    wrapper.innerHTML = html;
-    mountInputWrapper(wrapper);
-
-    const inputs = Array.from(wrapper.querySelectorAll('input'));
-    const btn = wrapper.querySelector('button.circular-submit-btn'); // クラス統合
-    const errorMsg = wrapper.querySelector('.input-error-message');
-
-    let hasInteractedLast = false;
-
-    const checkValidation = () => {
-        const vals = inputs.map(i => i.value.trim());
-        const isValid = question.combinedValidation(...vals);
-        
-        btn.disabled = !isValid;
-        btn.classList.toggle('enabled', isValid);
-
-        const hasAnyInput = vals.some(v => v.length > 0);
-        
-        if (isValid) {
-            errorMsg.classList.remove('show');
-        } else if (hasInteractedLast && hasAnyInput) {
-            errorMsg.classList.add('show');
-        } else {
-            errorMsg.classList.remove('show');
-        }
-        
-        return { isValid, vals };
-    };
-
-    const handleFinalSubmit = () => {
-        const { isValid, vals } = checkValidation();
-        if (isValid) onSubmit(vals, wrapper);
-    };
-
-    btn.addEventListener('click', handleFinalSubmit);
-
-    inputs.forEach((input, idx) => {
-        const conf = question.inputs[idx];
-        let isComposing = false;
-
-        input.addEventListener('compositionstart', () => isComposing = true);
-        input.addEventListener('compositionend', () => {
-            isComposing = false;
-            input.value = formatInputValue(input.value, conf.type, conf.key);
-            checkValidation();
-        });
-
-        input.addEventListener('input', () => {
-            if (!isComposing) {
-                input.value = formatInputValue(input.value, conf.type, conf.key);
-                checkValidation();
-            }
-        });
-
-        if (idx === inputs.length - 1) {
-            input.addEventListener('blur', () => {
-                hasInteractedLast = true;
-                input.value = formatInputValue(input.value, conf.type, conf.key);
-                checkValidation();
-            });
-        } else {
-            input.addEventListener('blur', () => {
-                input.value = formatInputValue(input.value, conf.type, conf.key);
-                checkValidation();
-            });
-        }
-
-        input.addEventListener('keydown', (e) => {
-            if (e.key === 'Enter') {
-                e.preventDefault();
-                if (idx < inputs.length - 1) {
-                    inputs[idx + 1].focus();
-                } else {
-                    if (!btn.disabled) {
-                        handleFinalSubmit();
-                    } else {
-                        hasInteractedLast = true;
-                        checkValidation();
-                    }
-                }
-            }
-        });
-    });
-
-    inputs[0].focus();
-}
-
 // カレンダー形式
 function displayTimeTable(question, onSubmit) {
     const wrapper = createInputWrapper();
@@ -444,15 +403,15 @@ function displayTimeTable(question, onSubmit) {
     let selected = null;
 
     const render = (startDate) => {
-        startDate.setHours(0,0,0,0);
+        startDate.setHours(0, 0, 0, 0);
         container.innerHTML = '';
         const header = document.createElement('div');
         header.className = 'time-table-header';
-        
+
         const prev = document.createElement('button');
         prev.className = 'time-table-nav';
         prev.innerHTML = '&lt;';
-        const today = new Date(); today.setHours(0,0,0,0);
+        const today = new Date(); today.setHours(0, 0, 0, 0);
         prev.disabled = startDate <= today;
         prev.onclick = () => { startDate.setDate(startDate.getDate() - 7); render(startDate); };
 
@@ -461,19 +420,19 @@ function displayTimeTable(question, onSubmit) {
         next.innerHTML = '&gt;';
         next.onclick = () => { startDate.setDate(startDate.getDate() + 7); render(startDate); };
 
-        header.append(prev, `${startDate.getFullYear()}年 ${startDate.getMonth()+1}月`, next);
+        header.append(prev, `${startDate.getFullYear()}年 ${startDate.getMonth() + 1}月`, next);
         container.appendChild(header);
 
         const table = document.createElement('table');
         table.className = 'time-table';
         const thr = table.createTHead().insertRow(); thr.insertCell();
         const dates = [];
-        for(let i=0; i<7; i++){
-            const d = new Date(startDate); d.setDate(d.getDate()+i); dates.push(d);
+        for (let i = 0; i < 7; i++) {
+            const d = new Date(startDate); d.setDate(d.getDate() + i); dates.push(d);
             const th = document.createElement('th');
             if (d.getDay() === 0) th.classList.add('sunday');
             if (d.getDay() === 6) th.classList.add('saturday');
-            th.innerHTML = `${d.getDate()}<br><span>(${['日','月','火','水','木','金','土'][d.getDay()]})</span>`;
+            th.innerHTML = `${d.getDate()}<br><span>(${['日', '月', '火', '水', '木', '金', '土'][d.getDay()]})</span>`;
             thr.appendChild(th);
         }
 
@@ -485,15 +444,15 @@ function displayTimeTable(question, onSubmit) {
                 const cell = tr.insertCell();
                 cell.className = 'time-slot-cell';
                 const isPast = d < today || (d.getTime() === today.getTime() && new Date().getHours() >= parseInt(slot.value));
-                if(isPast) {
+                if (isPast) {
                     cell.classList.add('disabled'); cell.innerHTML = '×';
                 } else {
                     cell.innerHTML = '○';
                     cell.onclick = () => {
-                        if(selected) selected.classList.remove('selected');
+                        if (selected) selected.classList.remove('selected');
                         selected = cell; cell.classList.add('selected');
                         subBtn.disabled = false; subBtn.classList.add('enabled');
-                        selected.dataset.date = `${d.getFullYear()}/${String(d.getMonth()+1).padStart(2,'0')}/${String(d.getDate()).padStart(2,'0')}`;
+                        selected.dataset.date = `${d.getFullYear()}/${String(d.getMonth() + 1).padStart(2, '0')}/${String(d.getDate()).padStart(2, '0')}`;
                         selected.dataset.val = slot.value;
                     };
                 }
@@ -506,7 +465,7 @@ function displayTimeTable(question, onSubmit) {
         subBtn.innerHTML = ICONS.ARROW_RIGHT;
         subBtn.disabled = true;
         subBtn.onclick = () => onSubmit({ date: selected.dataset.date, time: selected.dataset.val }, wrapper);
-        
+
         const act = document.createElement('div'); act.className = 'time-table-actions';
         act.appendChild(subBtn);
         container.appendChild(act);
@@ -520,7 +479,7 @@ function displayTimeTable(question, onSubmit) {
 // 最終確認画面
 function displayFinalConsentScreen(question, userResponses, initialQuestions, onSubmit) {
     displaySummaryArea(userResponses, initialQuestions);
-    
+
     const consentText = document.createElement('div');
     consentText.className = 'summary-adjacent-consent-text';
     consentText.innerHTML = `<a href="${question.privacy_policy_url}" target="_blank">${question.privacy_policy_link_text}</a>に同意する。`;
@@ -531,7 +490,7 @@ function displayFinalConsentScreen(question, userResponses, initialQuestions, on
     btn.className = 'choice-button final-consent-submit-button';
     btn.innerHTML = `<span>${question.submit_button_text}</span>${ICONS.SEND}`;
     btn.onclick = () => { btn.disabled = true; onSubmit(wrapper); };
-    
+
     wrapper.appendChild(btn);
     mountInputWrapper(wrapper);
 }
@@ -553,11 +512,11 @@ function displaySummaryArea(responses, questions) {
         // 1. お名前・フリガナの処理 (key_group判定)
         if (q.key_group === "name_details") {
             if (!nameDone) {
-                list.innerHTML += `<li><span class="summary-item-label">お名前 </span><span class="summary-item-value">${responses.last_name||''} ${responses.first_name||''}</span></li>`;
-                list.innerHTML += `<li><span class="summary-item-label">フリガナ </span><span class="summary-item-value">${responses.last_name_kana||''} ${responses.first_name_kana||''}</span></li>`;
+                list.innerHTML += `<li><span class="summary-item-label">お名前 </span><span class="summary-item-value">${responses.last_name || ''} ${responses.first_name || ''}</span></li>`;
+                list.innerHTML += `<li><span class="summary-item-label">フリガナ </span><span class="summary-item-value">${responses.last_name_kana || ''} ${responses.first_name_kana || ''}</span></li>`;
                 nameDone = true;
             }
-        } 
+        }
         // 2. ★修正箇所: タイムテーブル（面談希望日時）の処理
         // keys オブジェクトから日付と時間をそれぞれ抽出して結合します
         else if (q.answer_method === 'time-table' && q.keys) {
@@ -573,7 +532,7 @@ function displaySummaryArea(responses, questions) {
         // 3. 通常の入力項目の処理 (単一の 'key' を持つもの)
         else if (q.key && responses[q.key]) {
             let val = responses[q.key];
-            
+
             // 単一選択の場合は、保存値ではなく表示用のラベルを探して表示
             if (q.answer_method === 'single-choice' && Array.isArray(q.options)) {
                 const opt = q.options.find(o => o.value === val);
@@ -610,11 +569,11 @@ function hideLoadingMessage() {
 function showModal(title, content) {
     dom.modalTitle.textContent = title;
     dom.modalBody.innerHTML = content;
-    dom.giftTermsModal.classList.add('show'); 
+    dom.giftTermsModal.classList.add('show');
 }
 
 function hideModal() {
-    dom.giftTermsModal.classList.remove('show'); 
+    dom.giftTermsModal.classList.remove('show');
 }
 
 function displayBannerImage(url) {
@@ -622,20 +581,37 @@ function displayBannerImage(url) {
     const wrapper = document.createElement('div');
     wrapper.className = 'banner-image-wrapper';
 
-    const img = document.createElement('img');
-    img.src = url; 
-    img.className = 'chat-banner-image';
-    
-    // 画像エラー時は、この箱ごと（テキストも含めて）削除する
-    img.onerror = () => wrapper.remove();
-    wrapper.appendChild(img);
+    // URLの末尾が .mp4 かどうかで判定
+    const isVideo = url.toLowerCase().endsWith('.mp4');
 
-    // 同じ箱の中に、画像に続けてリンクテキストを追加する
+    if (isVideo) {
+        // 動画の場合
+        const video = document.createElement('video');
+        video.src = url;
+        video.className = 'chat-banner-image'; // 既存のCSSクラスを流用
+        video.autoplay = true;  // 自動再生
+        video.loop = true;      // ループ再生
+        video.muted = true;     // ミュート（自動再生に必須）
+        video.playsInline = true; // スマホでのインライン再生用
+
+        video.onerror = () => wrapper.remove();
+        wrapper.appendChild(video);
+    } else {
+        // 画像の場合（元の処理）
+        const img = document.createElement('img');
+        img.src = url;
+        img.className = 'chat-banner-image';
+
+        img.onerror = () => wrapper.remove();
+        wrapper.appendChild(img);
+    }
+
+    // 同じ箱の中に、画像・動画に続けてリンクテキストを追加する
     if (typeof GIFT_TERMS_CONFIG !== 'undefined') {
         const termsText = document.createElement('div');
         termsText.className = 'banner-gift-terms-link';
         termsText.innerHTML = `${GIFT_TERMS_CONFIG.link_text_prefix}<a href="#" id="bannerGiftLink">${GIFT_TERMS_CONFIG.link_text_clickable}</a>`;
-        
+
         termsText.querySelector('#bannerGiftLink').onclick = (e) => {
             e.preventDefault();
             showModal(GIFT_TERMS_CONFIG.popup_title, GIFT_TERMS_CONFIG.popup_content);

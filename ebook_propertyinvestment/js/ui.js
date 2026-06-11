@@ -161,9 +161,87 @@ function disableInputs(container) {
     container.classList.add('inputs-disabled');
 }
 
+// ==========================================
+// ★新規: 入力イベントとUI制御を統合する共通関数
+// ==========================================
+function setupInputEvents({ inputs, btn, errorMsg, validationFn, formatConfigs, onValidSubmit }) {
+    let hasInteractedLast = false;
+    let isComposing = false;
+
+    // バリデーションとUIの更新処理
+    const checkValidation = () => {
+        const vals = inputs.map(i => i.value.trim());
+        const isValid = validationFn(...vals);
+        const hasAnyInput = vals.some(v => v.length > 0);
+
+        btn.disabled = !isValid;
+        btn.classList.toggle('enabled', isValid);
+
+        if (isValid) {
+            errorMsg.classList.remove('show');
+        } else if (hasInteractedLast && hasAnyInput) {
+            errorMsg.classList.add('show');
+        } else {
+            errorMsg.classList.remove('show');
+        }
+
+        return { isValid, vals };
+    };
+
+    // 送信処理
+    const handleSubmit = () => {
+        const { isValid, vals } = checkValidation();
+        if (isValid) onValidSubmit(vals);
+    };
+
+    // 送信ボタンのクリックイベント
+    btn.addEventListener('click', handleSubmit);
+
+    // 各入力欄へのイベント付与
+    inputs.forEach((input, idx) => {
+        const conf = Array.isArray(formatConfigs) ? formatConfigs[idx] : formatConfigs;
+
+        input.addEventListener('compositionstart', () => isComposing = true);
+
+        input.addEventListener('compositionend', () => {
+            isComposing = false;
+            input.value = formatInputValue(input.value, conf.type, conf.key);
+            checkValidation();
+        });
+
+        input.addEventListener('input', () => {
+            if (!isComposing) {
+                input.value = formatInputValue(input.value, conf.type, conf.key);
+                checkValidation();
+            }
+        });
+
+        input.addEventListener('blur', () => {
+            if (idx === inputs.length - 1) hasInteractedLast = true;
+            input.value = formatInputValue(input.value, conf.type, conf.key);
+            checkValidation();
+        });
+
+        input.addEventListener('keydown', (e) => {
+            if (e.key === 'Enter') {
+                e.preventDefault();
+                if (idx < inputs.length - 1) {
+                    inputs[idx + 1].focus(); // 次の入力欄へ移動
+                } else {
+                    if (!btn.disabled) {
+                        handleSubmit();
+                    } else {
+                        hasInteractedLast = true;
+                        checkValidation();
+                    }
+                }
+            }
+        });
+    });
+}
+
 // 通常入力 (電話・メール等)
 function displayNormalInput(question, callbacks) {
-    // 共通化関数を使用
     const wrapper = createInputWrapper('column-layout');
 
     wrapper.innerHTML = `
@@ -187,62 +265,55 @@ function displayNormalInput(question, callbacks) {
     input.type = question.type || "text";
     input.focus();
 
-    let hasInteracted = false;
-    let isComposing = false; // IME入力中フラグ
-
-    const checkInput = () => {
-        const val = input.value.trim();
-        const isValid = question.validation(val);
-
-        btn.disabled = !isValid;
-        btn.classList.toggle('enabled', isValid);
-
-        if (isValid) {
-            errorMsg.classList.remove('show');
-        } else if (hasInteracted && val.length > 0) {
-            errorMsg.classList.add('show');
-        } else {
-            errorMsg.classList.remove('show');
-        }
-    };
-
-    // 日本語入力（IME）の開始・終了を検知
-    input.addEventListener('compositionstart', () => isComposing = true);
-    input.addEventListener('compositionend', () => {
-        isComposing = false;
-        input.value = formatInputValue(input.value, question.type, question.key);
-        checkInput();
+    // 共通関数を呼び出すだけ
+    setupInputEvents({
+        inputs: [input],
+        btn: btn,
+        errorMsg: errorMsg,
+        validationFn: question.validation,
+        formatConfigs: { type: question.type, key: question.key },
+        onValidSubmit: (vals) => callbacks.onSend(vals[0], wrapper) // 通常入力は値が1つなので vals[0] を渡す
     });
+}
 
-    input.addEventListener('input', () => {
-        // IME入力中でなければ即座にフォーマット
-        if (!isComposing) {
-            input.value = formatInputValue(input.value, question.type, question.key);
-            checkInput();
-        }
-    });
+// ペア入力 (名前・フリガナ)
+function displayPairedInputs(question, onSubmit) {
+    const wrapper = createInputWrapper('column-layout');
 
-    input.addEventListener('blur', () => {
-        hasInteracted = true;
-        // フォーカスが外れた際にも念のためフォーマット
-        input.value = formatInputValue(input.value, question.type, question.key);
-        checkInput();
-    });
-
-    const handleSend = () => callbacks.onSend(input.value, wrapper);
-    btn.addEventListener('click', handleSend);
-
-    input.addEventListener('keydown', (e) => {
-        if (e.key === 'Enter') {
-            e.preventDefault();
-            if (!btn.disabled) {
-                handleSend();
-            } else {
-                hasInteracted = true;
-                checkInput();
+    let html = `<div class="paired-input-container">`;
+    question.inputs.forEach((conf, idx) => {
+        const isLast = idx === question.inputs.length - 1;
+        html += `
+            <div class="paired-input-row">
+                <label>${conf.label}</label>
+                <input type="${conf.type || 'text'}" placeholder="${conf.placeholder || ''}" data-idx="${idx}">
+                ${isLast
+                ? `<button class="circular-submit-btn" disabled>${ICONS.ARROW_RIGHT}</button>`
+                : `<div class="circular-submit-btn placeholder"></div>`
             }
-        }
+            </div>`;
     });
+    html += `</div>`;
+    html += `<div class="input-error-message">${question.combinedErrorMessage || '入力内容を確認してください。'}</div>`;
+
+    wrapper.innerHTML = html;
+    mountInputWrapper(wrapper);
+
+    const inputs = Array.from(wrapper.querySelectorAll('input'));
+    const btn = wrapper.querySelector('button.circular-submit-btn');
+    const errorMsg = wrapper.querySelector('.input-error-message');
+
+    // 共通関数を呼び出すだけ
+    setupInputEvents({
+        inputs: inputs,
+        btn: btn,
+        errorMsg: errorMsg,
+        validationFn: question.combinedValidation,
+        formatConfigs: question.inputs, // 複数の設定配列をそのまま渡す
+        onValidSubmit: (vals) => onSubmit(vals, wrapper)
+    });
+
+    inputs[0].focus();
 }
 
 // 単一選択
@@ -320,113 +391,6 @@ function displayMultiChoices(question, onSelect) {
     inner.appendChild(actions);
     wrapper.appendChild(inner);
     mountInputWrapper(wrapper);
-}
-
-// ペア入力 (名前・フリガナ)
-function displayPairedInputs(question, onSubmit) {
-    const wrapper = createInputWrapper('column-layout');
-
-    let html = `<div class="paired-input-container">`;
-    question.inputs.forEach((conf, idx) => {
-        const isLast = idx === question.inputs.length - 1;
-        html += `
-            <div class="paired-input-row">
-                <label>${conf.label}</label>
-                <input type="${conf.type || 'text'}" placeholder="${conf.placeholder || ''}" data-idx="${idx}">
-                ${isLast
-                ? `<button class="circular-submit-btn" disabled>${ICONS.ARROW_RIGHT}</button>`
-                : `<div class="circular-submit-btn placeholder"></div>`
-            }
-            </div>`;
-    });
-    html += `</div>`;
-    html += `<div class="input-error-message">${question.combinedErrorMessage || '入力内容を確認してください。'}</div>`;
-
-    wrapper.innerHTML = html;
-    mountInputWrapper(wrapper);
-
-    const inputs = Array.from(wrapper.querySelectorAll('input'));
-    const btn = wrapper.querySelector('button.circular-submit-btn'); // クラス統合
-    const errorMsg = wrapper.querySelector('.input-error-message');
-
-    let hasInteractedLast = false;
-
-    const checkValidation = () => {
-        const vals = inputs.map(i => i.value.trim());
-        const isValid = question.combinedValidation(...vals);
-
-        btn.disabled = !isValid;
-        btn.classList.toggle('enabled', isValid);
-
-        const hasAnyInput = vals.some(v => v.length > 0);
-
-        if (isValid) {
-            errorMsg.classList.remove('show');
-        } else if (hasInteractedLast && hasAnyInput) {
-            errorMsg.classList.add('show');
-        } else {
-            errorMsg.classList.remove('show');
-        }
-
-        return { isValid, vals };
-    };
-
-    const handleFinalSubmit = () => {
-        const { isValid, vals } = checkValidation();
-        if (isValid) onSubmit(vals, wrapper);
-    };
-
-    btn.addEventListener('click', handleFinalSubmit);
-
-    inputs.forEach((input, idx) => {
-        const conf = question.inputs[idx];
-        let isComposing = false;
-
-        input.addEventListener('compositionstart', () => isComposing = true);
-        input.addEventListener('compositionend', () => {
-            isComposing = false;
-            input.value = formatInputValue(input.value, conf.type, conf.key);
-            checkValidation();
-        });
-
-        input.addEventListener('input', () => {
-            if (!isComposing) {
-                input.value = formatInputValue(input.value, conf.type, conf.key);
-                checkValidation();
-            }
-        });
-
-        if (idx === inputs.length - 1) {
-            input.addEventListener('blur', () => {
-                hasInteractedLast = true;
-                input.value = formatInputValue(input.value, conf.type, conf.key);
-                checkValidation();
-            });
-        } else {
-            input.addEventListener('blur', () => {
-                input.value = formatInputValue(input.value, conf.type, conf.key);
-                checkValidation();
-            });
-        }
-
-        input.addEventListener('keydown', (e) => {
-            if (e.key === 'Enter') {
-                e.preventDefault();
-                if (idx < inputs.length - 1) {
-                    inputs[idx + 1].focus();
-                } else {
-                    if (!btn.disabled) {
-                        handleFinalSubmit();
-                    } else {
-                        hasInteractedLast = true;
-                        checkValidation();
-                    }
-                }
-            }
-        });
-    });
-
-    inputs[0].focus();
 }
 
 // カレンダー形式
