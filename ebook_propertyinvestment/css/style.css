@@ -12,7 +12,7 @@
   /* 選択時などのアクセント色 */
   --theme-white: #ffffff;
   /* 白 */
-  --theme-black: rgb(51, 51, 51);
+  --theme-black: #212121;
   /* 黒 */
 
   /* --- 2. 背景色 --- */
@@ -362,6 +362,7 @@ body {
   align-items: center;
   justify-content: center;
   box-shadow: var(--shadow-sm);
+  font-size: 0.98rem;
   /* 階層1: 通常ボタン */
 }
 
