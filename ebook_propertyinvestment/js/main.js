@@ -283,6 +283,7 @@ async function submitDataToGAS(dataToSend, isAdditional) {
                         ? '+81' + phoneNumber.substring(1)
                         : '+81' + phoneNumber;
                 }
+                console.log('event: chat_form_submission_success');
 
                 window.dataLayer.push({
                     'event': 'chat_form_submission_success',
