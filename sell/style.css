@@ -12,8 +12,8 @@
     --success-color: #34c759;
 
     --font-base: "Helvetica Neue", Arial, "Hiragino Kaku Gothic ProN", "Hiragino Sans", Meiryo, sans-serif;
-    --radius-md: 8px;
-    --radius-lg: 30px;
+    --radius-md: 4px;
+    --radius-lg: 15px;
     --transition-fast: opacity 0.3s ease, transform 0.3s ease, border-color 0.2s;
 }
 
@@ -240,6 +240,12 @@ select:focus {
     color: var(--text-muted);
 }
 
+/* プレースホルダー*/
+::placeholder {
+    color: #aaaaaa;
+    opacity: 1;
+}
+
 .radio-grid {
     display: flex;
     flex-direction: column;
@@ -282,7 +288,9 @@ select:focus {
     display: block;
 }
 
-/* サジェストUI */
+/* ==========================================================================
+   サジェスト（オートコンプリート）UI
+   ========================================================================== */
 .suggest-wrapper {
     position: relative;
 }
@@ -295,23 +303,78 @@ select:focus {
     background: var(--bg-white);
     border: 1px solid var(--border-color);
     border-top: none;
-    border-radius: 0 0 var(--radius-md) var(--radius-md);
-    max-height: 200px;
+    max-height: 320px;
+    /* スクロール枠の高さを拡張 */
     overflow-y: auto;
     z-index: 10;
     display: none;
-    box-shadow: 0 4px 6px rgba(0, 0, 0, 0.1);
+    box-shadow: 0 4px 12px rgba(0, 0, 0, 0.1);
 }
 
+/* 各項目のデザイン（区切り線を付ける） */
 .suggest-item {
-    padding: 12px 16px;
+    padding: 14px 16px;
     cursor: pointer;
-    font-size: 14px;
+    border-bottom: 1px solid #eeeeee;
+    /* 薄いグレーの区切り線 */
+    transition: background-color 0.2s;
+}
+
+.suggest-item:last-child {
+    border-bottom: none;
 }
 
 .suggest-item:hover {
     background-color: var(--bg-light);
-    color: var(--primary-color);
+}
+
+/* マンション名（上段） */
+.suggest-name {
+    font-size: 15px;
+    color: var(--text-dark);
+    margin-bottom: 4px;
+}
+
+/* 住所（下段） */
+.suggest-address {
+    font-size: 12px;
+    color: var(--text-muted);
+}
+
+/* ==========================================================================
+   サジェスト機能の追加UI (ヒントテキスト & ローディング)
+   ========================================================================== */
+.input-hint {
+    font-size: 12px;
+    color: var(--text-muted);
+    margin-top: 8px;
+    padding-left: 4px;
+}
+
+.loading-spinner {
+    display: none;
+    /* 初期状態は非表示 */
+    position: absolute;
+    right: 16px;
+    top: calc(50% - 10px);
+    /* 縦中央寄せ */
+    width: 20px;
+    height: 20px;
+    border: 2px solid var(--border-color);
+    border-top-color: var(--primary-color);
+    border-radius: 50%;
+    animation: spin 0.8s linear infinite;
+    z-index: 5;
+}
+
+@keyframes spin {
+    0% {
+        transform: rotate(0deg);
+    }
+
+    100% {
+        transform: rotate(360deg);
+    }
 }
 
 /* ==========================================================================

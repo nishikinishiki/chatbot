@@ -3,7 +3,7 @@ document.addEventListener('DOMContentLoaded', () => {
     // --------------------------------------------------------
     // 設定値 (GASのWebアプリURLを設定してください)
     // --------------------------------------------------------
-    const GAS_API_URL = "https://script.google.com/macros/s/AKfycbyYPdl_nlhcXvPyy4UwSX4PRrqLrP0KOQ5RYyEyQD1bYHL5YbmfiXISoV-BdOIJcOJ3rQ/exec";
+    const GAS_API_URL = "https://script.google.com/macros/s/AKfycbyXsgpon-REK4MF6aGoaZNjXPoalJsC13W6-FHxPzYxcdlE9e54UKb-XRP0jXG3npPuUg/exec";
 
     // フォーム関連要素
     const form = document.getElementById('estate-form');
@@ -90,33 +90,59 @@ document.addEventListener('DOMContentLoaded', () => {
     // --------------------------------------------------------
     const mansionInput = document.getElementById('mansion_name');
     const suggestList = document.getElementById('mansion-suggest-list');
+    const mansionLoading = document.getElementById('mansion-loading'); // 追加: ローディング要素
     let debounceTimeout;
 
     mansionInput.addEventListener('input', () => {
         clearTimeout(debounceTimeout);
         const keyword = mansionInput.value.trim();
 
+        // 入力が空の場合はリストとスピナーを非表示にして終了
         if (!keyword) {
             suggestList.style.display = 'none';
+            mansionLoading.style.display = 'none';
             return;
         }
 
+        // デバウンス処理（300msのタイマー）
         debounceTimeout = setTimeout(async () => {
             try {
+                // 通信開始：ローディングを表示し、古いリストを隠す
+                mansionLoading.style.display = 'block';
+                suggestList.style.display = 'none';
+
                 const response = await fetch(`${GAS_API_URL}?action=searchMansion&keyword=${encodeURIComponent(keyword)}`);
                 const mansions = await response.json();
 
                 if (mansions && mansions.length > 0) {
                     suggestList.innerHTML = '';
-                    mansions.forEach(name => {
+
+                    // ★ 修正：配列の中身がオブジェクト({name, address})になったので展開方法を変更
+                    mansions.forEach(itemData => {
                         const item = document.createElement('div');
                         item.className = 'suggest-item';
-                        item.textContent = name;
+
+                        // 上段：マンション名
+                        const nameEl = document.createElement('div');
+                        nameEl.className = 'suggest-name';
+                        nameEl.textContent = itemData.name;
+
+                        // 下段：住所
+                        const addressEl = document.createElement('div');
+                        addressEl.className = 'suggest-address';
+                        addressEl.textContent = itemData.address;
+
+                        // 要素を組み立てる
+                        item.appendChild(nameEl);
+                        item.appendChild(addressEl);
+
+                        // 項目をクリックした時の処理
                         item.addEventListener('click', () => {
-                            mansionInput.value = name;
+                            mansionInput.value = itemData.name; // 入力欄には「マンション名」だけを入れる
                             suggestList.style.display = 'none';
                             evaluateFormProgress();
                         });
+
                         suggestList.appendChild(item);
                     });
                     suggestList.style.display = 'block';
@@ -125,10 +151,14 @@ document.addEventListener('DOMContentLoaded', () => {
                 }
             } catch (error) {
                 console.error('サジェストデータの取得に失敗:', error);
+            } finally {
+                // 処理完了（成功でもエラーでも必ず実行）：ローディングを非表示にする
+                mansionLoading.style.display = 'none';
             }
         }, 300);
     });
 
+    // リスト外をクリックした時にサジェストを閉じる
     document.addEventListener('click', (e) => {
         if (!mansionInput.contains(e.target) && !suggestList.contains(e.target)) {
             suggestList.style.display = 'none';
