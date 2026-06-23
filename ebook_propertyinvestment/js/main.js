@@ -40,20 +40,41 @@ async function showSystemMessages(messageArray) {
 }
 
 // ==========================================
-// ★ 新規: バナー画像の出し分け判定ロジック
+// ★ 新規共通関数: UTMパラメータに応じた動的URL取得ロジック
 // ==========================================
-function getBannerUrl() {
-    let url = typeof BANNER_IMAGE_URL !== 'undefined' ? BANNER_IMAGE_URL : null;
+function getDynamicAssetUrl(defaultUrl, assetMap) {
+    let url = defaultUrl || null;
 
-    // 現在のセッションの utm_source の値を取得
-    const currentSource = state.utmParameters.utm_source;
+    // 判定したいUTMパラメータのリスト（優先順位順）
+    const targetParams = ['utm_campaign', 'utm_source'];
 
-    // config.js に対応表があり、かつ一致するキャンペーンがあればURLを上書き
-    if (currentSource && typeof CAMPAIGN_BANNERS !== 'undefined' && CAMPAIGN_BANNERS[currentSource]) {
-        url = CAMPAIGN_BANNERS[currentSource];
+    for (const param of targetParams) {
+        const paramValue = state.utmParameters[param];
+
+        // 対応表(assetMap)が存在し、かつ一致する値があればそのURLを返す
+        if (paramValue && assetMap && assetMap[paramValue]) {
+            return assetMap[paramValue];
+        }
     }
 
     return url;
+}
+
+// ==========================================
+// ★ 各種出し分け用ラッパー関数
+// ==========================================
+function getBannerUrl() {
+    const defaultUrl = typeof BANNER_IMAGE_URL !== 'undefined' ? BANNER_IMAGE_URL : null;
+    const assetMap = typeof CAMPAIGN_BANNERS !== 'undefined' ? CAMPAIGN_BANNERS : null;
+
+    return getDynamicAssetUrl(defaultUrl, assetMap);
+}
+
+function getBotIconUrl() {
+    const defaultUrl = typeof BOT_ICON_URL !== 'undefined' ? BOT_ICON_URL : null;
+    const assetMap = typeof CAMPAIGN_ICONS !== 'undefined' ? CAMPAIGN_ICONS : null;
+
+    return getDynamicAssetUrl(defaultUrl, assetMap);
 }
 
 // --- 初期化 ---

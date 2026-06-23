@@ -10,7 +10,7 @@ const BOT_ICON_URL = 'images/icon.png';
 const FAVICON_URL = 'images/favicon.png'; 
 
 // 4. チャット開始時に表示するバナー画像のURL
-const BANNER_IMAGE_URL = 'images/banner_ebook_like-dining.png';
+const BANNER_IMAGE_URL = 'images/banner_ebook_meta.webp';
 
 // キャンペーンごとのバナー出し分け設定
 const CAMPAIGN_BANNERS = {

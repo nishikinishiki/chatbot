@@ -66,8 +66,10 @@ function createMessageWrapper(sender) {
     if (sender === 'bot') {
         const botIcon = document.createElement('div');
         botIcon.className = 'bot-icon';
-        if (typeof BOT_ICON_URL !== 'undefined' && BOT_ICON_URL) {
-            botIcon.style.backgroundImage = `url('${BOT_ICON_URL}')`;
+        const iconUrl = typeof getBotIconUrl === 'function' ? getBotIconUrl() : (typeof BOT_ICON_URL !== 'undefined' ? BOT_ICON_URL : '');
+
+        if (iconUrl) {
+            botIcon.style.backgroundImage = `url('${iconUrl}')`;
         }
         wrapper.appendChild(botIcon);
     }

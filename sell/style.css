@@ -1,0 +1,567 @@
+/* ==========================================================================
+   共通定義 & CSS変数設定
+   ========================================================================== */
+:root {
+    --primary-color: #0066ff;
+    --primary-hover-color: #0052cc;
+    --text-dark: #222222;
+    --text-muted: #666666;
+    --bg-light: #f7f9fb;
+    --bg-white: #ffffff;
+    --border-color: #dddddd;
+    --success-color: #34c759;
+
+    --font-base: "Helvetica Neue", Arial, "Hiragino Kaku Gothic ProN", "Hiragino Sans", Meiryo, sans-serif;
+    --radius-md: 8px;
+    --radius-lg: 30px;
+    --transition-fast: opacity 0.3s ease, transform 0.3s ease, border-color 0.2s;
+}
+
+*,
+*::before,
+*::after {
+    box-sizing: border-box;
+    margin: 0;
+    padding: 0;
+}
+
+body {
+    font-family: var(--font-base);
+    color: var(--text-dark);
+    background-color: var(--bg-light);
+    line-height: 1.6;
+    -webkit-font-smoothing: antialiased;
+    display: flex;
+    flex-direction: column;
+    min-height: 100vh;
+}
+
+/* ヘッダー */
+.site-header {
+    background-color: var(--bg-white);
+    border-bottom: 1px solid var(--border-color);
+    padding: 15px 0;
+    position: sticky;
+    top: 0;
+    z-index: 100;
+}
+
+.header-container {
+    max-width: 640px;
+    margin: 0 auto;
+    padding: 0 20px;
+}
+
+.brand-logo {
+    display: block;
+    height: 24px;
+    width: auto;
+}
+
+/* フォームラッパー */
+.form-wrapper {
+    max-width: 640px;
+    width: 100%;
+    margin: 30px auto 60px;
+    background-color: var(--bg-white);
+    border-radius: var(--radius-md);
+    box-shadow: 0 4px 12px rgba(0, 0, 0, 0.05);
+    padding: 40px 30px;
+    flex: 1;
+    /* フッターを下部に押し下げるため */
+}
+
+/* プログレス・ページヘッダー */
+.progress-container {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    border-bottom: 2px solid var(--bg-light);
+    padding-bottom: 20px;
+    margin-bottom: 25px;
+}
+
+.page-title {
+    font-size: 22px;
+    font-weight: 700;
+}
+
+.step-badge {
+    width: 56px;
+    height: 56px;
+    border: 4px solid var(--primary-color);
+    border-radius: 50px;
+    display: flex;
+    justify-content: center;
+    align-items: center;
+    font-weight: 700;
+    font-size: 14px;
+}
+
+#current-page-num {
+    font-size: 18px;
+}
+
+.page-lead {
+    font-size: 14px;
+    color: var(--text-muted);
+    margin-bottom: 30px;
+}
+
+/* ページ切り替え制御 */
+.form-page {
+    display: none;
+}
+
+.form-page.active {
+    display: block;
+}
+
+/* ステップ制御 */
+.form-step {
+    display: none;
+    opacity: 0;
+    transform: translateY(10px);
+    transition: var(--transition-fast);
+}
+
+.form-step.active {
+    display: block;
+    opacity: 1;
+    transform: translateY(0);
+}
+
+/* ステップ4は最後なので下線を消す */
+#step-4 {
+    border-bottom: none;
+    padding-bottom: 0;
+    margin-bottom: 0;
+}
+
+.step-title {
+    font-size: 16px;
+    font-weight: 700;
+    margin-bottom: 20px;
+    padding-left: 10px;
+    border-left: 4px solid var(--primary-color);
+}
+
+/* フォームパーツ共通 */
+/* ==========================================================================
+   アイキャッチ画像 (バナー)
+   ========================================================================== */
+.banner-wrapper {
+    margin-bottom: 25px;
+    text-align: center;
+}
+
+.eye-catch-img {
+    max-width: 100%;
+    height: auto;
+    border-radius: var(--radius-md);
+    /* フォームと角丸を合わせる */
+    display: block;
+}
+
+.form-group {
+    margin-bottom: 30px;
+}
+
+.form-group label {
+    display: block;
+    font-size: 14px;
+    font-weight: 700;
+    margin-bottom: 8px;
+}
+
+/* ==========================================================================
+   横並びレイアウト (Flexbox)
+   ========================================================================== */
+.form-row {
+    display: flex;
+    gap: 15px;
+}
+
+.form-row .form-group {
+    flex: 1;
+    /* 親要素の幅に合わせて均等に広がる */
+    /* margin-bottom: 0; */
+    /* ラッパー側で余白を取るため、内部の余白は消す */
+    min-width: 0;
+    /* 画面幅が狭い際に要素がはみ出すのを防ぐ */
+}
+
+/* 参考画像に合わせて「必須」バッジのデザインをダークな四角に変更したい場合は以下を上書きしてください */
+.form-group label.required::after {
+    content: "必須";
+    background-color: #333333;
+    color: #fff;
+    font-size: 11px;
+    padding: 3px 6px;
+    border-radius: 2px;
+    margin-left: 8px;
+    vertical-align: middle;
+}
+
+input[type="text"],
+input[type="number"],
+input[type="email"],
+input[type="tel"],
+select {
+    width: 100%;
+    padding: 12px 16px;
+    font-size: 15px;
+    border: 1px solid var(--border-color);
+    border-radius: var(--radius-md);
+    background-color: var(--bg-white);
+    outline: none;
+    transition: border-color 0.2s;
+}
+
+input:focus,
+select:focus {
+    border-color: var(--primary-color);
+}
+
+.input-unit-wrapper {
+    position: relative;
+    display: flex;
+    align-items: center;
+}
+
+.input-unit-wrapper input {
+    padding-right: 50px;
+}
+
+.input-unit-wrapper .unit {
+    position: absolute;
+    right: 16px;
+    font-size: 14px;
+    color: var(--text-muted);
+}
+
+.radio-grid {
+    display: flex;
+    flex-direction: column;
+    gap: 12px;
+    margin-top: 8px;
+}
+
+.radio-label {
+    display: flex !important;
+    align-items: center;
+    font-weight: normal !important;
+    cursor: pointer;
+    padding: 12px 16px;
+    border: 1px solid var(--border-color);
+    border-radius: var(--radius-md);
+    transition: var(--transition-fast);
+}
+
+.radio-label:has(input:checked) {
+    border-color: var(--primary-color);
+    background-color: rgba(0, 102, 255, 0.03);
+}
+
+.radio-label input {
+    margin-right: 12px;
+    width: 18px;
+    height: 18px;
+}
+
+.nested-group {
+    display: none;
+    padding: 15px;
+    background-color: var(--bg-light);
+    border-radius: var(--radius-md);
+    margin-top: -15px;
+    margin-bottom: 25px;
+}
+
+.nested-group.active {
+    display: block;
+}
+
+/* サジェストUI */
+.suggest-wrapper {
+    position: relative;
+}
+
+.suggest-list {
+    position: absolute;
+    top: 100%;
+    left: 0;
+    width: 100%;
+    background: var(--bg-white);
+    border: 1px solid var(--border-color);
+    border-top: none;
+    border-radius: 0 0 var(--radius-md) var(--radius-md);
+    max-height: 200px;
+    overflow-y: auto;
+    z-index: 10;
+    display: none;
+    box-shadow: 0 4px 6px rgba(0, 0, 0, 0.1);
+}
+
+.suggest-item {
+    padding: 12px 16px;
+    cursor: pointer;
+    font-size: 14px;
+}
+
+.suggest-item:hover {
+    background-color: var(--bg-light);
+    color: var(--primary-color);
+}
+
+/* ==========================================================================
+   フォーム下部常時表示エリア（規約リンク・CTA・サービス説明）
+   ========================================================================== */
+.form-footer-section {
+    margin-top: 40px;
+    padding-top: 30px;
+    border-top: 1px solid var(--border-color);
+}
+
+.terms-links {
+    font-size: 13px;
+    margin-bottom: 25px;
+    line-height: 1.8;
+}
+
+.company-text {
+    color: var(--text-muted);
+    margin-bottom: 8px;
+}
+
+.link-group a {
+    color: var(--primary-color);
+    text-decoration: underline;
+}
+
+.link-group a:hover {
+    text-decoration: none;
+}
+
+.link-group .divider {
+    color: var(--border-color);
+    margin: 0 6px;
+}
+
+.service-note {
+    margin-top: 35px;
+    font-size: 12px;
+    color: var(--text-muted);
+    line-height: 1.6;
+}
+
+.service-note h4 {
+    font-size: 13px;
+    font-weight: 700;
+    color: var(--text-dark);
+    margin-bottom: 6px;
+}
+
+/* ==========================================================================
+   ボタンコンポーネント
+   ========================================================================== */
+.btn-container {
+    margin-top: 20px;
+}
+
+.btn-container.vertical {
+    display: flex;
+    flex-direction: column;
+    gap: 15px;
+}
+
+.btn {
+    display: block;
+    width: 100%;
+    padding: 18px;
+    font-size: 16px;
+    font-weight: 700;
+    text-align: center;
+    border: none;
+    border-radius: var(--radius-lg);
+    cursor: pointer;
+    transition: var(--transition-fast);
+}
+
+.btn-primary {
+    background-color: var(--primary-color);
+    color: #ffffff;
+    box-shadow: 0 4px 12px rgba(0, 102, 255, 0.2);
+}
+
+.btn-primary:hover:not(:disabled) {
+    background-color: var(--primary-hover-color);
+}
+
+/* 未入力時のボタンデザイン（画像参考） */
+.btn-primary:disabled {
+    background-color: #f3f3f3;
+    color: #b3b3b3;
+    box-shadow: none;
+    cursor: not-allowed;
+}
+
+.btn-secondary {
+    background-color: transparent;
+    color: var(--text-dark);
+    border: 1px solid var(--border-color);
+}
+
+.btn-secondary:hover {
+    background-color: var(--bg-light);
+}
+
+/* 確認画面・サンクス画面 */
+.confirm-block {
+    margin-bottom: 35px;
+}
+
+.confirm-block h3 {
+    font-size: 16px;
+    font-weight: 700;
+    margin-bottom: 15px;
+    color: var(--text-dark);
+}
+
+.confirm-list {
+    border-top: 1px solid var(--border-color);
+}
+
+.confirm-row {
+    display: flex;
+    justify-content: space-between;
+    padding: 14px 0;
+    border-bottom: 1px solid rgba(0, 0, 0, 0.05);
+    font-size: 14px;
+}
+
+.confirm-label {
+    color: var(--text-muted);
+    width: 40%;
+}
+
+.confirm-value {
+    font-weight: 500;
+    width: 60%;
+    text-align: right;
+    word-break: break-all;
+}
+
+.text-center {
+    text-align: center;
+}
+
+.thanks-icon {
+    width: 80px;
+    height: 80px;
+    background-color: rgba(52, 199, 89, 0.1);
+    color: var(--success-color);
+    font-size: 40px;
+    line-height: 80px;
+    border-radius: 50%;
+    margin: 20px auto 30px;
+    font-weight: bold;
+}
+
+.page-thanks h2 {
+    font-size: 24px;
+    margin-bottom: 15px;
+}
+
+.page-thanks p {
+    color: var(--text-muted);
+    font-size: 15px;
+}
+
+/* ==========================================================================
+   フッター
+   ========================================================================== */
+.site-footer {
+    background-color: var(--bg-white);
+    border-top: 1px solid var(--border-color);
+    text-align: center;
+    padding: 24px 20px;
+    font-size: 12px;
+    color: var(--text-muted);
+}
+
+/* ==========================================================================
+   モーダル（ポップアップ）
+   ========================================================================== */
+.modal-overlay {
+    display: none;
+    position: fixed;
+    top: 0;
+    left: 0;
+    width: 100%;
+    height: 100%;
+    background-color: rgba(0, 0, 0, 0.6);
+    z-index: 9999;
+    align-items: center;
+    justify-content: center;
+    opacity: 0;
+    transition: opacity 0.3s ease;
+}
+
+.modal-overlay.active {
+    display: flex;
+    opacity: 1;
+}
+
+.modal-window {
+    background-color: #fff;
+    width: 90%;
+    max-width: 500px;
+    border-radius: var(--radius-md);
+    padding: 30px 20px;
+    position: relative;
+    box-shadow: 0 10px 30px rgba(0, 0, 0, 0.2);
+    transform: translateY(20px);
+    transition: transform 0.3s ease;
+    max-height: 80vh;
+    display: flex;
+    flex-direction: column;
+}
+
+.modal-overlay.active .modal-window {
+    transform: translateY(0);
+}
+
+.modal-close {
+    position: absolute;
+    top: 15px;
+    right: 15px;
+    font-size: 28px;
+    color: #999;
+    background: none;
+    border: none;
+    cursor: pointer;
+    line-height: 1;
+}
+
+.modal-close:hover {
+    color: #333;
+}
+
+.modal-title {
+    font-size: 18px;
+    font-weight: 700;
+    margin-bottom: 15px;
+    text-align: center;
+    border-bottom: 2px solid var(--bg-light);
+    padding-bottom: 10px;
+}
+
+.modal-body {
+    overflow-y: auto;
+    font-size: 14px;
+    line-height: 1.6;
+    color: var(--text-dark);
+    padding-right: 10px;
+    /* スクロールバー余白 */
+}
