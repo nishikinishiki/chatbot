@@ -5,6 +5,9 @@
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>投資用物件査定フォーム | J.P.Returns株式会社</title>
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <link href="https://fonts.googleapis.com/css2?family=Noto+Sans+JP:wght@400;500;700&display=swap" rel="stylesheet">
     <link rel="stylesheet" href="style.css">
 </head>
 
@@ -17,12 +20,13 @@
     </header>
 
     <main class="form-wrapper">
-        <div class="progress-container">
-            <h1 id="page-title" class="page-title">投資用物件査定フォーム</h1>
-            <div class="step-badge">
-                <span id="current-page-num">1</span>/3
-            </div>
-        </div>
+        <h1 id="page-title" class="page-title">投資用物件査定フォーム</h1>
+
+        <ul class="step-bar">
+            <li class="step-item active" id="indicator-1">➀入力画面</li>
+            <li class="step-item" id="indicator-2">➁確認画面</li>
+            <li class="step-item" id="indicator-3">③完了画面</li>
+        </ul>
 
         <section id="page-input" class="form-page active">
 
@@ -30,7 +34,7 @@
                 <img src=banner.png alt="ご所有の不動産の相場と人気をスマホでいつでもチェック" class="eye-catch-img">
             </div>
 
-            <p class="page-lead">所有している物件の情報を入力してください。</p>
+            <p class="page-lead">査定をする投資用物件の情報を入力してください。</p>
 
             <form id="estate-form" novalidate>
 
@@ -39,13 +43,29 @@
                     <div class="form-group">
                         <label for="mansion_name" class="required">マンション名</label>
                         <div class="suggest-wrapper">
-                            <input type="text" id="mansion_name" name="mansion_name" placeholder="例: AXAS東京ステーション" autocomplete="off" required>
-
-                            <div id="mansion-loading" class="loading-spinner"></div>
+                            <input type="text" id="mansion_name" name="mansion_name" placeholder="例: AXAS東京ステーション" autocomplete="off" data-selected="false" required>
 
                             <div id="mansion-suggest-list" class="suggest-list"></div>
+
+                            <div id="mansion-error-balloon" class="error-balloon">
+                                <div class="error-balloon-header">
+                                    <div class="error-icon-wrapper">
+                                        <svg viewBox="0 0 24 24" fill="none" stroke="#e63946" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+                                            <circle cx="12" cy="12" r="10"></circle>
+                                            <line x1="12" y1="16" x2="12" y2="12"></line>
+                                            <line x1="12" y1="8" x2="12.01" y2="8"></line>
+                                        </svg>
+                                    </div>
+                                    <span class="error-title">マンション名がヒットしません</span>
+                                </div>
+                                <div class="error-balloon-body">
+                                    <p>ご入力いただいたマンションはシステム上に存在しないため、<a href="#" target="_blank">こちら</a>よりマンション名の追加申請をお願いします。</p>
+                                    <p>申請後、3営業日前後で追加となります。恐れ入りますが、時間をおいて再度ご登録ください。</p>
+                                </div>
+                            </div>
+
                         </div>
-                        <p class="input-hint">入力していただくとマンション名の候補が表示されます</p>
+                        <p id="mansion-hint" class="input-hint">マンション名を入力し、表示された候補から選択してください。</p>
                     </div>
 
                     <div class="form-row">
@@ -282,7 +302,7 @@
             <p>特典進呈条件の本文です。</p>
         </div>
     </div>
-
+    <script src="mansion_data.js"></script>
     <script src="script.js"></script>
 </body>
 
