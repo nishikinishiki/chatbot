@@ -1,112 +1,182 @@
 document.addEventListener('DOMContentLoaded', () => {
 
-    // --------------------------------------------------------
-    // 設定値 (GASのWebアプリURLを設定してください)
-    // --------------------------------------------------------
-    const GAS_API_URL = "https://script.google.com/macros/s/AKfycbzXO2_jiJabT49RgEnKHyAgqm-B-rhXjrgC87tZ-FGimsZLk1i4Ceev8uknpdv0g5xing/exec";
+    // ========================================================
+    // 1. 基本設定とDOM要素の取得
+    // ========================================================
+    const GAS_API_URL = "https://script.google.com/macros/s/AKfycbz7ePFFVKeBFbMoAjHglRso1UEgSwwNOiaQ4rxhf-bYtujyHVKfO1kpzox4OC4aBl7aFQ/exec";
 
-    // フォーム関連要素
     const form = document.getElementById('estate-form');
     const steps = Array.from(document.querySelectorAll('.form-step'));
-    const btnToConfirm = document.getElementById('btn-to-confirm'); // CTAボタン
 
-    // 画面遷移用要素
     const pageInput = document.getElementById('page-input');
     const pageConfirm = document.getElementById('page-confirm');
     const pageThanks = document.getElementById('page-thanks');
-    const currentPageNum = document.getElementById('current-page-num');
 
-    // 操作ボタン
+    const btnToConfirm = document.getElementById('btn-to-confirm');
     const btnSubmit = document.getElementById('btn-submit');
     const btnBack = document.getElementById('btn-back');
 
-    // ステップインジケーター（上部のバー）の表示を更新する関数
+    // ========================================================
+    // 2. バリデーションルールの定義（正規表現とメッセージ）
+    // ========================================================
+    const VALIDATION_RULES = {
+        user_email: {
+            pattern: /^[a-zA-Z0-9._%+-]+@[a-zA-Z0-9.-]+\.[a-zA-Z]{2,}$/,
+            message: 'メールアドレスを正しく入力してください'
+        },
+        user_tel: {
+            pattern: /^0\d{9,10}$/,
+            message: 'ハイフンなしで正しく入力してください'
+        },
+        user_kana_last: {
+            pattern: /^[ァ-ヶー]+$/,
+            message: '全角カタカナで入力してください'
+        },
+        user_kana_first: {
+            pattern: /^[ァ-ヶー]+$/,
+            message: '全角カタカナで入力してください'
+        }
+    };
+
+    // 入力値が正しいか判定し、結果とメッセージを返す共通関数
+    function validateInput(input) {
+        const value = input.value.trim();
+
+        // 未入力チェック
+        if (!value) {
+            const formGroup = input.closest('.form-group');
+            const label = formGroup ? formGroup.querySelector('label').textContent.replace('必須', '').trim() : '';
+            const suffix = input.tagName.toLowerCase() === 'select' ? 'を選択してください' : 'を入力してください';
+            return { isValid: false, message: `${label}${suffix}` };
+        }
+
+        // 形式チェック（ルールが定義されている項目のみ）
+        const rule = VALIDATION_RULES[input.id];
+        if (rule && !rule.pattern.test(value)) {
+            return { isValid: false, message: rule.message };
+        }
+
+        return { isValid: true, message: '' };
+    }
+
+
+    // ========================================================
+    // 3. UI更新・プログレッシブ制御処理
+    // ========================================================
     function updateStepIndicator(stepNum) {
-        document.getElementById('indicator-1').classList.remove('active');
-        document.getElementById('indicator-2').classList.remove('active');
-        document.getElementById('indicator-3').classList.remove('active');
+        [1, 2, 3].forEach(num => {
+            document.getElementById(`indicator-${num}`).classList.remove('active');
+        });
         document.getElementById(`indicator-${stepNum}`).classList.add('active');
     }
 
-    // --------------------------------------------------------
-    // 1. プログレッシブ開示方式（ステップ制御）
-    // --------------------------------------------------------
     function isStepValid(stepElement) {
         const requiredInputs = stepElement.querySelectorAll('[required]');
-
         for (let input of requiredInputs) {
-            if (input.type === 'radio') {
-                const name = input.getAttribute('name');
-                const checked = stepElement.querySelector(`input[name="${name}"]:checked`);
-                if (!checked) return false;
-            } else if (input.id === 'mansion_name') {
+            if (input.id === 'mansion_name') {
                 if (input.getAttribute('data-selected') !== 'true') return false;
             } else {
-                if (!input.value.trim()) return false;
+                if (!validateInput(input).isValid) return false;
             }
         }
         return true;
     }
 
-    // 入力の度に動的に次のステップを開示、または最終ボタンを活性化
     function evaluateFormProgress() {
-        let isFormCompletelyValid = true; // フォーム全体が有効かどうかを判定するフラグ
+        let isFormCompletelyValid = true;
 
         for (let i = 0; i < steps.length; i++) {
             const currentStep = steps[i];
             const nextStep = steps[i + 1];
 
-            // 現在のステップが表示されている場合のみ判定
             if (currentStep.classList.contains('active')) {
                 if (isStepValid(currentStep)) {
-                    // 条件クリア：次のステップが存在し、かつまだ非表示なら表示する
                     if (nextStep && !nextStep.classList.contains('active')) {
                         nextStep.classList.add('active');
                     }
                 } else {
-                    // ★ 修正：条件を満たさなくなっても、すでに表示された次のステップを非表示にしない！
-                    // 代わりに、フォーム全体としては「まだ未完了（エラーあり）」のフラグを立てておく
                     isFormCompletelyValid = false;
                 }
             }
         }
 
-        // すべてのステップが有効（未入力がない）で、かつ最後のステップまで到達していればCTAを活性化
         const lastStep = steps[steps.length - 1];
-        if (isFormCompletelyValid && lastStep.classList.contains('active') && isStepValid(lastStep)) {
-            btnToConfirm.disabled = false;
-        } else {
-            btnToConfirm.disabled = true; // どこか一つでも文字が消されていればボタンは押せない
-        }
+        btnToConfirm.disabled = !(isFormCompletelyValid && lastStep.classList.contains('active') && isStepValid(lastStep));
     }
 
 
-    // プルダウンやラジオボタンの変更時、または入力欄からフォーカスが外れた時に判定
+    // ========================================================
+    // 4. イベントリスナー（共通入力・エラー表示・変換）
+    // ========================================================
     form.addEventListener('change', evaluateFormProgress);
-    form.addEventListener('focusout', evaluateFormProgress);
 
-    // エンターキーを押して「確定」した瞬間に判定・次へ進む処理
     form.addEventListener('keydown', (e) => {
-        if (e.key === 'Enter') {
-            e.preventDefault(); // エンターキーによる意図しないフォーム送信（画面リロード）を防止
-
-            // 日本語の変換中（IME操作中）のエンターキーは除外する
-            if (!e.isComposing && e.keyCode !== 229) {
-                e.target.blur(); // 確定と同時にフォーカスを外し、エラー判定なども連動して動かす
-                evaluateFormProgress();
-            }
+        if (e.key === 'Enter' && !e.isComposing && e.keyCode !== 229) {
+            e.preventDefault();
+            e.target.blur();
+            evaluateFormProgress();
         }
     });
+    // 入力エラーの視覚的フィードバック ＆ フリガナ・電話番号の自動整形処理
+    const allRequiredElements = document.querySelectorAll('input[required], select[required]');
 
-    // --------------------------------------------------------
-    // 2. 条件分岐（管理方法が「サブリース」の場合）
-    // --------------------------------------------------------
-    const managementRadios = document.querySelectorAll('input[name="management_method"]');
+    // ひらがな→カタカナ変換関数
+    const toKatakana = (str) => {
+        return str.replace(/[\u3041-\u3096]/g, match => String.fromCharCode(match.charCodeAt(0) + 0x60));
+    };
+
+    allRequiredElements.forEach(input => {
+        if (input.id === 'mansion_name') return;
+
+        const formGroup = input.closest('.form-group');
+        const errorMsgEl = document.createElement('div');
+        errorMsgEl.className = 'error-text-message';
+        formGroup.appendChild(errorMsgEl);
+
+        // フォーカスが外れた時（Enterキー確定時もここが動きます）
+        input.addEventListener('blur', () => {
+            // フリガナの場合はカタカナに変換
+            if (input.id === 'user_kana_last' || input.id === 'user_kana_first') {
+                input.value = toKatakana(input.value);
+            }
+
+            // ★追加：電話番号の場合はハイフンを全て削除
+            if (input.id === 'user_tel') {
+                input.value = input.value.replace(/-/g, '');
+            }
+
+            evaluateFormProgress(); // 値が変わったかもしれないので進行度を再評価
+
+            // バリデーション実行
+            const validation = validateInput(input);
+            if (!validation.isValid) {
+                input.classList.add('is-error');
+                errorMsgEl.textContent = validation.message;
+                errorMsgEl.style.display = 'block';
+            } else {
+                input.classList.remove('is-error');
+                errorMsgEl.style.display = 'none';
+            }
+        });
+
+        // 修正入力を始めたらエラーを隠す
+        input.addEventListener('input', () => {
+            if (input.value.trim()) {
+                input.classList.remove('is-error');
+                errorMsgEl.style.display = 'none';
+            }
+        });
+    });
+
+    // ========================================================
+    // 5. サブリース条件分岐
+    // ========================================================
+    const managementSelect = document.getElementById('management_method');
     const subleaseGroup = document.getElementById('sublease-company-group');
     const subleaseSelect = document.getElementById('sublease_company');
 
-    managementRadios.forEach(radio => {
-        radio.addEventListener('change', (e) => {
+    if (managementSelect) {
+        managementSelect.addEventListener('change', (e) => {
             if (e.target.value === 'サブリース') {
                 subleaseGroup.classList.add('active');
                 subleaseSelect.setAttribute('required', 'required');
@@ -117,52 +187,51 @@ document.addEventListener('DOMContentLoaded', () => {
             }
             evaluateFormProgress();
         });
-    });
+    }
 
-    // --------------------------------------------------------
-    // 3. マンション名オートコンプリート機能 (日本語変換の待機対応版)
-    // --------------------------------------------------------
+    // ========================================================
+    // 6. マンション名オートコンプリート
+    // ========================================================
     const mansionInput = document.getElementById('mansion_name');
     const suggestList = document.getElementById('mansion-suggest-list');
     const errorBalloon = document.getElementById('mansion-error-balloon');
-    const mansionHint = document.getElementById('mansion-hint');
+    // ★ヒント要素の代わりに、ステータスメッセージ要素を取得
+    const mansionStatus = document.getElementById('mansion-status-message');
+    let isComposing = false;
 
-    let isComposing = false; // 日本語入力（変換）中かどうかを判定するフラグ
-
-    // 変換開始（ひらがな入力開始）
-    mansionInput.addEventListener('compositionstart', () => {
-        isComposing = true;
-    });
-
-    // 変換確定（Enterを押して漢字やカタカナが確定した瞬間）
+    mansionInput.addEventListener('compositionstart', () => isComposing = true);
     mansionInput.addEventListener('compositionend', () => {
         isComposing = false;
-        searchMansion(); // 確定した文字で検索を実行
-    });
-
-    // 文字が入力・変更された時の処理
-    mansionInput.addEventListener('input', () => {
-        // ひらがな入力中（変換前）は何もしないで処理を抜ける
-        if (isComposing) return;
-
-        // 英数字の入力や、バックスペースでの削除時はここが動く
         searchMansion();
     });
 
+    mansionInput.addEventListener('input', () => {
+        if (!isComposing) searchMansion();
+    });
+
     mansionInput.addEventListener('focus', () => {
-        const keyword = mansionInput.value.trim();
-        if (keyword && mansionInput.getAttribute('data-selected') === 'false') {
-            searchMansion(); // 再検索してリストを開く
+        if (mansionInput.value.trim() && mansionInput.getAttribute('data-selected') === 'false') {
+            searchMansion();
         }
     });
 
-    // 検索と表示切り替えのメインロジック
-    // 検索と表示切り替えのメインロジック
+    // ★ blur時のエラー処理もステータスメッセージを使うように変更
+    mansionInput.addEventListener('blur', () => {
+        if (!mansionInput.value.trim() || mansionInput.getAttribute('data-selected') === 'false') {
+            mansionInput.classList.add('is-error');
+            mansionStatus.textContent = "候補からマンションを選択してください。";
+            mansionStatus.className = 'status-message is-error';
+            mansionStatus.style.display = 'block';
+        }
+    });
+
     function searchMansion() {
         mansionInput.setAttribute('data-selected', 'false');
-        // ▼ 修正1：ここにあった「赤枠にする処理」を削除し、入力中は赤くならないようにしました
-        mansionHint.style.color = 'var(--error-color)';
-        mansionHint.textContent = "候補からマンションを選択してください。";
+
+        // ★ 検索開始時にステータスメッセージをリセットして隠す
+        mansionStatus.style.display = 'none';
+        mansionStatus.className = 'status-message';
+
         evaluateFormProgress();
 
         const keyword = mansionInput.value.trim();
@@ -183,31 +252,22 @@ document.addEventListener('DOMContentLoaded', () => {
             filteredMansions.forEach(itemData => {
                 const item = document.createElement('div');
                 item.className = 'suggest-item';
+                item.innerHTML = `<div class="suggest-name">${itemData.name}</div><div class="suggest-address">${itemData.address}</div>`;
 
-                const nameEl = document.createElement('div');
-                nameEl.className = 'suggest-name';
-                nameEl.textContent = itemData.name;
-
-                const addressEl = document.createElement('div');
-                addressEl.className = 'suggest-address';
-                addressEl.textContent = itemData.address;
-
-                item.appendChild(nameEl);
-                item.appendChild(addressEl);
-
-                // ▼ 修正2：'click' を 'mousedown' に変更し、フォーカス外れの誤作動をブロック！
                 item.addEventListener('mousedown', (e) => {
-                    e.preventDefault(); // ← 超重要：これで入力欄からフォーカスが外れるのを防ぎます
-
+                    e.preventDefault();
                     mansionInput.value = itemData.name;
                     suggestList.style.display = 'none';
                     mansionInput.setAttribute('data-selected', 'true');
-                    mansionInput.classList.remove('is-error'); // エラーを解除
-                    mansionHint.style.color = 'var(--text-muted)';
-                    mansionHint.textContent = "✔ マンション名が選択されました";
+                    mansionInput.classList.remove('is-error');
+
+                    // ★ 選択成功時に緑色でメッセージを表示する
+                    mansionStatus.textContent = "✔ マンション名が選択されました";
+                    mansionStatus.className = 'status-message is-success';
+                    mansionStatus.style.display = 'block';
+
                     evaluateFormProgress();
                 });
-
                 suggestList.appendChild(item);
             });
             suggestList.style.display = 'block';
@@ -216,7 +276,7 @@ document.addEventListener('DOMContentLoaded', () => {
             errorBalloon.style.display = 'block';
         }
     }
-    // リスト外をクリックした時にサジェストやバルーンを閉じる
+
     document.addEventListener('click', (e) => {
         if (!mansionInput.contains(e.target) && !suggestList.contains(e.target) && (!errorBalloon || !errorBalloon.contains(e.target))) {
             suggestList.style.display = 'none';
@@ -224,17 +284,17 @@ document.addEventListener('DOMContentLoaded', () => {
         }
     });
 
-    // ★追加：マンション名からフォーカスが外れた時のエラー判定
-    mansionInput.addEventListener('blur', () => {
-        // 空っぽの場合、または候補から選択されていない場合
-        if (!mansionInput.value.trim() || mansionInput.getAttribute('data-selected') === 'false') {
-            mansionInput.classList.add('is-error');
+    document.addEventListener('click', (e) => {
+        if (!mansionInput.contains(e.target) && !suggestList.contains(e.target) && (!errorBalloon || !errorBalloon.contains(e.target))) {
+            suggestList.style.display = 'none';
+            if (errorBalloon) errorBalloon.style.display = 'none';
         }
     });
 
-    // --------------------------------------------------------
-    // 4. モーダル（ポップアップ）制御処理
-    // --------------------------------------------------------
+
+    // ========================================================
+    // 7. モーダル制御処理
+    // ========================================================
     const modalTriggers = document.querySelectorAll('.modal-trigger');
     const modalOverlay = document.getElementById('modal-overlay');
     const modalClose = document.getElementById('modal-close');
@@ -244,62 +304,59 @@ document.addEventListener('DOMContentLoaded', () => {
     modalTriggers.forEach(trigger => {
         trigger.addEventListener('click', (e) => {
             e.preventDefault();
-            const targetKey = trigger.getAttribute('data-modal');
-            const titleText = trigger.textContent;
-
-            // HTML下部に隠してあるテキスト要素を取得してモーダルにセット
-            const textContent = document.getElementById(`text-${targetKey}`).innerHTML;
-
-            modalTitle.textContent = titleText;
-            modalBody.innerHTML = textContent;
-
+            modalTitle.textContent = trigger.textContent;
+            modalBody.innerHTML = document.getElementById(`text-${trigger.getAttribute('data-modal')}`).innerHTML;
             modalOverlay.classList.add('active');
         });
     });
 
-    // 閉じるボタン
-    modalClose.addEventListener('click', () => {
-        modalOverlay.classList.remove('active');
-    });
-
-    // 背景クリックで閉じる
+    modalClose.addEventListener('click', () => modalOverlay.classList.remove('active'));
     modalOverlay.addEventListener('click', (e) => {
-        if (e.target === modalOverlay) {
-            modalOverlay.classList.remove('active');
-        }
+        if (e.target === modalOverlay) modalOverlay.classList.remove('active');
     });
 
-    // --------------------------------------------------------
-    // 5. 2ページ目（確認画面）への遷移ロジック
-    // --------------------------------------------------------
+
+    // ========================================================
+    // 8. 画面遷移とデータ送信
+    // ========================================================
+
+    // 確認画面へ進む
     btnToConfirm.addEventListener('click', () => {
         const labels = {
             mansion_name: "マンション名", room_number: "部屋番号", floor_number: "所在階", area_size: "占有面積",
             floor_plan: "間取り", occupancy_status: "居住の状態", management_method: "管理方法", sublease_company: "サブリース会社",
-            monthly_rent: "月額賃料", construction_year: "竣工年", ownership_period: "物件保有年数", valuation_purpose: "査定の目的",
-            desired_timing: "売却希望時期", user_age: "年齢", user_name: "お名前", user_kana: "ふりがな", user_email: "メールアドレス", user_tel: "電話番号"
+            monthly_rent: "月額賃料", ownership_period: "物件保有年数", valuation_purpose: "査定の目的",
+            desired_timing: "売却希望時期", user_email: "メールアドレス", user_tel: "電話番号"
         };
+        const units = { room_number: "号室", floor_number: "階", area_size: "㎡", monthly_rent: "円" };
 
         const formData = new FormData(form);
         const propertySummaryHtml = [];
         const userSummaryHtml = [];
-        const units = { room_number: "号室", floor_number: "階", area_size: "㎡", monthly_rent: "円", construction_year: "年", user_age: "歳" };
 
         formData.forEach((value, key) => {
-            if (!value) return;
+            if (!value || ['user_name_last', 'user_name_first', 'user_kana_last', 'user_kana_first'].includes(key)) return;
+
             const displayValue = units[key] ? `${value} ${units[key]}` : value;
             const rowHtml = `
-        <div class="confirm-row">
-          <dt class="confirm-label">${labels[key] || key}</dt>
-          <dd class="confirm-value">${displayValue}</dd>
-        </div>
-      `;
-            if (['user_age', 'user_name', 'user_kana', 'user_email', 'user_tel'].includes(key)) {
+                <div class="confirm-row">
+                    <dt class="confirm-label">${labels[key] || key}</dt>
+                    <dd class="confirm-value">${displayValue}</dd>
+                </div>
+            `;
+            if (['user_email', 'user_tel'].includes(key)) {
                 userSummaryHtml.push(rowHtml);
             } else {
                 propertySummaryHtml.push(rowHtml);
             }
         });
+
+        userSummaryHtml.unshift(`
+            <div class="confirm-row"><dt class="confirm-label">フリガナ</dt><dd class="confirm-value">${formData.get('user_kana_last')} ${formData.get('user_kana_first')}</dd></div>
+        `);
+        userSummaryHtml.unshift(`
+            <div class="confirm-row"><dt class="confirm-label">お名前</dt><dd class="confirm-value">${formData.get('user_name_last')} ${formData.get('user_name_first')}</dd></div>
+        `);
 
         document.getElementById('summary-property').innerHTML = propertySummaryHtml.join('');
         document.getElementById('summary-user').innerHTML = userSummaryHtml.join('');
@@ -310,31 +367,30 @@ document.addEventListener('DOMContentLoaded', () => {
         window.scrollTo(0, 0);
     });
 
-    // 「戻る」ボタン
-    btnBack.addEventListener('click', () => {
-        pageConfirm.classList.remove('active');
-        pageInput.classList.add('active');
-        updateStepIndicator(1);
-        window.scrollTo(0, 0);
-    });
+    // (※HTMLに btn-back がある場合) 修正して戻る
+    if (btnBack) {
+        btnBack.addEventListener('click', () => {
+            pageConfirm.classList.remove('active');
+            pageInput.classList.add('active');
+            updateStepIndicator(1);
+            window.scrollTo(0, 0);
+        });
+    }
 
-    // --------------------------------------------------------
-    // 6. 3ページ目（Thanks画面）への送信ロジック（GASデータ出力）
-    // --------------------------------------------------------
+    // GASへ送信
     btnSubmit.addEventListener('click', async () => {
         btnSubmit.disabled = true;
         btnSubmit.textContent = "送信中...";
 
         const formData = new FormData(form);
-        const jsonBody = {};
-        formData.forEach((value, key) => { jsonBody[key] = value; });
+        const jsonBody = Object.fromEntries(formData.entries()); // 短く書ける記法に変更
 
         try {
             await fetch(GAS_API_URL, {
                 method: 'POST',
-                mode: 'cors',
-                headers: { 'Content-Type': 'text/plain' },
-                body: JSON.stringify(jsonBody)
+                headers: { 'Content-Type': 'text/plain;charset=utf-8' },
+                body: JSON.stringify(jsonBody),
+                redirect: 'follow'
             });
 
             pageConfirm.classList.remove('active');
@@ -350,46 +406,4 @@ document.addEventListener('DOMContentLoaded', () => {
         }
     });
 
-});
-
-// --------------------------------------------------------
-// 4. 入力エラー時の視覚的フィードバック（赤枠とメッセージ表示）
-// --------------------------------------------------------
-// 必須属性(required)がついている入力欄をすべて取得
-const allRequiredElements = document.querySelectorAll('input[required], select[required]');
-
-allRequiredElements.forEach(input => {
-    // マンション名は専用の吹き出しがあり、ラジオボタンは挙動が異なるため除外
-    if (input.id === 'mansion_name' || input.type === 'radio') return;
-
-    // 入力欄を囲んでいるform-groupを取得し、エラーメッセージ用の要素を裏側で作成
-    const formGroup = input.closest('.form-group');
-    const errorMsgEl = document.createElement('div');
-    errorMsgEl.className = 'error-text-message';
-    formGroup.appendChild(errorMsgEl);
-
-    // ラベルのテキストを取得（※もし「必須」という文字が含まれていれば除去する）
-    const label = formGroup.querySelector('label');
-    const labelName = label ? label.textContent.replace('必須', '').trim() : '';
-
-    // 入力欄からフォーカスが外れた時（blurイベント）
-    input.addEventListener('blur', () => {
-        // 未入力（空っぽ）の場合
-        if (!input.value.trim()) {
-            input.classList.add('is-error'); // 赤枠・赤背景のクラスを付与
-
-            // inputタグかselectタグかで語尾を自然な日本語に切り替え
-            const suffix = input.tagName.toLowerCase() === 'select' ? 'を選択してください' : 'を入力してください';
-            errorMsgEl.textContent = `${labelName}${suffix}`;
-            errorMsgEl.style.display = 'block'; // エラーテキストを表示
-        }
-    });
-
-    // ユーザーが文字を入力（または選択）し始めたらエラーを解除
-    input.addEventListener('input', () => {
-        if (input.value.trim()) {
-            input.classList.remove('is-error');
-            errorMsgEl.style.display = 'none';
-        }
-    });
 });

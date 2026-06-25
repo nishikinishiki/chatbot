@@ -8,7 +8,7 @@
     <link rel="preconnect" href="https://fonts.googleapis.com">
     <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
     <link href="https://fonts.googleapis.com/css2?family=Noto+Sans+JP:wght@400;500;700&display=swap" rel="stylesheet">
-    <link rel="stylesheet" href="style.css">
+    <link rel="stylesheet" href="/sell/style.css">
 </head>
 
 <body>
@@ -38,15 +38,15 @@
 
             <form id="estate-form" novalidate>
 
-                <div id="step-1" class="form-step active">
+                <div class="form-step active">
+                    <h2 class="step-title">➀物件情報</h2>
 
                     <div class="form-group">
                         <label for="mansion_name" class="required">マンション名</label>
+                        <p class="input-note">※入力するとマンション名が表示されます。表示された候補から選択してください。</p>
                         <div class="suggest-wrapper">
                             <input type="text" id="mansion_name" name="mansion_name" placeholder="例: AXAS東京ステーション" autocomplete="off" data-selected="false" required>
-
                             <div id="mansion-suggest-list" class="suggest-list"></div>
-
                             <div id="mansion-error-balloon" class="error-balloon">
                                 <div class="error-balloon-header">
                                     <div class="error-icon-wrapper">
@@ -63,11 +63,12 @@
                                     <p>申請後、3営業日前後で追加となります。恐れ入りますが、時間をおいて再度ご登録ください。</p>
                                 </div>
                             </div>
-
                         </div>
-                        <p id="mansion-hint" class="input-hint">マンション名を入力し、表示された候補から選択してください。</p>
+                        <div id="mansion-status-message" class="status-message"></div>
                     </div>
+                </div>
 
+                <div class="form-step">
                     <div class="form-row">
                         <div class="form-group">
                             <label for="room_number" class="required">部屋番号</label>
@@ -119,25 +120,25 @@
                             </select>
                         </div>
                     </div>
-                </div>
 
-                <div id="step-2" class="form-step">
                     <div class="form-group">
-                        <label class="required">居住の状態</label>
-                        <div class="radio-grid">
-                            <label class="radio-label"><input type="radio" name="occupancy_status" value="賃貸中（投資用）" required> 賃貸中（投資用）</label>
-                            <label class="radio-label"><input type="radio" name="occupancy_status" value="自分が住んでいる"> 自分が住んでいる</label>
-                            <label class="radio-label"><input type="radio" name="occupancy_status" value="空室"> 空室</label>
-                        </div>
+                        <label for="occupancy_status" class="required">居住の状態</label>
+                        <select id="occupancy_status" name="occupancy_status" required>
+                            <option value="" disabled selected>選択してください</option>
+                            <option value="賃貸中">賃貸中</option>
+                            <option value="空室">空室</option>
+                            <option value="居住中（自己使用）">居住中（自己使用）</option>
+                        </select>
                     </div>
+
                     <div class="form-group">
-                        <label class="required">管理方法</label>
-                        <div class="radio-grid">
-                            <label class="radio-label"><input type="radio" name="management_method" value="集金代行" required> 集金代行</label>
-                            <label class="radio-label"><input type="radio" name="management_method" value="サブリース"> サブリース</label>
-                            <label class="radio-label"><input type="radio" name="management_method" value="自主管理"> 自主管理</label>
-                            <label class="radio-label"><input type="radio" name="management_method" value="その他 / 不明"> その他 / 不明</label>
-                        </div>
+                        <label for="management_method" class="required">管理方法</label>
+                        <select id="management_method" name="management_method" required>
+                            <option value="" disabled selected>選択してください</option>
+                            <option value="集金代行（一般管理）">集金代行（一般管理）</option>
+                            <option value="サブリース">サブリース</option>
+                            <option value="自主管理">自主管理</option>
+                        </select>
                     </div>
                     <div id="sublease-company-group" class="form-group nested-group">
                         <label for="sublease_company" class="required">サブリース会社</label>
@@ -151,23 +152,19 @@
                     </div>
                     <div class="form-group">
                         <label for="monthly_rent" class="required">月額賃料（管理・共益費込）</label>
+                        <p class="input-note">※おおよその値でかまいません。</p>
                         <div class="input-unit-wrapper">
                             <input type="number" id="monthly_rent" name="monthly_rent" placeholder="例: 85000" min="0" required>
                             <span class="unit">円</span>
                         </div>
                     </div>
-                    <div class="form-group">
-                        <label for="construction_year" class="required">竣工年</label>
-                        <div class="input-unit-wrapper">
-                            <input type="number" id="construction_year" name="construction_year" placeholder="例: 2015" min="1900" max="2030" required>
-                            <span class="unit">年</span>
-                        </div>
-                    </div>
                 </div>
 
-                <div id="step-3" class="form-step">
+                <div class="form-step">
+                    <h2 class="step-title">➁売却の意向・ご状況</h2>
                     <div class="form-group">
                         <label for="ownership_period" class="required">物件保有年数</label>
+                        <p class="input-note">※おおよその値でかまいません。</p>
                         <select id="ownership_period" name="ownership_period" required>
                             <option value="" disabled selected>選択してください</option>
                             <option value="1年未満">1年未満</option>
@@ -211,23 +208,25 @@
                     </div>
                 </div>
 
-                <div id="step-4" class="form-step">
+                <div class="form-step">
+                    <h2 class="step-title">③お客様情報</h2>
 
                     <div class="form-group">
-                        <label for="user_age" class="required">年齢</label>
-                        <div class="input-unit-wrapper">
-                            <input type="number" id="user_age" name="user_age" placeholder="例: 35" min="18" required>
-                            <span class="unit">歳</span>
+                        <label class="required">お名前</label>
+                        <div class="name-inputs">
+                            <input type="text" id="user_name_last" name="user_name_last" placeholder="姓 (例: 山田)" required>
+                            <input type="text" id="user_name_first" name="user_name_first" placeholder="名 (例: 太郎)" required>
                         </div>
                     </div>
+
                     <div class="form-group">
-                        <label for="user_name" class="required">お名前（姓 名）</label>
-                        <input type="text" id="user_name" name="user_name" placeholder="例: 山田 太郎" required>
+                        <label class="required">フリガナ</label>
+                        <div class="name-inputs">
+                            <input type="text" id="user_kana_last" name="user_kana_last" placeholder="セイ (例: ヤマダ)" required>
+                            <input type="text" id="user_kana_first" name="user_kana_first" placeholder="メイ (例: タロウ)" required>
+                        </div>
                     </div>
-                    <div class="form-group">
-                        <label for="user_kana" class="required">ふりがな（せい めい）</label>
-                        <input type="text" id="user_kana" name="user_kana" placeholder="例: やまだ たろう" required>
-                    </div>
+
                     <div class="form-group">
                         <label for="user_tel" class="required">電話番号</label>
                         <input type="tel" id="user_tel" name="user_tel" placeholder="例: 09012345678" required>
@@ -236,6 +235,7 @@
                         <label for="user_email" class="required">メールアドレス</label>
                         <input type="email" id="user_email" name="user_email" placeholder="例: example@jpreturns.com" required>
                     </div>
+
                 </div>
 
                 <div class="form-footer-section">
@@ -260,7 +260,7 @@
         </section>
 
         <section id="page-confirm" class="form-page">
-            <p class="page-lead">入力内容を確認し、「物件を査定する」を押してください</p>
+            <p class="page-lead">ご入力内容を確認し、「物件を査定する」を押してください</p>
             <div class="confirm-block">
                 <h3>査定する物件情報</h3>
                 <dl class="confirm-list" id="summary-property"></dl>
