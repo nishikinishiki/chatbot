@@ -111,7 +111,6 @@ body {
     width: 100%;
     list-style: none;
     margin: 0 0 30px;
-    padding: 0;
     border-radius: var(--radius-md);
     overflow: hidden;
 }
@@ -123,9 +122,16 @@ body {
     line-height: 44px;
     font-size: 14px;
     font-weight: 700;
-    color: var(--text-muted);
-    background-color: var(--bg-grey);
-    position: relative;
+    color: #888888;
+    background-color: #e9ecef;
+
+    /* 1. ベースの形：左がえぐれて、右が出っ張る矢印の形に切り抜く */
+    clip-path: polygon(0% 0%,
+            calc(100% - 6px) 0%,
+            100% 50%,
+            calc(100% - 6px) 100%,
+            0% 100%,
+            6px 50%);
 }
 
 .step-item.active {
@@ -133,38 +139,31 @@ body {
     color: var(--bg-white);
 }
 
-.step-item:not(:last-child)::after {
-    content: "";
-    position: absolute;
-    top: 0;
-    right: -15px;
-    width: 0;
-    height: 0;
-    border-top: 22px solid transparent;
-    border-bottom: 22px solid transparent;
-    border-left: 15px solid var(--bg-grey);
-    z-index: 2;
+/* 2. 最初の要素：左側はまっすぐ平らにする */
+.step-item:first-child {
+    clip-path: polygon(0% 0%,
+            calc(100% - 6px) 0%,
+            100% 50%,
+            calc(100% - 6px) 100%,
+            0% 100%);
 }
 
-.step-item.active:not(:last-child)::after {
-    border-left-color: var(--primary-color);
+/* 3. 最後の要素：右側はまっすぐ平らにする */
+.step-item:last-child {
+    clip-path: polygon(0% 0%,
+            100% 0%,
+            100% 100%,
+            0% 100%,
+            6px 50%);
 }
 
-.step-item:not(:first-child)::before {
-    content: "";
-    position: absolute;
-    top: 0;
-    left: 0;
-    width: 0;
-    height: 0;
-    border-top: 22px solid transparent;
-    border-bottom: 22px solid transparent;
-    border-left: 15px solid var(--bg-white);
-    z-index: 1;
-}
-
+/* 4. テキストが常に図形のド真ん中に来るように微調整 */
 .step-item:not(:first-child) {
-    padding-left: 15px;
+    padding-left: 6px;
+}
+
+.step-item:not(:last-child) {
+    padding-right: 6px;
 }
 
 /* ==========================================================================
@@ -203,6 +202,10 @@ body {
     margin-bottom: 20px;
     padding-left: 10px;
     border-left: 4px solid var(--primary-color);
+}
+
+.form-step:not(:last-of-type) {
+    margin-bottom: 50px;
 }
 
 /* ==========================================================================

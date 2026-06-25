@@ -17,24 +17,20 @@ document.addEventListener('DOMContentLoaded', () => {
     const btnBack = document.getElementById('btn-back');
 
     // ========================================================
-    // 2. バリデーションルールの定義（正規表現とメッセージ）
+    // 2. バリデーションルールの定義（正規表現のみに特化）
     // ========================================================
     const VALIDATION_RULES = {
         user_email: {
-            pattern: /^[a-zA-Z0-9._%+-]+@[a-zA-Z0-9.-]+\.[a-zA-Z]{2,}$/,
-            message: 'メールアドレスを正しく入力してください'
+            pattern: /^[a-zA-Z0-9._%+-]+@[a-zA-Z0-9.-]+\.[a-zA-Z]{2,}$/
         },
         user_tel: {
-            pattern: /^0\d{9,10}$/,
-            message: 'ハイフンなしで正しく入力してください'
+            pattern: /^0\d{9,10}$/
         },
         user_kana_last: {
-            pattern: /^[ァ-ヶー]+$/,
-            message: '全角カタカナで入力してください'
+            pattern: /^[ァ-ヶー]+$/
         },
         user_kana_first: {
-            pattern: /^[ァ-ヶー]+$/,
-            message: '全角カタカナで入力してください'
+            pattern: /^[ァ-ヶー]+$/
         }
     };
 
@@ -42,10 +38,12 @@ document.addEventListener('DOMContentLoaded', () => {
     function validateInput(input) {
         const value = input.value.trim();
 
+        // 共通：エラーメッセージ用にラベル名を取得
+        const formGroup = input.closest('.form-group');
+        const label = formGroup ? formGroup.querySelector('label').textContent.replace('必須', '').trim() : '';
+
         // 未入力チェック
         if (!value) {
-            const formGroup = input.closest('.form-group');
-            const label = formGroup ? formGroup.querySelector('label').textContent.replace('必須', '').trim() : '';
             const suffix = input.tagName.toLowerCase() === 'select' ? 'を選択してください' : 'を入力してください';
             return { isValid: false, message: `${label}${suffix}` };
         }
@@ -53,7 +51,7 @@ document.addEventListener('DOMContentLoaded', () => {
         // 形式チェック（ルールが定義されている項目のみ）
         const rule = VALIDATION_RULES[input.id];
         if (rule && !rule.pattern.test(value)) {
-            return { isValid: false, message: rule.message };
+            return { isValid: false, message: `${label}を正しく入力してください` };
         }
 
         return { isValid: true, message: '' };
@@ -111,12 +109,30 @@ document.addEventListener('DOMContentLoaded', () => {
     form.addEventListener('change', evaluateFormProgress);
 
     form.addEventListener('keydown', (e) => {
+        // エンターキーが押された時（日本語変換中のエンターは除く）
         if (e.key === 'Enter' && !e.isComposing && e.keyCode !== 229) {
-            e.preventDefault();
-            e.target.blur();
-            evaluateFormProgress();
+            e.preventDefault(); // 意図しない画面リロード（フォーム送信）を防止
+
+            const currentInput = e.target;
+            currentInput.blur(); // 一旦フォーカスを外して、エラー判定やフリガナ変換を走らせる
+
+            evaluateFormProgress(); // 値が確定したことで、次のステップが開くか評価する
+
+            // 現在画面上に表示されている（display: none ではない）入力項目をすべて取得
+            const focusableElements = Array.from(form.querySelectorAll('input, select')).filter(el => {
+                return el.type !== 'hidden' && el.offsetParent !== null && !el.disabled;
+            });
+
+            // 今入力していた項目が、配列の何番目かを探す
+            const currentIndex = focusableElements.indexOf(currentInput);
+
+            // 次の入力項目が存在すれば、そこにフォーカスを移す
+            if (currentIndex > -1 && currentIndex < focusableElements.length - 1) {
+                focusableElements[currentIndex + 1].focus();
+            }
         }
     });
+    // ▲ ここまで書き換え
     // 入力エラーの視覚的フィードバック ＆ フリガナ・電話番号の自動整形処理
     const allRequiredElements = document.querySelectorAll('input[required], select[required]');
 
@@ -129,41 +145,55 @@ document.addEventListener('DOMContentLoaded', () => {
         if (input.id === 'mansion_name') return;
 
         const formGroup = input.closest('.form-group');
-        const errorMsgEl = document.createElement('div');
-        errorMsgEl.className = 'error-text-message';
-        formGroup.appendChild(errorMsgEl);
 
-        // フォーカスが外れた時（Enterキー確定時もここが動きます）
+        // ★変更：グループ内に既にエラーメッセージ要素があるか探し、無ければ1つだけ作る
+        let errorMsgEl = formGroup.querySelector('.error-text-message');
+        if (!errorMsgEl) {
+            errorMsgEl = document.createElement('div');
+            errorMsgEl.className = 'error-text-message';
+            formGroup.appendChild(errorMsgEl);
+        }
+
         input.addEventListener('blur', () => {
-            // フリガナの場合はカタカナに変換
             if (input.id === 'user_kana_last' || input.id === 'user_kana_first') {
                 input.value = toKatakana(input.value);
             }
-
-            // ★追加：電話番号の場合はハイフンを全て削除
             if (input.id === 'user_tel') {
                 input.value = input.value.replace(/-/g, '');
             }
 
-            evaluateFormProgress(); // 値が変わったかもしれないので進行度を再評価
+            evaluateFormProgress();
 
-            // バリデーション実行
             const validation = validateInput(input);
             if (!validation.isValid) {
                 input.classList.add('is-error');
+                // エラーメッセージ要素のテキストを上書きして表示
                 errorMsgEl.textContent = validation.message;
                 errorMsgEl.style.display = 'block';
             } else {
                 input.classList.remove('is-error');
-                errorMsgEl.style.display = 'none';
+
+                // ★追加：同じグループ内に「他にエラーになっている入力欄」がないかチェック
+                const siblingInputs = formGroup.querySelectorAll('input[required], select[required]');
+                const hasOtherErrors = Array.from(siblingInputs).some(sibling => sibling.classList.contains('is-error'));
+
+                // 他にもエラーがあればメッセージは残し、両方綺麗になったらメッセージを消す
+                if (!hasOtherErrors) {
+                    errorMsgEl.style.display = 'none';
+                }
             }
         });
 
-        // 修正入力を始めたらエラーを隠す
         input.addEventListener('input', () => {
             if (input.value.trim()) {
                 input.classList.remove('is-error');
-                errorMsgEl.style.display = 'none';
+
+                const siblingInputs = formGroup.querySelectorAll('input[required], select[required]');
+                const hasOtherErrors = Array.from(siblingInputs).some(sibling => sibling.classList.contains('is-error'));
+
+                if (!hasOtherErrors) {
+                    errorMsgEl.style.display = 'none';
+                }
             }
         });
     });
