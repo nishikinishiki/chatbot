@@ -3,7 +3,7 @@ document.addEventListener('DOMContentLoaded', () => {
     // ========================================================
     // 1. 基本設定とDOM要素の取得
     // ========================================================
-    const GAS_API_URL = "https://script.google.com/macros/s/AKfycbz7ePFFVKeBFbMoAjHglRso1UEgSwwNOiaQ4rxhf-bYtujyHVKfO1kpzox4OC4aBl7aFQ/exec";
+    const GAS_API_URL = "https://script.google.com/macros/s/AKfycbyJpJBeBir3DXpssjkzveXUCun3wnRYzndX_Q1uyb9koTSQIkhzfGQZPa8pqqUx6Dh2pw/exec";
 
     const form = document.getElementById('estate-form');
     const steps = Array.from(document.querySelectorAll('.form-step'));
