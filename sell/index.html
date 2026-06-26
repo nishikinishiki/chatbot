@@ -47,7 +47,8 @@
                         <label for="mansion_name" class="required">マンション名</label>
                         <p class="input-note">※入力するとマンション名が表示されます。表示された候補から選択してください。</p>
                         <div class="suggest-wrapper">
-                            <input type="text" id="mansion_name" name="mansion_name" placeholder="例: AXAS東京ステーション" autocomplete="off" data-selected="false" required>
+                            <input type="text" id="mansion_name" name="mansion_name" placeholder="例: JPリターンズマンション" autocomplete="off" data-selected="false" required>
+                            <div id="mansion-loading" class="loading-spinner"></div>
                             <div id="mansion-suggest-list" class="suggest-list"></div>
                             <div id="mansion-error-balloon" class="error-balloon">
                                 <div class="error-balloon-header">
@@ -61,8 +62,8 @@
                                     <span class="error-title">マンション名がヒットしません</span>
                                 </div>
                                 <div class="error-balloon-body">
-                                    <p>ご入力いただいたマンションはシステム上に存在しないため、<a href="#" target="_blank">こちら</a>よりマンション名の追加申請をお願いします。</p>
-                                    <p>申請後、3営業日前後で追加となります。恐れ入りますが、時間をおいて再度ご登録ください。</p>
+                                    <p>ご入力いただいたマンションはシステム上に存在しないため、<a href="https://docs.google.com/forms/d/e/1FAIpQLSc79IAuxyNt9z2qGJmDkBu5lqjBmUWPmlvhildwA0JFXHBw4A/viewform" target="_blank">こちら</a>よりマンション名の追加申請をお願いします。</p>
+                                    <p>弊社査定対象物件の場合、申請から3営業日前後でシステムに追加されます。恐れ入りますが、時間をおいて再度ご登録ください。</p>
                                 </div>
                             </div>
                         </div>
@@ -75,7 +76,7 @@
                         <div class="form-group">
                             <label for="room_number" class="required">部屋番号</label>
                             <div class="input-unit-wrapper">
-                                <input type="text" id="room_number" name="room_number" placeholder="例: 101" required>
+                                <input type="text" id="room_number" name="room_number" placeholder="例: 301" required>
                                 <span class="unit">号室</span>
                             </div>
                         </div>
@@ -83,7 +84,7 @@
                         <div class="form-group">
                             <label for="floor_number" class="required">所在階</label>
                             <div class="input-unit-wrapper">
-                                <input type="number" id="floor_number" name="floor_number" placeholder="例: 5" min="1" required>
+                                <input type="number" id="floor_number" name="floor_number" placeholder="例: 3" min="1" required>
                                 <span class="unit">階</span>
                             </div>
                         </div>
@@ -106,15 +107,12 @@
                                 <option value="1K">1K</option>
                                 <option value="1DK">1DK</option>
                                 <option value="1LDK">1LDK</option>
-                                <option value="1SLDK">1SLDK</option>
                                 <option value="2K">2K</option>
                                 <option value="2DK">2DK</option>
                                 <option value="2LDK">2LDK</option>
-                                <option value="2SLDK">2SLDK</option>
                                 <option value="3K">3K</option>
                                 <option value="3DK">3DK</option>
                                 <option value="3LDK">3LDK</option>
-                                <option value="3SLDK">3SLDK</option>
                                 <option value="4K">4K</option>
                                 <option value="4DK">4DK</option>
                                 <option value="4LDK以上">4LDK以上</option>
@@ -132,26 +130,6 @@
                             <option value="居住中（自己使用）">居住中（自己使用）</option>
                         </select>
                     </div>
-
-                    <div class="form-group">
-                        <label for="management_method" class="required">管理方法</label>
-                        <select id="management_method" name="management_method" required>
-                            <option value="" disabled selected>選択してください</option>
-                            <option value="集金代行（一般管理）">集金代行（一般管理）</option>
-                            <option value="サブリース">サブリース</option>
-                            <option value="自主管理">自主管理</option>
-                        </select>
-                    </div>
-                    <div id="sublease-company-group" class="form-group nested-group">
-                        <label for="sublease_company" class="required">サブリース会社</label>
-                        <select id="sublease_company" name="sublease_company">
-                            <option value="" disabled selected>選択してください</option>
-                            <option value="A社">A社</option>
-                            <option value="B社">B社</option>
-                            <option value="C社">C社</option>
-                            <option value="その他">その他</option>
-                        </select>
-                    </div>
                     <div class="form-group">
                         <label for="monthly_rent" class="required">月額賃料（管理・共益費込）</label>
                         <p class="input-note">※おおよその値でかまいません。</p>
@@ -160,20 +138,36 @@
                             <span class="unit">円</span>
                         </div>
                     </div>
+                    <div class="form-group">
+                        <label for="management_method" class="required">管理方法</label>
+                        <select id="management_method" name="management_method" required>
+                            <option value="" disabled selected>選択してください</option>
+                            <option value="集金代行">集金代行</option>
+                            <option value="サブリース">サブリース</option>
+                            <option value="自主管理">自主管理</option>
+                        </select>
+                    </div>
+                    <div id="sublease-company-group" class="form-group nested-group">
+                        <label for="sublease_company" class="required">サブリース会社</label>
+                        <select id="sublease_company" name="sublease_company">
+                            <option value="" disabled selected>選択してください</option>
+                            <option value="エステムプランニング">エステムプランニング</option>
+                            <option value="シノケンファシリティーズ">シノケンファシリティーズ</option>
+                            <option value="グローバル・リンク・マネジメント">グローバル・リンク・マネジメント</option>
+                            <option value="BRIコミュニティー">BRIコミュニティー</option>
+                        </select>
+                    </div>
                 </div>
 
                 <div class="form-step">
                     <h2 class="step-title">➁売却の意向・ご状況</h2>
                     <div class="form-group">
-                        <label for="ownership_period" class="required">物件保有年数</label>
-                        <p class="input-note">※おおよその値でかまいません。</p>
+                        <label for="ownership_period" class="required">物件の保有年数</label>
                         <select id="ownership_period" name="ownership_period" required>
                             <option value="" disabled selected>選択してください</option>
                             <option value="1年未満">1年未満</option>
-                            <option value="1年以上〜3年未満">1年以上〜3年未満</option>
-                            <option value="3年以上〜5年未満">3年以上〜5年未満</option>
-                            <option value="5年以上〜7年未満">5年以上〜7年未満</option>
-                            <option value="7年以上〜10年未満">7年以上〜10年未満</option>
+                            <option value="1年以上〜5年未満">1年以上〜5年未満</option>
+                            <option value="5年以上〜10年未満">5年以上〜10年未満</option>
                             <option value="10年以上">10年以上</option>
                         </select>
                     </div>
@@ -181,14 +175,10 @@
                         <label for="valuation_purpose" class="required">査定の目的</label>
                         <select id="valuation_purpose" name="valuation_purpose" required>
                             <option value="" disabled selected>選択してください</option>
-                            <option value="査定額を知りたかったから">査定額を知りたかったから</option>
-                            <option value="住み替え（購入）">住み替え（購入）</option>
-                            <option value="住み替え（賃貸）">住み替え（賃貸）</option>
-                            <option value="地方への移住">地方への移住</option>
-                            <option value="相続">相続</option>
-                            <option value="離婚">離婚</option>
-                            <option value="不用物件の処分">不用物件の処分</option>
-                            <option value="住宅ローンの返済が厳しい">住宅ローンの返済が厳しい</option>
+                            <option value="相場・資産価値の把握">相場・資産価値の把握</option>
+                            <option value="買い替え・資産の組み換え">買い替え・資産の組み換え</option>
+                            <option value="ローン負担・収益状況の改善">ローン負担・収益状況の改善</option>
+                            <option value="相続・財産分与">相続・財産分与</option>
                             <option value="その他">その他</option>
                         </select>
                     </div>
@@ -196,16 +186,10 @@
                         <label for="desired_timing" class="required">売却希望時期</label>
                         <select id="desired_timing" name="desired_timing" required>
                             <option value="" disabled selected>選択してください</option>
-                            <option value="今売ることはない">今売ることはない</option>
                             <option value="条件が合えばいつでも">条件が合えばいつでも</option>
-                            <option value="残債がなくなるならいつでも">残債がなくなるならいつでも</option>
-                            <option value="相談したい">相談したい</option>
-                            <option value="1年以内">1年以内</option>
                             <option value="半年以内">半年以内</option>
-                            <option value="3ヶ月以内">3ヶ月以内</option>
-                            <option value="1ヶ月以内">1ヶ月以内</option>
-                            <option value="すぐに売り出したい">すぐに売り出したい</option>
-                            <option value="売却活動中">売却活動中</option>
+                            <option value="1年以内">1年以内</option>
+                            <option value="未定">未定</option>
                         </select>
                     </div>
                 </div>
@@ -214,23 +198,18 @@
                     <h2 class="step-title">③お客様情報</h2>
 
                     <div class="form-group">
-                        <label class="required">お名前</label>
-                        <div class="name-inputs">
-                            <input type="text" id="user_name_last" name="user_name_last" placeholder="姓 (例: 山田)" required>
-                            <input type="text" id="user_name_first" name="user_name_first" placeholder="名 (例: 太郎)" required>
-                        </div>
+                        <label for="user_name" class="required">お名前</label>
+                        <input type="text" id="user_name" name="user_name" placeholder="例: JP太郎" required>
                     </div>
 
                     <div class="form-group">
-                        <label class="required">フリガナ</label>
-                        <div class="name-inputs">
-                            <input type="text" id="user_kana_last" name="user_kana_last" placeholder="セイ (例: ヤマダ)" required>
-                            <input type="text" id="user_kana_first" name="user_kana_first" placeholder="メイ (例: タロウ)" required>
-                        </div>
+                        <label for="user_kana" class="required">フリガナ</label>
+                        <input type="text" id="user_kana" name="user_kana" placeholder="例: ジェーピータロウ" required>
                     </div>
 
                     <div class="form-group">
                         <label for="user_tel" class="required">電話番号</label>
+                        <p class="input-note">※ハイフン無し</p>
                         <input type="tel" id="user_tel" name="user_tel" placeholder="例: 09012345678" required>
                     </div>
                     <div class="form-group">
@@ -238,14 +217,17 @@
                         <input type="email" id="user_email" name="user_email" placeholder="例: example@jpreturns.com" required>
                     </div>
 
+                    <div class="form-group">
+                        <label for="request_notes">その他ご要望</label>
+                        <textarea id="request_notes" name="request_notes" placeholder="例: 平日の18時以降に連絡を希望します。" rows="4"></textarea>
+                    </div>
                 </div>
 
                 <div class="form-footer-section">
                     <div class="terms-links">
-                        <p class="company-text">[不動産販売事業] J.P.Returns株式会社</p>
                         <div class="link-group">
-                            <a href="#" class="modal-trigger" data-modal="terms">利用規約</a> <span class="divider">/</span>
-                            <a href="#" class="modal-trigger" data-modal="campaign">特典進呈条件</a>
+                            <p class="company-text">J.P.Returns株式会社</p>
+                            <a href="https://jpreturns.com/privacypolicy/" target="_blank" rel="noopener noreferrer">個人情報保護方針</a>
                         </div>
                     </div>
 
@@ -253,9 +235,13 @@
                         <button type="button" id="btn-to-confirm" class="btn btn-primary" disabled>上記に同意して次へ</button>
                     </div>
 
+
                     <div class="service-note">
-                        <h4>売却サービスに関して</h4>
-                        <p>J.P.Returns株式会社から連絡を差し上げる場合がございます。</p>
+                        <h4>投資用物件査定に関する注意事項</h4>
+                        <p>・本サービスは、お客様よりご入力いただいた物件情報に基づき、当社による買取の可否および概算の買取査定価格を算出するものです。現地調査の結果や当社の投資基準により、価格が変動する場合や、当社での買取をお断りする場合がございます。</p>
+                        <p>・当社の提携不動産会社等へのお客様の物件情報の紹介、あるいは仲介による売却プランをご提案させていただくことがございます。</p>
+                        <p>・本サービスを通じた査定のご依頼や査定結果の提示をもって、お客様と当社との間に不動産売買契約、または媒介契約が成立するものではございません。</p>
+                        <p>・本サービスの利用、または提供される査定結果を参考にしたことによりお客様に生じた直接的、間接的な損害について、当社は一切の責任を負いかねます。</p>
                     </div>
                 </div>
             </form>
@@ -287,24 +273,6 @@
     <footer class="site-footer">
         <p>&copy; J.P.Returns株式会社 All Rights Reserved.</p>
     </footer>
-
-    <div class="modal-overlay" id="modal-overlay">
-        <div class="modal-window">
-            <button class="modal-close" id="modal-close">&times;</button>
-            <h2 id="modal-title" class="modal-title">タイトル</h2>
-            <div id="modal-body" class="modal-body"></div>
-        </div>
-    </div>
-
-    <div style="display: none;">
-        <div id="text-terms">
-            <p>利用規約の本文です。</p>
-        </div>
-        <div id="text-campaign">
-            <p>特典進呈条件の本文です。</p>
-        </div>
-    </div>
-    <script src="mansion_data.js"></script>
     <script src="script.js"></script>
 </body>
 

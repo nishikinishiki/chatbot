@@ -3,7 +3,7 @@ document.addEventListener('DOMContentLoaded', () => {
     // ========================================================
     // 1. 基本設定とDOM要素の取得
     // ========================================================
-    const GAS_API_URL = "https://script.google.com/macros/s/AKfycbyJpJBeBir3DXpssjkzveXUCun3wnRYzndX_Q1uyb9koTSQIkhzfGQZPa8pqqUx6Dh2pw/exec";
+    const GAS_API_URL = "https://script.google.com/macros/s/AKfycbwhBWk7tI-uF6MYs5LH_6cCl8_b01T53CFNL4z1ChwY2_CTIfJTSp6yFP6AfNv9xYXbGQ/exec";
 
     const form = document.getElementById('estate-form');
     const steps = Array.from(document.querySelectorAll('.form-step'));
@@ -26,11 +26,8 @@ document.addEventListener('DOMContentLoaded', () => {
         user_tel: {
             pattern: /^0\d{9,10}$/
         },
-        user_kana_last: {
-            pattern: /^[ァ-ヶー]+$/
-        },
-        user_kana_first: {
-            pattern: /^[ァ-ヶー]+$/
+        user_kana: {
+            pattern: /^[ァ-ヶー\s]+$/
         }
     };
 
@@ -132,7 +129,6 @@ document.addEventListener('DOMContentLoaded', () => {
             }
         }
     });
-    // ▲ ここまで書き換え
     // 入力エラーの視覚的フィードバック ＆ フリガナ・電話番号の自動整形処理
     const allRequiredElements = document.querySelectorAll('input[required], select[required]');
 
@@ -155,7 +151,7 @@ document.addEventListener('DOMContentLoaded', () => {
         }
 
         input.addEventListener('blur', () => {
-            if (input.id === 'user_kana_last' || input.id === 'user_kana_first') {
+            if (input.id === 'user_kana') {
                 input.value = toKatakana(input.value);
             }
             if (input.id === 'user_tel') {
@@ -218,34 +214,38 @@ document.addEventListener('DOMContentLoaded', () => {
             evaluateFormProgress();
         });
     }
+    // ========================================================
+    // 6. マンション名オートコンプリート（Supabase通信版）
+    // ========================================================
+    // ★あとでSupabaseのダッシュボードで発行されるURLとキーをここに入力します
+    const SUPABASE_URL = 'https://onedgdlwknwajshunhiq.supabase.co';
+    const SUPABASE_ANON_KEY = 'eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6Im9uZWRnZGx3a253YWpzaHVuaGlxIiwicm9sZSI6ImFub24iLCJpYXQiOjE3ODI0NDU0MjIsImV4cCI6MjA5ODAyMTQyMn0.F68s6awM0O4Q6y_Y5l1pwsqRukW0B2ZIM2Mi07AT1jI';
 
-    // ========================================================
-    // 6. マンション名オートコンプリート
-    // ========================================================
     const mansionInput = document.getElementById('mansion_name');
     const suggestList = document.getElementById('mansion-suggest-list');
     const errorBalloon = document.getElementById('mansion-error-balloon');
-    // ★ヒント要素の代わりに、ステータスメッセージ要素を取得
     const mansionStatus = document.getElementById('mansion-status-message');
+    const loadingSpinner = document.getElementById('mansion-loading');
+
     let isComposing = false;
+    let debounceTimer; // ★ APIの無駄打ちを防ぐためのタイマー変数
 
     mansionInput.addEventListener('compositionstart', () => isComposing = true);
     mansionInput.addEventListener('compositionend', () => {
         isComposing = false;
-        searchMansion();
+        triggerSearch();
     });
 
     mansionInput.addEventListener('input', () => {
-        if (!isComposing) searchMansion();
+        if (!isComposing) triggerSearch();
     });
 
     mansionInput.addEventListener('focus', () => {
         if (mansionInput.value.trim() && mansionInput.getAttribute('data-selected') === 'false') {
-            searchMansion();
+            triggerSearch();
         }
     });
 
-    // ★ blur時のエラー処理もステータスメッセージを使うように変更
     mansionInput.addEventListener('blur', () => {
         if (!mansionInput.value.trim() || mansionInput.getAttribute('data-selected') === 'false') {
             mansionInput.classList.add('is-error');
@@ -255,13 +255,16 @@ document.addEventListener('DOMContentLoaded', () => {
         }
     });
 
-    function searchMansion() {
-        mansionInput.setAttribute('data-selected', 'false');
+    // ★入力が連続している間は通信を待ち、0.3秒間入力が止まったら検索を実行する（デバウンス処理）
+    function triggerSearch() {
+        clearTimeout(debounceTimer);
+        debounceTimer = setTimeout(searchMansion, 300);
+    }
 
-        // ★ 検索開始時にステータスメッセージをリセットして隠す
+    async function searchMansion() {
+        mansionInput.setAttribute('data-selected', 'false');
         mansionStatus.style.display = 'none';
         mansionStatus.className = 'status-message';
-
         evaluateFormProgress();
 
         const keyword = mansionInput.value.trim();
@@ -271,39 +274,57 @@ document.addEventListener('DOMContentLoaded', () => {
             return;
         }
 
-        const filteredMansions = MANSION_DB.filter(item =>
-            item.name.includes(keyword) || item.address.includes(keyword)
-        ).slice(0, 50);
+        loadingSpinner.style.display = 'block';
 
-        if (filteredMansions.length > 0) {
-            errorBalloon.style.display = 'none';
-            suggestList.innerHTML = '';
-
-            filteredMansions.forEach(itemData => {
-                const item = document.createElement('div');
-                item.className = 'suggest-item';
-                item.innerHTML = `<div class="suggest-name">${itemData.name}</div><div class="suggest-address">${itemData.address}</div>`;
-
-                item.addEventListener('mousedown', (e) => {
-                    e.preventDefault();
-                    mansionInput.value = itemData.name;
-                    suggestList.style.display = 'none';
-                    mansionInput.setAttribute('data-selected', 'true');
-                    mansionInput.classList.remove('is-error');
-
-                    // ★ 選択成功時に緑色でメッセージを表示する
-                    mansionStatus.textContent = "✔ マンション名が選択されました";
-                    mansionStatus.className = 'status-message is-success';
-                    mansionStatus.style.display = 'block';
-
-                    evaluateFormProgress();
-                });
-                suggestList.appendChild(item);
+        try {
+            // ★ SupabaseのAPIに検索リクエストを送信 (name か address に keyword が含まれるものを最大50件取得)
+            const response = await fetch(`${SUPABASE_URL}/rest/v1/mansions?or=(name.ilike.*${keyword}*,address.ilike.*${keyword}*)&limit=50`, {
+                method: 'GET',
+                headers: {
+                    'apikey': SUPABASE_ANON_KEY,
+                    'Authorization': `Bearer ${SUPABASE_ANON_KEY}`,
+                    'Content-Type': 'application/json'
+                }
             });
-            suggestList.style.display = 'block';
-        } else {
-            suggestList.style.display = 'none';
-            errorBalloon.style.display = 'block';
+
+            if (!response.ok) throw new Error('データベース通信エラー');
+
+            // 取得した結果をJSONとして読み込む
+            const filteredMansions = await response.json();
+
+            if (filteredMansions.length > 0) {
+                errorBalloon.style.display = 'none';
+                suggestList.innerHTML = '';
+
+                filteredMansions.forEach(itemData => {
+                    const item = document.createElement('div');
+                    item.className = 'suggest-item';
+                    item.innerHTML = `<div class="suggest-name">${itemData.name}</div><div class="suggest-address">${itemData.address}</div>`;
+
+                    item.addEventListener('mousedown', (e) => {
+                        e.preventDefault();
+                        mansionInput.value = itemData.name;
+                        suggestList.style.display = 'none';
+                        mansionInput.setAttribute('data-selected', 'true');
+                        mansionInput.classList.remove('is-error');
+
+                        mansionStatus.textContent = "✔ マンション名が選択されました";
+                        mansionStatus.className = 'status-message is-success';
+                        mansionStatus.style.display = 'block';
+
+                        evaluateFormProgress();
+                    });
+                    suggestList.appendChild(item);
+                });
+                suggestList.style.display = 'block';
+            } else {
+                suggestList.style.display = 'none';
+                errorBalloon.style.display = 'block';
+            }
+        } catch (error) {
+            console.error('検索エラー:', error);
+        } finally {
+            loadingSpinner.style.display = 'none';
         }
     }
 
@@ -313,50 +334,15 @@ document.addEventListener('DOMContentLoaded', () => {
             if (errorBalloon) errorBalloon.style.display = 'none';
         }
     });
-
-    document.addEventListener('click', (e) => {
-        if (!mansionInput.contains(e.target) && !suggestList.contains(e.target) && (!errorBalloon || !errorBalloon.contains(e.target))) {
-            suggestList.style.display = 'none';
-            if (errorBalloon) errorBalloon.style.display = 'none';
-        }
-    });
-
-
     // ========================================================
-    // 7. モーダル制御処理
+    // 7. 画面遷移とデータ送信
     // ========================================================
-    const modalTriggers = document.querySelectorAll('.modal-trigger');
-    const modalOverlay = document.getElementById('modal-overlay');
-    const modalClose = document.getElementById('modal-close');
-    const modalTitle = document.getElementById('modal-title');
-    const modalBody = document.getElementById('modal-body');
-
-    modalTriggers.forEach(trigger => {
-        trigger.addEventListener('click', (e) => {
-            e.preventDefault();
-            modalTitle.textContent = trigger.textContent;
-            modalBody.innerHTML = document.getElementById(`text-${trigger.getAttribute('data-modal')}`).innerHTML;
-            modalOverlay.classList.add('active');
-        });
-    });
-
-    modalClose.addEventListener('click', () => modalOverlay.classList.remove('active'));
-    modalOverlay.addEventListener('click', (e) => {
-        if (e.target === modalOverlay) modalOverlay.classList.remove('active');
-    });
-
-
-    // ========================================================
-    // 8. 画面遷移とデータ送信
-    // ========================================================
-
-    // 確認画面へ進む
     btnToConfirm.addEventListener('click', () => {
         const labels = {
             mansion_name: "マンション名", room_number: "部屋番号", floor_number: "所在階", area_size: "占有面積",
-            floor_plan: "間取り", occupancy_status: "居住の状態", management_method: "管理方法", sublease_company: "サブリース会社",
-            monthly_rent: "月額賃料", ownership_period: "物件保有年数", valuation_purpose: "査定の目的",
-            desired_timing: "売却希望時期", user_email: "メールアドレス", user_tel: "電話番号"
+            floor_plan: "間取り", occupancy_status: "居住の状態", monthly_rent: "月額賃料", management_method: "管理方法", sublease_company: "サブリース会社",
+            ownership_period: "物件保有年数", valuation_purpose: "査定の目的", desired_timing: "売却希望時期",
+            user_name: "お名前", user_kana: "フリガナ", user_email: "メールアドレス", user_tel: "電話番号", request_notes: "その他ご要望"
         };
         const units = { room_number: "号室", floor_number: "階", area_size: "㎡", monthly_rent: "円" };
 
@@ -365,7 +351,7 @@ document.addEventListener('DOMContentLoaded', () => {
         const userSummaryHtml = [];
 
         formData.forEach((value, key) => {
-            if (!value || ['user_name_last', 'user_name_first', 'user_kana_last', 'user_kana_first'].includes(key)) return;
+            if (!value) return;
 
             const displayValue = units[key] ? `${value} ${units[key]}` : value;
             const rowHtml = `
@@ -374,19 +360,12 @@ document.addEventListener('DOMContentLoaded', () => {
                     <dd class="confirm-value">${displayValue}</dd>
                 </div>
             `;
-            if (['user_email', 'user_tel'].includes(key)) {
+            if (['user_name', 'user_kana', 'user_email', 'user_tel', 'request_notes'].includes(key)) {
                 userSummaryHtml.push(rowHtml);
             } else {
                 propertySummaryHtml.push(rowHtml);
             }
         });
-
-        userSummaryHtml.unshift(`
-            <div class="confirm-row"><dt class="confirm-label">フリガナ</dt><dd class="confirm-value">${formData.get('user_kana_last')} ${formData.get('user_kana_first')}</dd></div>
-        `);
-        userSummaryHtml.unshift(`
-            <div class="confirm-row"><dt class="confirm-label">お名前</dt><dd class="confirm-value">${formData.get('user_name_last')} ${formData.get('user_name_first')}</dd></div>
-        `);
 
         document.getElementById('summary-property').innerHTML = propertySummaryHtml.join('');
         document.getElementById('summary-user').innerHTML = userSummaryHtml.join('');

@@ -12,7 +12,7 @@
     --bg-white: #ffffff;
     --bg-grey: #f3f3f3;
     --border-color: #dddddd;
-    --diabled: #b3b3b3;
+    --disabled: #b3b3b3;
     --error-color: #ff0008;
     --error-bg: #fff5f5;
     --link: #184cdb;
@@ -49,7 +49,7 @@ body {
 .site-header {
     background-color: var(--bg-white);
     border-bottom: 1px solid var(--border-color);
-    padding: 15px 0;
+    padding: 15px 20px;
     position: sticky;
     top: 0;
     z-index: 100;
@@ -58,12 +58,11 @@ body {
 .header-container {
     max-width: 640px;
     margin: 0 auto;
-    padding: 0 20px;
 }
 
 .brand-logo {
     display: block;
-    height: 24px;
+    height: 18px;
     width: auto;
 }
 
@@ -122,16 +121,15 @@ body {
     line-height: 44px;
     font-size: 14px;
     font-weight: 700;
-    color: #888888;
-    background-color: #e9ecef;
-
+    color: var(--text-muted);
+    background-color: var(--bg-grey);
     /* 1. ベースの形：左がえぐれて、右が出っ張る矢印の形に切り抜く */
     clip-path: polygon(0% 0%,
-            calc(100% - 6px) 0%,
+            calc(100% - 8px) 0%,
             100% 50%,
-            calc(100% - 6px) 100%,
+            calc(100% - 8px) 100%,
             0% 100%,
-            6px 50%);
+            8px 50%);
 }
 
 .step-item.active {
@@ -142,9 +140,9 @@ body {
 /* 2. 最初の要素：左側はまっすぐ平らにする */
 .step-item:first-child {
     clip-path: polygon(0% 0%,
-            calc(100% - 6px) 0%,
+            calc(100% - 8px) 0%,
             100% 50%,
-            calc(100% - 6px) 100%,
+            calc(100% - 8px) 100%,
             0% 100%);
 }
 
@@ -154,7 +152,7 @@ body {
             100% 0%,
             100% 100%,
             0% 100%,
-            6px 50%);
+            8px 50%);
 }
 
 /* 4. テキストが常に図形のド真ん中に来るように微調整 */
@@ -241,16 +239,16 @@ body {
 
 .form-group label.required::after {
     content: "必須";
-    background-color: #333333;
-    color: #fff;
+    background-color: var(--text-muted);
+    color: var(--bg-white);
     font-size: 11px;
-    padding: 3px 6px;
+    padding: 2px 4px;
     border-radius: 2px;
-    margin-left: 8px;
+    margin-left: 6px;
 }
 
 .input-note {
-    font-size: 13px;
+    font-size: 12px;
     color: var(--text-muted);
     margin-top: 4px;
     margin-bottom: 8px;
@@ -272,7 +270,8 @@ input[type="text"],
 input[type="number"],
 input[type="email"],
 input[type="tel"],
-select {
+select,
+textarea {
     width: 100%;
     padding: 16px;
     font-size: 15px;
@@ -284,13 +283,20 @@ select {
 }
 
 input:focus,
-select:focus {
+select:focus,
+textarea:focus {
     border-color: var(--primary-color);
 }
 
 ::placeholder {
-    color: #aaaaaa;
+    color: var(--disabled);
     opacity: 1;
+}
+
+textarea {
+    resize: vertical;
+    min-height: 100px;
+    font-family: inherit;
 }
 
 /* ==========================================================================
@@ -305,8 +311,6 @@ select {
     /* 2. すっきりしたカスタム矢印（SVG）を背景として設定（色は全体の--text-mutedに統一） */
     background-image: url('data:image/svg+xml;charset=UTF-8,<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="none" stroke="%23666666" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><polyline points="6 9 12 15 18 9"></polyline></svg>') !important;
     background-repeat: no-repeat !important;
-
-    /* 4. 矢印の「位置」と「サイズ」を調整 */
     background-position: right 10px center !important;
     background-size: 14px !important;
 }
@@ -394,6 +398,35 @@ select::-ms-expand {
     color: var(--text-muted);
 }
 
+/* ==========================================================================
+   ローディングスピナー（通信中アニメーション）
+   ========================================================================== */
+.loading-spinner {
+    display: none;
+    /* 初期状態は非表示 */
+    position: absolute;
+    right: 16px;
+    top: calc(50% - 10px);
+    /* 縦中央寄せ */
+    width: 20px;
+    height: 20px;
+    border: 2px solid var(--border-color);
+    border-top-color: var(--primary-color);
+    border-radius: 50%;
+    animation: spin 0.8s linear infinite;
+    z-index: 5;
+}
+
+@keyframes spin {
+    0% {
+        transform: rotate(0deg);
+    }
+
+    100% {
+        transform: rotate(360deg);
+    }
+}
+
 /* エラーバルーン */
 .error-balloon {
     display: none;
@@ -446,9 +479,8 @@ select::-ms-expand {
     left: 0;
     width: 100%;
     height: 100%;
-    background-color: #fff0f0;
+    background-color: var(--error-bg);
     border-radius: 50%;
-    transform: scale(1.1) translateX(-2px);
     z-index: -1;
 }
 
@@ -470,17 +502,13 @@ select::-ms-expand {
 
 .error-balloon-body p {
     font-size: 13px;
-    color: #444444;
+    color: var(--text-dark);
     line-height: 1.6;
     margin-bottom: 12px;
 }
 
-.error-balloon-body p:last-child {
-    margin-bottom: 0;
-}
-
 .error-balloon-body a {
-    color: var(--primary-color);
+    color: var(--link);
     text-decoration: underline;
 }
 
@@ -538,11 +566,6 @@ select.is-error {
     text-decoration: none;
 }
 
-.link-group .divider {
-    color: var(--border-color);
-    margin: 0 6px;
-}
-
 .service-note {
     margin-top: 35px;
     font-size: 12px;
@@ -590,8 +613,8 @@ select.is-error {
 }
 
 .btn-primary:disabled {
-    background-color: #f3f3f3;
-    color: var(--diabled);
+    background-color: var(--bg-grey);
+    color: var(--disabled);
     box-shadow: none;
     cursor: not-allowed;
 }
@@ -669,77 +692,9 @@ select.is-error {
     font-size: 15px;
 }
 
-/* ==========================================================================
-   モーダル（ポップアップ）
-   ========================================================================== */
-.modal-overlay {
-    display: none;
-    position: fixed;
-    top: 0;
-    left: 0;
-    width: 100%;
-    height: 100%;
-    background-color: rgba(0, 0, 0, 0.6);
-    z-index: 9999;
-    align-items: center;
-    justify-content: center;
-    opacity: 0;
-    transition: opacity 0.3s ease;
-}
-
-.modal-overlay.active {
-    display: flex;
-    opacity: 1;
-}
-
-.modal-window {
-    background-color: var(--bg-white);
-    width: 90%;
-    max-width: 500px;
-    border-radius: var(--radius-md);
-    padding: 30px 20px;
-    position: relative;
-    box-shadow: 0 10px 30px rgba(0, 0, 0, 0.2);
-    transform: translateY(20px);
-    transition: transform 0.3s ease;
-    max-height: 80vh;
-    display: flex;
-    flex-direction: column;
-}
-
-.modal-overlay.active .modal-window {
-    transform: translateY(0);
-}
-
-.modal-close {
-    position: absolute;
-    top: 15px;
-    right: 15px;
-    font-size: 28px;
-    color: var(--diabled);
-    background: none;
-    border: none;
-    cursor: pointer;
-    line-height: 1;
-}
-
-.modal-close:hover {
-    color: #333;
-}
-
-.modal-title {
-    font-size: 18px;
-    font-weight: 700;
-    margin-bottom: 15px;
-    text-align: center;
-    border-bottom: 2px solid var(--bg-light);
-    padding-bottom: 10px;
-}
-
-.modal-body {
-    overflow-y: auto;
-    font-size: 14px;
-    line-height: 1.6;
-    color: var(--text-dark);
-    padding-right: 10px;
+@media (max-width: 560px) {
+    .form-wrapper {
+        margin: 0px auto;
+        padding: 20px;
+    }
 }
