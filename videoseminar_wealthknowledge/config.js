@@ -7,10 +7,10 @@ const GAS_WEB_APP_URL = 'https://script.google.com/macros/s/AKfycbyigqfQx0uNHXUI
 const GAS_LOG_APP_URL = 'https://script.google.com/macros/s/AKfycbxOEisLnlCPIKn18Cgoli1dCRxyXfrjG3BOp68Ne4G5RzY1s8rYgVMzAiB90RsMZoif/exec';
 
 // 3. 質問者アイコンの画像URL
-const BOT_ICON_URL = '/ebook_propertyinvestment/images/icon_jp.png';
+const BOT_ICON_URL = '/common/images/icon_jp.png';
 
 // 4. ファビコンの画像URL
-const FAVICON_URL = '/ebook_propertyinvestment/images/favicon.png';
+const FAVICON_URL = '/common/images/favicon.png';
 
 // 5. チャット開始時に表示するバナー画像のURL
-const BANNER_IMAGE_URL = '/ebook_propertyinvestment/images/banner_WEK.png';
+const BANNER_IMAGE_URL = '/common/images/banner_WEK.png';
