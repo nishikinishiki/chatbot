@@ -16,20 +16,20 @@ const BANNER_DEFAULT = [
     '/ebook_propertyinvestment/images/banner_gift.webp'
 ];
 const BANNER_CAMPAIGN = {
-    'ALA_gift_ebook_4362': '/ebook_propertyinvestment/images/banner_buzz_260512.webp',
     'ALA_gift_ebook_4362PM': '/ebook_propertyinvestment/images/banner_buzz_260512.webp',
+    'ALA_gift_ebook_4362': '/ebook_propertyinvestment/images/banner_buzz_260512.webp',
     'like_dining': '/ebook_propertyinvestment/images/banner_ebook_like-dining.png',
     'like_suv': '/ebook_propertyinvestment/images/banner_ebook_like-suv.png',
     'like_watch': '/ebook_propertyinvestment/images/banner_ebook_like-watch.png',
     'fbtrg': '/ebook_propertyinvestment/images/banner_ebook_meta.webp',
-    'ALA_gift_ebook_2529': '/ebook_propertyinvestment/images/banner_chotoshin_260625.webp',
     'ALA_gift_ebook_2529PM': '/ebook_propertyinvestment/images/banner_chotoshin_260625.webp',
     'ALA_gift_ebook_2529y': '/ebook_propertyinvestment/images/banner_chotoshin_260625.webp',
+    'ALA_gift_ebook_2529': '/ebook_propertyinvestment/images/banner_chotoshin_260625.webp',
     'wk_gift_ebook': '/ebook_propertyinvestment/images/banner_WEK.png'
 };
 
 // 5. CSS
-const STYLE_DEFAULT = '/ebook_propertyinvestment/css/style.css';
+const STYLE_DEFAULT = '/ebook_propertyinvestment/css/style-2.css';
 const STYLE_CAMPAIGN = {
     'fbtrg': '/ebook_propertyinvestment/css/style-2.css',
     'wk_gift_ebook': '/ebook_propertyinvestment/css/style-2.css',

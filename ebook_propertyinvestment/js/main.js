@@ -20,12 +20,20 @@ const state = {
 const urlParams = new URLSearchParams(window.location.search);
 const utmSource = urlParams.get('utm_source');
 
-// config.jsの設定に基づいてCSSのパスを決定
-const styleUrl = STYLE_CAMPAIGN[utmSource] || STYLE_DEFAULT;
+let styleUrl = STYLE_DEFAULT;
+
+// ★ 変更: 部分一致で判定
+if (utmSource && typeof STYLE_CAMPAIGN !== 'undefined') {
+    for (const key in STYLE_CAMPAIGN) {
+        if (utmSource.includes(key)) {
+            styleUrl = STYLE_CAMPAIGN[key];
+            break; // 最初に見つかった時点でループを抜ける
+        }
+    }
+}
 
 // linkタグのhrefを書き換え
 document.getElementById('main-stylesheet').href = styleUrl;
-
 
 // --- GAイベント送信 ---
 function sendGaEvent(question, answerValue) {
@@ -48,8 +56,9 @@ async function showSystemMessages(messageArray) {
     }
 }
 
+
 // ==========================================
-// ★ 新規共通関数: UTMパラメータに応じた動的URL取得ロジック
+// UTMパラメータに応じた動的URL取得ロジック（部分一致対応）
 // ==========================================
 function getDynamicAssetUrl(defaultUrl, assetMap) {
     let url = defaultUrl || null;
@@ -60,9 +69,14 @@ function getDynamicAssetUrl(defaultUrl, assetMap) {
     for (const param of targetParams) {
         const paramValue = state.utmParameters[param];
 
-        // 対応表(assetMap)が存在し、かつ一致する値があればそのURLを返す
-        if (paramValue && assetMap && assetMap[paramValue]) {
-            return assetMap[paramValue];
+        // パラメータが存在し、かつ対応表(assetMap)がある場合
+        if (paramValue && assetMap) {
+            // assetMapのキーをループして、パラメータ値がそのキー（指定文字列）を含んでいるか判定
+            for (const key in assetMap) {
+                if (paramValue.includes(key)) {
+                    return assetMap[key]; // 含まれている場合はそのURLを返す（前方が優先）
+                }
+            }
         }
     }
 

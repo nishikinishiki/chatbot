@@ -27,7 +27,18 @@
         (function () {
             const urlParams = new URLSearchParams(window.location.search);
             const utmSource = urlParams.get('utm_source');
-            const styleUrl = STYLE_CAMPAIGN[utmSource] || STYLE_DEFAULT;
+
+            let styleUrl = STYLE_DEFAULT;
+
+            if (utmSource && typeof STYLE_CAMPAIGN !== 'undefined') {
+                for (const key in STYLE_CAMPAIGN) {
+                    if (utmSource.includes(key)) {
+                        styleUrl = STYLE_CAMPAIGN[key];
+                        break;
+                    }
+                }
+            }
+
             if (styleUrl !== STYLE_DEFAULT) {
                 document.getElementById('main-stylesheet').href = styleUrl;
             }
@@ -42,7 +53,7 @@
 
     <div class="chat-container">
         <div class="chat-header">
-            <div class="chat-header-title">ウェルスナレッジ お問い合わせ窓口</div>
+            <div class="chat-header-title">J.P.RETURNS お問い合わせ窓口</div>
             <div class="progress-bar-container">
                 <div class="progress-bar" id="progressBar"></div>
             </div>

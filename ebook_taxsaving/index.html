@@ -27,7 +27,18 @@
         (function () {
             const urlParams = new URLSearchParams(window.location.search);
             const utmSource = urlParams.get('utm_source');
-            const styleUrl = STYLE_CAMPAIGN[utmSource] || STYLE_DEFAULT;
+
+            let styleUrl = STYLE_DEFAULT;
+
+            if (utmSource && typeof STYLE_CAMPAIGN !== 'undefined') {
+                for (const key in STYLE_CAMPAIGN) {
+                    if (utmSource.includes(key)) {
+                        styleUrl = STYLE_CAMPAIGN[key];
+                        break;
+                    }
+                }
+            }
+
             if (styleUrl !== STYLE_DEFAULT) {
                 document.getElementById('main-stylesheet').href = styleUrl;
             }
