@@ -11,7 +11,9 @@ const ICON_CAMPAIGN = {
 };
 
 // 4. バナー
-const BANNER_DEFAULT = '/ebook_propertyinvestment/images/banner_ebook_gift.webp';
+const BANNER_DEFAULT = [
+    '/ebook_propertyinvestment/images/banner_ebook_gift.webp'
+];
 const BANNER_CAMPAIGN = {
     'ALA_gift_ebook_4362': '/ebook_propertyinvestment/images/banner_buzz_260512.webp',
     'ALA_gift_ebook_4362PM': '/ebook_propertyinvestment/images/banner_buzz_260512.webp',

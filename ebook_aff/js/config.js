@@ -8,7 +8,7 @@ const FAVICON_URL = '/ebook_propertyinvestment/images/favicon.png';
 const ICON_DEFAULT = '/ebook_propertyinvestment/images/icon_woman.png';
 
 // 4. バナー
-const BANNER_DEFAULT = '/ebook_aff/images/banner_ebook_gift.webp';
+const BANNER_DEFAULT = '/ebook_propertyinvestment/images/banner_aff.webp';
 
 // 5. CSS
 const STYLE_DEFAULT = '/ebook_propertyinvestment/css/style-2.css';

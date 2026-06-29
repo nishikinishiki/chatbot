@@ -10,4 +10,4 @@ const BOT_ICON_URL = '/ebook_propertyinvestment/images/icon_jp.png';
 const FAVICON_URL = '/ebook_propertyinvestment/images/favicon.png';
 
 // 4. チャット開始時に表示するバナー画像のURL
-const BANNER_IMAGE_URL = '/consultation/images/banner_consultation_gift.webp';
+const BANNER_IMAGE_URL = '/ebook_propertyinvestment/images/banner_consultation_gift.webp';

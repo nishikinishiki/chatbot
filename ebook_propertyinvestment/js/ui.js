@@ -578,37 +578,42 @@ function hideModal() {
     dom.giftTermsModal.classList.remove('show');
 }
 
-function displayBannerImage(url) {
-    // 1つのラッパー（箱）だけを用意する
+function displayBannerImage(urlOrUrls) {
+    if (!dom.chatMessages) return;
+
     const wrapper = document.createElement('div');
     wrapper.className = 'banner-image-wrapper';
 
-    // URLの末尾が .mp4 かどうかで判定
-    const isVideo = url.toLowerCase().endsWith('.mp4');
+    const urls = Array.isArray(urlOrUrls) ? urlOrUrls : [urlOrUrls];
 
-    if (isVideo) {
-        // 動画の場合
-        const video = document.createElement('video');
-        video.src = url;
-        video.className = 'chat-banner-image'; // 既存のCSSクラスを流用
-        video.autoplay = true;  // 自動再生
-        video.loop = true;      // ループ再生
-        video.muted = true;     // ミュート（自動再生に必須）
-        video.playsInline = true; // スマホでのインライン再生用
+    urls.forEach((url, index) => {
+        if (!url) return;
 
-        video.onerror = () => wrapper.remove();
-        wrapper.appendChild(video);
-    } else {
-        // 画像の場合（元の処理）
-        const img = document.createElement('img');
-        img.src = url;
-        img.className = 'chat-banner-image';
+        const isVideo = url.toLowerCase().endsWith('.mp4');
 
-        img.onerror = () => wrapper.remove();
-        wrapper.appendChild(img);
-    }
+        let mediaElement;
+        if (isVideo) {
+            // 動画の場合
+            mediaElement = document.createElement('video');
+            mediaElement.src = url;
+            mediaElement.autoplay = true;  // 自動再生
+            mediaElement.loop = true;      // ループ再生
+            mediaElement.muted = true;     // ミュート（自動再生に必須）
+            mediaElement.playsInline = true; // スマホでのインライン再生用
+        } else {
+            // 画像の場合
+            mediaElement = document.createElement('img');
+            mediaElement.src = url;
+            mediaElement.alt = 'キャンペーンバナー';
+        }
 
-    // 同じ箱の中に、画像・動画に続けてリンクテキストを追加する
+        mediaElement.className = 'chat-banner-image';
+
+        mediaElement.onerror = () => mediaElement.remove();
+        wrapper.appendChild(mediaElement);
+    });
+
+    // 全てのバナー画像を追加したあとに、規約リンクテキストを追加する
     if (typeof GIFT_TERMS_CONFIG !== 'undefined') {
         const termsText = document.createElement('div');
         termsText.className = 'banner-gift-terms-link';
@@ -622,4 +627,5 @@ function displayBannerImage(url) {
     }
 
     dom.chatMessages.prepend(wrapper);
+    scrollToBottom();
 }

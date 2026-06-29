@@ -164,7 +164,7 @@ body {
 
 .chat-messages {
   flex-grow: 1;
-  padding: 14px 14px 60px;
+  padding: 12px 12px 50px;
   overflow-y: auto;
   background-color: var(--bg-chat-messages);
   display: flex;
@@ -178,6 +178,13 @@ body {
    3. Component: Banner
    バナー画像
    =============================================================== */
+
+.banner-image-wrapper {
+  margin-top: -12px;
+  margin-left: -12px;
+  margin-right: -12px;
+}
+
 .chat-banner-image {
   width: 100%;
   height: auto;
@@ -190,9 +197,8 @@ body {
   font-size: 0.6em;
   color: var(--text-sub);
   text-align: right;
-  /* 右寄せにする */
   width: 100%;
-  padding-right: 2px;
+  padding-right: 8px;
   margin-top: 2px;
 }
 

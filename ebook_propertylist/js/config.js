@@ -8,7 +8,7 @@ const FAVICON_URL = '/ebook_propertyinvestment/images/favicon.png';
 const ICON_DEFAULT = '/ebook_propertyinvestment/images/icon_jp.png';
 
 // 4. バナー
-const BANNER_DEFAULT = '/ebook_propertylist/images/banner_ebook_propertylist.png';
+const BANNER_DEFAULT = '/ebook_propertyinvestment/images/banner_ebook_propertylist.png';
 
 // 5. CSS
 const STYLE_DEFAULT = '/ebook_propertyinvestment/css/style.css';
