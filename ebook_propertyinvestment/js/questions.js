@@ -236,7 +236,7 @@ const initialQuestions = [
     id: 'digital_gift_choice',
     item: "希望デジタルギフト",
     pre_message: "面談完了でえらべるデジタルギフト<span style='color: red;'>最大50,000円分</span>プレゼントの対象となります！", isHtmlPreMessage: true,
-    question: "最後に、ご希望のデジタルギフトをお選びください。",
+    question: "最後に、ご希望のデジタルギフトの種類をお選びください。",
     answer_method: "single-choice",
     options: [
       { label: "Amazonギフトカード", value: "Amazonギフトカード" },
