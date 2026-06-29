@@ -16,6 +16,15 @@ const state = {
     waitingForInput: false // 増殖バグ防止用フラグ
 };
 
+// URLパラメータからutm_sourceを取得
+const urlParams = new URLSearchParams(window.location.search);
+const utmSource = urlParams.get('utm_source');
+
+// config.jsの設定に基づいてCSSのパスを決定
+const styleUrl = STYLE_CAMPAIGN[utmSource] || STYLE_DEFAULT;
+
+// linkタグのhrefを書き換え
+document.getElementById('main-stylesheet').href = styleUrl;
 
 
 // --- GAイベント送信 ---
@@ -64,15 +73,15 @@ function getDynamicAssetUrl(defaultUrl, assetMap) {
 // ★ 各種出し分け用ラッパー関数
 // ==========================================
 function getBannerUrl() {
-    const defaultUrl = typeof BANNER_IMAGE_URL !== 'undefined' ? BANNER_IMAGE_URL : null;
-    const assetMap = typeof CAMPAIGN_BANNERS !== 'undefined' ? CAMPAIGN_BANNERS : null;
+    const defaultUrl = typeof BANNER_DEFAULT !== 'undefined' ? BANNER_DEFAULT : null;
+    const assetMap = typeof BANNER_CAMPAIGN !== 'undefined' ? BANNER_CAMPAIGN : null;
 
     return getDynamicAssetUrl(defaultUrl, assetMap);
 }
 
 function getBotIconUrl() {
-    const defaultUrl = typeof BOT_ICON_URL !== 'undefined' ? BOT_ICON_URL : null;
-    const assetMap = typeof CAMPAIGN_ICONS !== 'undefined' ? CAMPAIGN_ICONS : null;
+    const defaultUrl = typeof ICON_DEFAULT !== 'undefined' ? ICON_DEFAULT : null;
+    const assetMap = typeof ICON_CAMPAIGN !== 'undefined' ? ICON_CAMPAIGN : null;
 
     return getDynamicAssetUrl(defaultUrl, assetMap);
 }

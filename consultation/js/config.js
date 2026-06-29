@@ -4,10 +4,10 @@
 const GAS_WEB_APP_URL = 'https://script.google.com/macros/s/AKfycbyigqfQx0uNHXUIECwD3CxWEPT1Q4mpqJhABdvt8B2DFIdDDXWT3NmdxbdWPX5iHtV3AA/exec';
 
 // 2. 質問者アイコンの画像URL
-const BOT_ICON_URL = '/consultation/images/icon.png';
+const BOT_ICON_URL = '/ebook_propertyinvestment/images/icon_jp.png';
 
 // 3. ファビコンの画像URL
-const FAVICON_URL = '/consultation/images/favicon.png';
+const FAVICON_URL = '/ebook_propertyinvestment/images/favicon.png';
 
 // 4. チャット開始時に表示するバナー画像のURL
-const BANNER_IMAGE_URL = 'images/banner_consultation_taxsaving.webp';
+const BANNER_IMAGE_URL = '/consultation/images/banner_consultation_gift.webp';

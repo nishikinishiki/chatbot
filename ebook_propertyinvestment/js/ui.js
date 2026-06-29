@@ -66,7 +66,7 @@ function createMessageWrapper(sender) {
     if (sender === 'bot') {
         const botIcon = document.createElement('div');
         botIcon.className = 'bot-icon';
-        const iconUrl = typeof getBotIconUrl === 'function' ? getBotIconUrl() : (typeof BOT_ICON_URL !== 'undefined' ? BOT_ICON_URL : '');
+        const iconUrl = typeof getBotIconUrl === 'function' ? getBotIconUrl() : (typeof ICON_DEFAULT !== 'undefined' ? ICON_DEFAULT : '');
 
         if (iconUrl) {
             botIcon.style.backgroundImage = `url('${iconUrl}')`;
