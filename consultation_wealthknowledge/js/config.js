@@ -12,7 +12,7 @@ const ICON_CAMPAIGN = {
 
 // 4. バナー
 const BANNER_DEFAULT = [
-    '/common/images/banner_no1_appeal.jpg'
+    '/common/images/banner_consultation_gift.webp'
 ];
 const BANNER_CAMPAIGN = {
     'no1_': [

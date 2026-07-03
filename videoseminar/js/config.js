@@ -15,14 +15,25 @@ const BANNER_DEFAULT = [
     '/common/images/banner_no1_appeal.jpg'
 ];
 const BANNER_CAMPAIGN = {
+    'ALA_gift_ebook_4362PM': '/common/images/banner_buzz_260512.webp',
+    'ALA_gift_ebook_4362': '/common/images/banner_buzz_260512.webp',
+    'like_dining': '/common/images/banner_ebook_like-dining.png',
+    'like_suv': '/common/images/banner_ebook_like-suv.png',
+    'like_watch': '/common/images/banner_ebook_like-watch.png',
     'no1_': [
         '/common/images/banner_no1.mp4',
         '/common/images/banner_gift.webp'
-    ]
+    ],
+    'fbtrg': '/common/images/banner_ebook_meta.webp',
+    'ALA_gift_ebook_2529PM': '/common/images/banner_chotoshin_260625.webp',
+    'ALA_gift_ebook_2529y': '/common/images/banner_chotoshin_260625.webp',
+    'ALA_gift_ebook_2529': '/common/images/banner_chotoshin_260625.webp',
+    'wk_gift_ebook': '/common/images/banner_WEK.png'
 };
 
 // 5. CSS
 const STYLE_DEFAULT = '/common/css/style.css';
 const STYLE_CAMPAIGN = {
+    'fbtrg': '/common/css/style-2.css',
     'wk_gift_ebook': '/common/css/style-2.css',
 };
