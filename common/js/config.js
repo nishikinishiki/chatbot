@@ -28,7 +28,14 @@ const BANNER_CAMPAIGN = {
     'ALA_gift_ebook_2529PM': '/common/images/banner_chotoshin_260625.webp',
     'ALA_gift_ebook_2529y': '/common/images/banner_chotoshin_260625.webp',
     'ALA_gift_ebook_2529': '/common/images/banner_chotoshin_260625.webp',
-    'wk_gift_ebook': '/common/images/banner_WEK.png'
+    'wk_gift_ebook': '/common/images/banner_WEK.png',
+    'JprBN_c_gift_chat': '/common/images/banner_no1_appeal.jpg',
+    'JprBN_d_gift_chat': '/common/images/banner_no1_appeal.jpg',
+    'JprBN_e_gift_chat': '/common/images/banner_no1_appeal.jpg',
+    'JprBN_f_gift_chat': '/common/images/banner_no1_appeal.jpg',
+    'Owner_a': '/common/images/banner_no1_appeal.jpg',
+    'Owner_b': '/common/images/banner_no1_appeal.jpg',
+    'Owner_c': '/common/images/banner_no1_appeal.jpg'
 };
 
 // 5. CSS
