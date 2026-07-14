@@ -24,6 +24,10 @@ const BANNER_CAMPAIGN = {
         '/common/images/banner_no1.mp4',
         '/common/images/banner_gift.webp'
     ],
+    '1500over': [
+        '/common/images/banner_1500over.mp4',
+        '/common/images/banner_gift.webp'
+    ],
     'fbtrg': '/common/images/banner_ebook_meta.webp',
     'ALA_gift_ebook_2529PM': '/common/images/banner_chotoshin_260625.webp',
     'ALA_gift_ebook_2529y': '/common/images/banner_chotoshin_260625.webp',
