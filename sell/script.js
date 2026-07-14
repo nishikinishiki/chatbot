@@ -3,7 +3,8 @@ document.addEventListener('DOMContentLoaded', () => {
     // ========================================================
     // 1. 基本設定とDOM要素の取得
     // ========================================================
-    const GAS_API_URL = "https://script.google.com/macros/s/AKfycbwhBWk7tI-uF6MYs5LH_6cCl8_b01T53CFNL4z1ChwY2_CTIfJTSp6yFP6AfNv9xYXbGQ/exec";
+    // ★スプレッドシート書き込み＆検索用のGAS WebアプリURL
+    const GAS_API_URL = "https://script.google.com/macros/s/AKfycbz3VRN_Jbyt76eALRyS1_gSoRAR-Rzn7BR3coVJoE1HwoFDLzy9HRnuP6yJfhjKBB8L5g/exec";
 
     const form = document.getElementById('estate-form');
     const steps = Array.from(document.querySelectorAll('.form-step'));
@@ -27,7 +28,8 @@ document.addEventListener('DOMContentLoaded', () => {
             pattern: /^0\d{9,10}$/
         },
         user_kana: {
-            pattern: /^[ァ-ヶー\s]+$/
+            // カタカナとスペース（半角・全角）を許容
+            pattern: /^[ァ-ヶー\s ]+$/
         }
     };
 
@@ -106,6 +108,9 @@ document.addEventListener('DOMContentLoaded', () => {
     form.addEventListener('change', evaluateFormProgress);
 
     form.addEventListener('keydown', (e) => {
+        if (e.target.tagName.toLowerCase() === 'textarea') {
+            return;
+        }
         // エンターキーが押された時（日本語変換中のエンターは除く）
         if (e.key === 'Enter' && !e.isComposing && e.keyCode !== 229) {
             e.preventDefault(); // 意図しない画面リロード（フォーム送信）を防止
@@ -116,7 +121,7 @@ document.addEventListener('DOMContentLoaded', () => {
             evaluateFormProgress(); // 値が確定したことで、次のステップが開くか評価する
 
             // 現在画面上に表示されている（display: none ではない）入力項目をすべて取得
-            const focusableElements = Array.from(form.querySelectorAll('input, select')).filter(el => {
+            const focusableElements = Array.from(form.querySelectorAll('input, select, textarea')).filter(el => {
                 return el.type !== 'hidden' && el.offsetParent !== null && !el.disabled;
             });
 
@@ -129,6 +134,7 @@ document.addEventListener('DOMContentLoaded', () => {
             }
         }
     });
+
     // 入力エラーの視覚的フィードバック ＆ フリガナ・電話番号の自動整形処理
     const allRequiredElements = document.querySelectorAll('input[required], select[required]');
 
@@ -142,7 +148,7 @@ document.addEventListener('DOMContentLoaded', () => {
 
         const formGroup = input.closest('.form-group');
 
-        // ★変更：グループ内に既にエラーメッセージ要素があるか探し、無ければ1つだけ作る
+        // グループ内に既にエラーメッセージ要素があるか探し、無ければ1つだけ作る
         let errorMsgEl = formGroup.querySelector('.error-text-message');
         if (!errorMsgEl) {
             errorMsgEl = document.createElement('div');
@@ -169,7 +175,7 @@ document.addEventListener('DOMContentLoaded', () => {
             } else {
                 input.classList.remove('is-error');
 
-                // ★追加：同じグループ内に「他にエラーになっている入力欄」がないかチェック
+                // 同じグループ内に「他にエラーになっている入力欄」がないかチェック
                 const siblingInputs = formGroup.querySelectorAll('input[required], select[required]');
                 const hasOtherErrors = Array.from(siblingInputs).some(sibling => sibling.classList.contains('is-error'));
 
@@ -214,34 +220,37 @@ document.addEventListener('DOMContentLoaded', () => {
             evaluateFormProgress();
         });
     }
-    // ========================================================
-    // 6. マンション名オートコンプリート（Supabase通信版）
-    // ========================================================
-    // ★あとでSupabaseのダッシュボードで発行されるURLとキーをここに入力します
-    const SUPABASE_URL = 'https://onedgdlwknwajshunhiq.supabase.co';
-    const SUPABASE_ANON_KEY = 'eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6Im9uZWRnZGx3a253YWpzaHVuaGlxIiwicm9sZSI6ImFub24iLCJpYXQiOjE3ODI0NDU0MjIsImV4cCI6MjA5ODAyMTQyMn0.F68s6awM0O4Q6y_Y5l1pwsqRukW0B2ZIM2Mi07AT1jI';
 
+    // ========================================================
+    // 6. マンション名オートコンプリート（GAS通信版）
+    // ========================================================
     const mansionInput = document.getElementById('mansion_name');
     const suggestList = document.getElementById('mansion-suggest-list');
     const errorBalloon = document.getElementById('mansion-error-balloon');
     const mansionStatus = document.getElementById('mansion-status-message');
     const loadingSpinner = document.getElementById('mansion-loading');
 
-    let isComposing = false;
-    let debounceTimer; // ★ APIの無駄打ちを防ぐためのタイマー変数
+    let isComposing = false; // 変換中かどうかを判定するフラグ
+    let debounceTimer;
 
-    mansionInput.addEventListener('compositionstart', () => isComposing = true);
+    // ★【IME対応】ユーザーが日本語変換を開始した時
+    mansionInput.addEventListener('compositionstart', () => {
+        isComposing = true;
+    });
+
+    // ★【IME対応】ユーザーがエンターを押して変換を確定した時
     mansionInput.addEventListener('compositionend', () => {
         isComposing = false;
         triggerSearch();
     });
 
     mansionInput.addEventListener('input', () => {
+        // 変換中でない（半角英数や確定後の入力の）場合のみ検索を実行
         if (!isComposing) triggerSearch();
     });
 
     mansionInput.addEventListener('focus', () => {
-        if (mansionInput.value.trim() && mansionInput.getAttribute('data-selected') === 'false') {
+        if (mansionInput.value.trim().length >= 2 && mansionInput.getAttribute('data-selected') === 'false') {
             triggerSearch();
         }
     });
@@ -255,10 +264,9 @@ document.addEventListener('DOMContentLoaded', () => {
         }
     });
 
-    // ★入力が連続している間は通信を待ち、0.3秒間入力が止まったら検索を実行する（デバウンス処理）
     function triggerSearch() {
         clearTimeout(debounceTimer);
-        debounceTimer = setTimeout(searchMansion, 300);
+        debounceTimer = setTimeout(searchMansion, 500);
     }
 
     async function searchMansion() {
@@ -268,7 +276,9 @@ document.addEventListener('DOMContentLoaded', () => {
         evaluateFormProgress();
 
         const keyword = mansionInput.value.trim();
-        if (!keyword) {
+
+        // ★【案2】2文字未満の場合は検索処理を行わず終了する
+        if (keyword.length < 2) {
             suggestList.style.display = 'none';
             errorBalloon.style.display = 'none';
             return;
@@ -277,19 +287,13 @@ document.addEventListener('DOMContentLoaded', () => {
         loadingSpinner.style.display = 'block';
 
         try {
-            // ★ SupabaseのAPIに検索リクエストを送信 (name か address に keyword が含まれるものを最大50件取得)
-            const response = await fetch(`${SUPABASE_URL}/rest/v1/mansions?or=(name.ilike.*${keyword}*,address.ilike.*${keyword}*)&limit=50`, {
+            const response = await fetch(`${GAS_API_URL}?q=${encodeURIComponent(keyword)}`, {
                 method: 'GET',
-                headers: {
-                    'apikey': SUPABASE_ANON_KEY,
-                    'Authorization': `Bearer ${SUPABASE_ANON_KEY}`,
-                    'Content-Type': 'application/json'
-                }
+                redirect: 'follow'
             });
 
             if (!response.ok) throw new Error('データベース通信エラー');
 
-            // 取得した結果をJSONとして読み込む
             const filteredMansions = await response.json();
 
             if (filteredMansions.length > 0) {
@@ -334,12 +338,13 @@ document.addEventListener('DOMContentLoaded', () => {
             if (errorBalloon) errorBalloon.style.display = 'none';
         }
     });
+
     // ========================================================
     // 7. 画面遷移とデータ送信
     // ========================================================
     btnToConfirm.addEventListener('click', () => {
         const labels = {
-            mansion_name: "マンション名", room_number: "部屋番号", floor_number: "所在階", area_size: "占有面積",
+            mansion_name: "マンション名", room_number: "部屋番号", floor_number: "所在階", area_size: "専有面積",
             floor_plan: "間取り", occupancy_status: "居住の状態", monthly_rent: "月額賃料", management_method: "管理方法", sublease_company: "サブリース会社",
             ownership_period: "物件保有年数", valuation_purpose: "査定の目的", desired_timing: "売却希望時期",
             user_name: "お名前", user_kana: "フリガナ", user_email: "メールアドレス", user_tel: "電話番号", request_notes: "その他ご要望"
@@ -354,10 +359,12 @@ document.addEventListener('DOMContentLoaded', () => {
             if (!value) return;
 
             const displayValue = units[key] ? `${value} ${units[key]}` : value;
+            const formattedValue = typeof displayValue === 'string' ? displayValue.replace(/\n/g, '<br>') : displayValue;
+
             const rowHtml = `
                 <div class="confirm-row">
                     <dt class="confirm-label">${labels[key] || key}</dt>
-                    <dd class="confirm-value">${displayValue}</dd>
+                    <dd class="confirm-value">${formattedValue}</dd>
                 </div>
             `;
             if (['user_name', 'user_kana', 'user_email', 'user_tel', 'request_notes'].includes(key)) {
@@ -376,7 +383,6 @@ document.addEventListener('DOMContentLoaded', () => {
         window.scrollTo(0, 0);
     });
 
-    // (※HTMLに btn-back がある場合) 修正して戻る
     if (btnBack) {
         btnBack.addEventListener('click', () => {
             pageConfirm.classList.remove('active');
@@ -392,7 +398,7 @@ document.addEventListener('DOMContentLoaded', () => {
         btnSubmit.textContent = "送信中...";
 
         const formData = new FormData(form);
-        const jsonBody = Object.fromEntries(formData.entries()); // 短く書ける記法に変更
+        const jsonBody = Object.fromEntries(formData.entries());
 
         try {
             await fetch(GAS_API_URL, {
@@ -411,7 +417,7 @@ document.addEventListener('DOMContentLoaded', () => {
             console.error('データの送信に失敗:', error);
             alert('通信エラーが発生しました。時間をおいて再度お試しください。');
             btnSubmit.disabled = false;
-            btnSubmit.textContent = "送信する";
+            btnSubmit.textContent = "物件を査定する";
         }
     });
 

@@ -254,14 +254,12 @@ body {
     margin-bottom: 8px;
 }
 
-.form-row,
-.name-inputs {
+.form-row {
     display: flex;
     gap: 15px;
 }
 
-.form-row .form-group,
-.name-inputs input {
+.form-row .form-group {
     flex: 1;
     min-width: 0;
 }
@@ -605,7 +603,6 @@ select.is-error {
 .btn-primary {
     background-color: var(--primary-color);
     color: var(--bg-white);
-    box-shadow: 0 4px 12px rgba(0, 102, 255, 0.2);
 }
 
 .btn-primary:hover:not(:disabled) {
@@ -615,7 +612,6 @@ select.is-error {
 .btn-primary:disabled {
     background-color: var(--bg-grey);
     color: var(--disabled);
-    box-shadow: none;
     cursor: not-allowed;
 }
 
@@ -674,20 +670,21 @@ select.is-error {
 .thanks-icon {
     width: 80px;
     height: 80px;
-    background-color: rgba(52, 199, 89, 0.1);
+    background-color: var(--primary-color);
+    color: var(--bg-white);
     font-size: 40px;
-    line-height: 80px;
+    line-height: 75px;
     border-radius: 50%;
-    margin: 20px auto 30px;
+    margin: 30px auto;
     font-weight: bold;
 }
 
-.page-thanks h2 {
+#page-thanks h2 {
     font-size: 24px;
     margin-bottom: 15px;
 }
 
-.page-thanks p {
+#page-thanks p {
     color: var(--text-muted);
     font-size: 15px;
 }
