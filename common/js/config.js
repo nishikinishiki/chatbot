@@ -17,9 +17,12 @@ const BANNER_DEFAULT = [
 const BANNER_CAMPAIGN = {
     'ALA_gift_ebook_4362PM': '/common/images/banner_buzz_260512.webp',
     'ALA_gift_ebook_4362': '/common/images/banner_buzz_260512.webp',
-    'like_dining': '/common/images/banner_ebook_like-dining.png',
-    'like_suv': '/common/images/banner_ebook_like-suv.png',
-    'like_watch': '/common/images/banner_ebook_like-watch.png',
+    'like_dining_b': '/common/images/banner_ebook_like-dining_b.jpg',
+    'like_dining_c': '/common/images/banner_ebook_like-dining_c.jpg',
+    'like_suv_b': '/common/images/banner_ebook_like-suv_b.jpg',
+    'like_dining': '/common/images/banner_ebook_like-dining.jpg',
+    'like_suv': '/common/images/banner_ebook_like-suv.jpg',
+    'like_watch': '/common/images/banner_ebook_like-watch.jpg',
     'no1_': [
         '/common/images/banner_no1.mp4',
         '/common/images/banner_gift.webp'
