@@ -12,9 +12,13 @@ const ICON_CAMPAIGN = {
 
 // 4. バナー
 const BANNER_DEFAULT = [
-    '/common/images/banner_no1_appeal.jpg'
+    '/common/images/banner_consultation_gift.webp',
 ];
 const BANNER_CAMPAIGN = {
+    'ALA_gift_': '/common/images/banner_no1_appeal.jpg',
+    'BKR_gift_': '/common/images/banner_no1_appeal.jpg',
+    'GMO_gift_': '/common/images/banner_no1_appeal.jpg',
+    'CRS_gift_': '/common/images/banner_no1_appeal.jpg',
     'no1_': [
         '/common/images/banner_no1.mp4',
         '/common/images/banner_gift.webp'
