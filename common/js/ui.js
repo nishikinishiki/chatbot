@@ -52,6 +52,11 @@ function clearChatMessages() {
 }
 
 function scrollToBottom() {
+    // 初期フローの1問目（回答前）は自動スクロールをキャンセルする
+    if (typeof state !== 'undefined' && state.currentFlow === 'initial' && state.currentStep === 0) {
+        return;
+    }
+
     requestAnimationFrame(() => {
         if (dom.chatMessages) dom.chatMessages.scrollTop = dom.chatMessages.scrollHeight;
     });
