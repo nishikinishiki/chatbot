@@ -1,12 +1,16 @@
 // --- UTM条件定義 ---
 const UTM_RULES = {
   hideIncomeUnder500Keywords: [
-    'ALA_gift_ebook',
-    'BKR_gift_ebook'
+    'ALA_gift_',
+    'BKR_gift_',
+    'GMO_gift_',
+    'CRS_gift_'
   ],
   hideOccupationSelfEmployedKeywords: [
-    'ALA_gift_ebook',
-    'BKR_gift_ebook'
+    'ALA_gift_',
+    'BKR_gift_',
+    'GMO_gift_',
+    'CRS_gift_'
   ],
   hideAgeKeywords: [
     'ALA_gift_',
