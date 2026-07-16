@@ -1,12 +1,12 @@
 // --- UTM条件定義 ---
 const UTM_RULES = {
-    hideIncomeUnder500Keywords: [
+    hideIncomeKeywords: [
         'ALA_gift_',
         'BKR_gift_',
         'GMO_gift_',
         'CRS_gift_'
     ],
-    hideOccupationSelfEmployedKeywords: [
+    hideOccupationKeywords: [
         'ALA_gift_',
         'BKR_gift_',
         'GMO_gift_',
@@ -232,7 +232,7 @@ const initialQuestions = [
                 label: "自営業", value: "自営業・その他",
                 isVisible: (utmParams) => {
                     const source = utmParams?.utm_source || '';
-                    return !UTM_RULES.hideOccupationSelfEmployedKeywords.some(keyword => source.includes(keyword));
+                    return !UTM_RULES.hideOccupationKeywords.some(keyword => source.includes(keyword));
                 }
             },
             { label: "その他", value: "自営業・その他" }
@@ -246,7 +246,7 @@ const initialQuestions = [
                 label: "500万未満", value: "0～399万",
                 isVisible: (utmParams) => {
                     const source = utmParams?.utm_source || '';
-                    return !UTM_RULES.hideIncomeUnder500Keywords.some(keyword => source.includes(keyword));
+                    return !UTM_RULES.hideIncomeKeywords.some(keyword => source.includes(keyword));
                 }
             },
             { label: "500万～", value: "500～599万" },
