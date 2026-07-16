@@ -8,6 +8,12 @@ const UTM_RULES = {
     'ALA_gift_ebook',
     'BKR_gift_ebook'
   ],
+  hideAgeKeywords: [
+    'ALA_gift_',
+    'BKR_gift_',
+    'GMO_gift_',
+    'CRS_gift_'
+  ],
   //「お申し込みの決め手」を表示する対象UTM
   showApplicationReason: [
     'ALA_gift_ebook_4362',
@@ -195,8 +201,20 @@ const initialQuestions = [
   {
     id: 'age_group', item: "年齢", question: "ご年齢はおいくつでしょうか？", answer_method: "single-choice",
     options: [
-      { label: "20歳未満", value: "20歳未満" },
-      { label: "20～24歳", value: "20～24歳" },
+      {
+        label: "20歳未満", value: "20歳未満",
+        isVisible: (utmParams) => {
+          const source = utmParams?.utm_source || '';
+          return !UTM_RULES.hideAgeKeywords.some(keyword => source.includes(keyword));
+        }
+      },
+      {
+        label: "20～24歳", value: "20～24歳",
+        isVisible: (utmParams) => {
+          const source = utmParams?.utm_source || '';
+          return !UTM_RULES.hideAgeKeywords.some(keyword => source.includes(keyword));
+        }
+      },
       { label: "25～29歳", value: "25～29歳" },
       { label: "30～34歳", value: "30～34歳" },
       { label: "35～39歳", value: "35～39歳" },
@@ -204,7 +222,13 @@ const initialQuestions = [
       { label: "45～49歳", value: "45～49歳" },
       { label: "50～54歳", value: "50～54歳" },
       { label: "55～59歳", value: "55～59歳" },
-      { label: "60歳～", value: "60～64歳" }
+      {
+        label: "60歳～", value: "60～64歳",
+        isVisible: (utmParams) => {
+          const source = utmParams?.utm_source || '';
+          return !UTM_RULES.hideAgeKeywords.some(keyword => source.includes(keyword));
+        }
+      }
     ],
     key: "age_group", validation: (v) => !!v, errorMessage: "選択してください。"
   },
