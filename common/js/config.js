@@ -12,7 +12,7 @@ const ICON_CAMPAIGN = {
 
 // 4. バナー
 const BANNER_DEFAULT = [
-    '/common/images/banner_ebook_gift.webp'
+    '/common/images/banner_ebook_gift.webp',
 ];
 const BANNER_CAMPAIGN = {
     //アフィリエイト広告
