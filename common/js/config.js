@@ -38,8 +38,14 @@ const BANNER_CAMPAIGN = {
         '/common/images/banner_1500over.mp4',
         '/common/images/banner_gift.webp'
     ],
-    'area_': '/common/images/banner_no1_appeal.jpg',
-    'renova_': '/common/images/banner_no1_appeal.jpg',
+    'area_': [
+        '/common/images/banner_no1.mp4',
+        '/common/images/banner_gift.webp'
+    ],
+    'renova_': [
+        '/common/images/banner_no1.mp4',
+        '/common/images/banner_gift.webp'
+    ],
     'JprBN_c_gift': '/common/images/banner_no1_appeal.jpg',
     'JprBN_d_gift': '/common/images/banner_no1_appeal.jpg',
     'JprBN_e_gift': '/common/images/banner_no1_appeal.jpg',
