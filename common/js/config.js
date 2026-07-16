@@ -38,10 +38,12 @@ const BANNER_CAMPAIGN = {
         '/common/images/banner_1500over.mp4',
         '/common/images/banner_gift.webp'
     ],
-    'JprBN_c_gift_chat': '/common/images/banner_no1_appeal.jpg',
-    'JprBN_d_gift_chat': '/common/images/banner_no1_appeal.jpg',
-    'JprBN_e_gift_chat': '/common/images/banner_no1_appeal.jpg',
-    'JprBN_f_gift_chat': '/common/images/banner_no1_appeal.jpg',
+    'area_': '/common/images/banner_no1_appeal.jpg',
+    'renova_': '/common/images/banner_no1_appeal.jpg',
+    'JprBN_c_gift': '/common/images/banner_no1_appeal.jpg',
+    'JprBN_d_gift': '/common/images/banner_no1_appeal.jpg',
+    'JprBN_e_gift': '/common/images/banner_no1_appeal.jpg',
+    'JprBN_f_gift': '/common/images/banner_no1_appeal.jpg',
     'Owner_': '/common/images/banner_no1_appeal.jpg',
     'fbtrg': '/common/images/banner_ebook_meta.webp',
 
