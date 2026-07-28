@@ -59,6 +59,9 @@ const BANNER_CAMPAIGN = {
         '/common/images/banner_no1.mp4',
         '/common/images/banner_gift.webp'
     ],
+    'REI_movie': '/common/images/banner_no1_appeal.jpg',
+    'msg_': '/common/images/banner_no1_appeal.jpg',
+    'summer_': '/common/images/banner_no1_appeal.jpg',
     'JprBN_c_gift': '/common/images/banner_no1_appeal.jpg',
     'JprBN_d_gift': '/common/images/banner_no1_appeal.jpg',
     'JprBN_e_gift': '/common/images/banner_no1_appeal.jpg',
