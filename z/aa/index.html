@@ -1,0 +1,122 @@
+<!DOCTYPE html>
+<html lang="ja" class="ebook-app">
+
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>年収2500万円の税金対策と不動産投資 | 電子書籍ビューア</title>
+
+    <!-- Google Fonts -->
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&family=Shippori+Mincho:wght@400;500;600;700&display=swap" rel="stylesheet">
+
+    <!-- Font Awesome Icons -->
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+
+    <!-- Custom CSS -->
+    <link rel="stylesheet" href="style.css">
+</head>
+
+<body>
+
+    <!-- Header Overlay Control -->
+    <header id="appHeader" class="app-header">
+        <div class="app-header__group">
+            <button id="tocBtn" class="btn" title="目次を開く">
+                <i class="fa-solid fa-list-ul"></i>
+                <span>目次</span>
+            </button>
+            <div class="divider"></div>
+            <h1 class="app-header__title">年収2500万円の税金対策は不動産投資が鍵になる</h1>
+        </div>
+
+        <div class="app-header__group">
+            <button id="settingsBtn" class="btn" title="表示設定">
+                <i class="fa-solid fa-font"></i>
+            </button>
+            <button id="fullscreenBtn" class="btn" title="全画面表示">
+                <i class="fa-solid fa-expand"></i>
+            </button>
+        </div>
+    </header>
+
+    <!-- Settings Overlay Panel -->
+    <div id="settingsPanel" class="settings-panel">
+        <div style="display: flex; flex-direction: column; gap: 1rem; font-size: 0.8125rem;">
+            <div>
+                <label style="color: var(--color-text-muted); display: block; margin-bottom: 0.5rem;">文字の大きさ</label>
+                <div style="display: flex; background: var(--color-border-light); padding: 0.25rem; border-radius: 0.5rem;">
+                    <button data-size="sm" class="btn size-opt" style="flex:1;">小</button>
+                    <button data-size="base" class="btn size-opt btn--primary" style="flex:1;">中</button>
+                    <button data-size="lg" class="btn size-opt" style="flex:1;">大</button>
+                </div>
+            </div>
+            <div>
+                <label style="color: var(--color-text-muted); display: block; margin-bottom: 0.5rem;">表示モード</label>
+                <div style="display: grid; grid-template-columns: 1fr 1fr; gap: 0.5rem;">
+                    <button id="viewModeTwo" class="btn btn--primary"><i class="fa-solid fa-book-open"></i> 見開き</button>
+                    <button id="viewModeOne" class="btn"><i class="fa-solid fa-file"></i> 単ページ</button>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <!-- TOC Side Drawer -->
+    <div id="tocDrawer" class="drawer">
+        <div class="drawer__header">
+            <h2 style="font-size: 0.95rem; font-weight: 700; color: var(--color-text-dark);">
+                <i class="fa-solid fa-book-bookmark" style="color: var(--color-accent-gold);"></i> 目次
+            </h2>
+            <button id="closeTocBtn" class="btn"><i class="fa-solid fa-xmark"></i></button>
+        </div>
+        <div id="tocList" class="drawer__content">
+            <!-- Dynamically populated TOC -->
+        </div>
+    </div>
+    <div id="tocOverlay" class="drawer-overlay"></div>
+
+    <!-- Main Viewport -->
+    <main id="readerViewport" class="viewport">
+        <!-- ページめくりボタン (デフォルト非表示、UIコントロール時に連動表示) -->
+        <button id="prevBtn" class="nav-btn nav-btn--prev"><i class="fa-solid fa-chevron-left"></i></button>
+        <button id="nextBtn" class="nav-btn nav-btn--next"><i class="fa-solid fa-chevron-right"></i></button>
+
+        <div id="book" class="book">
+            <div id="pageSpread" class="page-spread">
+                <!-- Dynamic Pages Injected Here -->
+            </div>
+        </div>
+
+        <div id="miniPageBadge" class="page-badge">
+            <span id="miniCurrentPage">1</span> / <span id="miniTotalPage">12</span>
+        </div>
+    </main>
+
+    <!-- Zoom Modal Popup -->
+    <div id="zoomModal" class="modal">
+        <div class="modal__card">
+            <div style="display: flex; justify-content: space-between; align-items: center; border-bottom: 1px solid var(--color-border-light); padding-bottom: 0.5rem;">
+                <h3 id="zoomModalTitle" style="font-size: 0.9rem; font-weight: 700;">拡大表示</h3>
+                <button onclick="closeZoomModal()" class="btn"><i class="fa-solid fa-xmark"></i></button>
+            </div>
+            <div id="zoomModalBody" class="modal__body"></div>
+        </div>
+    </div>
+
+    <!-- Footer Progress Control -->
+    <footer id="appFooter" class="app-footer">
+        <div style="font-size: 0.8125rem; color: var(--color-text-muted); min-width: 60px;">
+            <span id="currentPageNum" style="color: var(--color-accent-gold); font-weight: 700;">1</span> / <span id="totalPagesNum">12</span> P
+        </div>
+        <div style="flex: 1; max-width: 400px; margin: 0 1rem;">
+            <input type="range" id="pageSlider" min="1" max="12" value="1" class="range-slider">
+        </div>
+        <div id="progressPercent" style="font-size: 0.8125rem; color: var(--color-text-muted); min-width: 40px; text-align: right;">8%</div>
+    </footer>
+
+    <!-- Custom JavaScript -->
+    <script src="script.js"></script>
+</body>
+
+</html>
