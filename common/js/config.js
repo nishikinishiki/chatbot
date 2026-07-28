@@ -26,10 +26,22 @@ const BANNER_CAMPAIGN = {
     //meta広告
     'like_dining_b': '/common/images/banner_ebook_like-dining_b.jpg',
     'like_dining_c': '/common/images/banner_ebook_like-dining_c.jpg',
-    'like_suv_b': '/common/images/banner_ebook_like-suv_b.jpg',
     'like_dining': '/common/images/banner_ebook_like-dining.jpg',
+    'like_suv_b': '/common/images/banner_ebook_like-suv_b.jpg',
+    'like_suv_c': [
+        '/common/images/banner_no1.mp4',
+        '/common/images/banner_gift.webp'
+    ],
     'like_suv': '/common/images/banner_ebook_like-suv.jpg',
+    'like_watch_b': [
+        '/common/images/banner_no1.mp4',
+        '/common/images/banner_gift.webp'
+    ],
     'like_watch': '/common/images/banner_ebook_like-watch.jpg',
+    'like_wine': [
+        '/common/images/banner_no1.mp4',
+        '/common/images/banner_gift.webp'
+    ],
     'no1_': [
         '/common/images/banner_no1.mp4',
         '/common/images/banner_gift.webp'
