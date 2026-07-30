@@ -1,711 +1,884 @@
 <!DOCTYPE html>
-<html lang="ja" class="h-full">
+<html lang="ja">
 
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>年収2500万円の税金対策と不動産投資 | 電子書籍ビューア</title>
-    <!-- Tailwind CSS -->
-    <script src="https://cdn.tailwindcss.com"></script>
-    <script>
-        tailwind.config = {
-            darkMode: 'class',
-            theme: {
-                extend: {
-                    colors: {
-                        gold: {
-                            100: '#fef9c3',
-                            500: '#ca8a04',
-                            600: '#a16207',
-                            700: '#854d0e',
-                        },
-                        book: {
-                            paper: '#ffffff',
-                            bg: '#f1f5f9',
-                            darkPaper: '#262626'
-                        }
-                    },
-                    fontFamily: {
-                        serif: ['"Shippori Mincho"', 'Georgia', 'Cambria', 'serif'],
-                        sans: ['"Inter"', '"Hiragino Kaku Gothic ProN"', 'Meiryo', 'sans-serif'],
-                    }
-                }
-            }
-        }
-    </script>
+    <title>電子書籍ビューア</title>
     <!-- Google Fonts -->
     <link rel="preconnect" href="https://fonts.googleapis.com">
     <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
-    <link href="https://fonts.googleapis.com/css2?family=Shippori+Mincho:wght@400;500;600;700&display=swap" rel="stylesheet">
+    <link href="https://fonts.googleapis.com/css2?family=Shippori+Mincho:wght@400;600;700&display=swap" rel="stylesheet">
     <!-- Font Awesome Icons -->
     <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
 
     <style>
-        /* Custom Scrollbar */
-        ::-webkit-scrollbar {
-            width: 6px;
-            height: 6px;
+        /* ========================================================
+           CSS変数・リセット設定
+        ======================================================== */
+        :root {
+            /* カラーパレット */
+            --bg-color: #f1f5f9;
+            --text-color: #334155;
+            --heading-color: #0f172a;
+            --border-color: #e2e8f0;
+            --accent-color: #ca8a04;
+            --paper-bg: #ffffff;
+            --header-bg: rgba(255, 255, 255, 0.95);
+
+            /* シャドウ */
+            --shadow-sm: 0 1px 2px 0 rgba(0, 0, 0, 0.05);
+            --shadow-md: 0 4px 6px -1px rgba(0, 0, 0, 0.1);
+            --shadow-lg: 0 10px 15px -3px rgba(0, 0, 0, 0.1);
         }
 
-        ::-webkit-scrollbar-track {
-            background: rgba(0, 0, 0, 0.03);
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
         }
 
-        ::-webkit-scrollbar-thumb {
-            background: rgba(0, 0, 0, 0.15);
-            border-radius: 3px;
+        body {
+            font-family: "Inter", "Hiragino Kaku Gothic ProN", Meiryo, sans-serif;
+            background-color: var(--bg-color);
+            color: var(--text-color);
+            display: flex;
+            flex-direction: column;
+            height: 100vh;
+            overflow: hidden;
+            user-select: none;
+            -webkit-font-smoothing: antialiased;
         }
 
-        /* 3D Page Flip Container */
-        .perspective-container {
+        /* ユーティリティ */
+        .hidden {
+            display: none !important;
+        }
+
+        /* ========================================================
+           UIコンポーネント (ヘッダー, フッター, ボタンなど)
+        ======================================================== */
+        .header,
+        .footer {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            padding: 0 1rem;
+            height: 56px;
+            background: var(--header-bg);
+            z-index: 30;
+            flex-shrink: 0;
+            backdrop-filter: blur(4px);
+        }
+
+        .header {
+            border-bottom: 1px solid var(--border-color);
+        }
+
+        .footer {
+            border-top: 1px solid var(--border-color);
+        }
+
+        .header-title {
+            font-size: 0.85rem;
+            font-weight: 600;
+            color: var(--heading-color);
+            white-space: nowrap;
+            overflow: hidden;
+            text-overflow: ellipsis;
+            max-width: 60vw;
+        }
+
+        .header-left,
+        .header-right {
+            display: flex;
+            align-items: center;
+            gap: 0.5rem;
+        }
+
+        .btn-icon {
+            background: transparent;
+            border: none;
+            padding: 0.5rem;
+            border-radius: 6px;
+            color: #64748b;
+            cursor: pointer;
+            font-size: 1rem;
+            display: flex;
+            align-items: center;
+            gap: 0.5rem;
+            transition: 0.2s;
+        }
+
+        .btn-icon:hover {
+            background-color: var(--bg-color);
+            color: var(--heading-color);
+        }
+
+        /* フッター機能 */
+        .page-indicator {
+            font-size: 0.85rem;
+            font-weight: 500;
+            min-width: 70px;
+        }
+
+        .page-indicator .current {
+            color: var(--accent-color);
+            font-weight: bold;
+        }
+
+        .slider-container {
+            flex: 1;
+            max-width: 500px;
+            margin: 0 2rem;
+            display: flex;
+            align-items: center;
+        }
+
+        .range-slider {
+            width: 100%;
+            cursor: pointer;
+            accent-color: var(--accent-color);
+        }
+
+        .progress-text {
+            font-size: 0.85rem;
+            color: #64748b;
+            min-width: 50px;
+            text-align: right;
+        }
+
+        /* ナビゲーション矢印 */
+        .nav-btn {
+            position: absolute;
+            top: 50%;
+            transform: translateY(-50%);
+            z-index: 20;
+            width: 50px;
+            height: 50px;
+            border-radius: 50%;
+            background: rgba(255, 255, 255, 0.9);
+            border: 1px solid var(--border-color);
+            color: var(--text-color);
+            cursor: pointer;
+            box-shadow: var(--shadow-md);
+            font-size: 1.2rem;
+            transition: all 0.2s;
+        }
+
+        .nav-btn:hover {
+            background: var(--accent-color);
+            color: white;
+            border-color: var(--accent-color);
+        }
+
+        .nav-btn:disabled {
+            opacity: 0.3;
+            pointer-events: none;
+        }
+
+        .prev-btn {
+            left: 1rem;
+        }
+
+        .next-btn {
+            right: 1rem;
+        }
+
+        /* ========================================================
+           電子書籍メインビューア領域
+        ======================================================== */
+        .main-content {
+            flex: 1;
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            position: relative;
+            padding: 2rem;
+            overflow: hidden;
             perspective: 2000px;
         }
 
         .book-wrapper {
-            transform-style: preserve-3d;
-            transition: transform 0.6s cubic-bezier(0.16, 1, 0.3, 1);
+            width: 100%;
+            max-width: 1000px;
+            height: 80vh;
+            max-height: 900px;
+            position: relative;
+        }
+
+        .page-spread {
+            display: flex;
+            width: 100%;
+            height: 100%;
+            background: var(--paper-bg);
+            border-radius: 12px;
+            box-shadow: var(--shadow-lg);
+            border: 1px solid var(--border-color);
+            overflow: hidden;
         }
 
         .page-card {
-            backface-visibility: hidden;
-            transform-style: preserve-3d;
-            transition: transform 0.6s ease-in-out, box-shadow 0.4s ease;
+            display: flex;
+            flex-direction: column;
+            background: var(--paper-bg);
+            position: relative;
         }
 
-        /* Paper shadow and spine effect for white theme */
+        /* 1Pモードと2Pモードの幅制御 */
+        .page-card.half {
+            width: 50%;
+        }
+
+        .page-card.full {
+            width: 100%;
+        }
+
+        .page-card:first-child.half {
+            border-right: 1px solid var(--border-color);
+        }
+
+        /* 立体感の影設定 */
         .left-page-shadow {
-            box-shadow: inset -18px 0 24px -12px rgba(0, 0, 0, 0.06), 0 10px 25px -5px rgba(0, 0, 0, 0.05);
+            box-shadow: inset -18px 0 24px -12px rgba(0, 0, 0, 0.06);
         }
 
         .right-page-shadow {
-            box-shadow: inset 18px 0 24px -12px rgba(0, 0, 0, 0.06), 0 10px 25px -5px rgba(0, 0, 0, 0.05);
+            box-shadow: inset 18px 0 24px -12px rgba(0, 0, 0, 0.06);
         }
 
-        /* Font Size Utilities */
-        .text-size-sm {
-            font-size: 0.875rem;
-            line-height: 1.65;
+        .page-footer {
+            padding: 1rem 2rem;
+            font-size: 0.75rem;
+            color: #94a3b8;
+            border-top: 1px solid #f1f5f9;
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            flex-shrink: 0;
         }
 
-        .text-size-base {
-            font-size: 1rem;
-            line-height: 1.8;
+        /* 表紙用画像スペース */
+        .cover-image-container {
+            width: 100%;
+            height: 100%;
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            background: #cbd5e1;
         }
 
-        .text-size-lg {
-            font-size: 1.125rem;
+        .cover-image-container img {
+            max-width: 100%;
+            max-height: 100%;
+            object-fit: contain;
+        }
+
+        /* ========================================================
+           文章スタイル定義 (h1, h2, h3, p, .note のみ)
+        ======================================================== */
+        .page-content {
+            padding: 2.5rem;
+            overflow-y: auto;
+            flex: 1;
+            /* スクロールバー装飾 */
+            scrollbar-width: thin;
+            scrollbar-color: rgba(0, 0, 0, 0.15) rgba(0, 0, 0, 0.03);
+        }
+
+        .page-content::-webkit-scrollbar {
+            width: 6px;
+        }
+
+        .page-content::-webkit-scrollbar-track {
+            background: rgba(0, 0, 0, 0.03);
+        }
+
+        .page-content::-webkit-scrollbar-thumb {
+            background: rgba(0, 0, 0, 0.15);
+            border-radius: 3px;
+        }
+
+        /* 見出しフォントは明朝体を指定 */
+        .page-content h1,
+        .page-content h2,
+        .page-content h3 {
+            font-family: 'Shippori Mincho', serif;
+            color: var(--heading-color);
+            font-weight: 700;
+        }
+
+        .page-content h1 {
+            font-size: 1.6rem;
+            margin-bottom: 2rem;
+            line-height: 1.5;
+            border-bottom: 2px solid var(--accent-color);
+            padding-bottom: 0.5rem;
+        }
+
+        .page-content h2 {
+            font-size: 1.3rem;
+            margin-top: 1.5rem;
+            margin-bottom: 1rem;
+            border-left: 5px solid var(--accent-color);
+            padding-left: 0.75rem;
+            line-height: 1.4;
+        }
+
+        .page-content h3 {
+            font-size: 1.1rem;
+            margin-top: 1.5rem;
+            margin-bottom: 0.75rem;
+            line-height: 1.4;
+        }
+
+        .page-content p {
             line-height: 1.9;
+            margin-bottom: 1.2rem;
+        }
+
+        .page-content .note {
+            display: block;
+            font-size: 0.85em;
+            color: #64748b;
+            background: #f8fafc;
+            padding: 0.75rem;
+            border-radius: 4px;
+            margin-top: 1rem;
+            margin-bottom: 1rem;
+            line-height: 1.6;
+        }
+
+        /* JSで切り替えるフォントサイズ制御 */
+        .text-size-sm .page-content p {
+            font-size: 0.85rem;
+        }
+
+        .text-size-base .page-content p {
+            font-size: 1rem;
+        }
+
+        .text-size-lg .page-content p {
+            font-size: 1.15rem;
+        }
+
+        /* ========================================================
+           モーダル・サイドメニュー・設定パネル
+        ======================================================== */
+        /* 設定パネル */
+        .settings-panel {
+            position: fixed;
+            top: 60px;
+            right: 1rem;
+            width: 250px;
+            background: white;
+            border: 1px solid var(--border-color);
+            border-radius: 12px;
+            padding: 1rem;
+            box-shadow: var(--shadow-lg);
+            z-index: 40;
+        }
+
+        .setting-group {
+            margin-bottom: 1rem;
+        }
+
+        .setting-label {
+            display: block;
+            font-size: 0.8rem;
+            font-weight: bold;
+            color: #64748b;
+            margin-bottom: 0.5rem;
+        }
+
+        .toggle-group {
+            display: flex;
+            background: var(--bg-color);
+            border-radius: 8px;
+            padding: 3px;
+            border: 1px solid var(--border-color);
+        }
+
+        .toggle-btn {
+            flex: 1;
+            padding: 0.5rem;
+            border: none;
+            background: transparent;
+            cursor: pointer;
+            font-size: 0.85rem;
+            border-radius: 6px;
+            color: #64748b;
+            transition: 0.2s;
+        }
+
+        /* 選択状態のアクティブクラス */
+        .toggle-btn.active {
+            background: white;
+            font-weight: bold;
+            color: var(--heading-color);
+            box-shadow: var(--shadow-sm);
+        }
+
+        .toggle-btn.active-dark {
+            background: #1e293b;
+            color: white;
+            font-weight: bold;
+        }
+
+        /* 目次ドロワー */
+        .toc-drawer {
+            position: fixed;
+            top: 0;
+            left: 0;
+            width: 320px;
+            max-width: 85vw;
+            height: 100%;
+            background: white;
+            z-index: 50;
+            transform: translateX(-100%);
+            transition: transform 0.3s ease;
+            box-shadow: var(--shadow-lg);
+            display: flex;
+            flex-direction: column;
+        }
+
+        .toc-drawer.open {
+            transform: translateX(0);
+        }
+
+        .toc-header {
+            padding: 1rem;
+            border-bottom: 1px solid var(--border-color);
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            background: #f8fafc;
+            font-weight: bold;
+        }
+
+        .toc-list {
+            flex: 1;
+            overflow-y: auto;
+            padding: 0.5rem;
+        }
+
+        .toc-item {
+            display: block;
+            width: 100%;
+            text-align: left;
+            padding: 0.75rem;
+            background: transparent;
+            border: none;
+            border-bottom: 1px solid var(--bg-color);
+            cursor: pointer;
+            font-size: 0.9rem;
+            transition: 0.2s;
+        }
+
+        .toc-item:hover {
+            background: var(--bg-color);
+            color: var(--accent-color);
+            padding-left: 1rem;
+        }
+
+        /* オーバーレイ */
+        .overlay {
+            position: fixed;
+            inset: 0;
+            background: rgba(15, 23, 42, 0.4);
+            z-index: 45;
+        }
+
+        /* モーダル */
+        .modal {
+            position: fixed;
+            inset: 0;
+            z-index: 60;
+            background: rgba(0, 0, 0, 0.75);
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            padding: 1rem;
+        }
+
+        .modal-card {
+            background: white;
+            border-radius: 12px;
+            width: 100%;
+            max-width: 800px;
+            max-height: 90vh;
+            display: flex;
+            flex-direction: column;
+            overflow: hidden;
+        }
+
+        .modal-header {
+            padding: 1rem;
+            border-bottom: 1px solid var(--border-color);
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            font-weight: bold;
+        }
+
+        .modal-body {
+            padding: 1.5rem;
+            overflow-y: auto;
+            text-align: center;
+        }
+
+        .modal-body img {
+            max-width: 100%;
+            height: auto;
+            border: 1px solid var(--border-color);
+        }
+
+        .modal-footer {
+            padding: 0.75rem;
+            text-align: center;
+            font-size: 0.8rem;
+            color: #94a3b8;
+            border-top: 1px solid var(--border-color);
+        }
+
+        /* レスポンシブ調整 */
+        @media (max-width: 640px) {
+            .main-content {
+                padding: 0.5rem;
+            }
+
+            .page-content {
+                padding: 1.5rem;
+            }
+
+            .nav-btn {
+                width: 40px;
+                height: 40px;
+                font-size: 1rem;
+            }
+
+            .header-title {
+                max-width: 150px;
+            }
+
+            .slider-container {
+                margin: 0 1rem;
+            }
         }
     </style>
 </head>
 
-<body class="h-full font-sans antialiased bg-slate-100 text-slate-800 flex flex-col justify-between overflow-hidden select-none">
-
-    <!-- Top Navigation Control Bar (White Theme) -->
-    <header class="h-14 bg-white/90 backdrop-blur border-b border-slate-200 px-4 flex items-center justify-between z-30 shrink-0 shadow-sm">
-        <div class="flex items-center space-x-3">
-            <button id="tocBtn" class="p-2 hover:bg-slate-100 rounded-lg text-slate-700 hover:text-slate-900 transition flex items-center gap-2 text-sm font-medium" title="目次を開く">
-                <i class="fa-solid fa-list-ul text-lg text-slate-600"></i>
-                <span class="hidden sm:inline">目次</span>
+<body>
+    <!-- ヘッダー -->
+    <header class="header">
+        <div class="header-left">
+            <button id="tocBtn" class="btn-icon" title="目次を開く">
+                <i class="fa-solid fa-list-ul"></i>
+                <span style="font-size:0.85rem; font-weight:bold;" class="desktop-only">目次</span>
             </button>
-            <div class="h-4 w-px bg-slate-200"></div>
-            <h1 class="text-xs sm:text-sm font-semibold text-slate-800 truncate max-w-[200px] sm:max-w-xs md:max-w-md">
-                年収2500万円の税金対策は不動産投資が鍵になる
-            </h1>
+            <div style="width: 1px; height: 16px; background: var(--border-color); margin: 0 8px;"></div>
+            <h1 class="header-title">年収2500万円の税金対策と不動産投資</h1>
         </div>
-
-        <div class="flex items-center space-x-1 sm:space-x-3">
-            <!-- Display Settings Button -->
-            <button id="settingsBtn" class="p-2 hover:bg-slate-100 rounded-lg text-slate-600 hover:text-slate-900 transition" title="表示設定">
-                <i class="fa-solid fa-font text-lg"></i>
+        <div class="header-right">
+            <button id="settingsBtn" class="btn-icon" title="表示設定">
+                <i class="fa-solid fa-font"></i>
             </button>
-
-            <!-- Fullscreen Toggle -->
-            <button id="fullscreenBtn" class="p-2 hover:bg-slate-100 rounded-lg text-slate-600 hover:text-slate-900 transition hidden sm:block" title="全画面表示">
-                <i class="fa-solid fa-expand text-lg"></i>
+            <button id="fullscreenBtn" class="btn-icon desktop-only" title="全画面表示">
+                <i class="fa-solid fa-expand"></i>
             </button>
         </div>
     </header>
 
-    <!-- Reader Settings Overlay Panel -->
-    <div id="settingsPanel" class="fixed top-16 right-4 bg-white/95 border border-slate-200 rounded-xl p-4 shadow-xl z-40 w-64 backdrop-blur hidden transition-all duration-200">
-        <div class="space-y-4 text-xs sm:text-sm">
-            <div>
-                <label class="text-slate-500 block mb-2 font-medium">文字の大きさ</label>
-                <div class="flex bg-slate-100 rounded-lg p-1 border border-slate-200">
-                    <button data-size="sm" class="size-opt flex-1 py-1.5 rounded-md text-slate-600 text-xs font-semibold">小</button>
-                    <button data-size="base" class="size-opt flex-1 py-1.5 rounded-md bg-white text-slate-900 shadow-sm text-sm font-semibold">中</button>
-                    <button data-size="lg" class="size-opt flex-1 py-1.5 rounded-md text-slate-600 text-base font-semibold">大</button>
-                </div>
+    <!-- 表示設定パネル -->
+    <div id="settingsPanel" class="settings-panel hidden">
+        <div class="setting-group">
+            <span class="setting-label">文字の大きさ</span>
+            <div class="toggle-group">
+                <button data-size="sm" class="toggle-btn size-opt">小</button>
+                <button data-size="base" class="toggle-btn size-opt active">中</button>
+                <button data-size="lg" class="toggle-btn size-opt">大</button>
             </div>
-
-            <div>
-                <label class="text-slate-500 block mb-2 font-medium">表示モード</label>
-                <div class="grid grid-cols-2 gap-2">
-                    <button id="viewModeTwo" class="p-2 rounded-lg bg-slate-800 text-white text-xs font-medium flex items-center justify-center gap-2 shadow-sm">
-                        <i class="fa-solid fa-book-open"></i> 見開き (2P)
-                    </button>
-                    <button id="viewModeOne" class="p-2 rounded-lg bg-slate-100 text-slate-600 hover:text-slate-900 text-xs font-medium flex items-center justify-center gap-2">
-                        <i class="fa-solid fa-file"></i> 単ページ (1P)
-                    </button>
-                </div>
+        </div>
+        <div class="setting-group">
+            <span class="setting-label">表示モード</span>
+            <div class="toggle-group" style="gap:4px; padding:4px;">
+                <button id="viewModeTwo" class="toggle-btn active-dark" style="border-radius:4px;"><i class="fa-solid fa-book-open"></i> 見開き(2P)</button>
+                <button id="viewModeOne" class="toggle-btn" style="border-radius:4px;"><i class="fa-solid fa-file"></i> 単ページ(1P)</button>
             </div>
         </div>
     </div>
 
-    <!-- TOC Drawer Side Panel -->
-    <div id="tocDrawer" class="fixed inset-y-0 left-0 w-80 max-w-[85vw] bg-white border-r border-slate-200 shadow-2xl z-50 transform -translate-x-full transition-transform duration-300 flex flex-col">
-        <div class="p-4 border-b border-slate-100 flex items-center justify-between bg-slate-50">
-            <h2 class="text-base font-bold text-slate-800 flex items-center gap-2">
-                <i class="fa-solid fa-book-bookmark text-amber-600"></i> 目次
-            </h2>
-            <button id="closeTocBtn" class="p-1 text-slate-400 hover:text-slate-700 rounded-lg">
-                <i class="fa-solid fa-xmark text-lg"></i>
-            </button>
+    <!-- 目次ドロワー -->
+    <div id="tocDrawer" class="toc-drawer">
+        <div class="toc-header">
+            <span><i class="fa-solid fa-book-bookmark" style="color:var(--accent-color);"></i> 目次</span>
+            <button id="closeTocBtn" class="btn-icon"><i class="fa-solid fa-xmark"></i></button>
         </div>
-        <div class="overflow-y-auto flex-1 p-3 space-y-1 text-sm" id="tocList">
-            <!-- Dynamically populated TOC items -->
+        <div id="tocList" class="toc-list">
+            <!-- JSで動的に追加 -->
         </div>
     </div>
-    <div id="tocOverlay" class="fixed inset-0 bg-slate-900/30 z-40 hidden opacity-0 transition-opacity duration-300 backdrop-blur-sm"></div>
+    <div id="tocOverlay" class="overlay hidden"></div>
 
-    <!-- Main E-Book Viewport Area -->
-    <main class="flex-1 relative flex items-center justify-center p-2 sm:p-6 md:p-8 perspective-container overflow-hidden bg-slate-100">
+    <!-- メインビューア領域 -->
+    <main class="main-content">
+        <button id="prevBtn" class="nav-btn prev-btn"><i class="fa-solid fa-chevron-left"></i></button>
+        <button id="nextBtn" class="nav-btn next-btn"><i class="fa-solid fa-chevron-right"></i></button>
 
-        <!-- Turn Page Control Arrows -->
-        <button id="prevBtn" class="absolute left-2 sm:left-4 top-1/2 -translate-y-1/2 z-20 w-11 h-11 sm:w-13 sm:h-13 rounded-full bg-white/90 hover:bg-amber-600 text-slate-700 hover:text-white flex items-center justify-center shadow-lg transition-all duration-200 border border-slate-200/80 disabled:opacity-30 disabled:pointer-events-none hover:scale-105 active:scale-95">
-            <i class="fa-solid fa-chevron-left text-lg"></i>
-        </button>
-
-        <button id="nextBtn" class="absolute right-2 sm:right-4 top-1/2 -translate-y-1/2 z-20 w-11 h-11 sm:w-13 sm:h-13 rounded-full bg-white/90 hover:bg-amber-600 text-slate-700 hover:text-white flex items-center justify-center shadow-lg transition-all duration-200 border border-slate-200/80 disabled:opacity-30 disabled:pointer-events-none hover:scale-105 active:scale-95">
-            <i class="fa-solid fa-chevron-right text-lg"></i>
-        </button>
-
-        <!-- Book Container -->
-        <div id="book" class="book-wrapper w-full max-w-5xl h-[78vh] sm:h-[82vh] max-h-[900px] flex justify-center items-center relative rounded-xl transition-all">
-            <!-- Dynamic Page Spread Content rendering target -->
-            <div id="pageSpread" class="w-full h-full flex rounded-xl overflow-hidden border border-slate-200 shadow-xl relative bg-white">
-                <!-- Pages injected by JS -->
-            </div>
+        <div id="book" class="book-wrapper">
+            <!-- ページのレンダリング先 -->
+            <div id="pageSpread" class="page-spread"></div>
         </div>
-
     </main>
 
-    <!-- Image & Content Zoom Modal Popup -->
-    <div id="zoomModal" class="fixed inset-0 z-50 flex items-center justify-center p-4 bg-slate-900/80 backdrop-blur-md hidden opacity-0 transition-opacity duration-200">
-        <div class="relative bg-white rounded-2xl p-4 sm:p-6 max-w-4xl w-full max-h-[90vh] flex flex-col shadow-2xl border border-slate-200 overflow-hidden transform scale-95 transition-transform duration-200" id="zoomModalCard">
-            <div class="flex items-center justify-between pb-3 mb-3 border-b border-slate-100 shrink-0">
-                <h3 id="zoomModalTitle" class="font-bold text-slate-800 text-sm sm:text-base flex items-center gap-2">
-                    <i class="fa-solid fa-magnifying-glass-plus text-amber-600"></i> 拡大表示
-                </h3>
-                <button onclick="closeZoomModal()" class="w-8 h-8 rounded-full bg-slate-100 hover:bg-slate-200 text-slate-600 flex items-center justify-center transition">
-                    <i class="fa-solid fa-xmark"></i>
-                </button>
+    <!-- モーダル (画像やテーブル拡大用) -->
+    <div id="zoomModal" class="modal hidden">
+        <div class="modal-card">
+            <div class="modal-header">
+                <span id="zoomModalTitle"><i class="fa-solid fa-magnifying-glass-plus"></i> 拡大表示</span>
+                <button id="closeModalBtn" class="btn-icon"><i class="fa-solid fa-xmark"></i></button>
             </div>
-            <div class="flex-1 overflow-auto flex items-center justify-center p-2" id="zoomModalBody">
-                <!-- Injected Modal Content -->
+            <div id="zoomModalBody" class="modal-body">
+                <!-- コンテンツ挿入位置 -->
             </div>
-            <div class="pt-3 text-center text-xs text-slate-400 border-t border-slate-100 shrink-0">
-                タップ/クリックまたは画面外を押して閉じます
-            </div>
+            <div class="modal-footer">タップ/クリックまたは画面外を押して閉じます</div>
         </div>
     </div>
 
-    <!-- Footer Progress Bar (White Theme) -->
-    <footer class="h-14 bg-white/90 backdrop-blur border-t border-slate-200 px-4 flex items-center justify-between z-30 shrink-0 shadow-sm">
-        <!-- Current Page Marker -->
-        <div class="text-xs sm:text-sm font-medium text-slate-600 min-w-[70px]">
-            <span id="currentPageNum" class="text-amber-700 font-bold">1</span> / <span id="totalPagesNum">12</span> <span class="hidden sm:inline">P</span>
+    <!-- フッター -->
+    <footer class="footer">
+        <div class="page-indicator">
+            <span id="currentPageNum" class="current">1</span> / <span id="totalPagesNum">12</span> P
         </div>
-
-        <!-- Slider Track -->
-        <div class="flex-1 max-w-md mx-4 sm:mx-8 flex items-center gap-3">
-            <input type="range" id="pageSlider" min="1" max="12" value="1" class="w-full h-1.5 bg-slate-200 rounded-lg appearance-none cursor-pointer accent-amber-600">
+        <div class="slider-container">
+            <input type="range" id="pageSlider" min="1" max="12" value="1" class="range-slider">
         </div>
-
-        <!-- Percentage Indicator -->
-        <div class="text-xs sm:text-sm font-medium text-slate-500 min-w-[50px] text-right" id="progressPercent">
-            8%
-        </div>
+        <div id="progressPercent" class="progress-text">8%</div>
     </footer>
 
+    <!-- JavaScript ロジック -->
     <script>
         /**
-         * E-Book Content Structure Engine (White Theme)
+         * コンテンツデータ (h1, h2, h3, p, .note のみで構成)
+         * 表紙ページは画像の差し込み用スペースとして定義。
          */
         const ebookData = {
             title: "年収2500万円の税金対策は不動産投資が鍵になる",
             pages: [
-                /* Page 1: Cover Page */
                 {
                     id: 1,
-                    title: "表紙",
-                    type: "cover",
+                    chapterTitle: "表紙",
+                    // 画像の差し込みスペース
                     content: `
-                        <div class="h-full flex flex-col justify-between p-6 sm:p-10 text-center bg-gradient-to-br from-slate-900 via-slate-800 to-amber-950 text-white rounded-l-lg">
-                            <div class="pt-8">
-                                <span class="inline-block px-3 py-1 bg-amber-500/20 text-amber-300 border border-amber-400/30 text-xs font-semibold rounded-full tracking-widest uppercase mb-4">高所得者向け資産防衛論</span>
-                                <h1 class="text-2xl sm:text-3xl md:text-4xl font-serif font-bold leading-tight text-amber-50 tracking-wide mb-4">
-                                    年収2500万円の税金対策は<br><span class="text-amber-400 underline decoration-amber-500/50 underline-offset-8">不動産投資が鍵になる</span>
-                                </h1>
-                                <p class="text-xs sm:text-sm text-slate-300 font-light max-w-md mx-auto mt-4 leading-relaxed">
-                                    手取りを最大化し、攻守兼備の資産形成を実現する完全ガイド
-                                </p>
-                            </div>
-
-                            <div class="my-6 py-8 border-y border-slate-700/60 flex justify-center items-center">
-                                <div class="w-24 h-24 rounded-full bg-amber-500/10 border border-amber-500/30 flex items-center justify-center text-amber-400">
-                                    <i class="fa-solid fa-chart-line text-4xl"></i>
-                                </div>
-                            </div>
-
-                            <div class="pb-4 text-xs text-slate-400 space-y-1">
-                                <p class="font-medium text-slate-300">資産運用＆節税戦略シリーズ</p>
-                                <p>J.P.RETURNS エグゼクティブ・ブックレット</p>
-                            </div>
+                        <div class="cover-image-container">
+                            <img src="test.png" alt="表紙画像">
                         </div>
                     `
                 },
-                /* Page 2: Prologue */
                 {
                     id: 2,
                     chapterTitle: "はじめに",
                     content: `
-                        <div class="space-y-4">
-                            <h2 class="text-lg sm:text-xl font-serif font-bold text-slate-900 border-b-2 border-amber-600/30 pb-2">はじめに</h2>
-                            <p class="leading-relaxed">
-                                「年収2500万円あれば、お金に困ることはないだろう」<br>
-                                そう思われがちですが、実際には高所得者ほど税金負担が重く、手取りは思ったよりも少ないのが現実です。
-                            </p>
-                            <p class="leading-relaxed">
-                                所得税・住民税・社会保険料といった各種税金は、年収が上がるほど比例して増えていき、気づけば毎年1,000万円以上を納税に充てているケースも珍しくないでしょう。
-                            </p>
-                            <p class="leading-relaxed">
-                                その一方で、使える控除や優遇制度を知らずに損をしている高収入の人も少なくありません。「税金は仕方ないもの」ではなく、<strong class="bg-amber-100 text-amber-900 px-1 py-0.5 rounded font-semibold">「戦略的に対策するもの」</strong>という意識を持つと、将来の資産は大きく変わります。特に年収2500万円クラスの方は、節税対策によって数百万円単位の資金を手元に残すことが可能です。
-                            </p>
-                            <p class="leading-relaxed">
-                                本記事では、そんな高年収層の方向けに、有効な税金対策を具体的に解説します。iDeCoやNISA、ふるさと納税などの基本的な制度から、不動産投資といった本格的な手段まで解説します。
-                            </p>
-                        </div>
+                        <h1>はじめに</h1>
+                        <p>「年収2500万円あれば、お金に困ることはないだろう」</p>
+                        <p>そう思われがちですが、実際には高所得者ほど税金負担が重く、手取りは思ったよりも少ないのが現実です。</p>
+                        <p>所得税・住民税・社会保険料といった各種税金は、年収が上がるほど比例して増えていき、気づけば毎年1,000万円以上を納税に充てているケースも珍しくないでしょう。所得税・住民税・社会保険料といった各種税金は、年収が上がるほど比例して増えていき、気づけば毎年1,000万円以上を納税に充てているケースも珍しくないでしょう。</p>
+                        <p>サンプルサンプルサンプルサンプルサンプルサンプルサンプルサンプルサンプルサンプルサンプルサンプルサンプルサンプルサンプルサンプルサンプルサンプルサンプルサンプルサンプルサンプルサンプルサンプルサンプルサンプルサンプルサンプルサンプルサンプルサンプルサンプルサンプルサンプルサンプルサンプルサンプルサンプルサンプルサンプルサンプルサンプルサンプルサンプルサンプルサンプルサンプルサンプルサンプルサンプルサンプルサンプルサンプルサンプルサンプルサンプルサンプルサンプルサンプルサンプルサンプルサンプルサンプルサンプルサンプルサンプルサンプルサンプルサンプルサンプルサンプルサンプルサンプルサンプルサンプルサンプルサンプルサンプルサンプルサンプルサンプルサンプルサンプルサンプルサンプルサンプルサンプルサンプルサンプルサンプルサンプルサンプルサンプルサンプルサンプルサンプルサンプルサンプルサンプルサンプルサンプルサンプルサンプルサンプルサンプルサンプルサンプルサンプル</p>
+                        <p class="note">※これはサンプルの注釈です。実際の税負担は個別の状況により異なります。</p>
                     `
                 },
-                /* Page 3: Prologue Part 2 */
                 {
                     id: 3,
                     chapterTitle: "はじめに (続き)",
                     content: `
-                        <div class="space-y-4">
-                            <p class="leading-relaxed">
-                                中でも注目したいのが<strong class="text-amber-700 font-bold">「不動産投資による節税」</strong>です。給与所得と損益通算できる赤字、不動産の減価償却などを活用すれば、合法的に所得を圧縮し、税金を大幅に抑えることが可能なのです。
-                            </p>
-                            <p class="leading-relaxed">
-                                ここまでの高所得者になると、「守り」の税金対策と「攻め」の資産形成を同時にバランスよく行うことが求められます。攻守において盤石な不動産投資で資産拡大を目指してみてはいかがでしょうか。
-                            </p>
-
-                            <!-- Graphic Illustration Placeholder (Zoomable) -->
-                            <div class="my-5 p-3 rounded-xl bg-slate-50 border border-slate-200 text-center group cursor-pointer hover:border-amber-400 transition" onclick="zoomImage('https://placehold.co/800x400/ffffff/1e293b?text=%E6%94%BB%E3%81%8B%E3%81%A1%E3%81%AE%E8%B3%87%E7%94%A3%E5%BD%A2%E6%88%90+%2B+%E守%E3%82%8A%E3%81%AE%E7%AF%80%E7%A5%8E+%E3%83%A2%E3%83%80%E3%83%B3%E5%9B%B3%E8%A7%A3', '【図1】攻守を兼ね備えた資産構築モデル')">
-                                <div class="relative overflow-hidden rounded-lg shadow-sm border border-slate-200">
-                                    <img src="https://placehold.co/600x300/f8fafc/0f172a?text=%E6%94%BB%E3%81%8B%E3%81%A1%E3%81%AE%E8%B3%87%E7%94%A3%E5%BD%A2%E6%88%90+%2B+%E守%E3%82%8A%E3%81%AE%E7%AF%80%E7%A5%8E" alt="攻めと守りの資産形成図解" class="w-full h-auto object-cover group-hover:scale-102 transition duration-300" onerror="this.src='https://placehold.co/600x300/f8fafc/b45309?text=Tax+Strategy+Graph'">
-                                    <div class="absolute inset-0 bg-slate-900/10 opacity-0 group-hover:opacity-100 transition flex items-center justify-center">
-                                        <span class="bg-white/90 text-slate-800 text-xs font-bold px-3 py-1.5 rounded-full shadow border border-slate-200 flex items-center gap-1">
-                                            <i class="fa-solid fa-magnifying-glass-plus text-amber-600"></i> クリックで拡大
-                                        </span>
-                                    </div>
-                                </div>
-                                <span class="text-xs text-slate-500 mt-2 block font-medium">【図1】高所得者層における攻守を兼ね備えた資産構築モデル（タップで拡大）</span>
-                            </div>
-                        </div>
+                        <h2>戦略的な税金対策の重要性</h2>
+                        <p>使える控除や優遇制度を知らずに損をしている高収入の人も少なくありません。「税金は仕方ないもの」ではなく、「戦略的に対策するもの」という意識を持つと、将来の資産は大きく変わります。</p>
+                        <p>本記事では、そんな高年収層の方向けに、有効な税金対策を具体的に解説します。基本的な制度から、本格的な手段まで解説します。</p>
+                        <p>中でも注目したいのが「不動産投資による節税」です。給与所得と損益通算できる赤字を活用すれば、合法的に所得を圧縮し、税金を大幅に抑えることが可能なのです。</p>
                     `
                 },
-                /* Page 4: Section 1 & Tax Table */
                 {
                     id: 4,
-                    chapterTitle: "1. 年収2500万円の税金と手取りはいくら？",
+                    chapterTitle: "1. 年収2500万円の税金と手取り",
                     content: `
-                        <div class="space-y-3">
-                            <h2 class="text-base sm:text-lg font-serif font-bold text-slate-900 border-b border-amber-600/30 pb-1.5">
-                                年収2500万円の税金と手取りはいくら？税負担の現実を知る
-                            </h2>
-                            <p class="text-xs sm:text-sm leading-relaxed">
-                                年収2500万円という水準は、「高収入」に分類される中でもトップクラスです。しかし、実際に手元に残る金額は想像よりも少なく、多くの人が税金の重さに驚かされます。日本の所得税は<strong class="font-bold text-amber-800">「累進課税制度」</strong>に基づいているためです。
-                            </p>
-
-                            <!-- Responsive Tax Table with Zoom Option -->
-                            <div class="my-2 rounded-lg border border-slate-200 overflow-hidden shadow-sm bg-white relative group cursor-pointer" onclick="zoomElement('taxTableWrapper', '所得税率表（国税庁参考）')">
-                                <div class="bg-slate-50 px-3 py-1.5 border-b border-slate-200 flex justify-between items-center text-[11px] font-bold text-slate-600">
-                                    <span>所得税率一覧</span>
-                                    <span class="text-amber-700 flex items-center gap-1"><i class="fa-solid fa-expand"></i> 表を拡大</span>
-                                </div>
-                                <div id="taxTableWrapper" class="overflow-x-auto p-1">
-                                    <table class="w-full text-left text-xs">
-                                        <thead class="bg-slate-100 text-slate-700 font-bold border-b border-slate-200">
-                                            <tr>
-                                                <th class="p-1.5">課税される所得金額</th>
-                                                <th class="p-1.5 text-center">税率</th>
-                                                <th class="p-1.5 text-right">控除額</th>
-                                            </tr>
-                                        </thead>
-                                        <tbody class="divide-y divide-slate-100 text-slate-700">
-                                            <tr><td class="p-1.5">1,000円 ～ 1,949,000円</td><td class="p-1.5 text-center font-semibold">5％</td><td class="p-1.5 text-right">0円</td></tr>
-                                            <tr><td class="p-1.5">1,950,000円 ～ 3,299,000円</td><td class="p-1.5 text-center font-semibold">10％</td><td class="p-1.5 text-right">97,500円</td></tr>
-                                            <tr><td class="p-1.5">3,300,000円 ～ 6,949,000円</td><td class="p-1.5 text-center font-semibold">20％</td><td class="p-1.5 text-right">427,500円</td></tr>
-                                            <tr><td class="p-1.5">6,950,000円 ～ 8,999,000円</td><td class="p-1.5 text-center font-semibold">23％</td><td class="p-1.5 text-right">636,000円</td></tr>
-                                            <tr class="bg-amber-50/60"><td class="p-1.5">9,000,000円 ～ 17,999,000円</td><td class="p-1.5 text-center font-bold text-amber-700">33％</td><td class="p-1.5 text-right">1,536,000円</td></tr>
-                                            <tr class="bg-amber-100/70 font-bold text-amber-900"><td class="p-1.5">18,000,000円 ～ 39,999,000円</td><td class="p-1.5 text-center text-amber-800">40％</td><td class="p-1.5 text-right">2,796,000円</td></tr>
-                                            <tr><td class="p-1.5">40,000,000円以上</td><td class="p-1.5 text-center font-semibold">45％</td><td class="p-1.5 text-right">4,796,000円</td></tr>
-                                        </tbody>
-                                    </table>
-                                </div>
-                            </div>
-                            <span class="text-[10px] text-slate-400 block text-right">引用：国税庁｜No.2260 所得税の税率</span>
-                        </div>
+                        <h1>1. 年収2500万円の税金と手取りはいくら？</h1>
+                        <p>年収2500万円という水準は、「高収入」に分類される中でもトップクラスです。しかし、実際に手元に残る金額は想像よりも少なく、多くの人が税金の重さに驚かされます。</p>
+                        <p>日本の所得税は「累進課税制度」に基づいているため、所得が高いほど税率が上がります。</p>
+                        <h3>主な税率について</h3>
+                        <p>1800万円〜3999万円の所得層では、所得税率が40%に達します。これに住民税の10%が加わると、およそ半額が税金として徴収される計算になります。</p>
+                        <p class="note">引用：国税庁｜No.2260 所得税の税率に基づく参考値です。</p>
                     `
                 },
-                /* Page 5: Tax Reality & Tax Advisor Column */
                 {
                     id: 5,
                     chapterTitle: "税負担の現実と専門家アドバイス",
                     content: `
-                        <div class="space-y-4">
-                            <p class="leading-relaxed">
-                                家族構成などの条件にもよりますが、所得税はおおよそ約560万円、住民税は約210万円、さらに社会保険料も約160万円が差し引かれます。これらを合計すると、年間で<strong class="text-red-600 font-bold">930万円以上が税金や保険料として徴収される</strong>計算になります。
-                            </p>
-                            <p class="leading-relaxed">
-                                その結果、年収2500万円のうち、実際に自由に使える手取り額は1,500万円弱となるでしょう。ボーナスがない前提で月ごとに按分すると、手取りはおおよそ月130万円ほどになります。
-                            </p>
-
-                            <!-- Tax Advisor Quote Card -->
-                            <div class="my-4 p-4 rounded-xl bg-amber-50/80 border border-amber-200 shadow-sm relative">
-                                <div class="flex items-center gap-3 mb-2">
-                                    <div class="w-10 h-10 rounded-full bg-amber-600 text-white flex items-center justify-center font-bold text-sm shadow">
-                                        税理士
-                                    </div>
-                                    <div>
-                                        <h4 class="font-bold text-slate-900 text-sm">税理士 今中氏のアドバイス</h4>
-                                        <p class="text-xs text-amber-800 font-medium">自分に合う節税方法を見つけることが大事</p>
-                                    </div>
-                                </div>
-                                <p class="text-xs text-slate-700 leading-relaxed italic border-t border-amber-200/80 pt-2">
-                                    「記事で示されている手取り額はモデルケースです。実際には扶養家族の有無、生命保険料控除、医療費控除などの適用で異なります。年収2500万円の方は所得税率が高いため、適用できる控除の網羅的な活用が大切です。専門家に個別で相談してみるのが良いでしょう。」
-                                </p>
-                            </div>
-                        </div>
+                        <h2>手取り額のシミュレーション</h2>
+                        <p>家族構成などの条件にもよりますが、所得税や住民税、社会保険料を合計すると、年間で930万円以上が徴収される計算になります。</p>
+                        <p>その結果、年収2500万円のうち、実際に自由に使える手取り額は1,500万円弱となるでしょう。</p>
+                        <h3>専門家のアドバイス</h3>
+                        <p>「自分に合う節税方法を見つけることが大事です。扶養家族の有無や生命保険料控除などの適用で大きく異なりますので、網羅的な活用が大切です。」</p>
                     `
                 },
-                /* Page 6: Section 2 - Reasons for Tax Strategy */
                 {
                     id: 6,
                     chapterTitle: "2. 高収入者が税金対策に取り組むべき理由",
                     content: `
-                        <div class="space-y-4">
-                            <h2 class="text-lg font-serif font-bold text-slate-900 border-b border-amber-600/30 pb-2">
-                                高収入者が税金対策に取り組むべき理由
-                            </h2>
-                            <p class="leading-relaxed">
-                                年収2500万円クラスの高収入者にとって、税金対策は単なる節約術ではありません。むしろ、<strong class="font-bold text-amber-700">効率的な資産形成をするための重要な戦略</strong>です。高い税率が適用される高収入者だからこそ、税金対策によって得られるメリットは計り知れないほど大きいといえます。
-                            </p>
-
-                            <div class="grid grid-cols-1 gap-2.5 my-3">
-                                <div class="p-3 bg-slate-50 rounded-lg border-l-4 border-amber-600 text-xs sm:text-sm font-semibold flex items-center gap-2 border border-slate-200/80">
-                                    <span class="w-6 h-6 rounded-full bg-amber-600 text-white flex items-center justify-center font-bold text-xs shrink-0">1</span>
-                                    節税効果が大きいから
-                                </div>
-                                <div class="p-3 bg-slate-50 rounded-lg border-l-4 border-amber-600 text-xs sm:text-sm font-semibold flex items-center gap-2 border border-slate-200/80">
-                                    <span class="w-6 h-6 rounded-full bg-amber-600 text-white flex items-center justify-center font-bold text-xs shrink-0">2</span>
-                                    将来の資産形成につながるから
-                                </div>
-                                <div class="p-3 bg-slate-50 rounded-lg border-l-4 border-amber-600 text-xs sm:text-sm font-semibold flex items-center gap-2 border border-slate-200/80">
-                                    <span class="w-6 h-6 rounded-full bg-amber-600 text-white flex items-center justify-center font-bold text-xs shrink-0">3</span>
-                                    資金効率が良くなるから
-                                </div>
-                            </div>
-
-                            <p class="leading-relaxed">
-                                計画的に税金対策をすると、本来税金として支払うはずだった資金を資産形成に回せるので、資産拡大のスピードを加速できるでしょう。
-                            </p>
-                        </div>
+                        <h1>2. 高収入者が税金対策に取り組むべき理由</h1>
+                        <p>年収2500万円クラスの高収入者にとって、税金対策は単なる節約術ではありません。むしろ、効率的な資産形成をするための重要な戦略です。</p>
+                        <p>高い税率が適用される高収入者だからこそ、税金対策によって得られるメリットは計り知れないほど大きいといえます。</p>
+                        <h3>3つの主な理由</h3>
+                        <p>① 節税効果が大きいから<br>
+                           ② 将来の資産形成につながるから<br>
+                           ③ 資金効率が良くなるから</p>
+                        <p class="note">※計画的な税金対策は、手元資金を最大化する第一歩です。</p>
                     `
                 },
-                /* Page 7: Detail Reasons 1 & 2 */
                 {
                     id: 7,
                     chapterTitle: "節税効果と資産形成の仕組み",
                     content: `
-                        <div class="space-y-4">
-                            <h3 class="font-bold text-slate-900 text-base flex items-center gap-2">
-                                <i class="fa-solid fa-circle-check text-amber-600"></i> 節税効果が大きいから
-                            </h3>
-                            <p class="leading-relaxed text-xs sm:text-sm">
-                                累進課税制度により、高収入者ほど高い税率が適用されるため、同じ節税対策でも得られる効果は収入に比例して拡大します。
-                            </p>
-                            <p class="leading-relaxed text-xs sm:text-sm">
-                                例えば、年収300万円の方が10万円の所得控除を受けた場合の節税効果は約2万円程度ですが、<strong class="bg-amber-100 font-bold px-1">年収2500万円の方が同じ控除を受けると約5万円の節税効果</strong>を得られます。これは税率40％（所得税）と住民税10％の合計50％が適用されるためです。
-                            </p>
-
-                            <h3 class="font-bold text-slate-900 text-base pt-2 flex items-center gap-2">
-                                <i class="fa-solid fa-circle-check text-amber-600"></i> 将来の資産形成につながるから
-                            </h3>
-                            <p class="leading-relaxed text-xs sm:text-sm">
-                                節税によって確保した資金を運用すると、資産構築のスピードもグッと上がります。現金を蓄えるのではなく、税金をコントロールしながら資産を育てる意識が重要です。iDeCoやNISAを使えば非課税メリットを得ながら老後資金等を蓄えられます。
-                            </p>
-                        </div>
+                        <h2>節税効果の具体的な差</h2>
+                        <p>累進課税制度により、高収入者ほど高い税率が適用されるため、同じ節税対策でも得られる効果は収入に比例して拡大します。</p>
+                        <p>例えば、年収300万円の方が10万円の所得控除を受けた場合の節税効果と、年収2500万円の方が同じ控除を受けた場合の効果では、税率の違いから倍以上の開きが出ます。</p>
+                        <h2>資産形成への転用</h2>
+                        <p>節税によって確保した資金を運用すると、資産構築のスピードも飛躍的に上がります。現金をただ蓄えるのではなく、税金をコントロールしながら資産を育てる意識が重要です。</p>
                     `
                 },
-                /* Page 8: Section 3 - Top 3 Tax Strategies */
                 {
                     id: 8,
-                    chapterTitle: "3. 年収2500万円クラスに有効な税金対策3選",
+                    chapterTitle: "3. 年収2500万円に有効な税金対策3選",
                     content: `
-                        <div class="space-y-3">
-                            <h2 class="text-base sm:text-lg font-serif font-bold text-slate-900 border-b border-amber-600/30 pb-1.5">
-                                年収2500万円クラスに有効な税金対策3選
-                            </h2>
-
-                            <div class="space-y-3">
-                                <div class="p-3 rounded-lg border border-slate-200 bg-slate-50">
-                                    <h4 class="font-bold text-slate-900 text-xs sm:text-sm mb-1">① iDeCo・NISAを活用した積立投資</h4>
-                                    <p class="text-xs leading-relaxed text-slate-600">
-                                        拠出額が所得控除となるため節税効果が高く、2024年からの新NISAでは年間360万円（非課税限度額1,800万円）まで長期非課税運用が可能です。
-                                    </p>
-                                </div>
-
-                                <div class="p-3 rounded-lg border border-slate-200 bg-slate-50">
-                                    <h4 class="font-bold text-slate-900 text-xs sm:text-sm mb-1">② ふるさと納税</h4>
-                                    <p class="text-xs leading-relaxed text-slate-600">
-                                        年収2500万円では実質2000円で80万円超の寄附が可能です。返礼品（還元率30%仮定で約25万円相当）を受け取ることで家計費削減につながります。
-                                    </p>
-                                </div>
-
-                                <div class="p-3 rounded-lg border border-amber-300 bg-amber-50/60">
-                                    <h4 class="font-bold text-amber-900 text-xs sm:text-sm mb-1">③ 不動産投資による節税（本命）</h4>
-                                    <p class="text-xs leading-relaxed text-slate-800">
-                                        減価償却費や借入金利息などを経費計上し、不動産所得の赤字を給与所得と損益通算することで、大幅な所得圧縮が可能になります。
-                                    </p>
-                                </div>
-                            </div>
-                        </div>
+                        <h1>3. 有効な税金対策3選</h1>
+                        <h3>① iDeCo・NISAを活用した積立投資</h3>
+                        <p>拠出額が所得控除となるため節税効果が高く、長期非課税運用が可能です。</p>
+                        <h3>② ふるさと納税</h3>
+                        <p>年収2500万円では実質2000円で大きな額の寄附が可能です。返礼品を受け取ることで家計費削減につながります。</p>
+                        <h3>③ 不動産投資による節税</h3>
+                        <p>減価償却費などを経費計上し、不動産所得の赤字を給与所得と損益通算することで、大幅な所得圧縮が可能になります。高所得者にとってこれが本命の対策です。</p>
                     `
                 },
-                /* Page 9: Why Real Estate Works & Depreciation */
                 {
                     id: 9,
-                    chapterTitle: "なぜ不動産投資は税金対策に有効なのか？",
+                    chapterTitle: "不動産投資が有効な理由",
                     content: `
-                        <div class="space-y-4">
-                            <h2 class="text-lg font-serif font-bold text-slate-900 border-b border-amber-600/30 pb-2">
-                                なぜ不動産投資は税金対策に有効なのか？
-                            </h2>
-                            <p class="leading-relaxed">
-                                理由の筆頭は<strong class="font-bold text-amber-700">「損益通算」と「減価償却費」</strong>にあります。
-                            </p>
-                            <p class="leading-relaxed">
-                                不動産投資で発生した帳簿上の赤字は給与所得と合算して申告できるため、課税所得全体を引き下げられます。建物や設備は時間とともに価値が下がるとされ、実際にキャッシュアウト（現金支出）していない費用を経費計上できます。
-                            </p>
-
-                            <div class="p-3 my-2 rounded-lg bg-amber-50/50 text-center border border-amber-200">
-                                <p class="text-xs font-bold text-slate-800 mb-1">節税インパクトの計算例</p>
-                                <div class="text-xs sm:text-sm text-slate-800 space-y-1">
-                                    <p>不動産所得の帳簿上赤字：<span class="text-red-600 font-bold">200万円</span></p>
-                                    <p>適用税率（所得税40% + 住民税10%）：<span class="font-bold">50%</span></p>
-                                    <p class="text-amber-800 font-bold text-base pt-1 border-t border-amber-200">
-                                        年間節税効果 ≒ 約100万円
-                                    </p>
-                                </div>
-                            </div>
-                        </div>
+                        <h2>なぜ不動産投資なのか？</h2>
+                        <p>理由の筆頭は「損益通算」と「減価償却費」にあります。</p>
+                        <p>不動産投資で発生した帳簿上の赤字は給与所得と合算して申告できるため、課税所得全体を引き下げられます。建物や設備は時間とともに価値が下がるとされ、実際にキャッシュアウト（現金支出）していない費用を経費計上できます。</p>
+                        <p class="note">計算例: 不動産所得の赤字200万円 × 適用税率50% ＝ 年間約100万円の節税効果</p>
                     `
                 },
-                /* Page 10: Non-tax Benefits 1 (Income & Leverage) */
                 {
                     id: 10,
-                    chapterTitle: "不動産投資の節税以外のメリット (前編)",
+                    chapterTitle: "節税以外のメリット (前編)",
                     content: `
-                        <div class="space-y-3">
-                            <h2 class="text-base sm:text-lg font-serif font-bold text-slate-900 border-b border-amber-600/30 pb-1.5">
-                                不動産投資の節税以外のメリット
-                            </h2>
-                            <p class="text-xs leading-relaxed">
-                                不動産投資は節税効果だけでなく、資産形成と財産保全の両面で優れたメリットが存在します。
-                            </p>
-
-                            <div class="space-y-3.5">
-                                <div>
-                                    <h3 class="font-bold text-slate-900 text-sm">1. 安定した家賃収入</h3>
-                                    <p class="text-xs leading-relaxed mt-1 text-slate-600">
-                                        住居ニーズは社会情勢に左右されにくく長期間にわたり安定的なキャッシュフローを得られます。退職後の重要な収入の柱となります。
-                                    </p>
-                                </div>
-
-                                <div>
-                                    <h3 class="font-bold text-slate-900 text-sm">2. レバレッジ効果による資産拡大</h3>
-                                    <p class="text-xs leading-relaxed mt-1 text-slate-600">
-                                        年収2500万円の高い信用力を活かし、自己資金の何倍もの融資を受けることで投資効率（レバレッジ）を飛躍的に高められます。
-                                    </p>
-                                </div>
-
-                                <div>
-                                    <h3 class="font-bold text-slate-900 text-sm">3. インフレヘッジ効果</h3>
-                                    <p class="text-xs leading-relaxed mt-1 text-slate-600">
-                                        物価上昇に伴い現金の価値が低下しても、実物資産である不動産や家賃はインフレに連動して価値が上昇する傾向があります。
-                                    </p>
-                                </div>
-                            </div>
-                        </div>
+                        <h1>不動産投資の節税以外のメリット</h1>
+                        <p>不動産投資は節税効果だけでなく、資産形成と財産保全の両面で優れたメリットが存在します。</p>
+                        <h3>1. 安定した家賃収入</h3>
+                        <p>住居ニーズは社会情勢に左右されにくく長期間にわたり安定的な収入を得られます。退職後の重要な収入の柱となります。</p>
+                        <h3>2. レバレッジ効果</h3>
+                        <p>高い信用力を活かし、自己資金の何倍もの融資を受けることで投資効率を飛躍的に高められます。</p>
+                        <h3>3. インフレヘッジ効果</h3>
+                        <p>物価上昇に連動して実物資産である不動産や家賃の価値も上昇する傾向があります。</p>
                     `
                 },
-                /* Page 11: Non-tax Benefits 2 (Insurance & Inheritance) */
                 {
                     id: 11,
-                    chapterTitle: "不動産投資の節税以外のメリット (後編)",
+                    chapterTitle: "節税以外のメリット (後編)",
                     content: `
-                        <div class="space-y-3">
-                            <div class="space-y-3.5">
-                                <div>
-                                    <h3 class="font-bold text-slate-900 text-sm">4. 生命保険効果（団信）</h3>
-                                    <p class="text-xs leading-relaxed mt-1 text-slate-600">
-                                        ローン組入れ時に加入する「団体信用生命保険」により、万が一の際にはローン残債がゼロになり、家族に無借金の収益物件を残せます。
-                                    </p>
-                                </div>
-
-                                <div>
-                                    <h3 class="font-bold text-slate-900 text-sm">5. 相続税対策</h3>
-                                    <p class="text-xs leading-relaxed mt-1 text-slate-600">
-                                        現金よりも不動産は相続税評価額（路線価や固定資産税評価額）が低く算出され、さらに賃貸用（貸家建付地など）で大幅な評価減を受けられます。
-                                    </p>
-                                </div>
-                            </div>
-
-                            <!-- Image Illustration Placeholder (Zoomable) -->
-                            <div class="my-3 p-3 rounded-xl bg-slate-50 border border-slate-200 text-center group cursor-pointer hover:border-amber-400 transition" onclick="zoomImage('https://placehold.co/800x350/ffffff/0f172a?text=%E7%9B%B8%E7%B6%9A%E7%A5%8E%E8%A9%95%E4%20%E4%BE%A1%E3%81%AE%E5%9C%A7%E7%B8%AE%E3%83%A1%E3%82%AB%E3%83%8B%E3%82%BA%E3%83%A0+%E6%AF%94%E8%BC%83%E5%9B%B3', '【図2】現金相続 vs 不動産相続の評価額比較')">
-                                <div class="relative overflow-hidden rounded-lg shadow-sm border border-slate-200">
-                                    <img src="https://placehold.co/600x250/f8fafc/0f172a?text=%E7%9B%B8%E7%B6%9A%E7%A5%8E%E8%A9%95%E4%20%E4%BE%A1%E3%81%AE%E5%9C%A7%E7%B8%AE%E3%83%A1%E3%82%AB%E3%83%8B%E3%82%BA%E3%83%A0" alt="相続税評価額の圧縮図解" class="w-full h-auto object-cover group-hover:scale-102 transition duration-300" onerror="this.src='https://placehold.co/600x250/f8fafc/b45309?text=Inheritance+Tax+Graph'">
-                                    <div class="absolute inset-0 bg-slate-900/10 opacity-0 group-hover:opacity-100 transition flex items-center justify-center">
-                                        <span class="bg-white/90 text-slate-800 text-xs font-bold px-3 py-1.5 rounded-full shadow border border-slate-200 flex items-center gap-1">
-                                            <i class="fa-solid fa-magnifying-glass-plus text-amber-600"></i> クリックで拡大
-                                        </span>
-                                    </div>
-                                </div>
-                                <span class="text-[10px] text-slate-500 mt-1 block">【図2】現金相続 vs 不動産相続の評価額比較（タップで拡大）</span>
-                            </div>
-                        </div>
+                        <h2>生命保険効果と相続税対策</h2>
+                        <h3>4. 生命保険効果（団信）</h3>
+                        <p>ローン組入れ時に加入する「団体信用生命保険」により、万が一の際にはローン残債がゼロになり、家族に無借金の収益物件を残せます。</p>
+                        <h3>5. 相続税対策</h3>
+                        <p>現金よりも不動産は相続税評価額が低く算出され、さらに賃貸用で大幅な評価減を受けられます。現金をそのまま相続するよりも大きく税負担を圧縮できます。</p>
+                        <p class="note">※相続税の算出については、専門家への詳細なシミュレーション依頼を推奨します。</p>
                     `
                 },
-                /* Page 12: Risks & Conclusion & CTA */
                 {
                     id: 12,
                     chapterTitle: "まとめ・無料相談案内",
                     content: `
-                        <div class="space-y-3">
-                            <h2 class="text-base sm:text-lg font-serif font-bold text-slate-900 border-b border-amber-600/30 pb-1.5">
-                                まとめ：不動産投資を成功させるポイント
-                            </h2>
-                            <p class="text-xs leading-relaxed text-slate-600">
-                                不動産投資には空室リスクや金利変動リスクなども存在するため、徹底的なシミュレーションと信頼できるパートナー選定が欠かせません。
-                            </p>
-
-                            <!-- Video / Seminar Banner Placeholder -->
-                            <div class="p-3 bg-gradient-to-r from-slate-900 to-amber-950 text-white rounded-xl shadow-md text-center space-y-2">
-                                <div class="inline-block bg-amber-500 text-slate-900 text-[10px] font-bold px-2 py-0.5 rounded-full uppercase">限定配信</div>
-                                <h4 class="font-bold text-xs sm:text-sm">不動産投資がカンタンに学べる動画をプレゼント</h4>
-                                <p class="text-[11px] text-slate-300">年収2500万円からの本格資産形成セミナー動画をお送りします</p>
-                                <button onclick="alertModal('セミナー動画の無料視聴リンクを送信しました。')" class="w-full py-2 bg-amber-500 hover:bg-amber-400 text-slate-900 font-bold rounded-lg text-xs shadow transition active:scale-95">
-                                    <i class="fa-solid fa-envelope mr-1"></i> セミナー動画をメールで受け取る
-                                </button>
-                            </div>
-
-                            <!-- Consultation CTA Card -->
-                            <div class="p-3 bg-amber-50/80 rounded-xl border border-amber-200 text-center space-y-2">
-                                <h4 class="font-bold text-slate-900 text-xs sm:text-sm">J.P.RETURNS の無料個別相談</h4>
-                                <p class="text-[11px] text-slate-600">
-                                    プロのコンサルタントがあなたに合った最適な節税・不動産投資戦略をご提案します。
-                                </p>
-                                <button onclick="alertModal('無料個別相談の予約画面へ移動します。')" class="w-full py-2.5 bg-gradient-to-r from-amber-600 to-amber-700 hover:from-amber-500 hover:to-amber-600 text-white font-bold rounded-lg text-xs shadow transition active:scale-95">
-                                    <i class="fa-solid fa-calendar-check mr-1"></i> 無料個別相談に申し込む
-                                </button>
-                            </div>
-                        </div>
+                        <h1>まとめ</h1>
+                        <p>不動産投資には空室リスクや金利変動リスクなども存在するため、徹底的なシミュレーションと信頼できるパートナー選定が欠かせません。</p>
+                        <h2>プロへの相談を活用する</h2>
+                        <p>あなたに合った最適な節税・不動産投資戦略をご提案します。まずは無料の個別相談やセミナー動画を活用し、知識を深めることからスタートしてみてはいかがでしょうか。</p>
+                        <p class="note">お問い合わせや資料請求については、公式サイトよりお手続きください。</p>
                     `
                 }
             ]
         };
 
-        // State variables
+        // 状態管理
         let currentPage = 1;
-        let viewMode = 'two'; // 'one' or 'two'
+        let viewMode = 'two'; // 'one' または 'two'
         let currentFontSize = 'base';
 
-        // Responsive View Mode check
+        // 画面幅による表示モードの自動切替
         function updateResponsiveViewMode() {
             if (window.innerWidth < 768) {
                 viewMode = 'one';
-                document.getElementById('viewModeOne').className = 'p-2 rounded-lg bg-slate-800 text-white text-xs font-medium flex items-center justify-center gap-2 shadow-sm';
-                document.getElementById('viewModeTwo').className = 'p-2 rounded-lg bg-slate-100 text-slate-600 hover:text-slate-900 text-xs font-medium flex items-center justify-center gap-2';
-            } else {
-                viewMode = 'two';
-                document.getElementById('viewModeTwo').className = 'p-2 rounded-lg bg-slate-800 text-white text-xs font-medium flex items-center justify-center gap-2 shadow-sm';
-                document.getElementById('viewModeOne').className = 'p-2 rounded-lg bg-slate-100 text-slate-600 hover:text-slate-900 text-xs font-medium flex items-center justify-center gap-2';
             }
+
+            // ボタンのUI切り替え
+            document.getElementById('viewModeOne').className = (viewMode === 'one') ? 'toggle-btn active-dark' : 'toggle-btn';
+            document.getElementById('viewModeTwo').className = (viewMode === 'two') ? 'toggle-btn active-dark' : 'toggle-btn';
         }
 
-        // Render Page Spread Function (White Theme)
-        function renderPages(pageIndex, direction = 'next') {
+        // ページのレンダリング処理
+        function renderPages(pageIndex) {
             const container = document.getElementById('pageSpread');
             const total = ebookData.pages.length;
 
-            // Normalize page index
             if (pageIndex < 1) pageIndex = 1;
             if (pageIndex > total) pageIndex = total;
 
-            // In two-page mode, align to odd page index for left side
+            // 2Pモードで左側を奇数ページにする調整
             if (viewMode === 'two' && pageIndex % 2 === 0 && pageIndex > 1) {
                 pageIndex = pageIndex - 1;
             }
             currentPage = pageIndex;
 
-            // Font Class Mapping
             const fontClass = `text-size-${currentFontSize}`;
-            const pageBgClass = "bg-white text-slate-800";
-
             let html = '';
 
             if (viewMode === 'two') {
                 const leftData = ebookData.pages[pageIndex - 1];
                 const rightData = ebookData.pages[pageIndex];
 
-                // Left Page
+                // 左ページ
                 html += `
-                    <div class="w-1/2 h-full ${pageBgClass} ${fontClass} p-6 sm:p-8 flex flex-col justify-between left-page-shadow relative border-r border-slate-200/80 overflow-y-auto page-card">
+                    <div class="page-card half left-page-shadow ${fontClass}">
                         ${leftData ? `
-                            <div class="flex-1">${leftData.content}</div>
-                            <div class="pt-4 mt-auto border-t border-slate-100 flex justify-between items-center text-[11px] text-slate-400">
+                            ${leftData.id === 1 ? leftData.content : `<div class="page-content">${leftData.content}</div>`}
+                            <div class="page-footer">
                                 <span>${leftData.chapterTitle || ebookData.title}</span>
-                                <span class="font-semibold text-slate-500">${leftData.id}</span>
+                                <span>${leftData.id}</span>
                             </div>
-                        ` : '<div class="h-full flex items-center justify-center text-slate-300"></div>'}
+                        ` : ''}
                     </div>
                 `;
 
-                // Right Page
+                // 右ページ
                 html += `
-                    <div class="w-1/2 h-full ${pageBgClass} ${fontClass} p-6 sm:p-8 flex flex-col justify-between right-page-shadow relative overflow-y-auto page-card">
+                    <div class="page-card half right-page-shadow ${fontClass}">
                         ${rightData ? `
-                            <div class="flex-1">${rightData.content}</div>
-                            <div class="pt-4 mt-auto border-t border-slate-100 flex justify-between items-center text-[11px] text-slate-400">
-                                <span class="font-semibold text-slate-500">${rightData.id}</span>
+                            <div class="page-content">${rightData.content}</div>
+                            <div class="page-footer">
+                                <span>${rightData.id}</span>
                                 <span>${rightData.chapterTitle || ''}</span>
                             </div>
-                        ` : '<div class="h-full flex items-center justify-center text-slate-300"></div>'}
+                        ` : ''}
                     </div>
                 `;
             } else {
-                // Single Page Mode
+                // 単一ページモード
                 const singleData = ebookData.pages[pageIndex - 1];
                 html = `
-                    <div class="w-full h-full ${pageBgClass} ${fontClass} p-6 sm:p-10 flex flex-col justify-between relative overflow-y-auto page-card shadow-inner">
-                        <div class="flex-1">${singleData.content}</div>
-                        <div class="pt-4 mt-auto border-t border-slate-100 flex justify-between items-center text-xs text-slate-400">
+                    <div class="page-card full left-page-shadow ${fontClass}">
+                        ${singleData.id === 1 ? singleData.content : `<div class="page-content">${singleData.content}</div>`}
+                        <div class="page-footer">
                             <span>${singleData.chapterTitle || ebookData.title}</span>
-                            <span class="font-bold text-amber-700">${singleData.id} / ${total}</span>
+                            <span>${singleData.id} / ${total}</span>
                         </div>
                     </div>
                 `;
@@ -713,139 +886,66 @@
 
             container.innerHTML = html;
 
-            // Update UI State
+            // UI状態の更新
             document.getElementById('currentPageNum').innerText = currentPage;
             document.getElementById('totalPagesNum').innerText = total;
             document.getElementById('pageSlider').value = currentPage;
             document.getElementById('pageSlider').max = total;
+            document.getElementById('progressPercent').innerText = `${Math.round((currentPage / total) * 100)}%`;
 
-            const progressPercent = Math.round((currentPage / total) * 100);
-            document.getElementById('progressPercent').innerText = `${progressPercent}%`;
-
-            // Navigation Button States
+            // ボタンの活性・非活性
             document.getElementById('prevBtn').disabled = (currentPage <= 1);
             document.getElementById('nextBtn').disabled = (viewMode === 'two' ? currentPage >= total - 1 : currentPage >= total);
         }
 
-        // Image & Element Zoom Modal Functions
-        window.zoomImage = function (imgSrc, title) {
-            const modal = document.getElementById('zoomModal');
-            const modalCard = document.getElementById('zoomModalCard');
-            const titleEl = document.getElementById('zoomModalTitle');
-            const bodyEl = document.getElementById('zoomModalBody');
-
-            titleEl.innerHTML = `<i class="fa-solid fa-image text-amber-600"></i> ${title || '画像拡大表示'}`;
-            bodyEl.innerHTML = `
-                <img src="${imgSrc}" class="max-w-full max-h-[70vh] object-contain rounded-lg border border-slate-200 shadow-md" alt="拡大画像">
-            `;
-
-            modal.classList.remove('hidden');
-            setTimeout(() => {
-                modal.classList.remove('opacity-0');
-                modalCard.classList.remove('scale-95');
-                modalCard.classList.add('scale-100');
-            }, 10);
-        };
-
-        window.zoomElement = function (elementId, title) {
-            const targetEl = document.getElementById(elementId);
-            if (!targetEl) return;
-
-            const modal = document.getElementById('zoomModal');
-            const modalCard = document.getElementById('zoomModalCard');
-            const titleEl = document.getElementById('zoomModalTitle');
-            const bodyEl = document.getElementById('zoomModalBody');
-
-            titleEl.innerHTML = `<i class="fa-solid fa-table text-amber-600"></i> ${title || '拡大表示'}`;
-            bodyEl.innerHTML = `
-                <div class="w-full overflow-x-auto p-2 bg-white rounded-xl border border-slate-200">
-                    ${targetEl.outerHTML}
-                </div>
-            `;
-
-            modal.classList.remove('hidden');
-            setTimeout(() => {
-                modal.classList.remove('opacity-0');
-                modalCard.classList.remove('scale-95');
-                modalCard.classList.add('scale-100');
-            }, 10);
-        };
-
-        window.closeZoomModal = function () {
-            const modal = document.getElementById('zoomModal');
-            const modalCard = document.getElementById('zoomModalCard');
-            modal.classList.add('opacity-0');
-            modalCard.classList.remove('scale-100');
-            modalCard.classList.add('scale-95');
-            setTimeout(() => {
-                modal.classList.add('hidden');
-            }, 200);
-        };
-
-        document.getElementById('zoomModal').addEventListener('click', (e) => {
-            if (e.target.id === 'zoomModal') {
-                closeZoomModal();
-            }
-        });
-
-        // Navigation Functions
+        // ページ遷移処理
         function nextPage() {
             const step = (viewMode === 'two') ? 2 : 1;
             if (currentPage + step <= ebookData.pages.length + (viewMode === 'two' ? 1 : 0)) {
-                renderPages(currentPage + step, 'next');
+                renderPages(currentPage + step);
             }
         }
 
         function prevPage() {
             const step = (viewMode === 'two') ? 2 : 1;
             if (currentPage - step >= 1) {
-                renderPages(currentPage - step, 'prev');
+                renderPages(currentPage - step);
             }
         }
 
+        // イベントリスナー設定
         document.getElementById('nextBtn').addEventListener('click', nextPage);
         document.getElementById('prevBtn').addEventListener('click', prevPage);
 
-        // Keyboard Navigation
-        document.addEventListener('keydown', (e) => {
-            if (e.key === 'ArrowRight' || e.key === 'PageDown') nextPage();
-            if (e.key === 'ArrowLeft' || e.key === 'PageUp') prevPage();
-            if (e.key === 'Escape') closeZoomModal();
-        });
-
-        // Slider Event
         document.getElementById('pageSlider').addEventListener('input', (e) => {
             renderPages(parseInt(e.target.value));
         });
 
-        // Settings Panel Toggle
+        // キーボード操作
+        document.addEventListener('keydown', (e) => {
+            if (e.key === 'ArrowRight' || e.key === 'PageDown') nextPage();
+            if (e.key === 'ArrowLeft' || e.key === 'PageUp') prevPage();
+            if (e.key === 'Escape') closeModal();
+        });
+
+        // 設定パネルトグル
         const settingsBtn = document.getElementById('settingsBtn');
         const settingsPanel = document.getElementById('settingsPanel');
         settingsBtn.addEventListener('click', () => {
             settingsPanel.classList.toggle('hidden');
         });
 
-        // Close panel when clicking outside
-        document.addEventListener('click', (e) => {
-            if (!settingsBtn.contains(e.target) && !settingsPanel.contains(e.target)) {
-                settingsPanel.classList.add('hidden');
-            }
-        });
-
-        // Font Size Options
+        // フォントサイズ変更
         document.querySelectorAll('.size-opt').forEach(btn => {
             btn.addEventListener('click', (e) => {
-                const target = e.currentTarget;
-                currentFontSize = target.getAttribute('data-size');
-                document.querySelectorAll('.size-opt').forEach(b => {
-                    b.className = 'size-opt flex-1 py-1.5 rounded-md text-slate-600 text-xs font-semibold';
-                });
-                target.className = 'size-opt flex-1 py-1.5 rounded-md bg-white text-slate-900 shadow-sm text-sm font-semibold';
+                currentFontSize = e.target.getAttribute('data-size');
+                document.querySelectorAll('.size-opt').forEach(b => b.classList.remove('active'));
+                e.target.classList.add('active');
                 renderPages(currentPage);
             });
         });
 
-        // View Mode Options
+        // モード変更
         document.getElementById('viewModeOne').addEventListener('click', () => {
             viewMode = 'one';
             updateResponsiveViewMode();
@@ -858,98 +958,78 @@
             renderPages(currentPage);
         });
 
-        // Table of Contents Population and Controls
+        // 目次機能
         const tocDrawer = document.getElementById('tocDrawer');
         const tocOverlay = document.getElementById('tocOverlay');
         const tocList = document.getElementById('tocList');
 
         function populateToc() {
             tocList.innerHTML = ebookData.pages.map(p => `
-                <button onclick="jumpToPage(${p.id})" class="w-full text-left p-2.5 rounded-lg hover:bg-slate-100 text-slate-700 hover:text-amber-800 transition flex items-center justify-between border-b border-slate-100">
-                    <span class="truncate pr-2 font-medium">${p.id}. ${p.chapterTitle || '表紙'}</span>
-                    <i class="fa-solid fa-chevron-right text-xs text-slate-400"></i>
+                <button onclick="jumpToPage(${p.id})" class="toc-item">
+                    ${p.id}. ${p.chapterTitle || '表紙'}
                 </button>
             `).join('');
         }
 
         function openToc() {
-            tocDrawer.classList.remove('-translate-x-full');
+            tocDrawer.classList.add('open');
             tocOverlay.classList.remove('hidden');
-            setTimeout(() => tocOverlay.classList.remove('opacity-0'), 10);
         }
 
         function closeToc() {
-            tocDrawer.classList.add('-translate-x-full');
-            tocOverlay.classList.add('opacity-0');
-            setTimeout(() => tocOverlay.classList.add('hidden'), 300);
+            tocDrawer.classList.remove('open');
+            tocOverlay.classList.add('hidden');
         }
-
-        document.getElementById('tocBtn').addEventListener('click', openToc);
-        document.getElementById('closeTocBtn').addEventListener('click', closeToc);
-        tocOverlay.addEventListener('click', closeToc);
 
         window.jumpToPage = function (pageId) {
             closeToc();
             renderPages(pageId);
         };
 
-        // Fullscreen Toggle
+        document.getElementById('tocBtn').addEventListener('click', openToc);
+        document.getElementById('closeTocBtn').addEventListener('click', closeToc);
+        tocOverlay.addEventListener('click', closeToc);
+
+        // フルスクリーン
         document.getElementById('fullscreenBtn').addEventListener('click', () => {
             if (!document.fullscreenElement) {
                 document.documentElement.requestFullscreen();
-            } else {
-                if (document.exitFullscreen) {
-                    document.exitFullscreen();
-                }
+            } else if (document.exitFullscreen) {
+                document.exitFullscreen();
             }
         });
 
-        // Simple Custom Modal for Alerts
-        window.alertModal = function (message) {
-            const modal = document.createElement('div');
-            modal.className = 'fixed inset-0 z-50 flex items-center justify-center p-4 bg-slate-900/60 backdrop-blur-sm animate-fade-in';
-            modal.innerHTML = `
-                <div class="bg-white text-slate-800 p-6 rounded-2xl border border-slate-200 shadow-2xl max-w-sm w-full text-center space-y-4">
-                    <i class="fa-solid fa-circle-check text-3xl text-amber-600"></i>
-                    <p class="text-sm font-medium leading-relaxed">${message}</p>
-                    <button onclick="this.closest('.fixed').remove()" class="w-full py-2 bg-amber-600 hover:bg-amber-700 text-white font-bold rounded-lg text-xs transition">
-                        閉じる
-                    </button>
-                </div>
-            `;
-            document.body.appendChild(modal);
-        };
+        // モーダル機能 (本バージョンでは画像拡大用等で利用可能)
+        function openModal(imageSrc) {
+            document.getElementById('zoomModalBody').innerHTML = `<img src="${imageSrc}" alt="拡大画像">`;
+            document.getElementById('zoomModal').classList.remove('hidden');
+        }
+        function closeModal() {
+            document.getElementById('zoomModal').classList.add('hidden');
+        }
+        document.getElementById('closeModalBtn').addEventListener('click', closeModal);
+        document.getElementById('zoomModal').addEventListener('click', (e) => {
+            if (e.target.id === 'zoomModal') closeModal();
+        });
 
-        // Window Resize Handler
+        // スワイプ処理
+        let touchStartX = 0;
+        let touchEndX = 0;
+        const bookEl = document.getElementById('book');
+
+        bookEl.addEventListener('touchstart', e => { touchStartX = e.changedTouches[0].screenX; }, { passive: true });
+        bookEl.addEventListener('touchend', e => {
+            touchEndX = e.changedTouches[0].screenX;
+            if (touchStartX - touchEndX > 50) nextPage();
+            if (touchEndX - touchStartX > 50) prevPage();
+        }, { passive: true });
+
+        // 初期化処理
         window.addEventListener('resize', () => {
             updateResponsiveViewMode();
             renderPages(currentPage);
         });
 
-        // Touch Swipe Gesture Support
-        let touchStartX = 0;
-        let touchEndX = 0;
-
-        document.getElementById('book').addEventListener('touchstart', (e) => {
-            touchStartX = e.changedTouches[0].screenX;
-        }, { passive: true });
-
-        document.getElementById('book').addEventListener('touchend', (e) => {
-            touchEndX = e.changedTouches[0].screenX;
-            handleSwipe();
-        }, { passive: true });
-
-        function handleSwipe() {
-            const swipeThreshold = 50;
-            if (touchStartX - touchEndX > swipeThreshold) {
-                nextPage();
-            }
-            if (touchEndX - touchStartX > swipeThreshold) {
-                prevPage();
-            }
-        }
-
-        // Initialize Reader Engine
         window.onload = function () {
             updateResponsiveViewMode();
             populateToc();
