@@ -290,8 +290,11 @@ function calculateProgress() {
 }
 
 function getUtmParameters(urlParams) {
-    const utmKeys = ['utm_source', 'utm_medium', 'utm_campaign', 'utm_term', 'utm_content'];
-    utmKeys.forEach(key => { if (urlParams.has(key)) state.utmParameters[key] = urlParams.get(key); });
+    // gclid, yclid, fbclid を配列に追加
+    const utmKeys = ['utm_source', 'utm_medium', 'utm_campaign', 'utm_term', 'utm_content', 'gclid', 'yclid', 'fbclid'];
+    utmKeys.forEach(key => {
+        if (urlParams.has(key)) state.utmParameters[key] = urlParams.get(key);
+    });
 }
 
 function generateSessionId() {

@@ -8,7 +8,7 @@ const state = {
     userResponses: {},
     utmParameters: {},
     completedEffectiveQuestions: 0,
-    gaStepCounter: 0, 
+    gaStepCounter: 0,
 };
 
 // --- GAイベント送信 ---
@@ -17,7 +17,7 @@ function sendGaEvent(question) {
         console.warn("dataLayer is not available. GA event was not sent.");
         return;
     }
-    state.gaStepCounter++; 
+    state.gaStepCounter++;
     const eventData = {
         'event': 'question_answered',
         'form_variant': window.location.pathname,
@@ -47,7 +47,7 @@ async function initializeChat() {
         completedEffectiveQuestions: 0,
         gaStepCounter: 0,
     });
-    
+
     getUtmParameters();
     Object.assign(state.userResponses, state.utmParameters);
 
@@ -57,20 +57,20 @@ async function initializeChat() {
         faviconLink.href = FAVICON_URL;
         document.head.appendChild(faviconLink);
     }
-    
+
     if (typeof BANNER_IMAGE_URL !== 'undefined' && BANNER_IMAGE_URL) {
         displayBannerImage(BANNER_IMAGE_URL);
     }
 
     await addBotMessage("お問い合わせありがとうございます！<br>30秒程度の簡単な質問をさせてください。", true);
-    
+
     setTimeout(askQuestion, 150);
 }
 
 // --- メイン会話フロー ---
 async function askQuestion() {
     calculateProgress();
-    
+
     let currentQuestion = findNextQuestion();
 
     if (!currentQuestion) {
@@ -78,25 +78,25 @@ async function askQuestion() {
         // 必要であればここに追加
         return;
     }
-    
+
     if (currentQuestion.pre_message) await addBotMessage(currentQuestion.pre_message, true);
     if (currentQuestion.pre_message_1) await addBotMessage(currentQuestion.pre_message_1);
     if (currentQuestion.pre_message_2) await addBotMessage(currentQuestion.pre_message_2);
-    
+
     if (currentQuestion.question && currentQuestion.answer_method !== 'text-pair') {
         await addBotMessage(currentQuestion.question, currentQuestion.isHtmlQuestion);
     }
-    
-    switch(currentQuestion.answer_method) {
+
+    switch (currentQuestion.answer_method) {
         case 'single-choice':
             displayChoices(currentQuestion, (selection, container) => handleSingleChoice(currentQuestion, selection, container));
             break;
         case 'text':
         case 'tel':
         case 'email':
-             displayNormalInput(currentQuestion, {
+            displayNormalInput(currentQuestion, {
                 onSend: (value, container) => handleTextInput(currentQuestion, value, container),
-             });
+            });
             break;
         case 'text-pair':
             handlePairedQuestion(currentQuestion);
@@ -105,12 +105,12 @@ async function askQuestion() {
             displayTimeTable(currentQuestion, (value, container) => handleTimeTableInput(currentQuestion, value, container));
             break;
         case 'final-consent':
-             displayFinalConsentScreen(currentQuestion, state.userResponses, questions, (container) => {
+            displayFinalConsentScreen(currentQuestion, state.userResponses, questions, (container) => {
                 if (container) disableInputs(container);
                 state.userResponses[currentQuestion.key] = true;
                 sendGaEvent(currentQuestion);
                 submitDataToGAS(state.userResponses);
-             });
+            });
             break;
         default:
             console.warn(`未対応の回答方法です: ${currentQuestion.answer_method}`);
@@ -147,12 +147,12 @@ function handleSingleChoice(question, selection, container) {
         return;
     }
     if (container) disableInputs(container);
-    
+
     const userMessageLabel = label.replace(/<br>/g, ' ');
     addUserMessage(userMessageLabel);
-    
+
     state.userResponses[question.key] = value;
-    
+
     sendGaEvent(question);
     proceedToNextStep();
 }
@@ -172,13 +172,13 @@ function handleTextInput(question, value, container) {
 
 async function handlePairedQuestion(question) {
     const currentPair = question.pairs[0];
-    
+
     if (question.question) {
         await addBotMessage(question.question);
     }
-    
+
     await addBotMessage(currentPair.prompt);
-    
+
     displayPairedInputs(currentPair, (values, container) => {
         if (container) disableInputs(container);
 
@@ -188,12 +188,12 @@ async function handlePairedQuestion(question) {
 
         const userMessageText = values.join(' ');
         addUserMessage(userMessageText);
-        
+
         sendGaEvent(question);
 
         state.currentStep++;
         state.completedEffectiveQuestions++;
-        calculateProgress(); 
+        calculateProgress();
         setTimeout(askQuestion, 150);
     });
 }
@@ -204,7 +204,7 @@ function handleTimeTableInput(question, value, container) {
         return;
     }
     if (container) disableInputs(container);
-    
+
     // Find the label corresponding to the selected time value
     const timeLabel = question.timeSlots.find(slot => slot.value === value.time)?.label || value.time;
     addUserMessage(`${value.date} ${timeLabel}`);
@@ -234,14 +234,15 @@ function calculateProgress() {
         updateProgressBar(0);
         return;
     }
-    
+
     const progress = (state.completedEffectiveQuestions / totalEffectiveQuestions) * 100;
     updateProgressBar(progress);
 }
 
 function getUtmParameters() {
     const urlParams = new URLSearchParams(window.location.search);
-    const utmKeys = ['utm_source', 'utm_medium', 'utm_campaign', 'utm_term', 'utm_content'];
+    // gclid, yclid, fbclid を配列に追加
+    const utmKeys = ['utm_source', 'utm_medium', 'utm_campaign', 'utm_term', 'utm_content', 'gclid', 'yclid', 'fbclid'];
     utmKeys.forEach(key => {
         if (urlParams.has(key)) {
             state.utmParameters[key] = urlParams.get(key);
@@ -255,7 +256,7 @@ function generateSessionId() {
 
 async function submitDataToGAS(dataToSend) {
     showLoadingMessage();
-    
+
     const payload = { ...dataToSend };
     payload["Session ID"] = state.currentSessionId;
 
@@ -269,7 +270,7 @@ async function submitDataToGAS(dataToSend) {
         });
 
         hideLoadingMessage();
-        
+
         if (window.dataLayer) {
             const email = state.userResponses.email_address;
             const phoneNumber = state.userResponses.phone_number;

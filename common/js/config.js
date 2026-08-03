@@ -1,5 +1,5 @@
 // 1. GAS
-const GAS_WEB_APP_URL = 'https://script.google.com/macros/s/AKfycbyigqfQx0uNHXUIECwD3CxWEPT1Q4mpqJhABdvt8B2DFIdDDXWT3NmdxbdWPX5iHtV3AA/exec';
+const GAS_WEB_APP_URL = 'https://script.google.com/macros/s/AKfycbw34NMk9KeS7ZF6LGJqXXl1by6fgUeZV6CKPuMWv1Bvlm5TYp3sbIK-I5TV-V567LeTzg/exec';
 
 // 2. ファビコン
 const FAVICON_URL = '/common/images/favicon.png';
@@ -71,7 +71,8 @@ const BANNER_CAMPAIGN = {
     'fbtrg': '/common/images/banner_ebook_meta.webp',
 
     //その他
-    'wk_gift_ebook': '/common/images/banner_WEK.png'
+    'wk_gift_ebook': '/common/images/banner_WEK.png',
+    'wk_gift_consultation': '/common/images/banner_WEK.png'
 };
 
 // 5. CSS
@@ -79,4 +80,5 @@ const STYLE_DEFAULT = '/common/css/style.css';
 const STYLE_CAMPAIGN = {
     'fbtrg': '/common/css/style-2.css',
     'wk_gift_ebook': '/common/css/style-2.css',
+    'wk_gift_consultation': '/common/css/style-2.css',
 };

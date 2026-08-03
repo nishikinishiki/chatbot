@@ -1,7 +1,7 @@
 // 設定ファイル (config.js)
 
 // 1. Google Apps ScriptのウェブアプリURL（完成データ用）
-const GAS_WEB_APP_URL = 'https://script.google.com/macros/s/AKfycbyigqfQx0uNHXUIECwD3CxWEPT1Q4mpqJhABdvt8B2DFIdDDXWT3NmdxbdWPX5iHtV3AA/exec';
+const GAS_WEB_APP_URL = 'https://script.google.com/macros/s/AKfycbw34NMk9KeS7ZF6LGJqXXl1by6fgUeZV6CKPuMWv1Bvlm5TYp3sbIK-I5TV-V567LeTzg/exec';
 
 // 2. ★★★ 新規追加 ★★★ Google Apps ScriptのウェブアプリURL（ログデータ用）
 const GAS_LOG_APP_URL = 'https://script.google.com/macros/s/AKfycbxOEisLnlCPIKn18Cgoli1dCRxyXfrjG3BOp68Ne4G5RzY1s8rYgVMzAiB90RsMZoif/exec';
