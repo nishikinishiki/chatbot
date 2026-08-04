@@ -67,6 +67,8 @@ const BANNER_CAMPAIGN = {
     'JprBN_d_gift': '/common/images/banner_no1_appeal.jpg',
     'JprBN_e_gift': '/common/images/banner_no1_appeal.jpg',
     'JprBN_f_gift': '/common/images/banner_no1_appeal.jpg',
+    'JprBN_g_gift': '/common/images/banner_woman_g.jpg',
+    'JprBN_h_gift': '/common/images/banner_woman_h.jpg',
     'Owner_': '/common/images/banner_no1_appeal.jpg',
     'fbtrg': '/common/images/banner_ebook_meta.webp',
 
