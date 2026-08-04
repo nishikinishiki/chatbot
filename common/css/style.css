@@ -308,7 +308,6 @@ body {
   text-decoration: none !important;
   cursor: pointer;
   transition: background-color 0.2s;
-  box-sizing: border-box;
 }
 
 .ebook-button-link:hover {
@@ -331,7 +330,6 @@ body {
   display: flex;
   justify-content: center;
   margin-top: 10px;
-  box-sizing: border-box;
 }
 
 .input-container-wrapper.inputs-disabled {
@@ -345,7 +343,6 @@ body {
   grid-template-columns: repeat(2, minmax(0, 1fr));
   gap: 10px;
   width: 100%;
-  box-sizing: border-box;
 }
 
 .choice-button {
@@ -358,7 +355,6 @@ body {
   text-align: center;
   transition: background-color 0.2s, color 0.2s, box-shadow 0.2s, border-color 0.2s;
   width: 100%;
-  box-sizing: border-box;
   overflow-wrap: break-word;
   word-break: break-word;
   line-height: 1.3;
@@ -802,7 +798,7 @@ body {
 }
 
 .modal-close-button:hover {
-  color: #000;
+  color: var(--theme-black);
 }
 
 #modalBody h3 {

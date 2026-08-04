@@ -74,7 +74,8 @@ const BANNER_CAMPAIGN = {
 
     //その他
     'wk_gift_ebook': '/common/images/banner_WEK.png',
-    'wk_gift_consultation': '/common/images/banner_WEK.png'
+    'wk_gift_consultation': '/common/images/banner_WEK.png',
+    'wk_gift_movie': '/common/images/banner_WEK.png'
 };
 
 // 5. CSS
@@ -83,4 +84,5 @@ const STYLE_CAMPAIGN = {
     'fbtrg': '/common/css/style-2.css',
     'wk_gift_ebook': '/common/css/style-2.css',
     'wk_gift_consultation': '/common/css/style-2.css',
+    'wk_gift_movie': '/common/css/style-2.css',
 };
