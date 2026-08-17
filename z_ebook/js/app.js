@@ -117,13 +117,35 @@ window.addEventListener('DOMContentLoaded', async () => {
     };
 
     try {
-        // 同じ階層にある data.json を読み込む
         const response = await fetch('data.json');
         if (!response.ok) throw new Error('Network response was not ok');
         const rawData = await response.json();
 
         // ヘッダーのタイトルを反映
         els.bookTitle.innerText = rawData.title;
+
+        // ブラウザのタイトルタグを自動で書き換える
+        document.title = `${rawData.title} | JPリターンズ`;
+
+        // 最終ページ（奥付）の自動生成
+        const colophonHtml = `
+            <div class="colophon-top">
+                <div class="colophon-title">${rawData.title}</div>
+                ${rawData.thumb ? `<img src="${rawData.thumb}" class="colophon-thumb" alt="表紙サムネイル">` : ''}
+            </div>
+            <hr class="colophon-divider">
+            <div class="colophon-bottom">
+                <p><strong>【発行日】</strong><br>${rawData.date}</p>
+                <p><strong>【発行元】</strong><br>J.P.RETURNS 編集部<br>https://wealthknowledge.jpreturns.com/<br>〒100-6923 東京都千代田区丸の内2-6-1 丸の内パークビルディング23階<br>&copy; J.P.Returns. All rights reserved.</p>
+                <p>本作品の全部あるいは一部を無断で複製・転載・配信・送信したり、ホームページやSNS上に転載することを禁止します。本作品の内容を無断で改変、改ざん等を行うことも禁止します。また、有償・無償にかかわらず本作品を第三者に譲渡することはできません。</p>
+                <p><strong>【注意】</strong><br>本書は情報の提供および学習を目的としたものであり、発行元であるウェルスナレッジ編集部独自の調査・見解に基づいて執筆しています。投資の運用における成功においてを保証するものではありません。<br>本書の内容に基づいた運用や判断等については必ずご自身の責任と判断によって行ってください。本書の内容に基づいて行った結果については、発行元および J.P.RETURNS 株式会社はいかなる責任も負いかねます。<br>なお、本書に記載されているケース等については、いずれも執筆当時の事例を参考にしたものであり今後変更される可能性があります。</p>
+            </div>
+        `;
+        rawData.pages.push({
+            id: rawData.pages.length + 1,
+            chapterTitle: "奥付",
+            content: colophonHtml
+        });
 
         // --- 目次と章タイトルの自動生成 ---
         let currentChapterTitle = rawData.title;

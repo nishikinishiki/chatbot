@@ -5,6 +5,7 @@
     --heading-color: #0f172a;
     --border-color: #e2e8f0;
     --accent-color: #ca8a04;
+    --btn-bg: #64748b;
     --paper-bg: #ffffff;
     --header-bg: rgba(255, 255, 255, 0.95);
 
@@ -83,7 +84,7 @@ body {
     border: none;
     padding: 0.5rem;
     border-radius: 6px;
-    color: #64748b;
+    color: var(--btn-bg);
     cursor: pointer;
     font-size: 1rem;
     display: flex;
@@ -132,7 +133,7 @@ body {
 
 .progress-text {
     font-size: 0.85rem;
-    color: #64748b;
+    color: var(--btn-bg);
     min-width: 50px;
     text-align: right;
 }
@@ -327,7 +328,7 @@ body {
 .page-content .note {
     display: block;
     font-size: 0.85em;
-    color: #64748b;
+    color: var(--btn-bg);
     background: #f8fafc;
     padding: 0.75rem;
     border-radius: 4px;
@@ -426,7 +427,7 @@ body {
     display: block;
     font-size: 0.8rem;
     font-weight: bold;
-    color: #64748b;
+    color: var(--btn-bg);
     margin-bottom: 0.5rem;
 }
 
@@ -446,7 +447,7 @@ body {
     cursor: pointer;
     font-size: 0.85rem;
     border-radius: 6px;
-    color: #64748b;
+    color: var(--btn-bg);
     transition: 0.2s;
 }
 
@@ -607,6 +608,44 @@ body.ui-hidden .footer {
 body.ui-hidden .nav-btn {
     opacity: 0;
     pointer-events: none;
+}
+
+/* ========================================================
+           奥付（最終ページ）専用スタイル
+======================================================== */
+
+.colophon-top {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    margin-bottom: 1rem;
+    gap: 0.5rem;
+}
+
+.colophon-title {
+    font-size: 1.5rem;
+    font-weight: 700;
+    line-height: 1.4;
+    color: var(--heading-color);
+    flex: 1;
+}
+
+.colophon-top .colophon-thumb {
+    width: 60px;
+    height: auto;
+    margin: 0 auto;
+}
+
+.colophon-divider {
+    border: none;
+    border-top: 2px solid #334155;
+    margin-bottom: 1rem;
+}
+
+.page-content .colophon-bottom p {
+    font-size: 0.8rem;
+    line-height: 1.7;
+    margin-bottom: 0.8rem;
 }
 
 /* ========================================================
