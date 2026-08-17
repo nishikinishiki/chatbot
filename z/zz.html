@@ -842,262 +842,248 @@
             ]
         };
 
-        // 状態管理
-        let currentPage = 1;
-        let viewMode = 'two'; // 'one' または 'two'
-        let currentFontSize = 'base';
+        // ========================================================
+            // 状態管理・DOMキャッシュ
+            // ========================================================
+            let currentPage = 1;
+            let viewMode = 'two';
+            let currentFontSize = 'base';
+            let isUiVisible = true;
 
-        // 画面幅による表示モードの自動切替
-        function updateResponsiveViewMode() {
-            if (window.innerWidth < 768) {
-                viewMode = 'one';
+            const els = {
+                container: document.getElementById('pageSpread'),
+                currentPageNum: document.getElementById('currentPageNum'),
+                totalPagesNum: document.getElementById('totalPagesNum'),
+                pageSlider: document.getElementById('pageSlider'),
+                prevBtn: document.getElementById('prevBtn'),
+                nextBtn: document.getElementById('nextBtn'),
+                viewModeOne: document.getElementById('viewModeOne'),
+                viewModeTwo: document.getElementById('viewModeTwo'),
+                settingsBtn: document.getElementById('settingsBtn'),
+                settingsPanel: document.getElementById('settingsPanel'),
+                sizeOpts: document.querySelectorAll('.size-opt'),
+                tocBtn: document.getElementById('tocBtn'),
+                closeTocBtn: document.getElementById('closeTocBtn'),
+                tocDrawer: document.getElementById('tocDrawer'),
+                tocOverlay: document.getElementById('tocOverlay'),
+                tocList: document.getElementById('tocList'),
+                fullscreenBtn: document.getElementById('fullscreenBtn'),
+                bookEl: document.getElementById('book'),
+                mainContent: document.querySelector('.main-content'),
+                // モーダル用の要素
+                zoomModal: document.getElementById('zoomModal'),
+                zoomModalBody: document.getElementById('zoomModalBody'),
+                closeModalBtn: document.getElementById('closeModalBtn')
+            };
+
+            // ========================================================
+            // レンダリング・表示切替ロジック
+            // ========================================================
+            function updateResponsiveViewMode() {
+                if (window.innerWidth < 768) {
+                    viewMode = 'one';
+                }
+                els.viewModeOne.className = (viewMode === 'one') ? 'toggle-btn active-dark' : 'toggle-btn';
+                els.viewModeTwo.className = (viewMode === 'two') ? 'toggle-btn active-dark' : 'toggle-btn';
             }
 
-            // ボタンのUI切り替え
-            document.getElementById('viewModeOne').className = (viewMode === 'one') ? 'toggle-btn active-dark' : 'toggle-btn';
-            document.getElementById('viewModeTwo').className = (viewMode === 'two') ? 'toggle-btn active-dark' : 'toggle-btn';
-        }
+            function renderPages(pageIndex) {
+                const total = ebookData.pages.length;
+                pageIndex = Math.max(1, Math.min(pageIndex, total));
 
-        // ページのレンダリング処理
-        function renderPages(pageIndex) {
-            const container = document.getElementById('pageSpread');
-            const total = ebookData.pages.length;
+                if (viewMode === 'two' && pageIndex % 2 === 0) pageIndex--;
+                currentPage = pageIndex;
 
-            if (pageIndex < 1) pageIndex = 1;
-            if (pageIndex > total) pageIndex = total;
+                const fontClass = `text-size-${currentFontSize}`;
+                const createPageHtml = (pageData, widthClass, shadowClass) => {
+                    if (!pageData) return '';
+                    const contentHtml = pageData.id === 1 ? pageData.content : `<div class="page-content">${pageData.content}</div>`;
+                    const titleText = pageData.chapterTitle || ebookData.title;
 
-            // 2Pモードで左側を奇数ページにする調整
-            if (viewMode === 'two' && pageIndex % 2 === 0 && pageIndex > 1) {
-                pageIndex = pageIndex - 1;
-            }
-            currentPage = pageIndex;
-
-            const fontClass = `text-size-${currentFontSize}`;
-            let html = '';
-
-            const createPageHtml = (pageData, widthClass, shadowClass) => {
-                if (!pageData) return ''; // ページデータが存在しない場合（最終ページの右側など）は空を返す
-
-                const contentHtml = pageData.id === 1 ? pageData.content : `<div class="page-content">${pageData.content}</div>`;
-                const titleText = pageData.chapterTitle || ebookData.title; // タイトルが無い場合は大タイトルをフォールバック
-
-                return `
+                    return `
                     <div class="page-card ${widthClass} ${shadowClass} ${fontClass}">
                         ${contentHtml}
                         <div class="page-footer">
-                            <!-- フッター表記を統一 (左：章タイトル / 右：ページ数) -->
                             <span>${titleText}</span>
                             <span>${pageData.id}</span>
                         </div>
                     </div>
                 `;
+                };
+
+                const pagesToRender = viewMode === 'two'
+                    ? [
+                        { data: ebookData.pages[currentPage - 1], width: 'half', shadow: 'left-page-shadow' },
+                        { data: ebookData.pages[currentPage], width: 'half', shadow: 'right-page-shadow' }
+                    ]
+                    : [
+                        { data: ebookData.pages[currentPage - 1], width: 'full', shadow: 'left-page-shadow' }
+                    ];
+
+                els.container.innerHTML = pagesToRender
+                    .map(p => createPageHtml(p.data, p.width, p.shadow))
+                    .join('');
+
+                const isTwoPage = (viewMode === 'two' && currentPage < total);
+                els.currentPageNum.innerText = isTwoPage ? `${currentPage}-${currentPage + 1}` : currentPage;
+                els.totalPagesNum.innerText = total;
+                els.pageSlider.value = isTwoPage ? currentPage + 1 : currentPage;
+                els.pageSlider.max = total;
+
+                els.prevBtn.disabled = (currentPage <= 1);
+                els.nextBtn.disabled = (isTwoPage ? currentPage >= total - 1 : currentPage >= total);
+            }
+
+            // ========================================================
+            // ページ遷移・機能ロジック
+            // ========================================================
+            function nextPage() {
+                const step = (viewMode === 'two') ? 2 : 1;
+                if (currentPage + step <= ebookData.pages.length + (viewMode === 'two' ? 1 : 0)) {
+                    renderPages(currentPage + step);
+                }
+            }
+
+            function prevPage() {
+                const step = (viewMode === 'two') ? 2 : 1;
+                if (currentPage - step >= 1) {
+                    renderPages(currentPage - step);
+                }
+            }
+
+            const changeViewMode = (mode) => {
+                if (viewMode === mode) return;
+                viewMode = mode;
+                updateResponsiveViewMode();
+                renderPages(currentPage);
             };
 
-            if (viewMode === 'two') {
-                const leftData = ebookData.pages[pageIndex - 1];
-                const rightData = ebookData.pages[pageIndex];
-
-                // 共通関数を呼び出してHTMLを構築
-                html += createPageHtml(leftData, 'half', 'left-page-shadow');
-                html += createPageHtml(rightData, 'half', 'right-page-shadow');
-            } else {
-                // 単一ページモード
-                const singleData = ebookData.pages[pageIndex - 1];
-
-                html += createPageHtml(singleData, 'full', 'left-page-shadow');
-            }
-
-            container.innerHTML = html;
-
-            // UI状態の更新
-            let displayPageText = currentPage;
-            let sliderValue = currentPage;
-
-            // 見開き(2P)モードで、かつ右ページが存在する場合の表示調整
-            if (viewMode === 'two' && currentPage < total) {
-                displayPageText = `${currentPage}-${currentPage + 1}`; // 「11-12」のように表示
-                sliderValue = currentPage + 1; // スライダーの値を右ページに合わせることで、最後まで到達させる
-            }
-
-            document.getElementById('currentPageNum').innerText = displayPageText;
-            document.getElementById('totalPagesNum').innerText = total;
-            document.getElementById('pageSlider').value = sliderValue;
-            document.getElementById('pageSlider').max = total;
-
-            // ボタンの活性・非活性
-            document.getElementById('prevBtn').disabled = (currentPage <= 1);
-            document.getElementById('nextBtn').disabled = (viewMode === 'two' ? currentPage >= total - 1 : currentPage >= total);
-        }
-
-        // ページ遷移処理
-        function nextPage() {
-            const step = (viewMode === 'two') ? 2 : 1;
-            if (currentPage + step <= ebookData.pages.length + (viewMode === 'two' ? 1 : 0)) {
-                renderPages(currentPage + step);
-            }
-        }
-
-        function prevPage() {
-            const step = (viewMode === 'two') ? 2 : 1;
-            if (currentPage - step >= 1) {
-                renderPages(currentPage - step);
-            }
-        }
-
-        // イベントリスナー設定
-        document.getElementById('nextBtn').addEventListener('click', nextPage);
-        document.getElementById('prevBtn').addEventListener('click', prevPage);
-
-        document.getElementById('pageSlider').addEventListener('input', (e) => {
-            renderPages(parseInt(e.target.value));
-        });
-
-        // キーボード操作
-        document.addEventListener('keydown', (e) => {
-            if (e.key === 'ArrowRight' || e.key === 'PageDown') nextPage();
-            if (e.key === 'ArrowLeft' || e.key === 'PageUp') prevPage();
-            if (e.key === 'Escape') closeModal();
-        });
-
-        // 設定パネルトグル
-        const settingsBtn = document.getElementById('settingsBtn');
-        const settingsPanel = document.getElementById('settingsPanel');
-        settingsBtn.addEventListener('click', () => {
-            settingsPanel.classList.toggle('hidden');
-        });
-
-        // フォントサイズ変更
-        document.querySelectorAll('.size-opt').forEach(btn => {
-            btn.addEventListener('click', (e) => {
-                currentFontSize = e.target.getAttribute('data-size');
-                document.querySelectorAll('.size-opt').forEach(b => b.classList.remove('active'));
-                e.target.classList.add('active');
-                renderPages(currentPage);
-            });
-        });
-
-        // モード変更
-        document.getElementById('viewModeOne').addEventListener('click', () => {
-            viewMode = 'one';
-            updateResponsiveViewMode();
-            renderPages(currentPage);
-        });
-
-        document.getElementById('viewModeTwo').addEventListener('click', () => {
-            viewMode = 'two';
-            updateResponsiveViewMode();
-            renderPages(currentPage);
-        });
-
-        // 目次機能
-        const tocDrawer = document.getElementById('tocDrawer');
-        const tocOverlay = document.getElementById('tocOverlay');
-        const tocList = document.getElementById('tocList');
-
-        function populateToc() {
-            tocList.innerHTML = ebookData.pages.map(p => `
+            function populateToc() {
+                els.tocList.innerHTML = ebookData.pages.map(p => `
                 <button onclick="jumpToPage(${p.id})" class="toc-item">
                     ${p.id}. ${p.chapterTitle || '表紙'}
                 </button>
             `).join('');
-        }
-
-        function openToc() {
-            tocDrawer.classList.add('open');
-            tocOverlay.classList.remove('hidden');
-        }
-
-        function closeToc() {
-            tocDrawer.classList.remove('open');
-            tocOverlay.classList.add('hidden');
-        }
-
-        window.jumpToPage = function (pageId) {
-            closeToc();
-            renderPages(pageId);
-        };
-
-        document.getElementById('tocBtn').addEventListener('click', openToc);
-        document.getElementById('closeTocBtn').addEventListener('click', closeToc);
-        tocOverlay.addEventListener('click', closeToc);
-
-        // フルスクリーン
-        document.getElementById('fullscreenBtn').addEventListener('click', () => {
-            if (!document.fullscreenElement) {
-                document.documentElement.requestFullscreen();
-            } else if (document.exitFullscreen) {
-                document.exitFullscreen();
             }
-        });
 
-        // モーダル機能 (本バージョンでは画像拡大用等で利用可能)
-        function openModal(imageSrc) {
-            document.getElementById('zoomModalBody').innerHTML = `<img src="${imageSrc}" alt="拡大画像">`;
-            document.getElementById('zoomModal').classList.remove('hidden');
-        }
-        function closeModal() {
-            document.getElementById('zoomModal').classList.add('hidden');
-        }
-        document.getElementById('closeModalBtn').addEventListener('click', closeModal);
-        document.getElementById('zoomModal').addEventListener('click', (e) => {
-            if (e.target.id === 'zoomModal') closeModal();
-        });
-
-        // スワイプ処理
-        let touchStartX = 0;
-        let touchEndX = 0;
-        const bookEl = document.getElementById('book');
-
-        bookEl.addEventListener('touchstart', e => { touchStartX = e.changedTouches[0].screenX; }, { passive: true });
-        bookEl.addEventListener('touchend', e => {
-            touchEndX = e.changedTouches[0].screenX;
-            if (touchStartX - touchEndX > 50) nextPage();
-            if (touchEndX - touchStartX > 50) prevPage();
-        }, { passive: true });
-
-        // 初期化処理
-        window.addEventListener('resize', () => {
-            updateResponsiveViewMode();
-            renderPages(currentPage);
-        });
-
-        window.onload = function () {
-            updateResponsiveViewMode();
-            populateToc();
-            renderPages(1);
-        };
-
-        // ========================================================
-        // 読書集中モード (画面中央タップでUIトグル)
-        // ========================================================
-        let isUiVisible = true;
-
-        document.querySelector('.main-content').addEventListener('click', (e) => {
-            // ナビゲーションボタン（矢印）自体をクリックした場合は発火させない
-            if (e.target.closest('.nav-btn')) return;
-
-            // クリックされたX座標と画面幅を取得
-            const screenWidth = window.innerWidth;
-            const clickX = e.clientX;
-
-            // 画面の左20%〜右20%の間（つまり中央60%のエリア）をクリックした場合のみ反応
-            if (clickX > screenWidth * 0.2 && clickX < screenWidth * 0.8) {
-
-                // もし設定パネルが開いている場合は、UI非表示ではなく「パネルを閉じる」ことを優先する
-                if (!settingsPanel.classList.contains('hidden')) {
-                    settingsPanel.classList.add('hidden');
-                    return;
-                }
-
-                // UIの表示/非表示を切り替え
-                isUiVisible = !isUiVisible;
-                if (isUiVisible) {
-                    document.body.classList.remove('ui-hidden');
-                } else {
-                    document.body.classList.add('ui-hidden');
-                }
+            function openToc() {
+                els.tocDrawer.classList.add('open');
+                els.tocOverlay.classList.remove('hidden');
             }
-        });
+
+            function closeToc() {
+                els.tocDrawer.classList.remove('open');
+                els.tocOverlay.classList.add('hidden');
+            }
+
+            window.jumpToPage = function (pageId) {
+                closeToc();
+                renderPages(pageId);
+            };
+
+            // モーダル機能
+            function openModal(imageSrc) {
+                els.zoomModalBody.innerHTML = `<img src="${imageSrc}" alt="拡大画像">`;
+                els.zoomModal.classList.remove('hidden');
+            }
+            function closeModal() {
+                els.zoomModal.classList.add('hidden');
+            }
+
+            // ========================================================
+            // イベントリスナーの集約 (ここで全てのユーザー操作を監視)
+            // ========================================================
+            function setupEventListeners() {
+                // ナビゲーション操作
+                els.nextBtn.addEventListener('click', nextPage);
+                els.prevBtn.addEventListener('click', prevPage);
+                els.pageSlider.addEventListener('input', (e) => renderPages(parseInt(e.target.value)));
+
+                // 表示モード切替
+                els.viewModeOne.addEventListener('click', () => changeViewMode('one'));
+                els.viewModeTwo.addEventListener('click', () => changeViewMode('two'));
+
+                // 設定パネル表示・文字サイズ変更
+                els.settingsBtn.addEventListener('click', () => els.settingsPanel.classList.toggle('hidden'));
+                els.sizeOpts.forEach(btn => {
+                    btn.addEventListener('click', (e) => {
+                        currentFontSize = e.target.getAttribute('data-size');
+                        els.sizeOpts.forEach(b => b.classList.remove('active'));
+                        e.target.classList.add('active');
+                        renderPages(currentPage);
+                    });
+                });
+
+                // 目次機能
+                els.tocBtn.addEventListener('click', openToc);
+                els.closeTocBtn.addEventListener('click', closeToc);
+                els.tocOverlay.addEventListener('click', closeToc);
+
+                // フルスクリーン
+                els.fullscreenBtn.addEventListener('click', () => {
+                    if (!document.fullscreenElement) {
+                        document.documentElement.requestFullscreen();
+                    } else if (document.exitFullscreen) {
+                        document.exitFullscreen();
+                    }
+                });
+
+                // モーダル閉じる機能
+                els.closeModalBtn.addEventListener('click', closeModal);
+                els.zoomModal.addEventListener('click', (e) => {
+                    if (e.target.id === 'zoomModal') closeModal(); // 背景クリックで閉じる
+                });
+
+                // キーボード操作
+                document.addEventListener('keydown', (e) => {
+                    if (e.key === 'ArrowRight' || e.key === 'PageDown') nextPage();
+                    if (e.key === 'ArrowLeft' || e.key === 'PageUp') prevPage();
+                    if (e.key === 'Escape') {
+                        closeToc();
+                        closeModal(); // Escキーでモーダルも閉じるように対応
+                    }
+                });
+
+                // スワイプ処理
+                let touchStartX = 0, touchEndX = 0;
+                els.bookEl.addEventListener('touchstart', e => touchStartX = e.changedTouches[0].screenX, { passive: true });
+                els.bookEl.addEventListener('touchend', e => {
+                    touchEndX = e.changedTouches[0].screenX;
+                    if (touchStartX - touchEndX > 50) nextPage();
+                    if (touchEndX - touchStartX > 50) prevPage();
+                }, { passive: true });
+
+                // 読書集中モード (画面中央タップ)
+                els.mainContent.addEventListener('click', (e) => {
+                    if (e.target.closest('.nav-btn')) return; // 矢印ボタンは除外
+                    const clickX = e.clientX, width = window.innerWidth;
+
+                    if (clickX > width * 0.2 && clickX < width * 0.8) {
+                        if (!els.settingsPanel.classList.contains('hidden')) {
+                            els.settingsPanel.classList.add('hidden');
+                            return;
+                        }
+                        isUiVisible = !isUiVisible;
+                        document.body.classList.toggle('ui-hidden', !isUiVisible);
+                    }
+                });
+
+                // 画面リサイズ
+                window.addEventListener('resize', () => {
+                    updateResponsiveViewMode();
+                    renderPages(currentPage);
+                });
+            }
+
+            // ========================================================
+            // 初期化処理 (画面読み込み時に1回だけ実行)
+            // ========================================================
+            window.addEventListener('DOMContentLoaded', () => {
+                updateResponsiveViewMode();
+                populateToc();
+                setupEventListeners();
+                renderPages(1);
+            });
     </script>
 </body>
 
