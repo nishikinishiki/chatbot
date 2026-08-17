@@ -1,0 +1,3133 @@
+@charset "UTF-8";
+@use "sass:math";
+
+// =================== responsive helpers ===================
+@function divceil($that, $divid, $unit: "%") {
+  $result: 1;
+
+  @if $unit=="%" {
+    $result: math.div(ceil(math.div($that * 100000, $divid)), 1000);
+    @return percentage(math.div($result, 100));
+  }
+
+  @else {
+    @if $unit=="em" or $unit=="rem" {
+      $result: math.div(ceil(math.div($that * 1000, $divid)), 1000);
+    }
+
+    @else {
+      $result: math.div(ceil(math.div($that * 100000, $divid)), 1000);
+    }
+
+    @return $result +unquote($unit);
+  }
+}
+
+// =================== page settings ===================
+$br: 768;
+$pcMax: 1280;
+$pcInn: 1000;
+$spMax: 750;
+$spInn: 650;
+
+@mixin pc {
+  @media screen and (min-width: #{$br+1}px) {
+    @content;
+  }
+}
+
+@mixin sp {
+  @media screen and (max-width: #{$br}px) {
+    @content;
+  }
+}
+
+// font & color
+$noto: "Noto Sans JP", sans-serif;
+$col01: #231815; // 基本文字色
+$bg01: #f4f2e3; // セクション背景A クリーム
+$bg02: #fffff7; // セクション背景B オフホワイト
+$teal: #00738a; // アクセント
+$teal02: #42bead; // ナビホバー
+
+// font-size + line-height shorthand
+@mixin tg($fs, $lh) {
+  font-size: divceil($fs, 10, rem);
+  line-height: calc(#{$lh} * 1em);
+}
+
+// =================== reset ===================
+*,
+::before,
+::after {
+  box-sizing: border-box;
+}
+
+ul,
+ol,
+figure,
+p,
+button,
+input,
+h1,
+h2,
+h3,
+h4,
+h5,
+h6,
+dl,
+dt,
+dd {
+  margin: 0;
+  padding: 0;
+  font-weight: normal;
+  font-feature-settings: "palt";
+}
+
+button {
+  background-color: transparent;
+  border: none;
+  cursor: pointer;
+  outline: none;
+  padding: 0;
+  appearance: none;
+}
+
+ul,
+ol {
+  list-style: none;
+}
+
+a {
+  text-decoration: none;
+  color: inherit;
+}
+
+img {
+  max-width: 100%;
+  max-height: 100%;
+  vertical-align: bottom;
+}
+
+svg {
+  width: 100%;
+  height: 100%;
+}
+
+html {
+  -webkit-text-size-adjust: 100%;
+  scroll-behavior: smooth;
+
+  @include pc {
+    font-size: min(#{divceil(10, $pcMax, vw)}, 10px);
+  }
+
+  @include sp {
+    font-size: divceil(10, $spMax, vw);
+  }
+}
+
+body {
+  margin: 0;
+  font-family: $noto;
+  color: $col01;
+  word-break: break-all;
+  overflow-x: hidden;
+}
+
+main {
+  display: block;
+}
+
+// =================== utility ===================
+.pc-only {
+  @include sp {
+    display: none !important;
+  }
+}
+
+.sp-only {
+  @include pc {
+    display: none !important;
+  }
+}
+
+.br-pc {
+  @include sp {
+    display: none;
+  }
+}
+
+.br-sp {
+  @include pc {
+    display: none;
+  }
+}
+
+// =================== scroll animations ===================
+.slideUp {
+  opacity: 0;
+  // 【修正】translate ではなく transform を使用
+  transform: translateY(20px);
+  // 【追加】ブラウザにGPU描画を事前準備させる
+  will-change: transform, opacity;
+  transition: opacity 1s linear 0s, transform 1s ease 0s;
+
+  &.is-animated {
+    opacity: 1;
+    transform: translateY(0);
+  }
+}
+
+.fadeIn {
+  opacity: 0;
+  // 【追加】
+  will-change: opacity;
+  transition: opacity 0.6s ease 0s;
+
+  &.is-animated {
+    opacity: 1;
+  }
+}
+
+// =================== dialog (進呈条件) ===================
+.dialog {
+  position: fixed;
+  inset: 0;
+  width: 100%;
+  height: 100vh;
+  background: rgba(0, 0, 0, 0);
+  border: none;
+  overflow: hidden;
+  padding: 0;
+  max-width: 100%;
+  max-height: 100%;
+  transition: opacity 0.5s ease-in-out;
+  opacity: 0;
+
+  &::backdrop {
+    background: rgba(0, 0, 0, 0);
+    transition: background 0.5s ease-in-out;
+  }
+
+  &.show {
+    opacity: 1;
+
+    &::backdrop {
+      background: rgba(0, 0, 0, 0.5);
+    }
+  }
+}
+
+.dialog_cont {
+  margin: divceil(120, 10, rem) auto 0;
+  position: relative;
+
+  @include pc {
+    width: divceil(1120, 10, rem);
+  }
+
+  @include sp {
+    width: divceil(670, 10, rem);
+  }
+}
+
+.dialog_inner {
+  background: #fff;
+  overflow-y: scroll;
+  -webkit-overflow-scrolling: touch;
+
+  @include pc {
+    max-height: calc(100vh - 240px);
+  }
+
+  @include sp {
+    max-height: calc(100vh - 140px);
+  }
+}
+
+.dialog_wrap {
+  @include pc {
+    padding: divceil(60, 10, rem) divceil(160, 10, rem);
+  }
+
+  @include sp {
+    padding: divceil(70, 10, rem) divceil(40, 10, rem);
+  }
+}
+
+.dialog_open {
+  font-weight: 500;
+  color: #000;
+  cursor: pointer;
+  letter-spacing: 0.5px;
+
+  >span {
+    display: inline;
+    text-decoration: underline;
+    color: #43b5a5;
+  }
+
+  @media (any-hover: hover) {
+    &:hover {
+      opacity: 0.8;
+    }
+  }
+}
+
+.dialog_close {
+  width: divceil(60, 10, rem);
+  height: divceil(60, 10, rem);
+  border: none;
+  border-radius: 50%;
+  background-color: $teal;
+  position: absolute;
+  top: divceil(-30, 10, rem);
+  z-index: 10;
+  cursor: pointer;
+  outline: none;
+
+  @include pc {
+    right: divceil(-30, 10, rem);
+  }
+
+  @include sp {
+    right: divceil(-20, 10, rem);
+  }
+
+  &::before,
+  &::after {
+    content: "";
+    position: absolute;
+    background: #fff;
+    width: divceil(38, 10, rem);
+    height: 1px;
+    top: divceil(28, 10, rem);
+    left: divceil(10, 10, rem);
+  }
+
+  &::before {
+    transform: rotate(-45deg);
+  }
+
+  &::after {
+    transform: rotate(45deg);
+  }
+}
+
+.dialog_box {
+  &+& {
+    margin-top: divceil(40, 10, rem);
+  }
+}
+
+.dialog_ttl {
+  text-align: center;
+  letter-spacing: 0.2em;
+  font-weight: bold;
+  color: $teal;
+
+  @include pc {
+    font-size: divceil(40, 10, rem);
+  }
+
+  @include sp {
+    font-size: divceil(36, 10, rem);
+  }
+
+  +.dialog_txt {
+    margin-top: divceil(20, 10, rem);
+  }
+}
+
+.dialog_txt {
+  line-height: 2;
+  position: relative;
+
+  @include pc {
+    font-size: divceil(16, 10, rem);
+  }
+
+  @include sp {
+    font-size: divceil(28, 10, rem);
+  }
+
+  &.num {
+    @include pc {
+      padding-left: divceil(11, 10, rem);
+    }
+
+    @include sp {
+      padding-left: divceil(42, 10, rem);
+    }
+
+    &::before {
+      counter-increment: number 1;
+      content: counter(number);
+      display: inline-block;
+      border: 1px solid;
+      border-radius: 9999999px;
+      text-align: center;
+      letter-spacing: 0;
+      position: absolute;
+
+      @include pc {
+        width: divceil(17, 10, rem);
+        height: divceil(17, 10, rem);
+        font-size: divceil(12, 10, rem);
+        line-height: divceil(14, 10, rem);
+        top: divceil(8, 10, rem);
+        left: divceil(-12, 10, rem);
+      }
+
+      @include sp {
+        width: divceil(34, 10, rem);
+        height: divceil(34, 10, rem);
+        font-size: divceil(24, 10, rem);
+        line-height: divceil(28, 10, rem);
+        top: divceil(12, 10, rem);
+        left: 0;
+      }
+    }
+  }
+}
+
+.dialog_subttl {
+  font-weight: bold;
+  letter-spacing: 0.2em;
+
+  @include pc {
+    font-size: divceil(28, 10, rem);
+  }
+
+  @include sp {
+    font-size: divceil(32, 10, rem);
+  }
+
+  +.dialog_txt {
+    margin-top: divceil(15, 10, rem);
+  }
+}
+
+.dialog_list {
+  margin-top: divceil(5, 10, rem);
+  padding-left: divceil(25, 10, rem);
+  counter-reset: number;
+}
+
+// =================== SP固定CTA ===================
+.sp_fixed_cta {
+  position: fixed;
+  bottom: 0;
+  left: 0;
+  width: 100%;
+  z-index: 900;
+  opacity: 0;
+  transform: translateY(100%);
+  transition: opacity 0.4s ease, transform 0.4s ease;
+  pointer-events: none;
+  box-sizing: border-box;
+  padding: 0 divceil(20, 10, rem) divceil(20, 10, rem);
+
+  &.is-visible {
+    opacity: 1;
+    transform: translateY(0);
+    pointer-events: auto;
+  }
+
+  a {
+    display: block;
+    width: 100%;
+  }
+
+  img {
+    width: 100%;
+    height: auto;
+  }
+}
+
+// =================== chatbot iframe (PC popup) ===================
+.chatbot-iframe-wrapper {
+  position: fixed;
+  z-index: 1000;
+  right: 25px;
+  bottom: 25px;
+  border-radius: 15px;
+  overflow: hidden;
+  width: 500px;
+  height: calc(100vh - 50px);
+  box-shadow: 0 25px 50px -12px rgb(0 0 0 / 0.25);
+  display: none;
+
+  @include sp {
+    display: none !important;
+  }
+}
+
+.chatbot-iframe-wrapper.is-open {
+  display: block;
+  animation: showChatbotIframe 0.4s forwards;
+}
+
+.chatbot-iframe-wrapper.is-close {
+  display: block;
+  animation: closeChatbotIframe 0.4s forwards;
+}
+
+@keyframes showChatbotIframe {
+  from {
+    transform: translateY(110%);
+    opacity: 0;
+    visibility: hidden;
+  }
+
+  to {
+    transform: translateY(0);
+    opacity: 1;
+    visibility: visible;
+  }
+}
+
+@keyframes closeChatbotIframe {
+  from {
+    transform: translateY(0);
+    opacity: 1;
+    visibility: visible;
+  }
+
+  to {
+    transform: translateY(110%);
+    opacity: 0;
+    visibility: hidden;
+  }
+}
+
+.chatbot-iframe-wrapper iframe {
+  width: 100%;
+  border: none;
+}
+
+.chatbot-iframe-inner {
+  position: relative;
+  height: 100%;
+}
+
+.chatbot-close-btn-wrapper {
+  position: absolute;
+  right: 15px;
+  top: 10px;
+}
+
+.chatbot-close-btn {
+  width: 15px;
+  height: 15px;
+  position: relative;
+
+  span {
+    display: block;
+    height: 3px;
+    background: #9fa0a0;
+    position: absolute;
+    width: 100%;
+  }
+
+  span:nth-of-type(1) {
+    top: 6px;
+    transform: rotate(45deg);
+  }
+
+  span:nth-of-type(2) {
+    top: 6px;
+    transform: rotate(-45deg);
+  }
+}
+
+// =================== FV ===================
+.fv {
+  display: flex;
+  flex-direction: column;
+  background: #fff;
+
+  @include pc {
+    max-height: 670px;
+    margin-inline: auto;
+    overflow: hidden;
+  }
+
+  @include sp {
+    height: auto;
+  }
+}
+
+.fv_logo_bar {
+  background: #fff;
+  flex-shrink: 0;
+
+  @include pc {
+    padding: divceil(10, 10, rem) 0 divceil(20, 10, rem);
+  }
+
+  @include sp {
+    background: $teal02;
+    padding: divceil(35, 10, rem) 0 divceil(75, 10, rem);
+  }
+}
+
+.fv_logo_inner {
+  margin-inline: auto;
+  display: flex;
+  align-items: center;
+
+  @include pc {
+    max-width: divceil($pcMax, 10, rem);
+    width: 100%;
+    // fv_content左端（green 40px + gap 40px = 80px）に揃える
+    padding-left: divceil(30, 10, rem);
+  }
+
+  @include sp {
+    width: 100%;
+    padding: 0 divceil(20, 10, rem);
+    justify-content: flex-start;
+    min-width: 0;
+  }
+}
+
+.fv_logo {
+  height: auto;
+
+  @include pc {
+    width: divceil(337, 10, rem);
+  }
+
+  @include sp {
+    display: none;
+  }
+
+  // SP: ロゴ非表示 (テキスト表示に切替)
+
+  img {
+    height: auto;
+  }
+}
+
+// SP: ロゴバー内の社名（画像）
+.fv_sp_company {
+  @include sp {
+    min-width: 0;
+    width: divceil(610, 10, rem);
+    max-width: 100%;
+  }
+
+  img {
+    width: 100%;
+    height: auto;
+    display: block;
+  }
+}
+
+.fv_body {
+  position: relative;
+  overflow: hidden;
+
+  @include pc {
+    padding-bottom: divceil(30, 10, rem);
+    border-radius: 0;
+  }
+
+  @include sp {
+    display: flex;
+    padding-bottom: 0;
+    padding: divceil(74, 10, rem) 0 divceil(24, 10, rem) 0;
+    margin-top: divceil(-50, 10, rem);
+    background-color: white;
+    border-radius: 20px 20px 0 0;
+  }
+}
+
+// SP: FV白カード (ロゴバー直下)
+.fv_body_inner {
+  @include sp {
+    width: divceil($spMax - 100, 10, rem);
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+  }
+}
+
+// 左端グリーンアクセントバー
+.fv_green_accent {
+  @include pc {
+    position: relative;
+    width: divceil(40, 10, rem);
+    height: divceil(592, 10, rem);
+    background: $teal02;
+    border-radius: 0 divceil(20, 10, rem) 0 0;
+    flex-shrink: 0;
+
+    // 左端まで延伸（overflow:hiddenで画面端にクリップ）
+    &::before {
+      content: '';
+      position: absolute;
+      right: 100%;
+      top: 0;
+      bottom: 0;
+      width: 100vw;
+      background: $teal02;
+    }
+  }
+}
+
+.fv_body_inner {
+  @include pc {
+    display: grid;
+    grid-template-columns: divceil(40, 10, rem) divceil(370, 10, rem) 1fr;
+    align-items: center;
+    max-width: divceil($pcMax, 10, rem);
+    width: 100%;
+    margin-inline: auto;
+    column-gap: divceil(40, 10, rem);
+    padding: 0;
+  }
+
+
+  @include sp {
+    width: 100%;
+    display: flex;
+    flex-direction: column;
+  }
+}
+
+
+.fv_content {
+  display: flex;
+  flex-direction: column;
+
+  @include pc {
+    align-items: flex-start;
+    row-gap: 0;
+    flex-shrink: 0;
+    z-index: 10;
+    overflow: visible;
+  }
+
+  @include sp {
+    flex: 1;
+    align-items: center;
+    row-gap: divceil(30, 10, rem);
+    width: 100%;
+  }
+}
+
+.fv_no1_group {
+  display: flex;
+  flex-direction: column;
+  align-items: flex-start;
+  position: relative;
+  isolation: isolate;
+  align-self: center; // バッジのみ左右の余白が均等になるよう中央寄せ
+
+  // ズーム時の解像度対策: rinobe_strong_badgeと同じ表示幅に揃える(fv_content幅=100%だと画像の密度が薄まるため)
+  @include pc {
+    width: divceil(370, 10, rem);
+  }
+
+  @include sp {
+    width: divceil(570, 10, rem);
+  }
+}
+
+.fv_no1 {
+  height: auto;
+  width: 100%;
+
+  picture {
+    display: block;
+  }
+
+  img {
+    width: 100%;
+    height: auto;
+  }
+}
+
+.fv_catch {
+  display: block;
+  height: auto;
+
+  @include pc {
+    width: divceil(364, 10, rem);
+    margin-top: divceil(102, 10, rem);
+  }
+
+  @include sp {
+    width: divceil(519, 10, rem);
+  }
+
+  img {
+    width: 100%;
+    height: auto;
+  }
+}
+
+.fv_cta {
+  display: flex;
+  flex-direction: column;
+  position: relative;
+
+  @include pc {
+    align-items: flex-start;
+    width: divceil(451, 10, rem);
+    margin-top: divceil(104, 10, rem);
+  }
+
+  @include sp {
+    align-items: center;
+    width: 100%;
+    margin-top: divceil(30, 10, rem);
+  }
+}
+
+.fv_gift_note {
+  font-weight: 500;
+  color: #000;
+  cursor: pointer;
+  letter-spacing: 0.5px;
+  position: absolute;
+  white-space: nowrap;
+  z-index: 10;
+
+  @include pc {
+    font-size: divceil(9.4, 10, rem);
+    top: divceil(19, 10, rem);
+    right: divceil(22, 10, rem);
+  }
+
+  @include sp {
+    font-size: divceil(16, 10, rem);
+    top: divceil(26, 10, rem);
+    right: divceil(53, 10, rem);
+  }
+
+  span {
+    display: inline;
+    text-decoration: underline;
+    color: #43b5a5;
+  }
+
+  @media (any-hover: hover) {
+    &:hover {
+      opacity: 0.8;
+    }
+  }
+}
+
+.fv_cta_img {
+  display: block;
+
+  @include pc {
+    width: divceil(451, 10, rem);
+  }
+
+  @include sp {
+    width: divceil(716, 10, rem);
+  }
+
+  img {
+    width: 100%;
+    height: auto;
+  }
+
+  @media (any-hover: hover) {
+    &:hover {
+      opacity: 0.85;
+      transition: opacity 0.3s ease;
+    }
+  }
+}
+
+// FV: renovation_photo ランダムグリッド (PC) — 2×2 + 右縦長列
+.fv_photo_grid {
+  display: grid;
+  // col1・col2はrem固定（画面幅が広がっても4枚の写真はストレッチしない）
+  grid-template-columns: divceil(290, 10, rem) divceil(290, 10, rem) 1fr;
+  grid-template-rows: repeat(2, divceil(290, 10, rem));
+  gap: divceil(6, 10, rem);
+
+  @include pc {
+    // 1fr列を基準に右画面端まで延伸（コンテナのみ延伸）
+    width: calc(100% + ((100vw - #{divceil($pcMax, 10, rem)}) / 2));
+    min-width: divceil(680, 10, rem);
+    height: divceil(586, 10, rem);
+  }
+}
+
+.fv_photo_cell {
+  border-radius: 0;
+  overflow: hidden;
+  position: relative;
+
+  &:nth-child(1) {
+    border-top-left-radius: divceil(20, 10, rem);
+  }
+
+  &:nth-child(2) {
+    border-top-right-radius: divceil(20, 10, rem);
+  }
+}
+
+// 下段: 2枚を1枚に結合した横長セル
+.fv_photo_cell--wide {
+  grid-column: 1 / span 2;
+  grid-row: 2;
+  border-radius: 0;
+  border-top-left-radius: divceil(20, 10, rem);
+}
+
+.fv_photo_cell--tall {
+  grid-column: 3;
+  grid-row: 1 / span 2;
+  border-radius: 0;
+  border-top-left-radius: divceil(20, 10, rem);
+}
+
+.fv_photo_inner {
+  width: 100%;
+  height: 100%;
+  overflow: hidden;
+
+  img {
+    width: 100%;
+    height: 100%;
+    object-fit: cover;
+    transition: transform 0.4s ease, opacity 1.3s ease-in-out;
+    display: block;
+  }
+}
+
+@media (any-hover: hover) {
+  .fv_photo_cell:hover .fv_photo_inner img {
+    transform: scale(1.08);
+  }
+}
+
+// SP: FV キャッチコピー CSS文字
+// SP: FV キャッチコピー画像
+.fv_sp_catch {
+  display: block;
+  height: auto;
+
+  @include sp {
+    width: divceil(519, 10, rem);
+  }
+}
+
+// SP: FV 横スクロールカルーセル（施工事例と同じ挙動）
+.fv_carousel_wrap_sp {
+  @include sp {
+    width: 100%;
+    margin-inline: calc(-1 * divceil(110, 10, rem) / 2);
+    overflow: hidden;
+  }
+}
+
+.fv_carousel_sp {
+  display: flex;
+  gap: divceil(8, 10, rem);
+  will-change: transform;
+  width: max-content;
+
+  // JS で translateX アニメーション
+}
+
+.fv_carousel_item_sp {
+  flex-shrink: 0;
+  border-radius: 0; // JSがランダムに1角だけ角丸クラスを付与
+  overflow: hidden;
+  position: relative;
+  z-index: 1;
+
+  &.corner-tl {
+    border-top-left-radius: divceil(20, 10, rem);
+  }
+
+  &.corner-tr {
+    border-top-right-radius: divceil(50, 10, rem);
+  }
+
+  &.corner-bl {
+    border-bottom-left-radius: divceil(20, 10, rem);
+  }
+
+  &.corner-br {
+    border-bottom-right-radius: divceil(20, 10, rem);
+  }
+
+  @include sp {
+    flex: 0 0 divceil(420, 10, rem);
+    height: divceil(420, 10, rem);
+  }
+
+  img {
+    width: 100%;
+    height: 100%;
+    object-fit: cover;
+    display: block;
+  }
+}
+
+// FV フェードインアニメーション
+.fv-fadein {
+  opacity: 0;
+  transform: translateY(10px);
+}
+
+.fv-fadein--1 {
+  animation: fvFadeIn 0.6s ease forwards 0.3s;
+}
+
+.fv-fadein--2 {
+  animation: fvFadeIn 0.6s ease forwards 0.85s;
+}
+
+.fv-fadein--3 {
+  animation: fvFadeIn 0.6s ease forwards 1.35s;
+}
+
+@keyframes fvFadeIn {
+  to {
+    opacity: 1;
+    transform: translateY(0);
+  }
+}
+
+// FV キャンペーン注記 (fv section の外・直下に配置)
+.fv_campaign_note {
+  background: #f2f2f2;
+  border-radius: 20px 20px 0 0;
+  background-color: #f2f2f2;
+  position: relative;
+  text-align: center;
+
+  @include pc {
+    padding: divceil(18, 10, rem) divceil(200, 10, rem) divceil(36, 10, rem);
+  }
+
+  @include sp {
+    padding: divceil(30, 10, rem) divceil(25, 10, rem) divceil(70, 10, rem);
+  }
+}
+
+.fv_campaign_note_txt {
+  color: #000;
+  text-align: center;
+
+  @include pc {
+    font-size: divceil(10, 10, rem);
+    line-height: 1.9;
+  }
+
+  @include sp {
+    font-size: divceil(18, 10, rem);
+    line-height: 1.9;
+  }
+}
+
+// =================== 追従ナビ (PC only) ===================
+.gnav {
+  position: fixed;
+  bottom: divceil(24, 10, rem);
+  left: 0;
+  right: 0;
+  z-index: 900;
+  pointer-events: none;
+  opacity: 0;
+  transform: translateY(divceil(24, 10, rem));
+  transition: opacity 0.35s ease, transform 0.35s ease;
+
+  &.is-visible {
+    opacity: 1;
+    transform: translateY(0);
+    pointer-events: auto;
+  }
+
+  &.is-hidden {
+    opacity: 0 !important;
+    transform: translateY(divceil(24, 10, rem)) !important;
+    pointer-events: none !important;
+  }
+}
+
+.gnav_inner {
+  margin-inline: auto;
+
+  @include pc {
+    width: divceil($pcMax - 80, 10, rem);
+    padding: 0 divceil(40, 10, rem);
+  }
+}
+
+.gnav_bar {
+  display: flex;
+  align-items: stretch;
+  background: #fff;
+  border-radius: divceil(8, 10, rem);
+  box-shadow: 0 4px 24px rgba(0, 0, 0, 0.18);
+  overflow: hidden;
+}
+
+.gnav_accent {
+  flex-shrink: 0;
+  width: divceil(6, 10, rem);
+  background: $teal02;
+}
+
+.gnav_list {
+  display: flex;
+  align-items: center;
+  flex: 1;
+  gap: 0 divceil(20, 10, rem);
+  padding: 0 divceil(24, 10, rem);
+  justify-content: space-between;
+}
+
+.gnav_link {
+  display: block;
+  font-size: divceil(13, 10, rem);
+  font-weight: 500;
+  color: #333;
+  white-space: nowrap;
+  padding: divceil(18, 10, rem) 0;
+  transition: color 0.2s ease;
+
+  @media (any-hover: hover) {
+    &:hover {
+      color: $teal02;
+    }
+  }
+
+  &.is-active {
+    color: $teal02;
+    font-weight: bold;
+  }
+}
+
+.gnav_cta {
+  flex-shrink: 0;
+  display: flex;
+  align-items: center;
+  background: #ff5927;
+  border-radius: 0 divceil(8, 10, rem) divceil(8, 10, rem) 0;
+  text-decoration: none;
+  overflow: hidden;
+  transition: opacity 0.2s ease;
+
+  img {
+    display: block;
+    width: divceil(450, 10, rem);
+    height: auto;
+    filter: drop-shadow(1.77px 1.77px 1.77px rgba(0, 0, 0, 0.3));
+  }
+
+  @media (any-hover: hover) {
+    &:hover {
+      opacity: 0.88;
+    }
+  }
+}
+
+// =================== セクション共通 ===================
+
+// セクションタイトル共通 (CSS coded)
+.sec_head {
+  @include pc {
+    margin-bottom: divceil(30, 10, rem);
+  }
+
+  @include sp {
+    margin-bottom: divceil(42, 10, rem);
+    text-align: center;
+  }
+}
+
+.sec_ttl {
+  font-weight: bold;
+  color: #231815;
+  line-height: 1.4;
+  letter-spacing: 0.05em;
+
+  @include pc {
+    font-size: divceil(27, 10, rem);
+    margin-bottom: divceil(30, 10, rem);
+  }
+
+  @include sp {
+    font-size: 20px;
+    margin-bottom: divceil(28, 10, rem);
+    text-align: center;
+  }
+}
+
+.sec_sub {
+  display: inline-block;
+  background: $teal02;
+  color: #fff;
+  font-weight: 500;
+  letter-spacing: 0.05em;
+  border-radius: divceil(20, 10, rem) divceil(20, 10, rem) 0 0;
+
+  @include pc {
+    font-size: 22px;
+    padding: divceil(6, 10, rem) divceil(20, 10, rem);
+  }
+
+  @include sp {
+    display: block;
+    font-size: 17px;
+    padding: divceil(8, 10, rem) divceil(20, 10, rem);
+    text-align: center;
+    border-radius: 4rem 4rem 0 0;
+  }
+}
+
+// セクション内 CTA
+.rinobe_cta,
+.merit_cta,
+.sekou_cta,
+.ansin_cta {
+  display: flex;
+  justify-content: center;
+
+  @include pc {
+    margin-top: divceil(60, 10, rem);
+  }
+
+  @include sp {
+    margin-top: divceil(50, 10, rem);
+    padding-bottom: divceil(20, 10, rem);
+  }
+}
+
+.rinobe_cta a,
+.merit_cta_link,
+.sekou_cta_link,
+.ansin_cta_link {
+  display: block;
+
+  @include pc {
+    width: divceil(465, 10, rem);
+  }
+
+  @include sp {
+    width: divceil(650, 10, rem);
+  }
+
+  img {
+    width: 100%;
+    height: auto;
+  }
+
+  @media (any-hover: hover) {
+    &:hover {
+      opacity: 0.85;
+      transition: opacity 0.3s ease;
+    }
+  }
+}
+
+// =================== リノベ投資とは ===================
+.rinobe {
+  background: #fdfdfd;
+  border-radius: divceil(20, 10, rem) divceil(20, 10, rem) 0 0;
+  margin-top: divceil(-20, 10, rem);
+  position: relative;
+  overflow: hidden;
+
+  @include pc {
+    padding: divceil(70, 10, rem) 0 divceil(90, 10, rem);
+  }
+
+  @include sp {
+    padding: divceil(105, 10, rem) 0 divceil(143, 10, rem);
+  }
+}
+
+.rinobe_wrap {
+  margin-inline: auto;
+
+  @include pc {
+    width: divceil($pcMax - 200, 10, rem);
+    padding: 0 divceil(40, 10, rem);
+  }
+
+  @include sp {
+    width: divceil($spMax - 100, 10, rem);
+  }
+}
+
+// リノベ投資とは：本文エリア
+.rinobe_what {
+
+  position: relative;
+
+  @include pc {
+
+    padding-right: divceil(380, 10, rem);
+
+  }
+
+  @include sp {
+    margin-bottom: divceil(50, 10, rem);
+  }
+}
+
+.rinobe_what_head {
+  @include pc {
+    margin-bottom: divceil(30, 10, rem);
+  }
+
+  @include sp {
+    margin-bottom: divceil(42, 10, rem);
+  }
+}
+
+.rinobe_what_body {
+  @include pc {
+    display: grid;
+    align-items: start;
+    gap: 0 divceil(50, 10, rem);
+  }
+}
+
+.rinobe_what_label {
+  display: inline-block;
+  background: $teal;
+  color: #fff;
+  font-weight: bold;
+  letter-spacing: 0.05em;
+  margin-bottom: divceil(16, 10, rem);
+
+  @include pc {
+    font-size: divceil(15, 10, rem);
+    padding: divceil(6, 10, rem) divceil(16, 10, rem);
+  }
+
+  @include sp {
+    font-size: divceil(24, 10, rem);
+    padding: divceil(8, 10, rem) divceil(20, 10, rem);
+  }
+}
+
+.rinobe_what_lead {
+  line-height: 2;
+  color: $col01;
+
+  @include pc {
+    font-size: divceil(16, 10, rem);
+    margin-bottom: 40px;
+  }
+
+  @include sp {
+    font-size: 14px;
+  }
+}
+
+.rinobe_what_img {
+  @include pc {
+    position: absolute;
+    top: divceil(40, 10, rem);
+    right: divceil(-60, 10, rem);
+    width: divceil(420, 10, rem);
+  }
+
+  @include sp {
+    margin-top: divceil(24, 10, rem);
+    width: 100%;
+  }
+}
+
+// SP専用リノベフロー
+.rinobe_flow_sp {
+  @include sp {
+    margin-top: divceil(24, 10, rem);
+    width: 100%;
+
+    img {
+      width: 100%;
+      height: auto;
+    }
+  }
+}
+
+// J.P.RETURNSの強み コンテナ（背景・枠線）
+.rinobe_strong {
+  position: relative;
+  z-index: 0;
+
+  @include pc {
+    background: transparent;
+    border: none;
+    border-radius: 0;
+    padding: divceil(40, 10, rem) 0 0 0;
+  }
+
+  @include sp {
+    background: transparent;
+    border: none;
+    border-radius: 0;
+    padding: 0;
+
+    // viewport全幅ティール帯：カード高さの85%・縦中央
+    &::after {
+      content: '';
+      position: absolute;
+      top: 7.5%;
+      height: 85%;
+      left: calc(-1 * (50vw - 50%));
+      right: calc(-1 * (50vw - 50%));
+      background: $teal02;
+      z-index: 0;
+      pointer-events: none;
+    }
+  }
+}
+
+// head + list をまとめたカード（ティール帯の手前に浮く）
+.rinobe_strong_card {
+  @include pc {
+    background: white;
+    border: 1px solid #42bead;
+    border-radius: divceil(16, 10, rem);
+    padding: divceil(20, 10, rem) divceil(40, 10, rem);
+    position: relative;
+
+    // viewport全幅ティール帯：カード高さの85%・縦中央
+    &::after {
+      content: '';
+      position: absolute;
+      top: 7.5%;
+      height: 85%;
+      left: calc(-1 * ((100vw - #{divceil($pcMax - 200, 10, rem)}) / 2 + #{divceil(40, 10, rem)}));
+      right: calc(-1 * ((100vw - #{divceil($pcMax - 200, 10, rem)}) / 2 + #{divceil(40, 10, rem)}));
+      background: $teal02;
+      z-index: -1;
+      pointer-events: none;
+    }
+  }
+
+  @include sp {
+    position: relative;
+    z-index: 1;
+    background: white;
+    border: 1px solid #42bead;
+    border-radius: divceil(16, 10, rem);
+    padding: divceil(28, 10, rem) divceil(24, 10, rem);
+  }
+}
+
+// J.P.RETURNSの強み ヘッダー（バッジ＋タイトル横並び）
+.rinobe_strong_head {
+  display: flex;
+  align-items: center;
+
+  @include pc {
+    gap: divceil(24, 10, rem);
+    margin-bottom: divceil(12, 10, rem);
+    justify-content: center;
+  }
+
+  @include sp {
+    flex-direction: column;
+    align-items: flex-start;
+    gap: divceil(26, 10, rem);
+    margin-bottom: divceil(20, 10, rem);
+    align-items: center;
+  }
+}
+
+.rinobe_strong_badge {
+  flex-shrink: 0;
+
+  @include pc {
+    width: divceil(320, 10, rem);
+  }
+
+  @include sp {
+    width: divceil(570, 10, rem);
+  }
+
+  picture {
+    display: block;
+  }
+
+  img {
+    width: 100%;
+    height: auto;
+  }
+}
+
+.rinobe_strong_ttl_main {
+
+  // sec_ttl の margin-bottom を上書き（横並びのため不要）
+  @include pc {
+    margin-bottom: 0 !important;
+  }
+
+  @include sp {
+    margin-top: divceil(22, 10, rem) !important;
+    margin-bottom: divceil(22, 10, rem) !important;
+  }
+}
+
+.rinobe_strong_list {
+  @include pc {
+    display: grid;
+    grid-template-columns: 1fr 1fr;
+    gap: divceil(20, 10, rem);
+  }
+
+  @include sp {
+    display: flex;
+    flex-direction: column;
+    gap: divceil(20, 10, rem);
+  }
+}
+
+.rinobe_strong_item {
+  background: #e9f7f5;
+  border-radius: divceil(10, 10, rem);
+
+  @include pc {
+    padding: divceil(28, 10, rem) divceil(28, 10, rem);
+  }
+
+  @include sp {
+    padding: divceil(24, 10, rem);
+  }
+}
+
+// 番号＋タイトルの横並び行
+.rinobe_strong_item_head {
+  display: flex;
+  align-items: center;
+  gap: divceil(12, 10, rem);
+
+  @include pc {
+    margin-bottom: divceil(16, 10, rem);
+  }
+
+  @include sp {
+    margin-bottom: divceil(12, 10, rem);
+  }
+}
+
+// CSSコード番号ボックス
+.rinobe_strong_num {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  background: $teal02;
+  color: #fff;
+  font-weight: bold;
+  flex-shrink: 0;
+  border-radius: divceil(10, 10, rem) 0 0 0;
+
+  @include pc {
+    width: divceil(36, 10, rem);
+    height: divceil(36, 10, rem);
+    font-size: divceil(24, 10, rem);
+  }
+
+  @include sp {
+    width: divceil(54, 10, rem);
+    height: divceil(54, 10, rem);
+    font-size: divceil(36, 10, rem);
+  }
+}
+
+.rinobe_strong_ttl {
+  font-weight: bold;
+  letter-spacing: 0.05em;
+  color: $col01;
+
+  @include pc {
+    font-size: 22px;
+  }
+
+  @include sp {
+    font-size: 18px;
+  }
+}
+
+.rinobe_strong_txt {
+  line-height: 1.9;
+  color: #444;
+
+  @include pc {
+    font-size: 15px;
+  }
+
+  @include sp {
+    font-size: 14px;
+  }
+}
+
+// =================== 3つのメリット ===================
+.merit {
+  background: #fff4ee;
+  border-radius: divceil(20, 10, rem) divceil(20, 10, rem) 0 0;
+  margin-top: divceil(-20, 10, rem);
+  position: relative;
+
+  @include pc {
+    padding: divceil(70, 10, rem) 0 divceil(90, 10, rem);
+  }
+
+  @include sp {
+    padding: divceil(105, 10, rem) 0 divceil(143, 10, rem);
+  }
+}
+
+.merit_wrap {
+  margin-inline: auto;
+
+  @include pc {
+    width: divceil($pcMax - 200, 10, rem);
+    padding: 0 divceil(40, 10, rem);
+  }
+
+  @include sp {
+    width: divceil($spMax - 100, 10, rem);
+  }
+}
+
+.merit_head {
+  @include pc {
+    margin-bottom: divceil(30, 10, rem);
+  }
+
+  @include sp {
+    margin-bottom: divceil(28, 10, rem);
+  }
+}
+
+.merit_lead {
+  line-height: 2;
+  color: $col01;
+
+  @include pc {
+    font-size: 17px;
+    margin-bottom: divceil(50, 10, rem);
+  }
+
+  @include sp {
+    font-size: 14px;
+    margin-bottom: divceil(40, 10, rem);
+  }
+}
+
+// 3つのメリット: カードラッパー
+.merit_items {
+  @include pc {
+    display: flex;
+    flex-direction: column;
+
+    overflow: hidden;
+
+  }
+
+  @include sp {
+    display: flex;
+    flex-direction: column;
+    border-radius: divceil(12, 10, rem);
+    overflow: hidden;
+  }
+}
+
+.merit_item {
+  position: relative;
+
+  @include pc {
+    &+& {
+      &::before {
+        content: '';
+        position: absolute;
+        top: 0;
+        left: divceil(40, 10, rem);
+        right: divceil(40, 10, rem);
+        height: divceil(6, 10, rem);
+        transform: translateY(-50%);
+        background-image: radial-gradient(circle, #666666 0.15rem, transparent 0.15rem);
+        background-size: divceil(14, 10, rem) divceil(6, 10, rem);
+        background-repeat: repeat-x;
+        background-position: center;
+        pointer-events: none;
+      }
+    }
+  }
+
+  @include sp {
+    &+& {
+      &::before {
+        content: '';
+        position: absolute;
+        top: 0;
+        left: divceil(24, 10, rem);
+        right: divceil(24, 10, rem);
+        height: divceil(6, 10, rem);
+        transform: translateY(-50%);
+        background-image: radial-gradient(circle, #666666 0.15rem, transparent 0.15rem);
+        background-size: divceil(14, 10, rem) divceil(6, 10, rem);
+        background-repeat: repeat-x;
+        background-position: center;
+        pointer-events: none;
+      }
+    }
+  }
+}
+
+.merit_item_no {
+  display: flex;
+  align-items: center;
+  flex-shrink: 0;
+
+  picture {
+    display: block;
+  }
+
+  @include pc {
+    img {
+      width: divceil(64, 10, rem);
+      height: auto;
+    }
+  }
+
+  @include sp {
+    img {
+      width: divceil(110, 10, rem);
+      height: auto;
+    }
+  }
+}
+
+.merit_item_body {
+  @include pc {
+    display: grid;
+    grid-template-columns: 1fr auto;
+    align-items: stretch;
+    gap: divceil(30, 10, rem);
+    padding: divceil(30, 10, rem) divceil(24, 10, rem);
+    background-color: white;
+    border-radius: 20px;
+  }
+
+  @include sp {
+    padding: divceil(65, 10, rem) divceil(30, 10, rem);
+    display: flex;
+    flex-direction: column;
+    background-color: white;
+    border-radius: 20px;
+  }
+}
+
+// 数字 + タイトル横並び行
+.merit_item_ttl_row {
+  display: flex;
+  align-items: center;
+  gap: divceil(30, 10, rem);
+  margin-bottom: divceil(12, 10, rem);
+}
+
+.merit_item_ttl {
+  font-weight: bold;
+  letter-spacing: 0.05em;
+  color: #000000;
+
+  @include pc {
+    font-size: divceil(22, 10, rem);
+  }
+
+  @include sp {
+    font-size: divceil(32, 10, rem);
+  }
+}
+
+.merit_item_lead {
+  line-height: 2;
+
+  @include pc {
+    font-size: 15px;
+  }
+
+  @include sp {
+    font-size: 14px;
+  }
+}
+
+.merit_accent {
+  color: #ff5927;
+  font-weight: bold;
+}
+
+.merit_item_text {
+  display: flex;
+  flex-direction: column;
+}
+
+.merit_item_note {
+  line-height: 1.8;
+  color: #666;
+  padding-left: 1em;
+  padding-top: divceil(12, 10, rem);
+
+  @include pc {
+    font-size: divceil(10, 10, rem);
+    margin-top: auto;
+  }
+
+  @include sp {
+    font-size: divceil(18, 10, rem);
+    margin-top: 0;
+  }
+}
+
+.merit_item_graph {
+  @include pc {
+    width: divceil(320, 10, rem);
+    flex-shrink: 0;
+  }
+
+  @include sp {
+    width: 100%;
+    padding-top: divceil(48, 10, rem);
+  }
+
+  picture {
+    display: block;
+  }
+
+  img {
+    width: 100%;
+    height: auto;
+  }
+}
+
+// =================== 今後ますます築古中古物件が主役に ===================
+.syuyaku {
+  background: #fdfdfd;
+  border-radius: divceil(20, 10, rem) divceil(20, 10, rem) 0 0;
+  margin-top: divceil(-20, 10, rem);
+  position: relative;
+  overflow: hidden;
+
+  @include pc {
+    padding: divceil(70, 10, rem) 0 divceil(90, 10, rem);
+  }
+
+  @include sp {
+    padding: divceil(105, 10, rem) 0 divceil(143, 10, rem);
+  }
+}
+
+.syuyaku_wrap {
+  margin-inline: auto;
+
+  @include pc {
+    width: divceil($pcMax - 200, 10, rem);
+    padding: 0 divceil(40, 10, rem);
+  }
+
+  @include sp {
+    width: divceil($spMax - 100, 10, rem);
+  }
+}
+
+// 左カラム: タイトル + テキスト (右の絶対配置画像と重ならないよう max-width を制限)
+.syuyaku_text_col {
+  @include pc {
+    max-width: divceil(680, 10, rem);
+    margin-bottom: divceil(48, 10, rem);
+  }
+
+  @include sp {
+    margin-bottom: divceil(24, 10, rem);
+  }
+}
+
+.syuyaku_head {
+  @include pc {
+    margin-bottom: divceil(30, 10, rem);
+  }
+
+  @include sp {
+    margin-bottom: divceil(42, 10, rem);
+  }
+}
+
+.syuyaku_head_img {
+  @include sp {
+    margin-top: divceil(20, 10, rem);
+    margin-bottom: 0;
+    margin-left: calc((#{divceil($spMax - 100, 10, rem)} - 100vw) / 2);
+    margin-right: calc((#{divceil($spMax - 100, 10, rem)} - 100vw) / 2);
+    width: 100vw;
+    position: relative;
+    z-index: 0;
+
+    img {
+      width: 100%;
+      height: divceil(240, 10, rem);
+      object-fit: cover;
+      object-position: center;
+      border-radius: 0;
+      display: block;
+    }
+  }
+}
+
+.syuyaku_lead {
+  line-height: 2;
+
+  @include pc {
+    font-size: 16px;
+  }
+
+  @include sp {
+    font-size: 14px;
+    margin-bottom: divceil(16, 10, rem);
+  }
+
+  &:last-child {
+    margin-bottom: 0;
+  }
+}
+
+// syuyaku_head内のsec_subをhead_imgの上に重ねる（SP）
+.syuyaku_head {
+  @include sp {
+    .sec_sub {
+      position: relative;
+      z-index: 1;
+      margin-top: divceil(-80, 10, rem);
+    }
+  }
+}
+
+// 画像: PCはセクション右上に絶対配置 (section は position:relative / overflow:hidden 済み)
+.syuyaku_img {
+  @include pc {
+    position: absolute;
+    top: 0;
+    // 左辺 = syuyaku_text_col の右端（wrap中央 + 40px padding + 680px）+ 余白
+    left: calc(55vw + #{divceil(160, 10, rem)});
+    right: 0;
+    width: auto;
+    height: divceil(480, 10, rem);
+
+    picture {
+      display: block;
+      height: 100%;
+    }
+
+    img {
+      width: 100%;
+      height: 100%;
+      object-fit: cover;
+      object-position: center;
+      border-radius: 0 divceil(16, 10, rem) 0 divceil(16, 10, rem);
+    }
+  }
+
+  @include sp {
+    margin-top: divceil(24, 10, rem);
+    width: 100%;
+
+    picture {
+      display: block;
+    }
+
+    img {
+      width: 100%;
+      height: divceil(260, 10, rem);
+      object-fit: cover;
+      object-position: center;
+      border-radius: 0 divceil(16, 10, rem) 0 divceil(16, 10, rem);
+    }
+  }
+}
+
+// グラフ + 注釈を囲むボックス
+.syuyaku_graphs_box {
+  @include pc {
+    background: #a5ded6;
+    border-radius: divceil(12, 10, rem);
+    padding: divceil(40, 10, rem);
+  }
+
+  @include sp {
+    background: #a5ded6;
+    border-radius: divceil(10, 10, rem);
+    padding: divceil(30, 10, rem) divceil(24, 10, rem);
+    margin-top: divceil(24, 10, rem);
+  }
+}
+
+.syuyaku_graphs {
+  @include pc {
+    display: grid;
+    grid-template-columns: 500fr 447fr;
+    gap: divceil(10, 10, rem);
+  }
+
+  @include sp {
+    display: flex;
+    flex-direction: column;
+    gap: divceil(10, 10, rem);
+  }
+}
+
+.syuyaku_graph_item {
+  picture {
+    display: block;
+  }
+
+  img {
+    width: 100%;
+    height: auto;
+  }
+
+  // graph1（左列）を2行にまたがらせてnoteの空間を確保（PC）
+  &:first-child {
+    @include pc {
+      grid-row: span 2;
+    }
+  }
+}
+
+.syuyaku_note {
+  line-height: 1.8;
+  color: #fff;
+  text-align: right;
+
+  @include pc {
+    font-size: divceil(11, 10, rem);
+    align-self: end;
+  }
+
+  @include sp {
+    font-size: divceil(18, 10, rem);
+    text-align: left;
+  }
+}
+
+// =================== 施工事例 ===================
+.jirei {
+  background: #fff4ee;
+  overflow: hidden;
+  border-radius: divceil(20, 10, rem) divceil(20, 10, rem) 0 0;
+  margin-top: divceil(-20, 10, rem);
+  position: relative;
+
+  @include pc {
+    padding: divceil(70, 10, rem) 0 divceil(90, 10, rem);
+    overflow-x: clip;
+    overflow-y: visible;
+  }
+
+  @include sp {
+    padding: divceil(105, 10, rem) 0 divceil(143, 10, rem);
+  }
+}
+
+.jirei_wrap {
+  @include pc {
+    margin-inline: auto;
+    width: divceil($pcMax - 200, 10, rem);
+    padding: 0 divceil(40, 10, rem);
+  }
+
+  @include sp {
+    margin-inline: auto;
+    width: divceil($spMax - 100, 10, rem);
+  }
+}
+
+.jirei_head {
+  @include pc {
+    margin-bottom: divceil(30, 10, rem);
+  }
+
+  @include sp {
+    margin-bottom: divceil(28, 10, rem);
+  }
+}
+
+.jirei_lead {
+  line-height: 2;
+
+  @include pc {
+    font-size: 16px;
+    margin-bottom: divceil(36, 10, rem);
+  }
+
+  @include sp {
+    font-size: 14px;
+    margin-bottom: divceil(28, 10, rem);
+  }
+}
+
+// カルーセルラッパー：横幅いっぱいに広げる
+.jirei_carousel_wrap {
+  @include pc {
+    margin-inline: calc(-1 * (divceil(40, 10, rem) + (100vw - divceil($pcMax - 200, 10, rem)) / 2));
+    overflow-x: clip;
+    overflow-y: visible;
+    padding-block: divceil(20, 10, rem);
+  }
+
+  @include sp {
+    margin-inline: calc(-1 * divceil(110, 10, rem) / 2);
+    overflow: hidden;
+  }
+}
+
+.jirei_carousel {
+  display: flex;
+  gap: divceil(8, 10, rem);
+  will-change: transform;
+  width: max-content;
+
+  // JS で translateX アニメーション
+}
+
+.jirei_carousel_item {
+  flex-shrink: 0;
+  border-radius: 0; // JSがランダムに1角だけ角丸クラスを付与
+  overflow: hidden;
+  position: relative;
+  z-index: 1;
+
+  // JSで付与されるランダム角丸クラス（1枚1角のみ）
+  &.corner-tl {
+    border-top-left-radius: divceil(20, 10, rem);
+  }
+
+  &.corner-tr {
+    border-top-right-radius: divceil(20, 10, rem);
+  }
+
+  &.corner-bl {
+    border-bottom-left-radius: divceil(20, 10, rem);
+  }
+
+  &.corner-br {
+    border-bottom-right-radius: divceil(20, 10, rem);
+  }
+
+  @include pc {
+    flex: 0 0 divceil(340, 10, rem);
+    height: divceil(300, 10, rem);
+  }
+
+  @include sp {
+    flex: 0 0 divceil(530, 10, rem);
+    height: divceil(590, 10, rem);
+
+    &.corner-tl {
+      border-top-left-radius: divceil(20, 10, rem) divceil(40, 10, rem);
+    }
+  }
+
+  transition: transform 0.35s ease,
+  margin 0.35s ease;
+
+  img {
+    width: 100%;
+    height: 100%;
+    object-fit: cover;
+    display: block;
+  }
+
+  @media (any-hover: hover) {
+    &:hover {
+      z-index: 10;
+      transform: scale(1.08);
+      margin-left: divceil(14, 10, rem);
+      margin-right: divceil(14, 10, rem);
+    }
+  }
+}
+
+.jirei_note {
+  line-height: 1.8;
+  color: #666;
+  text-align: right;
+
+  @include pc {
+    font-size: divceil(11, 10, rem);
+    margin-top: divceil(16, 10, rem);
+  }
+
+  @include sp {
+    font-size: divceil(18, 10, rem);
+    margin-top: divceil(12, 10, rem);
+  }
+}
+
+// =================== 高クオリティな施工 ===================
+.sekou {
+  background: #fdfdfd;
+  border-radius: divceil(20, 10, rem) divceil(20, 10, rem) 0 0;
+  margin-top: divceil(-20, 10, rem);
+  position: relative;
+
+  @include pc {
+    padding: divceil(70, 10, rem) 0 divceil(90, 10, rem);
+  }
+
+  @include sp {
+    padding: divceil(105, 10, rem) 0 divceil(143, 10, rem);
+  }
+}
+
+.sekou_wrap {
+  margin-inline: auto;
+  position: relative;
+
+  @include pc {
+    width: divceil($pcMax - 200, 10, rem);
+    padding: 0 divceil(40, 10, rem);
+  }
+
+  @include sp {
+    width: divceil($spMax - 100, 10, rem);
+  }
+}
+
+.sekou_head {
+  @include pc {
+    margin-bottom: 0;
+    flex: 1 1 auto;
+    min-width: 0;
+  }
+
+  @include sp {
+    margin-bottom: 0;
+  }
+}
+
+// 見出し＋No.1バッジの横並び行
+.sekou_head_row {
+  display: flex;
+  align-items: center;
+
+  @include pc {
+    gap: divceil(24, 10, rem);
+    margin-bottom: divceil(16, 10, rem);
+    align-items: stretch;
+  }
+
+  @include sp {
+    flex-direction: column;
+    gap: divceil(16, 10, rem);
+    margin-bottom: divceil(12, 10, rem);
+  }
+}
+
+// PC: 初期表示は固定幅（JSがsec_head実測高さを .js-badge-matched で反映するまでのフォールバック）
+.sekou_no1_badge {
+  flex-shrink: 0;
+
+  @include pc {
+    width: divceil(200, 10, rem);
+    margin-right: divceil(104, 10, rem);
+  }
+
+  @include sp {
+    width: divceil(450, 10, rem);
+    order: -1;
+  }
+
+  img {
+    width: 100%;
+    height: auto;
+    display: block;
+  }
+
+  // JS (script.js) が sekou_head の実測高さをheightに設定し、このクラスを付与
+  &.js-badge-matched {
+    @include pc {
+      width: auto;
+
+      img {
+        width: auto;
+        height: 100%;
+        max-width: none;
+      }
+    }
+  }
+}
+
+.sekou_no1_note {
+  color: #666;
+  line-height: 1.6;
+
+  @include pc {
+    font-size: divceil(12, 10, rem);
+    text-align: left;
+    margin-top: divceil(10, 10, rem);
+    margin-bottom: divceil(24, 10, rem);
+  }
+
+  @include sp {
+    font-size: divceil(18, 10, rem);
+    text-align: left;
+    margin-top: divceil(8, 10, rem);
+    margin-bottom: divceil(20, 10, rem);
+  }
+}
+
+.sekou_lead {
+  line-height: 2;
+
+  @include pc {
+    font-size: 16px;
+    margin-bottom: 0;
+  }
+
+  @include sp {
+    font-size: 14px;
+    margin-bottom: 0;
+  }
+}
+
+.sekou_subttl {
+  font-weight: bold;
+  letter-spacing: 0.05em;
+  color: $teal;
+
+  @include pc {
+    font-size: divceil(22, 10, rem);
+    margin-bottom: divceil(36, 10, rem);
+  }
+
+  @include sp {
+    font-size: divceil(30, 10, rem);
+    margin-bottom: divceil(24, 10, rem);
+  }
+}
+
+// PC 2×2 CSSカード
+.sekou_cards {
+  @include pc {
+    display: flex;
+    flex-direction: column;
+    gap: divceil(24, 10, rem);
+    position: relative;
+  }
+}
+
+.sekou_cards_row {
+  @include pc {
+    display: grid;
+    grid-template-columns: 1fr 1fr;
+    gap: divceil(24, 10, rem);
+    position: relative;
+    z-index: 1;
+  }
+}
+
+// コネクター: 2行の中央に配置（高さ=sekou_cards の50%、横幅は画面幅いっぱい）
+.sekou_connector {
+  @include pc {
+    position: absolute;
+    top: 50%;
+    left: 50%;
+    transform: translate(-50%, -50%);
+    width: 100vw;
+    height: auto;
+    z-index: 0;
+    pointer-events: none;
+
+    img {
+      width: 100%;
+      height: auto;
+      display: block;
+    }
+  }
+}
+
+// コネクターはカードより遅れて登場
+.sekou_connector.slideUp {
+  @include pc {
+    transition: opacity 1s linear 0.7s, translate 1s ease 0.7s;
+  }
+}
+
+.sekou_card {
+  display: flex;
+  flex-direction: row; // 横並び: 画像左・テキスト右 (--lの場合)
+  align-items: stretch;
+  border: divceil(8, 10, rem) solid #f2f2f2;
+  border-radius: divceil(12, 10, rem);
+  overflow: hidden;
+  position: relative;
+  background: #fff;
+
+  picture {
+    display: block;
+  }
+
+  img {
+    width: 100%;
+    height: 100%;
+    object-fit: cover;
+    display: block;
+  }
+}
+
+// 右列カード: 写真左・テキスト右レイアウト（row-reverseでDOM順逆転）
+.sekou_card--r {
+  @include pc {
+    flex-direction: row-reverse;
+    border: divceil(8, 10, rem) solid #f2f2f2;
+  }
+}
+
+.sekou_card_img {
+  flex-shrink: 0;
+  width: divceil(220, 10, rem);
+  overflow: hidden;
+
+  img {
+    width: 100%;
+    height: 100%;
+    object-fit: cover;
+    display: block;
+  }
+}
+
+.sekou_card_body {
+  flex: 1;
+  padding: divceil(20, 10, rem) divceil(24, 10, rem);
+  display: flex;
+  flex-direction: column;
+  justify-content: center;
+}
+
+.sekou_card_ttl {
+  font-weight: bold;
+  color: #42bead;
+  letter-spacing: 0.05em;
+  text-align: center;
+  margin-bottom: divceil(10, 10, rem);
+
+  @include pc {
+    font-size: divceil(18, 10, rem);
+  }
+
+  @include sp {
+    font-size: 18px;
+  }
+}
+
+.sekou_card_txt {
+  line-height: 2;
+  color: $col01;
+
+  @include pc {
+    font-size: 15px;
+  }
+
+  @include sp {
+    font-size: 14px;
+  }
+}
+
+// フロー画像（非表示）
+.sekou_flow {
+  @include pc {
+    display: none;
+  }
+
+  img {
+    width: 100%;
+    height: auto;
+  }
+}
+
+// =================== アコーディオン共通 ===================
+.accordion_toggle {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  width: 100%;
+
+  @include sp {
+    margin-top: divceil(20, 10, rem);
+  }
+
+  .accordion_more_img,
+  .accordion_close_img {
+    width: divceil(300, 10, rem);
+    height: auto;
+    display: block;
+  }
+
+  .accordion_close_img {
+    display: none;
+  }
+
+  &[aria-expanded="true"] {
+    .accordion_more_img {
+      display: none;
+    }
+
+    .accordion_close_img {
+      display: block;
+    }
+  }
+}
+
+// SP 施工アコーディオン
+.sekou_accordion {
+  @include sp {
+    margin-bottom: divceil(10, 10, rem);
+  }
+}
+
+// もっとみるボタンを開いたとき非表示
+.sekou_accordion.is-open .accordion_toggle {
+  display: none;
+}
+
+.sekou_sp_cards_peek {
+  @include sp {
+    display: flex;
+    flex-direction: column;
+    gap: divceil(46, 10, rem);
+    position: relative;
+  }
+}
+
+// card1はアコーディオン外に独立表示、peekはcard2の頭だけ（約12rem）
+// SP: card1〜card4の背面を通る縦一本線のラッパー
+.sekou_sp_line_wrap {
+  @include sp {
+    position: relative;
+
+    &::before {
+      content: '';
+      position: absolute;
+      left: 50%;
+      top: 0;
+      bottom: 70px;
+      width: 65px;
+      background: #a5ded6;
+      transform: translateX(-50%);
+      z-index: 0;
+      pointer-events: none;
+
+    }
+  }
+}
+
+.sekou_card1_sp_alone {
+  @include sp {
+    margin-bottom: divceil(46, 10, rem);
+  }
+}
+
+// 縦一本線ラッパー（ansin SP）
+.ansin_sp_line_wrap {
+  @include sp {
+    position: relative;
+
+    &::before {
+      content: '';
+      position: absolute;
+      left: 50%;
+      top: 0;
+      bottom: 70px;
+      width: 65px;
+      background: #a5ded6;
+      transform: translateX(-50%);
+      z-index: 0;
+      pointer-events: none;
+    }
+  }
+}
+
+.ansin_card1_sp_alone {
+  @include sp {
+    margin-bottom: divceil(46, 10, rem);
+  }
+}
+
+.sekou_accordion:not(.is-open) .sekou_sp_cards_peek {
+  @include sp {
+    overflow: hidden;
+    max-height: divceil(120, 10, rem);
+  }
+}
+
+// 下に向かってぼかすブラーオーバーレイ
+.sekou_accordion:not(.is-open) .sekou_sp_cards_peek::before {
+  @include sp {
+    content: '';
+    position: absolute;
+    inset: 0;
+    backdrop-filter: blur(8px);
+    -webkit-backdrop-filter: blur(8px);
+    mask-image: linear-gradient(to bottom, transparent 35%, black 85%);
+    -webkit-mask-image: linear-gradient(to bottom, transparent 35%, black 85%);
+    z-index: 2;
+    pointer-events: none;
+  }
+}
+
+// 白グラデーションでセクション背景へなめらかに繋ぐ
+.sekou_accordion:not(.is-open) .sekou_sp_cards_peek::after {
+  @include sp {
+    content: '';
+    position: absolute;
+    left: 0;
+    right: 0;
+    bottom: 0;
+    height: divceil(80, 10, rem);
+    background: linear-gradient(to bottom, transparent, #ffffff);
+    pointer-events: none;
+    z-index: 3;
+  }
+}
+
+// grid-template-rows で滑らかなスライドアニメーション
+.sekou_accordion_body {
+  display: grid;
+  grid-template-rows: 0fr;
+  transition: none;
+
+  &.is-open {
+    grid-template-rows: 1fr;
+  }
+}
+
+.sekou_accordion_inner {
+  overflow: hidden;
+}
+
+// 閉じるボタン背景白でラインをマスク（最後のカード以降の線を隠す）
+.sekou_accordion_inner .accordion_close {
+  @include sp {
+    background: #fff;
+    margin-top: 0;
+    padding-top: divceil(20, 10, rem);
+  }
+}
+
+.sekou_sp_cards {
+  display: flex;
+  flex-direction: column;
+  gap: divceil(46, 10, rem);
+  margin-top: divceil(46, 10, rem);
+}
+
+.sekou_card_sp {
+  border-radius: divceil(30, 10, rem);
+  overflow: hidden;
+  position: relative;
+  z-index: 1;
+  background: #fff;
+  border: divceil(16, 10, rem) solid #f2f2f2;
+
+  @include sp {
+    height: divceil(830, 10, rem);
+    box-sizing: border-box;
+    display: flex;
+    flex-direction: column;
+  }
+
+  .sekou_card_sp_img {
+    @include sp {
+      flex-shrink: 0;
+      height: divceil(437, 10, rem);
+      overflow: hidden;
+    }
+
+    img {
+      width: 100%;
+      height: 100%;
+      object-fit: cover;
+      display: block;
+    }
+  }
+
+  .sekou_card_sp_body {
+    padding: divceil(20, 10, rem) divceil(24, 10, rem) divceil(28, 10, rem);
+
+    @include sp {
+      flex: 1;
+      overflow: hidden;
+    }
+  }
+}
+
+.sekou_flow_sp {
+  margin-top: divceil(20, 10, rem);
+
+  img {
+    width: 100%;
+    height: auto;
+  }
+}
+
+// もっとみるボタン（ブラー・グラデーションの上に表示）
+.sekou_accordion:not(.is-open) .accordion_toggle {
+  @include sp {
+    margin-top: divceil(90, 10, rem);
+    position: relative;
+    z-index: 5;
+  }
+}
+
+// =================== 安心の証・サービス ===================
+.ansin {
+  background: #fff4ee;
+  border-radius: divceil(20, 10, rem) divceil(20, 10, rem) 0 0;
+  margin-top: divceil(-20, 10, rem);
+  position: relative;
+
+  @include pc {
+    padding: divceil(70, 10, rem) 0 divceil(90, 10, rem);
+  }
+
+  @include sp {
+    padding: divceil(105, 10, rem) 0 divceil(143, 10, rem);
+  }
+}
+
+.ansin_wrap {
+  margin-inline: auto;
+  position: relative;
+
+  @include pc {
+    width: divceil($pcMax - 200, 10, rem);
+    padding: 0 divceil(40, 10, rem);
+  }
+
+  @include sp {
+    width: divceil($spMax - 100, 10, rem);
+  }
+}
+
+.ansin_head {
+  @include pc {
+    margin-bottom: divceil(30, 10, rem);
+  }
+
+  @include sp {
+    margin-bottom: divceil(28, 10, rem);
+  }
+}
+
+.ansin_logo {
+  picture {
+    display: block;
+  }
+
+  img {
+    width: 100%;
+    height: auto;
+  }
+
+  @include pc {
+    position: absolute;
+    top: 0;
+    right: divceil(40, 10, rem);
+    width: divceil(200, 10, rem);
+  }
+
+  @include sp {
+    width: divceil(200, 10, rem);
+    margin-left: auto;
+    margin-bottom: divceil(16, 10, rem);
+  }
+}
+
+.ansin_lead {
+  line-height: 2;
+
+  @include pc {
+    font-size: 16px;
+    margin-bottom: divceil(36, 10, rem);
+  }
+
+  @include sp {
+    font-size: divceil(26, 10, rem);
+    margin-bottom: divceil(24, 10, rem);
+  }
+}
+
+.ansin_flow {
+  @include pc {
+    margin-bottom: divceil(20, 10, rem);
+  }
+
+  img {
+    width: 100%;
+    height: auto;
+  }
+}
+
+// SP 安心アコーディオン
+.ansin_accordion {
+  @include sp {
+    margin-bottom: divceil(10, 10, rem);
+  }
+}
+
+// もっとみるボタンを開いたとき非表示
+.ansin_accordion.is-open .accordion_toggle {
+  display: none;
+}
+
+.ansin_sp_cards_peek {
+  @include sp {
+    display: flex;
+    flex-direction: column;
+    gap: divceil(16, 10, rem);
+    position: relative;
+  }
+}
+
+// 閉時: card2の頭だけ表示（card1はアコーディオン外）
+.ansin_accordion:not(.is-open) .ansin_sp_cards_peek {
+  @include sp {
+    overflow: hidden;
+    max-height: divceil(120, 10, rem);
+  }
+}
+
+// 下に向かってぼかすブラーオーバーレイ
+.ansin_accordion:not(.is-open) .ansin_sp_cards_peek::before {
+  @include sp {
+    content: '';
+    position: absolute;
+    inset: 0;
+    backdrop-filter: blur(8px);
+    -webkit-backdrop-filter: blur(8px);
+    mask-image: linear-gradient(to bottom, transparent 35%, black 85%);
+    -webkit-mask-image: linear-gradient(to bottom, transparent 35%, black 85%);
+    z-index: 2;
+    pointer-events: none;
+  }
+}
+
+.ansin_accordion:not(.is-open) .ansin_sp_cards_peek::after {
+  @include sp {
+    content: '';
+    position: absolute;
+    left: 0;
+    right: 0;
+    bottom: 0;
+    height: divceil(80, 10, rem);
+    background: linear-gradient(to bottom, transparent, #fff4ee);
+    pointer-events: none;
+    z-index: 3;
+  }
+}
+
+// grid-template-rows で滑らかなスライドアニメーション
+.ansin_accordion_body {
+  display: grid;
+  grid-template-rows: 0fr;
+  transition: none;
+
+  &.is-open {
+    grid-template-rows: 1fr;
+  }
+}
+
+.ansin_accordion_inner {
+  overflow: hidden;
+}
+
+// 閉じるボタン背景色でラインをマスク（最後のカード以降の線を隠す）
+.ansin_accordion_inner .accordion_close {
+  @include sp {
+    background: #fff4ee;
+    margin-top: 0;
+    padding-top: divceil(20, 10, rem);
+  }
+}
+
+.ansin_sp_cards {
+  display: flex;
+  flex-direction: column;
+  gap: divceil(46, 10, rem);
+  margin-top: divceil(46, 10, rem);
+}
+
+.ansin_card_sp {
+  border-radius: divceil(6, 10, rem);
+  overflow: hidden;
+  position: relative;
+  z-index: 1;
+
+  img {
+    width: 100%;
+    height: auto;
+  }
+
+  @include sp {
+    width: 62%;
+    margin-left: auto;
+    margin-right: auto;
+  }
+}
+
+// SP: ロゴ（カード群の上）
+.ansin_logo_sp_top {
+  @include sp {
+    text-align: center;
+    margin-bottom: divceil(20, 10, rem);
+
+    img {
+      width: divceil(300, 10, rem);
+      height: auto;
+      display: inline-block;
+    }
+  }
+}
+
+// SP: フローバナー（アコーディオン下）
+.ansin_flow_bottom_sp {
+  @include sp {
+    margin-top: divceil(24, 10, rem);
+
+    img {
+      width: 100%;
+      height: auto;
+    }
+  }
+}
+
+.ansin_flow_sp {
+  margin-top: divceil(20, 10, rem);
+
+  img {
+    width: 100%;
+    height: auto;
+  }
+}
+
+// もっとみるボタン（ブラー・グラデーションの上に表示）
+.ansin_accordion:not(.is-open) .accordion_toggle {
+  @include sp {
+    margin-top: divceil(20, 10, rem);
+    position: relative;
+    z-index: 5;
+  }
+}
+
+// 閉じるボタン（アコーディオンbody内）
+.accordion_close {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  width: 100%;
+
+  @include sp {
+    margin-top: divceil(20, 10, rem);
+  }
+
+  img {
+    width: divceil(300, 10, rem);
+    height: auto;
+    display: block;
+  }
+}
+
+// =================== フッター ===================
+.foot {
+  background: #fff;
+  color: $col01;
+  margin-top: -20px;
+  position: relative;
+
+  @include pc {
+    padding: divceil(36, 10, rem) 0 divceil(40, 10, rem);
+  }
+
+  @include sp {
+    padding: divceil(105, 10, rem) 0 divceil(150, 10, rem);
+  }
+}
+
+.foot_inner {
+  margin-inline: auto;
+
+  @include pc {
+    width: divceil($pcMax - 200, 10, rem);
+    padding: 0 divceil(40, 10, rem);
+    display: grid;
+    grid-template-columns: auto 1fr;
+    grid-template-rows: auto 1fr;
+  }
+
+  @include sp {
+    width: divceil($spMax - 100, 10, rem);
+    display: flex;
+    flex-direction: column;
+    gap: divceil(24, 10, rem);
+  }
+}
+
+// foot_logo と foot_copy の行、foot_info と foot_cta の行がそれぞれ
+// 同じグリッド行を共有するようにして、下端を揃えられるようにする
+.foot_left {
+  @include pc {
+    display: grid;
+    grid-template-rows: subgrid;
+    grid-row: 1 / 3;
+    gap: divceil(10, 10, rem);
+  }
+
+  @include sp {
+    display: flex;
+    flex-direction: column;
+    gap: divceil(14, 10, rem);
+  }
+}
+
+.foot_right {
+  @include pc {
+    display: grid;
+    grid-template-rows: subgrid;
+    grid-row: 1 / 3;
+    justify-items: end;
+    align-items: end;
+  }
+
+  @include sp {
+    display: flex;
+    flex-direction: column;
+    width: 100%;
+    gap: divceil(16, 10, rem);
+    align-items: center;
+  }
+}
+
+.foot_logo {
+  @include pc {
+    width: divceil(200, 10, rem);
+  }
+
+  @include sp {
+    width: divceil(360, 10, rem);
+  }
+
+  picture {
+    display: block;
+  }
+
+  img {
+    width: 100%;
+    height: auto;
+  }
+}
+
+.foot_info {
+  display: flex;
+  flex-direction: column;
+  gap: divceil(5, 10, rem);
+}
+
+.foot_company {
+  color: $col01;
+  letter-spacing: 0.05em;
+
+  @include pc {
+    font-size: divceil(13, 10, rem);
+  }
+
+  @include sp {
+    font-size: divceil(22, 10, rem);
+  }
+
+  a {
+    color: $col01;
+
+    @media (any-hover: hover) {
+      &:hover {
+        text-decoration: underline;
+      }
+    }
+  }
+}
+
+.foot_company_name {
+  font-weight: bold;
+
+  @include pc {
+    font-size: divceil(16, 10, rem);
+  }
+
+  @include sp {
+    font-size: divceil(26, 10, rem);
+  }
+}
+
+.foot_address,
+.foot_license {
+  color: #000;
+  line-height: 1.7;
+  letter-spacing: 0.04em;
+
+  @include pc {
+    font-size: divceil(12, 10, rem);
+  }
+
+  @include sp {
+    font-size: divceil(20, 10, rem);
+  }
+}
+
+.foot_copy {
+  color: #000;
+  display: block;
+
+  @include pc {
+    font-size: divceil(11, 10, rem);
+  }
+
+  @include sp {
+    font-size: divceil(20, 10, rem);
+    text-align: center;
+  }
+}
+
+.foot_cta {
+  display: block;
+  filter: drop-shadow(1.77px 1.77px 1.77px rgba(0, 0, 0, 0.3));
+
+  @include pc {
+    width: 400px;
+  }
+
+  @include sp {
+    width: 100%;
+  }
+
+  img {
+    width: 100%;
+    height: auto;
+    display: block;
+  }
+
+  @media (any-hover: hover) {
+    &:hover {
+      opacity: 0.85;
+    }
+  }
+}

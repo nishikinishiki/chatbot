@@ -135,6 +135,12 @@
             align-items: center;
         }
 
+        .footer::after {
+            content: "";
+            min-width: 70px; /* 左側の .page-indicator と同じ幅を指定してバランスを取る */
+            display: block;
+        }
+
         .range-slider {
             width: 100%;
             cursor: pointer;
@@ -299,11 +305,9 @@
             border-radius: 3px;
         }
 
-        /* 見出しフォントは明朝体を指定 */
         .page-content h1,
         .page-content h2,
         .page-content h3 {
-            font-family: 'Shippori Mincho', serif;
             color: var(--heading-color);
             font-weight: 700;
         }
@@ -350,17 +354,23 @@
         }
 
         /* JSで切り替えるフォントサイズ制御 */
-        .text-size-sm .page-content p {
-            font-size: 0.85rem;
-        }
+        /* --- 小サイズ (ベース比 約0.85倍) --- */
+        .text-size-sm .page-content p { font-size: 0.85rem; }
+        .text-size-sm .page-content h1 { font-size: 1.36rem; }
+        .text-size-sm .page-content h2 { font-size: 1.1rem; }
+        .text-size-sm .page-content h3 { font-size: 0.93rem; }
 
-        .text-size-base .page-content p {
-            font-size: 1rem;
-        }
+        /* --- 中サイズ (デフォルト設定) --- */
+        .text-size-base .page-content p { font-size: 1rem; }
+        .text-size-base .page-content h1 { font-size: 1.6rem; }
+        .text-size-base .page-content h2 { font-size: 1.3rem; }
+        .text-size-base .page-content h3 { font-size: 1.1rem; }
 
-        .text-size-lg .page-content p {
-            font-size: 1.15rem;
-        }
+        /* --- 大サイズ (ベース比 約1.15倍) --- */
+        .text-size-lg .page-content p { font-size: 1.15rem; }
+        .text-size-lg .page-content h1 { font-size: 1.84rem; }
+        .text-size-lg .page-content h2 { font-size: 1.5rem; }
+        .text-size-lg .page-content h3 { font-size: 1.26rem; }
 
         /* ========================================================
            モーダル・サイドメニュー・設定パネル
@@ -541,7 +551,37 @@
             border-top: 1px solid var(--border-color);
         }
 
-        /* レスポンシブ調整 */
+        /* ========================================================
+           読書集中モード (UI非表示状態)
+        ======================================================== */
+        /* ヘッダーとフッターにアニメーションを設定 */
+        .header, .footer {
+            transition: margin-top 0.3s ease, margin-bottom 0.3s ease, opacity 0.3s ease;
+        }
+        
+        /* 非表示時はマージンをマイナスにして画面外へ押し出し、メインコンテンツを広げる */
+        body.ui-hidden .header {
+            margin-top: -56px; /* ヘッダーの高さ分 */
+            opacity: 0;
+            pointer-events: none;
+        }
+
+        body.ui-hidden .footer {
+            margin-bottom: -56px; /* フッターの高さ分 */
+            opacity: 0;
+            pointer-events: none;
+        }
+
+        /* 左右のナビゲーションボタンも隠す */
+        body.ui-hidden .nav-btn {
+            opacity: 0;
+            pointer-events: none;
+        }
+
+        /* ========================================================
+            レスポンシブ調整
+        ======================================================== */
+
         @media (max-width: 640px) {
             .main-content {
                 padding: 0.5rem;
@@ -653,22 +693,16 @@
         <div class="slider-container">
             <input type="range" id="pageSlider" min="1" max="12" value="1" class="range-slider">
         </div>
-        <div id="progressPercent" class="progress-text">8%</div>
     </footer>
 
     <!-- JavaScript ロジック -->
     <script>
-        /**
-         * コンテンツデータ (h1, h2, h3, p, .note のみで構成)
-         * 表紙ページは画像の差し込み用スペースとして定義。
-         */
         const ebookData = {
             title: "年収2500万円の税金対策は不動産投資が鍵になる",
             pages: [
                 {
                     id: 1,
                     chapterTitle: "表紙",
-                    // 画像の差し込みスペース
                     content: `
                         <div class="cover-image-container">
                             <img src="test.png" alt="表紙画像">
@@ -841,57 +875,54 @@
             const fontClass = `text-size-${currentFontSize}`;
             let html = '';
 
+            const createPageHtml = (pageData, widthClass, shadowClass) => {
+                if (!pageData) return ''; // ページデータが存在しない場合（最終ページの右側など）は空を返す
+
+                const contentHtml = pageData.id === 1 ? pageData.content : `<div class="page-content">${pageData.content}</div>`;
+                const titleText = pageData.chapterTitle || ebookData.title; // タイトルが無い場合は大タイトルをフォールバック
+
+                return `
+                    <div class="page-card ${widthClass} ${shadowClass} ${fontClass}">
+                        ${contentHtml}
+                        <div class="page-footer">
+                            <!-- フッター表記を統一 (左：章タイトル / 右：ページ数) -->
+                            <span>${titleText}</span>
+                            <span>${pageData.id}</span>
+                        </div>
+                    </div>
+                `;
+            };
+
             if (viewMode === 'two') {
                 const leftData = ebookData.pages[pageIndex - 1];
                 const rightData = ebookData.pages[pageIndex];
 
-                // 左ページ
-                html += `
-                    <div class="page-card half left-page-shadow ${fontClass}">
-                        ${leftData ? `
-                            ${leftData.id === 1 ? leftData.content : `<div class="page-content">${leftData.content}</div>`}
-                            <div class="page-footer">
-                                <span>${leftData.chapterTitle || ebookData.title}</span>
-                                <span>${leftData.id}</span>
-                            </div>
-                        ` : ''}
-                    </div>
-                `;
-
-                // 右ページ
-                html += `
-                    <div class="page-card half right-page-shadow ${fontClass}">
-                        ${rightData ? `
-                            <div class="page-content">${rightData.content}</div>
-                            <div class="page-footer">
-                                <span>${rightData.id}</span>
-                                <span>${rightData.chapterTitle || ''}</span>
-                            </div>
-                        ` : ''}
-                    </div>
-                `;
+                // 共通関数を呼び出してHTMLを構築
+                html += createPageHtml(leftData, 'half', 'left-page-shadow');
+                html += createPageHtml(rightData, 'half', 'right-page-shadow');
             } else {
                 // 単一ページモード
                 const singleData = ebookData.pages[pageIndex - 1];
-                html = `
-                    <div class="page-card full left-page-shadow ${fontClass}">
-                        ${singleData.id === 1 ? singleData.content : `<div class="page-content">${singleData.content}</div>`}
-                        <div class="page-footer">
-                            <span>${singleData.chapterTitle || ebookData.title}</span>
-                            <span>${singleData.id} / ${total}</span>
-                        </div>
-                    </div>
-                `;
+
+                html += createPageHtml(singleData, 'full', 'left-page-shadow');
             }
 
             container.innerHTML = html;
 
             // UI状態の更新
-            document.getElementById('currentPageNum').innerText = currentPage;
+            let displayPageText = currentPage;
+            let sliderValue = currentPage;
+
+            // 見開き(2P)モードで、かつ右ページが存在する場合の表示調整
+            if (viewMode === 'two' && currentPage < total) {
+                displayPageText = `${currentPage}-${currentPage + 1}`; // 「11-12」のように表示
+                sliderValue = currentPage + 1; // スライダーの値を右ページに合わせることで、最後まで到達させる
+            }
+
+            document.getElementById('currentPageNum').innerText = displayPageText;
             document.getElementById('totalPagesNum').innerText = total;
-            document.getElementById('pageSlider').value = currentPage;
+            document.getElementById('pageSlider').value = sliderValue;
             document.getElementById('pageSlider').max = total;
-            document.getElementById('progressPercent').innerText = `${Math.round((currentPage / total) * 100)}%`;
 
             // ボタンの活性・非活性
             document.getElementById('prevBtn').disabled = (currentPage <= 1);
@@ -1035,6 +1066,38 @@
             populateToc();
             renderPages(1);
         };
+
+        // ========================================================
+        // 読書集中モード (画面中央タップでUIトグル)
+        // ========================================================
+        let isUiVisible = true;
+
+        document.querySelector('.main-content').addEventListener('click', (e) => {
+            // ナビゲーションボタン（矢印）自体をクリックした場合は発火させない
+            if (e.target.closest('.nav-btn')) return;
+
+            // クリックされたX座標と画面幅を取得
+            const screenWidth = window.innerWidth;
+            const clickX = e.clientX;
+
+            // 画面の左20%〜右20%の間（つまり中央60%のエリア）をクリックした場合のみ反応
+            if (clickX > screenWidth * 0.2 && clickX < screenWidth * 0.8) {
+
+                // もし設定パネルが開いている場合は、UI非表示ではなく「パネルを閉じる」ことを優先する
+                if (!settingsPanel.classList.contains('hidden')) {
+                    settingsPanel.classList.add('hidden');
+                    return;
+                }
+
+                // UIの表示/非表示を切り替え
+                isUiVisible = !isUiVisible;
+                if (isUiVisible) {
+                    document.body.classList.remove('ui-hidden');
+                } else {
+                    document.body.classList.add('ui-hidden');
+                }
+            }
+        });
     </script>
 </body>
 
