@@ -16,16 +16,67 @@ const BANNER_DEFAULT = [
     '/common/images/banner_gift.webp'
 ];
 const BANNER_CAMPAIGN = {
-    'ALA_gift_ebook_4362PM': '/common/images/banner_buzz_260512.webp',
+    //アフィリエイト広告
+    'gift_up_campaign': '/common/images/banner_ebook_AmaG.jpg',
     'ALA_gift_ebook_4362': '/common/images/banner_buzz_260512.webp',
-    'like_dining': '/common/images/banner_ebook_like-dining.png',
-    'like_suv': '/common/images/banner_ebook_like-suv.png',
-    'like_watch': '/common/images/banner_ebook_like-watch.png',
-    'fbtrg': '/common/images/banner_ebook_meta.webp',
-    'ALA_gift_ebook_2529PM': '/common/images/banner_chotoshin_260625.webp',
-    'ALA_gift_ebook_2529y': '/common/images/banner_chotoshin_260625.webp',
     'ALA_gift_ebook_2529': '/common/images/banner_chotoshin_260625.webp',
-    'wk_gift_ebook': '/common/images/banner_WEK.png'
+    'ALA_gift_': '/common/images/banner_no1_appeal.jpg',
+    'BKR_gift_': '/common/images/banner_no1_appeal.jpg',
+    'GMO_gift_': '/common/images/banner_no1_appeal.jpg',
+    'CRS_gift_': '/common/images/banner_no1_appeal.jpg',
+
+    //meta広告
+    'like_dining_b': '/common/images/banner_ebook_like-dining_b.jpg',
+    'like_dining_c': '/common/images/banner_ebook_like-dining_c.jpg',
+    'like_dining': '/common/images/banner_ebook_like-dining.jpg',
+    'like_suv_b': '/common/images/banner_ebook_like-suv_b.jpg',
+    'like_suv_c': [
+        '/common/images/banner_no1.mp4',
+        '/common/images/banner_gift.webp'
+    ],
+    'like_suv': '/common/images/banner_ebook_like-suv.jpg',
+    'like_watch_b': [
+        '/common/images/banner_no1.mp4',
+        '/common/images/banner_gift.webp'
+    ],
+    'like_watch': '/common/images/banner_ebook_like-watch.jpg',
+    'like_wine': [
+        '/common/images/banner_no1.mp4',
+        '/common/images/banner_gift.webp'
+    ],
+    'no1_': [
+        '/common/images/banner_no1.mp4',
+        '/common/images/banner_gift.webp'
+    ],
+    '1500over': [
+        '/common/images/banner_1500over.mp4',
+        '/common/images/banner_gift.webp'
+    ],
+    'area_': [
+        '/common/images/banner_no1.mp4',
+        '/common/images/banner_gift.webp'
+    ],
+    'renova_': [
+        '/common/images/banner_no1.mp4',
+        '/common/images/banner_gift.webp'
+    ],
+    'ebook_': '/common/images/banner_ebook.webp',
+    'REI_movie': '/common/images/banner_no1_appeal.jpg',
+    'msg_': '/common/images/banner_no1_appeal.jpg',
+    'summer_': '/common/images/banner_no1_appeal.jpg',
+    'JprBN_c_gift': '/common/images/banner_no1_appeal.jpg',
+    'JprBN_d_gift': '/common/images/banner_no1_appeal.jpg',
+    'JprBN_e_gift': '/common/images/banner_no1_appeal.jpg',
+    'JprBN_f_gift': '/common/images/banner_no1_appeal.jpg',
+    'JprBN_g_gift': '/common/images/banner_woman_g.webp',
+    'JprBN_h_gift': '/common/images/banner_woman_h.webp',
+    'Owner_': '/common/images/banner_no1_appeal.jpg',
+    'fbtrg': '/common/images/banner_ebook_meta.webp',
+
+    //その他
+    'wk_gift_ebook': '/common/images/banner_WEK.png',
+    'wk_gift_consultation': '/common/images/banner_WEK.png',
+    'wk_gift_movie': '/common/images/banner_WEK.png'
 };
 
 // 5. CSS
