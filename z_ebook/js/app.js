@@ -6,9 +6,8 @@ const layoutHTML = `
         <div class="header-left">
             <button id="tocBtn" class="btn-icon" title="目次を開く">
                 <i class="fa-solid fa-list-ul"></i>
-                <span style="font-size:0.85rem; font-weight:bold;" class="desktop-only">目次</span>
             </button>
-            <div style="width: 1px; height: 16px; background: var(--border-color); margin: 0 8px;"></div>
+            <div class="header-divider"></div>
             <h1 class="header-title" id="bookTitle"></h1>
         </div>
         <div class="header-right">
@@ -26,18 +25,11 @@ const layoutHTML = `
                 <button data-size="lg" class="toggle-btn size-opt">大</button>
             </div>
         </div>
-        <div class="setting-group">
-            <span class="setting-label">表示モード</span>
-            <div class="toggle-group" style="gap:4px; padding:4px;">
-                <button id="viewModeTwo" class="toggle-btn active-dark" style="border-radius:4px;"><i class="fa-solid fa-book-open"></i> 見開き(2P)</button>
-                <button id="viewModeOne" class="toggle-btn" style="border-radius:4px;"><i class="fa-solid fa-file"></i> 単ページ(1P)</button>
-            </div>
-        </div>
     </div>
 
     <div id="tocDrawer" class="toc-drawer">
         <div class="toc-header">
-            <span><i class="fa-solid fa-book-bookmark" style="color:var(--accent-color);"></i> 目次</span>
+            <span><i class="fa-solid fa-book-bookmark toc-icon-color"></i> 目次</span>
             <button id="closeTocBtn" class="btn-icon"><i class="fa-solid fa-xmark"></i></button>
         </div>
         <div id="tocList" class="toc-list"></div>
@@ -97,8 +89,6 @@ window.addEventListener('DOMContentLoaded', async () => {
         pageSlider: document.getElementById('pageSlider'),
         prevBtn: document.getElementById('prevBtn'),
         nextBtn: document.getElementById('nextBtn'),
-        viewModeOne: document.getElementById('viewModeOne'),
-        viewModeTwo: document.getElementById('viewModeTwo'),
         settingsBtn: document.getElementById('settingsBtn'),
         settingsPanel: document.getElementById('settingsPanel'),
         sizeOpts: document.querySelectorAll('.size-opt'),
@@ -121,10 +111,7 @@ window.addEventListener('DOMContentLoaded', async () => {
         if (!response.ok) throw new Error('Network response was not ok');
         const rawData = await response.json();
 
-        // ヘッダーのタイトルを反映
         els.bookTitle.innerText = rawData.title;
-
-        // ブラウザのタイトルタグを自動で書き換える
         document.title = `${rawData.title} | JPリターンズ`;
 
         // 最終ページ（奥付）の自動生成
@@ -189,11 +176,7 @@ window.addEventListener('DOMContentLoaded', async () => {
 // レンダリング・表示切替ロジック
 // ========================================================
 function updateResponsiveViewMode() {
-    if (window.innerWidth < 768) {
-        viewMode = 'one';
-    }
-    els.viewModeOne.className = (viewMode === 'one') ? 'toggle-btn active-dark' : 'toggle-btn';
-    els.viewModeTwo.className = (viewMode === 'two') ? 'toggle-btn active-dark' : 'toggle-btn';
+    viewMode = window.innerWidth < 768 ? 'one' : 'two';
 }
 
 function renderPages(pageIndex) {
@@ -273,13 +256,6 @@ function prevPage() {
     }
 }
 
-const changeViewMode = (mode) => {
-    if (viewMode === mode) return;
-    viewMode = mode;
-    updateResponsiveViewMode();
-    renderPages(currentPage);
-};
-
 function populateToc() {
     els.tocList.innerHTML = ebookData.toc.map(item => `
         <button onclick="jumpToPage(${item.id})" class="toc-item">
@@ -319,9 +295,6 @@ function setupEventListeners() {
     els.nextBtn.addEventListener('click', nextPage);
     els.prevBtn.addEventListener('click', prevPage);
     els.pageSlider.addEventListener('input', (e) => renderPages(parseInt(e.target.value)));
-
-    els.viewModeOne.addEventListener('click', () => changeViewMode('one'));
-    els.viewModeTwo.addEventListener('click', () => changeViewMode('two'));
 
     els.settingsBtn.addEventListener('click', () => els.settingsPanel.classList.toggle('hidden'));
     els.sizeOpts.forEach(btn => {

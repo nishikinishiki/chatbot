@@ -38,6 +38,7 @@ body {
     display: none !important;
 }
 
+
 /* ========================================================
         UIコンポーネント (ヘッダー, フッター, ボタンなど)
     ======================================================== */
@@ -65,7 +66,7 @@ body {
 .header-title {
     font-size: 0.85rem;
     font-weight: 600;
-    color: var(--heading-color);
+    color: var(--btn-bg);
     white-space: nowrap;
     overflow: hidden;
     text-overflow: ellipsis;
@@ -76,7 +77,22 @@ body {
 .header-right {
     display: flex;
     align-items: center;
-    gap: 0.5rem;
+}
+
+.header-divider {
+    width: 1px;
+    height: 16px;
+    background: var(--border-color);
+    margin: 0 8px;
+}
+
+.toc-text {
+    font-size: 0.85rem;
+    font-weight: bold;
+}
+
+.toc-icon-color {
+    color: var(--accent-color);
 }
 
 .btn-icon {
@@ -306,7 +322,6 @@ body {
 
 .page-content h2 {
     font-size: 1.3rem;
-    margin-top: 1.5rem;
     margin-bottom: 1rem;
     border-left: 5px solid var(--accent-color);
     padding-left: 0.75rem;
@@ -631,9 +646,10 @@ body.ui-hidden .nav-btn {
 }
 
 .colophon-top .colophon-thumb {
-    width: 60px;
+    width: 50px;
     height: auto;
     margin: 0 auto;
+    border: 0px;
 }
 
 .colophon-divider {
@@ -654,7 +670,7 @@ body.ui-hidden .nav-btn {
 
 @media (max-width: 640px) {
     .main-content {
-        padding: 0.5rem;
+        padding: 0 0.5rem;
     }
 
     .page-content {
@@ -667,11 +683,7 @@ body.ui-hidden .nav-btn {
         font-size: 1rem;
     }
 
-    .header-title {
-        max-width: 150px;
-    }
-
     .slider-container {
-        margin: 0 1rem;
+        margin: 0rem;
     }
 }
