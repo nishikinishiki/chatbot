@@ -1,0 +1,912 @@
+:root {
+    /* Typography */
+    --reader-font-size: 20px;
+    --measure-font-size: var(--reader-font-size);
+    --reader-line-height: 1.92;
+    --font-sans:
+        "Noto Sans JP",
+        "Hiragino Sans",
+        "Yu Gothic",
+        "Meiryo",
+        sans-serif;
+
+    /* Colors */
+    --paper: #ffffff;
+    --text: #202124;
+    --muted: #6d6d6d;
+    --text-secondary: #666666;
+    --text-tertiary: #777777;
+    --heading-text: #303030;
+    --counter-text: #404040;
+    --line: #dedede;
+    --line-strong: #bbbbbb;
+    --surface-soft: #fafafa;
+    --cover-bg: #e9e4da;
+    --toc-hover-bg: #f3f3f3;
+    --accent: #000000;
+
+    --chrome-bg: rgba(245, 245, 245, 0.98);
+    --overview-bg: #efefef;
+    --chrome-border: rgba(0, 0, 0, 0.04);
+    --hover-bg: rgba(0, 0, 0, 0.05);
+    --image-border: rgba(0, 0, 0, 0.08);
+    --scrim-bg: rgba(0, 0, 0, 0.16);
+    --loading-bg: rgba(255, 255, 255, 0.84);
+    --fullscreen-active-bg: rgba(0, 0, 0, 0.055);
+
+    /* Shadows */
+    --shadow: 0 3px 14px rgba(0, 0, 0, 0.12);
+    --shadow-none: 0 0 0 rgba(0, 0, 0, 0);
+    --popover-shadow: 0 8px 20px rgba(0, 0, 0, 0.15);
+    --drawer-shadow: 6px 0 18px rgba(0, 0, 0, 0.12);
+    --turn-shadow:
+        14px 0 24px rgba(0, 0, 0, calc(var(--turn-shadow-opacity) * .42)),
+        4px 0 10px rgba(0, 0, 0, calc(var(--turn-shadow-opacity) * .18));
+
+    /* Reader dimensions */
+    --page-padding-x: 24px;
+    --page-padding-top: 24px;
+    --page-padding-bottom: 28px;
+    --inline-footer-height: 30px;
+    --topbar-height: 72px;
+    --bottombar-height: 82px;
+
+    /* Shared control dimensions */
+    --control-size: 40px;
+    --control-icon-size: 24px;
+    --toc-hit-size: 56px;
+    --topbar-left-slot: var(--toc-hit-size);
+    --font-control-size: 42px;
+    --popover-width: 250px;
+
+    /* Keep a reliable tap-to-close area beside the TOC drawer. */
+    --drawer-max-width: 320px;
+    --drawer-edge-gap: 64px;
+    --drawer-width:
+        min(var(--drawer-max-width),
+            calc(100vw - var(--drawer-edge-gap)));
+
+    /* Overview */
+    --overview-scale: 0.67;
+    --overview-gap: 18px;
+    --overview-item-width: 67vw;
+    --overview-item-height: 67vh;
+    --overview-side-pad: 16.5vw;
+    --overview-card-radius: 10px;
+
+    /* Radii */
+    --radius-pill: 999px;
+    --radius-panel: 12px;
+    --radius-control: 8px;
+
+    /* Animation */
+    --ease-standard: cubic-bezier(.22, .61, .36, 1);
+    --ease-page-turn: cubic-bezier(.2, .72, .28, 1);
+    --page-turn-duration: 220ms;
+    --overview-transition-duration: 390ms;
+    --chrome-transition-duration: 230ms;
+    --popover-opacity-duration: 220ms;
+    --popover-transform-duration: 250ms;
+    --scrim-transition-duration: 260ms;
+    --drawer-transition-duration: 320ms;
+
+    /* Shared page height for visible, overview and measurement pages. */
+    --reader-viewport-height: 100vh;
+}
+
+@supports (height: 100dvh) {
+    :root {
+        --reader-viewport-height: 100dvh;
+    }
+}
+
+* {
+    box-sizing: border-box;
+    -webkit-tap-highlight-color: transparent;
+}
+
+html,
+body {
+    width: 100%;
+    height: 100%;
+    margin: 0;
+    overflow: hidden;
+}
+
+body {
+    color: var(--text);
+    background: var(--paper);
+    font-family: var(--font-sans);
+}
+
+button,
+input,
+select,
+textarea {
+    font: inherit;
+    color: inherit;
+}
+
+button {
+    border: 0;
+    background: transparent;
+    cursor: pointer;
+}
+
+.app {
+    position: fixed;
+    inset: 0;
+    background: var(--paper);
+}
+
+.app.overview {
+    background: var(--overview-bg);
+}
+
+/* ---------- Header / Footer ---------- */
+
+.topbar,
+.bottom-bar {
+    position: fixed;
+    left: 0;
+    right: 0;
+    z-index: 30;
+    background: var(--chrome-bg);
+    opacity: 0;
+    pointer-events: none;
+    transition:
+        opacity var(--chrome-transition-duration) var(--ease-standard),
+        transform var(--chrome-transition-duration) var(--ease-standard);
+}
+
+.topbar {
+    top: 0;
+    height: var(--topbar-height);
+    transform: translateY(-5px);
+    display: grid;
+    grid-template-columns:
+        var(--topbar-left-slot) minmax(0, 1fr) auto;
+    align-items: center;
+    padding: env(safe-area-inset-top, 0px) 14px 0;
+    border-bottom: 1px solid var(--chrome-border);
+}
+
+.topbar__title {
+    min-width: 0;
+    padding: 0 8px 0 4px;
+    color: var(--heading-text);
+    font-size: 14px;
+    font-weight: 600;
+    text-align: left;
+    white-space: nowrap;
+    overflow: hidden;
+    text-overflow: ellipsis;
+}
+
+.topbar__actions {
+    display: flex;
+    align-items: center;
+    gap: 2px;
+}
+
+.bottom-bar {
+    bottom: 0;
+    height: calc(var(--bottombar-height) + env(safe-area-inset-bottom, 0px));
+    transform: translateY(5px);
+    display: grid;
+    grid-template-columns: 1fr auto;
+    align-items: center;
+    gap: 16px;
+    padding: 0 18px env(safe-area-inset-bottom, 0px);
+    border-top: 1px solid var(--chrome-border);
+}
+
+.app.overview .topbar,
+.app.overview .bottom-bar {
+    opacity: 1;
+    pointer-events: auto;
+    transform: translateY(0);
+}
+
+.icon-button {
+    width: var(--control-size);
+    height: var(--control-size);
+    display: inline-grid;
+    place-items: center;
+    border-radius: var(--radius-pill);
+}
+
+.icon-button:hover,
+.icon-button:focus-visible,
+.text-button:hover,
+.text-button:focus-visible {
+    background: var(--hover-bg);
+    outline: none;
+}
+
+.icon-button svg {
+    width: var(--control-icon-size);
+    height: var(--control-icon-size);
+    fill: currentColor;
+}
+
+.text-button {
+    height: var(--control-size);
+    min-width: var(--control-size);
+    padding: 0 10px;
+    border-radius: var(--radius-pill);
+    font-size: 18px;
+    font-weight: 600;
+    letter-spacing: 0.02em;
+}
+
+.page-slider {
+    width: 100%;
+    accent-color: var(--accent);
+    touch-action: none;
+    cursor: pointer;
+}
+
+.page-counter {
+    min-width: 68px;
+    font-size: 16px;
+    text-align: right;
+    color: var(--counter-text);
+}
+
+/* ---------- Reader stage ---------- */
+
+.reader-shell {
+    position: fixed;
+    inset: 0;
+    overflow: hidden;
+    background: transparent;
+}
+
+.stage {
+    --drag-x: 0px;
+    --turn-shadow-opacity: 0;
+    --return-x: -100vw;
+    position: absolute;
+    inset: 0;
+    overflow: hidden;
+    touch-action: none;
+}
+
+.stage.is-animating .page-card {
+    transition:
+        transform var(--page-turn-duration) var(--ease-page-turn),
+        box-shadow var(--page-turn-duration) var(--ease-page-turn);
+}
+
+/* First/last-page structural placeholders stay invisible. */
+.page-card.is-empty {
+    visibility: hidden !important;
+    opacity: 0 !important;
+    pointer-events: none !important;
+    box-shadow: none !important;
+}
+
+.page-card,
+.measure-page {
+    width: 100vw;
+    height: var(--reader-viewport-height);
+    display: flex;
+    flex-direction: column;
+    overflow: hidden;
+    padding:
+        calc(env(safe-area-inset-top, 0px) + var(--page-padding-top)) var(--page-padding-x) calc(env(safe-area-inset-bottom, 0px) + var(--page-padding-bottom)) var(--page-padding-x);
+    background: var(--paper);
+    color: var(--text);
+    font-family: var(--font-sans);
+    line-height: var(--reader-line-height);
+    letter-spacing: 0.025em;
+}
+
+.page-card {
+    position: absolute;
+    top: 50%;
+    left: 50%;
+    font-size: var(--reader-font-size);
+    user-select: none;
+    transform-origin: center center;
+    will-change: transform;
+}
+
+.page-body,
+.measure-body {
+    flex: 1;
+    min-height: 0;
+    overflow: hidden;
+    text-align: justify;
+    text-justify: inter-ideograph;
+}
+
+.page-body h1,
+.measure-body h1 {
+    margin: 0 0 1.95em;
+    font-size: 1.46em;
+    font-weight: 600;
+    line-height: 1.45;
+    letter-spacing: 0.04em;
+}
+
+.page-body h2,
+.measure-body h2 {
+    margin: 1.75em 0 0.8em;
+    font-size: 1.14em;
+    font-weight: 600;
+    line-height: 1.55;
+    letter-spacing: 0.035em;
+    text-align: left;
+}
+
+.page-body h1+h2,
+.measure-body h1+h2 {
+    margin-top: 0;
+}
+
+.page-body p,
+.measure-body p {
+    margin: 0 0 1.15em;
+    word-break: normal;
+    overflow-wrap: anywhere;
+}
+
+.page-body p:not(.continuation),
+.measure-body p:not(.continuation) {
+    text-indent: 1em;
+}
+
+.page-body p.continuation,
+.measure-body p.continuation {
+    text-indent: 0;
+}
+
+.page-body p:last-child,
+.measure-body p:last-child {
+    margin-bottom: 0;
+}
+
+/* ---------- Book images ---------- */
+
+.book-image-block {
+    margin: 1.5em 0 1.7em;
+    break-inside: avoid;
+}
+
+.book-image-block img {
+    display: block;
+    width: 100%;
+    max-height: 40vh;
+    object-fit: contain;
+    border: 1px solid var(--image-border);
+    background: var(--surface-soft);
+}
+
+.book-image-caption {
+    margin-top: 0.65em;
+    color: var(--text-secondary);
+    font-size: 0.72em;
+    line-height: 1.55;
+    text-align: center;
+    letter-spacing: 0;
+}
+
+/* ---------- Cover ---------- */
+
+.page-card.cover-card {
+    padding: 0 !important;
+    background: var(--cover-bg);
+}
+
+.cover-card .page-body {
+    width: 100%;
+    height: 100%;
+    overflow: hidden;
+}
+
+.cover-card .cover-image {
+    display: block;
+    width: 100%;
+    height: 100%;
+    object-fit: contain;
+}
+
+/* ---------- Colophon ---------- */
+
+.colophon-card .page-body {
+    display: flex;
+    align-items: flex-end;
+}
+
+.colophon {
+    width: 100%;
+    padding-bottom: 2.5em;
+}
+
+.colophon h1 {
+    margin: 0 0 2.2em;
+    padding-bottom: 0.7em;
+    border-bottom: 1px solid var(--line-strong);
+    font-size: 1.15em;
+    font-weight: 600;
+}
+
+.colophon dl {
+    display: grid;
+    grid-template-columns: 5.5em 1fr;
+    gap: 0.8em 1.2em;
+    margin: 0;
+    font-size: 0.8em;
+    line-height: 1.7;
+}
+
+.colophon dt,
+.colophon dd {
+    margin: 0;
+}
+
+.colophon dt {
+    color: var(--text-secondary);
+}
+
+.colophon__note {
+    margin-top: 2.2em !important;
+    color: var(--text-tertiary);
+    font-size: 0.72em;
+    line-height: 1.7;
+    text-indent: 0 !important;
+}
+
+.page-footer {
+    flex: 0 0 var(--inline-footer-height);
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    margin-top: 6px;
+    color: var(--text-secondary);
+    font-size: 0.82em;
+}
+
+/* Normal mode uses stacked sheets for page turns. */
+.app.normal .page-card {
+    top: 0;
+    left: 0;
+    transform-origin: center center;
+    border-radius: 0;
+    box-shadow: none;
+}
+
+/* Idle stack */
+.app.normal .stage:not(.turn-prev) .page-card--current {
+    z-index: 4;
+    opacity: 1;
+    transform: translateX(var(--drag-x));
+    box-shadow: var(--turn-shadow);
+}
+
+.app.normal .stage:not(.turn-prev) .page-card--next {
+    z-index: 3;
+    opacity: 1;
+    transform: translateX(0);
+    pointer-events: none;
+}
+
+.app.normal .stage:not(.turn-prev) .page-card--prev {
+    z-index: 1;
+    opacity: 0;
+    pointer-events: none;
+    transform: translateX(-100vw);
+}
+
+/* Backward stack */
+.app.normal .stage.turn-prev .page-card--current {
+    z-index: 3;
+    opacity: 1;
+    transform: translateX(0);
+    box-shadow: none;
+}
+
+.app.normal .stage.turn-prev .page-card--prev {
+    z-index: 5;
+    opacity: 1;
+    pointer-events: none;
+    transform: translateX(var(--return-x));
+    box-shadow: var(--turn-shadow);
+}
+
+.app.normal .stage.turn-prev .page-card--next {
+    z-index: 1;
+    opacity: 0;
+    pointer-events: none;
+    transform: translateX(0);
+}
+
+/* Overview uses native horizontal scrolling + scroll snap. */
+.app.overview .stage {
+    display: none;
+}
+
+.overview-scroller {
+    position: absolute;
+    z-index: 5;
+    top: var(--topbar-height);
+    right: 0;
+    bottom: var(--bottombar-height);
+    left: 0;
+    overflow-x: auto;
+    overflow-y: hidden;
+    overscroll-behavior-x: contain;
+    -webkit-overflow-scrolling: touch;
+    scroll-snap-type: x proximity;
+    scrollbar-width: none;
+    touch-action: pan-x;
+    visibility: hidden;
+    opacity: 0;
+    pointer-events: none;
+}
+
+.overview-scroller::-webkit-scrollbar {
+    display: none;
+}
+
+.app.overview .overview-scroller {
+    visibility: visible;
+    opacity: 1;
+    pointer-events: auto;
+}
+
+.overview-strip {
+    height: 100%;
+    display: flex;
+    align-items: center;
+    gap: var(--overview-gap);
+
+    /* Center cards within the space between header and footer. */
+    transform: translateY(calc((var(--bottombar-height) - var(--topbar-height)) / 2));
+}
+
+/* Physical end spacers keep first/last overview cards centerable. */
+.overview-strip::before,
+.overview-strip::after {
+    content: "";
+    display: block;
+    flex: 0 0 max(0px,
+            calc(var(--overview-side-pad) - var(--overview-gap)));
+    width: max(0px,
+            calc(var(--overview-side-pad) - var(--overview-gap)));
+    height: 1px;
+    pointer-events: none;
+}
+
+.overview-item {
+    position: relative;
+    flex: 0 0 var(--overview-item-width);
+    height: var(--overview-item-height);
+    overflow: visible;
+    scroll-snap-align: center;
+}
+
+.overview-item .page-card {
+    top: 0;
+    left: 0;
+    width: 100vw;
+
+    /* Must match the normal reader page box exactly. */
+    height: var(--reader-viewport-height);
+
+    border-radius: var(--overview-card-radius);
+    box-shadow: var(--shadow);
+    transform: scale(var(--overview-scale));
+    transform-origin: top left;
+    cursor: pointer;
+}
+
+/* Tap zones for normal mode */
+.tap-zone {
+    position: absolute;
+    top: 0;
+    bottom: 0;
+    z-index: 10;
+}
+
+.tap-zone--left {
+    left: 0;
+    width: 32%;
+}
+
+.tap-zone--center {
+    left: 32%;
+    width: 36%;
+}
+
+.tap-zone--right {
+    right: 0;
+    width: 32%;
+}
+
+/* ---------- Popover / Drawer ---------- */
+
+/* Popover stays mounted so opening/closing can animate smoothly. */
+.popover {
+    position: fixed;
+    z-index: 40;
+    top: calc(env(safe-area-inset-top, 0px) + 60px);
+    right: 16px;
+    width: var(--popover-width);
+    padding: 16px;
+    background: var(--paper);
+    border: 1px solid var(--line);
+    border-radius: var(--radius-panel);
+    box-shadow: var(--popover-shadow);
+
+    opacity: 0;
+    visibility: hidden;
+    pointer-events: none;
+    transform: translateY(-7px) scale(0.975);
+    transform-origin: top right;
+    transition:
+        opacity var(--popover-opacity-duration) var(--ease-standard),
+        transform var(--popover-transform-duration) var(--ease-standard),
+        visibility 0s linear var(--popover-transform-duration);
+}
+
+.popover.open {
+    opacity: 1;
+    visibility: visible;
+    pointer-events: auto;
+    transform:
+        translateY(0) scale(1);
+
+    transition:
+        opacity var(--popover-opacity-duration) var(--ease-standard),
+        transform var(--popover-transform-duration) var(--ease-standard),
+        visibility 0s linear 0s;
+}
+
+.popover__title {
+    margin: 0 0 12px;
+    font-size: 14px;
+    font-weight: 600;
+}
+
+.font-control {
+    display: grid;
+    grid-template-columns: var(--font-control-size) 1fr var(--font-control-size);
+    align-items: center;
+    gap: 12px;
+}
+
+.font-button {
+    height: 38px;
+    border: 1px solid var(--line);
+    border-radius: var(--radius-control);
+    background: var(--paper);
+}
+
+.font-value {
+    color: var(--muted);
+    text-align: center;
+    font-size: 13px;
+}
+
+.scrim {
+    position: fixed;
+    inset: 0;
+    z-index: 34;
+    background: var(--scrim-bg);
+    opacity: 0;
+    visibility: hidden;
+    pointer-events: none;
+    transition:
+        opacity var(--scrim-transition-duration) var(--ease-standard),
+        visibility 0s linear var(--scrim-transition-duration);
+}
+
+.scrim.open {
+    opacity: 1;
+    visibility: visible;
+    pointer-events: auto;
+    transition:
+        opacity var(--scrim-transition-duration) var(--ease-standard),
+        visibility 0s linear 0s;
+}
+
+.drawer {
+    position: fixed;
+    top: 0;
+    bottom: 0;
+    left: 0;
+    z-index: 35;
+    width: var(--drawer-width);
+    padding-top: calc(env(safe-area-inset-top, 0px) + 18px);
+    background: var(--paper);
+    box-shadow: var(--drawer-shadow);
+    overflow: auto;
+
+    visibility: hidden;
+    pointer-events: none;
+    transform: translate3d(-100%, 0, 0);
+
+    transition:
+        transform var(--drawer-transition-duration) var(--ease-standard),
+        visibility 0s linear var(--drawer-transition-duration);
+}
+
+.drawer.open {
+    visibility: visible;
+    pointer-events: auto;
+    transform: translate3d(0, 0, 0);
+    transition:
+        transform var(--drawer-transition-duration) var(--ease-standard),
+        visibility 0s linear 0s;
+}
+
+.drawer h2 {
+    margin: 0;
+    padding: 0 22px 14px;
+    font-size: 16px;
+}
+
+.toc-button {
+    width: 100%;
+    padding: 13px 22px;
+    text-align: left;
+    font-size: 14px;
+}
+
+.toc-button:hover,
+.toc-button.active {
+    background: var(--toc-hover-bg);
+}
+
+.toc-button.active {
+    font-weight: 600;
+}
+
+.loading {
+    position: fixed;
+    inset: 0;
+    z-index: 50;
+    display: grid;
+    place-items: center;
+    background: var(--loading-bg);
+    font-size: 14px;
+    color: var(--muted);
+}
+
+.loading[hidden] {
+    display: none;
+}
+
+/* Font-size changes intentionally skip this loading overlay. */
+
+/* ---------- Hidden measurement page ---------- */
+
+.measure-host {
+    position: fixed;
+    left: -100000px;
+    top: 0;
+    visibility: hidden;
+    pointer-events: none;
+}
+
+.measure-page {
+    font-size: var(--measure-font-size);
+}
+
+.measure-page__footer-placeholder {
+    flex: 0 0 var(--inline-footer-height);
+    margin-top: 6px;
+}
+
+@media (max-width: 720px) {
+    :root {
+        --topbar-height: 70px;
+        --bottombar-height: 76px;
+    }
+
+    .topbar {
+        padding-right: 10px;
+    }
+
+    .bottom-bar {
+        padding-left: 14px;
+        padding-right: 14px;
+        gap: 10px;
+    }
+
+    .page-counter {
+        min-width: 60px;
+        font-size: 15px;
+    }
+}
+
+@media (prefers-reduced-motion: reduce) {
+
+    .topbar,
+    .bottom-bar,
+    .drawer,
+    .scrim {
+        transition-duration: 1ms !important;
+    }
+}
+
+/* ---------- More reliable TOC touch target ---------- */
+
+#tocOpenButton {
+    width: var(--toc-hit-size);
+    height: var(--toc-hit-size);
+    margin-left: -6px;
+    touch-action: manipulation;
+    user-select: none;
+    -webkit-user-select: none;
+    position: relative;
+    z-index: 2;
+}
+
+#tocOpenButton::before {
+    content: "";
+    position: absolute;
+    inset: -4px;
+    border-radius: var(--radius-pill);
+}
+
+/* ---------- Direct page → overview morph ---------- */
+
+.stage.mode-morph {
+    display: block !important;
+    z-index: 12;
+    overflow: hidden;
+    background: var(--overview-bg);
+}
+
+.stage.mode-morph .page-card {
+    top: 0 !important;
+    left: 0 !important;
+    transform-origin: center center !important;
+    will-change: transform, opacity, box-shadow, border-radius;
+}
+
+.stage.mode-morph .tap-zone {
+    display: none !important;
+}
+
+/* ---------- Fullscreen control ---------- */
+
+#fullscreenButton {
+    touch-action: manipulation;
+}
+
+#fullscreenButton.is-active {
+    background: var(--fullscreen-active-bg);
+}
+
+#fullscreenButton svg[hidden] {
+    display: none;
+}
+
+/* Fullscreen app surface. */
+:fullscreen body,
+:fullscreen .app,
+:-webkit-full-screen body,
+:-webkit-full-screen .app {
+    width: 100%;
+    height: 100%;
+    overflow: hidden;
+}
+
+/* ---------- Continuous overview scrubber ---------- */
+
+.overview-scroller.slider-dragging {
+    scroll-snap-type: none;
+}
+
+/* ---------- Stable typography commit ---------- */
+
+/* Keep typography commits visually stable. */
+.page-card,
+.page-body {
+    text-rendering: optimizeLegibility;
+}

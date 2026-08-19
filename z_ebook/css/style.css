@@ -669,12 +669,52 @@ body.ui-hidden .nav-btn {
     ======================================================== */
 
 @media (max-width: 640px) {
+    .header, .footer {
+        height: 48px;
+        position: fixed;
+        width: 100%;
+        left: 0;
+    }
+    .header { top: 0; }
+    .footer { bottom: 0; }
+
     .main-content {
-        padding: 0 0.5rem;
+        padding: 0;
+        height: 100vh;
+    }
+    .book-wrapper {
+        height: 100vh;
+        max-height: none;
+    }
+    .page-spread {
+        border-radius: 0;
+        border: none;
     }
 
     .page-content {
-        padding: 1.5rem;
+        padding: 60px 1.5rem;
+    }
+
+    .header-title {
+        font-size: 0.75rem;
+    }
+
+    .btn-icon {
+        font-size: 0.85rem;
+        padding: 0.4rem;
+    }
+
+    .page-indicator {
+        font-size: 0.75rem;
+        min-width: 50px;
+    }
+
+    .footer::after {
+        min-width: 50px;
+    }
+
+    .slider-container {
+        margin: 0 1rem;
     }
 
     .nav-btn {
@@ -683,7 +723,17 @@ body.ui-hidden .nav-btn {
         font-size: 1rem;
     }
 
-    .slider-container {
-        margin: 0rem;
+    .toc-drawer {
+        width: 260px;
+    }
+
+    .toc-header {
+        padding: 0.75rem;
+        font-size: 0.9rem;
+    }
+
+    .toc-item {
+        padding: 0.6rem 0.75rem;
+        font-size: 0.8rem;
     }
 }
