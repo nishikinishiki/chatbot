@@ -43,9 +43,6 @@
             maxScale: 0.72,
             horizontalReserve: 118,
             verticalReserve: 176,
-            mobileBreakpoint: 720,
-            mobileGap: 18,
-            desktopGap: 28,
             transitionDuration: cssTimeMs(
                 "--overview-transition-duration",
                 390
@@ -216,10 +213,6 @@
           <article class="page-card page-card--prev" id="prevPage"></article>
           <article class="page-card page-card--current" id="currentPage"></article>
           <article class="page-card page-card--next" id="nextPage"></article>
-
-          <div class="tap-zone tap-zone--left" id="tapLeft" aria-hidden="true"></div>
-          <div class="tap-zone tap-zone--center" id="tapCenter" aria-hidden="true"></div>
-          <div class="tap-zone tap-zone--right" id="tapRight" aria-hidden="true"></div>
         </div>
 
         <div class="overview-scroller" id="overviewScroller" aria-label="ページ一覧">
@@ -313,8 +306,7 @@
         overviewScrollRaf: 0,
         overviewProgrammaticScrollRaf: 0,
         sliderRaf: 0,
-        sliderDragging: false,
-        pendingSliderPosition: 1
+        sliderDragging: false
     };
 
     const els = {
@@ -342,6 +334,8 @@
         loading: document.getElementById("loading"),
         measureBody: document.getElementById("measureBody")
     };
+
+    const stage = document.querySelector(".stage");
 
     function createTextElement(tag, text, className = "") {
         const element = document.createElement(tag);
@@ -765,10 +759,6 @@
 
         const itemWidth = width * scale;
         const itemHeight = height * scale;
-        const gap =
-            width <= CONFIG.overview.mobileBreakpoint
-                ? CONFIG.overview.mobileGap
-                : CONFIG.overview.desktopGap;
         const overviewViewportWidth =
             els.overviewScroller.clientWidth || width;
 
@@ -780,10 +770,6 @@
         document.documentElement.style.setProperty(
             "--overview-scale",
             scale.toFixed(4)
-        );
-        document.documentElement.style.setProperty(
-            "--overview-gap",
-            `${gap}px`
         );
         document.documentElement.style.setProperty(
             "--overview-item-width",
@@ -821,8 +807,8 @@
         invalidateOverviewMetrics();
     }
 
-    function getOverviewScrollMetrics({ refresh = false } = {}) {
-        if (!refresh && state.overviewMetrics) {
+    function getOverviewScrollMetrics() {
+        if (state.overviewMetrics) {
             return state.overviewMetrics;
         }
 
@@ -950,10 +936,8 @@
         state.overviewProgrammaticScrollRaf = requestAnimationFrame(tick);
     }
 
-    function syncOverviewPosition(
-        fractionalIndex,
-        sliderValue = fractionalIndex + 1
-    ) {
+    function syncOverviewPosition(fractionalIndex) {
+        const sliderValue = fractionalIndex + 1;
         const nearestIndex = clampPageIndex(Math.round(fractionalIndex));
 
         if (nearestIndex === state.currentPage) {
@@ -964,13 +948,7 @@
         setCurrentPageIndex(nearestIndex, { sliderValue });
     }
 
-    function queueOverviewSliderPosition(position) {
-        state.pendingSliderPosition = clamp(
-            position,
-            1,
-            Math.max(1, state.pages.length)
-        );
-
+    function queueOverviewSliderPosition() {
         if (state.sliderRaf) return;
 
         state.sliderRaf = requestAnimationFrame(() => {
@@ -979,15 +957,17 @@
             const metrics = getOverviewScrollMetrics();
             if (!metrics) return;
 
-            const fractionalIndex = state.pendingSliderPosition - 1;
+            const sliderValue = clamp(
+                Number(els.pageSlider.value),
+                1,
+                Math.max(1, state.pages.length)
+            );
+            const fractionalIndex = sliderValue - 1;
 
             els.overviewScroller.scrollLeft =
                 metrics.firstLeft + fractionalIndex * metrics.step;
 
-            syncOverviewPosition(
-                fractionalIndex,
-                state.pendingSliderPosition
-            );
+            syncOverviewPosition(fractionalIndex);
         });
     }
 
@@ -1020,12 +1000,7 @@
     }
 
     function ensureOverviewStrip() {
-        if (
-            !state.overviewDirty &&
-            els.overviewStrip.children.length
-        ) {
-            return;
-        }
+        if (!state.overviewDirty) return;
 
         renderOverviewStrip();
         configurePageSlider();
@@ -1038,24 +1013,20 @@
         });
     }
 
-    function animationOptions(duration = CONFIG.overview.transitionDuration) {
+    function animationOptions() {
         return {
-            duration,
+            duration: CONFIG.overview.transitionDuration,
             easing: CONFIG.overview.transitionEasing,
             fill: "forwards"
         };
     }
 
     function getOverviewMorphTransforms() {
-        const styles = getComputedStyle(document.documentElement);
         const scale =
-            parseFloat(styles.getPropertyValue("--overview-scale")) || 0.67;
-        const itemWidth =
-            parseFloat(styles.getPropertyValue("--overview-item-width")) ||
+            parseFloat(cssVar("--overview-scale")) || 0.67;
+        const step =
+            getOverviewScrollMetrics()?.step ||
             window.innerWidth * scale;
-        const gap =
-            parseFloat(styles.getPropertyValue("--overview-gap")) || 18;
-        const step = itemWidth + gap;
 
         return {
             current: `translate3d(0,0,0) scale(${scale})`,
@@ -1114,8 +1085,8 @@
         });
     }
 
-    function animateChrome(show, duration) {
-        const options = animationOptions(duration);
+    function animateChrome(show) {
+        const options = animationOptions();
 
         return [
             [els.topbar, -5],
@@ -1138,8 +1109,7 @@
     }
 
     function createMorphAnimations(toOverview, transforms, sides) {
-        const duration = CONFIG.overview.transitionDuration;
-        const options = animationOptions(duration);
+        const options = animationOptions();
         const theme = getMorphTheme();
 
         const full = {
@@ -1194,7 +1164,7 @@
                     ],
                 options
             ),
-            ...animateChrome(toOverview, duration)
+            ...animateChrome(toOverview)
         );
 
         return animations;
@@ -1202,9 +1172,7 @@
 
     function prepareStageMorph() {
         resetStackTurn();
-
-        const morphStage = document.querySelector(".stage");
-        morphStage.classList.add("mode-morph");
+        stage.classList.add("mode-morph");
 
         [
             [els.prevPage, 2],
@@ -1214,8 +1182,6 @@
             card.style.zIndex = String(zIndex);
             card.style.transition = "none";
         });
-
-        return morphStage;
     }
 
     function clearMorphCard(card) {
@@ -1241,9 +1207,9 @@
         );
     }
 
-    function cleanupModeMorph(morphStage, animations) {
+    function cleanupModeMorph(animations) {
         animations.forEach((animation) => animation.cancel());
-        morphStage.classList.remove("mode-morph");
+        stage.classList.remove("mode-morph");
 
         [
             els.prevPage,
@@ -1267,7 +1233,7 @@
 
         const transforms = getOverviewMorphTransforms();
         const sides = getMorphSides();
-        const morphStage = prepareStageMorph();
+        prepareStageMorph();
 
         setMorphStart(true, transforms, sides);
         await nextPaint();
@@ -1280,7 +1246,7 @@
         applyAppMode("overview");
         await nextPaint();
 
-        cleanupModeMorph(morphStage, animations);
+        cleanupModeMorph(animations);
         unlockModeTransition();
     }
 
@@ -1298,7 +1264,7 @@
 
         const transforms = getOverviewMorphTransforms();
         const sides = getMorphSides();
-        const morphStage = prepareStageMorph();
+        prepareStageMorph();
 
         setMorphStart(false, transforms, sides);
         await nextPaint();
@@ -1309,9 +1275,7 @@
             createMorphAnimations(false, transforms, sides);
 
         await waitForAnimations(animations);
-        cleanupModeMorph(morphStage, animations);
-
-        renderCurrentPage();
+        cleanupModeMorph(animations);
         unlockModeTransition();
     }
 
@@ -1656,8 +1620,6 @@
         els.fullscreenExitIcon.hidden = !active;
     }
 
-    const stage = document.querySelector(".stage");
-
     function setTurnShadow(progress) {
         stage.style.setProperty(
             "--turn-shadow-opacity",
@@ -1789,7 +1751,6 @@
         if (!Number.isInteger(index)) return;
 
         state.currentPage = index;
-        renderCurrentPage();
         setMode("normal");
     });
 
@@ -1951,7 +1912,7 @@
         const position = Number(event.target.value);
 
         if (state.mode === "overview") {
-            queueOverviewSliderPosition(position);
+            queueOverviewSliderPosition();
             return;
         }
 
