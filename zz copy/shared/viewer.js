@@ -24,7 +24,7 @@
                 : fallback;
     }
 
-    const CONFIG = Object.freeze({
+    const CONFIG = {
         font: {
             sizes: [16, 20, 24],
             defaultSize: 20
@@ -36,7 +36,8 @@
             ),
             thresholdRatio: 0.18,
             flickVelocity: 0.42,
-            flickDistance: 24
+            flickDistance: 24,
+            edgeResistance: 0.15
         },
         overview: {
             minScale: 0.56,
@@ -60,9 +61,9 @@
             resizeDebounce: 160,
             fullscreenRepaginate: 180
         }
-    });
+    };
 
-    const COLOPHON = Object.freeze({
+    const COLOPHON = {
         publisher: [
             "J.P.RETURNS 編集部",
             "https://wealthknowledge.jpreturns.com/",
@@ -79,7 +80,7 @@
             "本書の内容に基づいて行った結果については、発刊元および J.P.RETURNS 株式会社はいかなる責任も負いかねます。",
             "なお、本書に記載されているケース等については、いずれも執筆当時の事例を参考にしたものであり今後変更される可能性があります。"
         ]
-    });
+    };
 
     function parseBookMarkdown(md) {
         const book = {
@@ -252,10 +253,10 @@
     </div>
   `;
 
-    const STORAGE = Object.freeze({
+    const STORAGE = {
         currentPage: `reader-current-page-${book.title}`,
         fontSize: "reader-font-size"
-    });
+    };
 
     const clamp = (value, min, max) => Math.max(min, Math.min(max, value));
 
@@ -382,31 +383,24 @@
         node.remove();
 
         if (els.measureBody.childNodes.length) {
-            commitMeasuredPage({ chapterIndex });
+            commitMeasuredPage(chapterIndex);
         }
 
         els.measureBody.appendChild(node);
-    }
-
-    function paginateImageBlock(block, chapterIndex) {
-        paginateAtomicBlock(
-            () => createImageBlock(block),
-            chapterIndex
-        );
     }
 
     function fitsMeasureBody() {
         return els.measureBody.scrollHeight <= els.measureBody.clientHeight + 0.5;
     }
 
-    function commitMeasuredPage(meta = {}) {
+    function commitMeasuredPage(chapterIndex = 0, type = "text") {
         const html = els.measureBody.innerHTML.trim();
         if (!html) return;
 
         state.pages.push({
             bodyHTML: html,
-            chapterIndex: meta.chapterIndex ?? 0,
-            type: meta.type ?? "text"
+            chapterIndex,
+            type
         });
 
         els.measureBody.innerHTML = "";
@@ -436,13 +430,6 @@
         return best;
     }
 
-    function paginateSubheading(text, chapterIndex) {
-        paginateAtomicBlock(
-            () => createTextElement("h2", text),
-            chapterIndex
-        );
-    }
-
     function paginateParagraph(text, chapterIndex) {
         let remaining = text;
         let continuation = false;
@@ -466,20 +453,20 @@
                     trailingHeading.remove();
 
                     if (els.measureBody.childNodes.length) {
-                        commitMeasuredPage({ chapterIndex });
+                        commitMeasuredPage(chapterIndex);
                     }
 
                     els.measureBody.appendChild(trailingHeading);
                     continue;
                 }
 
-                commitMeasuredPage({ chapterIndex });
+                commitMeasuredPage(chapterIndex);
                 continue;
             }
 
             const fittingText = remaining.slice(0, fittingLength);
             els.measureBody.appendChild(createParagraph(fittingText, continuation));
-            commitMeasuredPage({ chapterIndex });
+            commitMeasuredPage(chapterIndex);
 
             remaining = remaining.slice(fittingLength);
             continuation = true;
@@ -517,17 +504,14 @@
         const chapterIndex = book.chapters.length - 1;
 
         if (els.measureBody.childNodes.length) {
-            commitMeasuredPage({ chapterIndex });
+            commitMeasuredPage(chapterIndex);
         }
 
         let section = createColophonSection();
         els.measureBody.appendChild(section);
 
         const startNewPage = () => {
-            commitMeasuredPage({
-                chapterIndex,
-                type: "colophon"
-            });
+            commitMeasuredPage(chapterIndex, "colophon");
             section = createColophonSection();
             els.measureBody.appendChild(section);
         };
@@ -544,10 +528,7 @@
         });
 
         if (els.measureBody.childNodes.length) {
-            commitMeasuredPage({
-                chapterIndex,
-                type: "colophon"
-            });
+            commitMeasuredPage(chapterIndex, "colophon");
         }
     }
 
@@ -564,9 +545,7 @@
 
         book.chapters.forEach((chapter, chapterIndex) => {
             if (els.measureBody.childNodes.length > 0) {
-                commitMeasuredPage({
-                    chapterIndex: Math.max(0, chapterIndex - 1)
-                });
+                commitMeasuredPage(Math.max(0, chapterIndex - 1));
             }
 
             state.chapterStarts[chapterIndex] = state.pages.length;
@@ -575,26 +554,29 @@
             );
 
             chapter.blocks.forEach((block) => {
-                if (block.type === "image") {
-                    paginateImageBlock(block, chapterIndex);
-                    return;
+                switch (block.type) {
+                    case "image":
+                        paginateAtomicBlock(
+                            () => createImageBlock(block),
+                            chapterIndex
+                        );
+                        break;
+                    case "h2":
+                        paginateAtomicBlock(
+                            () => createTextElement("h2", block.text),
+                            chapterIndex
+                        );
+                        break;
+                    case "paragraph":
+                        paginateParagraph(block.text, chapterIndex);
+                        break;
+                    default:
+                        console.warn(`Unsupported book block type: ${block.type}`);
                 }
-
-                if (block.type === "h2") {
-                    paginateSubheading(block.text, chapterIndex);
-                    return;
-                }
-
-                if (block.type === "paragraph") {
-                    paginateParagraph(block.text, chapterIndex);
-                    return;
-                }
-
-                console.warn(`Unsupported book block type: ${block.type}`);
             });
 
             if (els.measureBody.childNodes.length > 0) {
-                commitMeasuredPage({ chapterIndex });
+                commitMeasuredPage(chapterIndex);
             }
         });
 
@@ -814,14 +796,6 @@
         return state.overviewStep;
     }
 
-    function clampOverviewScrollLeft(left) {
-        const max =
-            els.overviewScroller.scrollWidth -
-            els.overviewScroller.clientWidth;
-
-        return clamp(left, 0, Math.max(0, max));
-    }
-
     function setOverviewSnapSuppressed(suppressed) {
         els.overviewScroller.classList.toggle(
             "slider-dragging",
@@ -849,7 +823,7 @@
         if (left == null) return;
 
         els.overviewScroller.scrollTo({
-            left: clampOverviewScrollLeft(left),
+            left,
             behavior
         });
     }
@@ -864,7 +838,7 @@
 
         const scroller = els.overviewScroller;
         const startLeft = scroller.scrollLeft;
-        const endLeft = clampOverviewScrollLeft(targetLeft);
+        const endLeft = targetLeft;
         const distance = Math.abs(endLeft - startLeft);
 
         if (distance < 1) {
@@ -1170,12 +1144,6 @@
         ].forEach((property) => card.style.removeProperty(property));
     }
 
-    function cancelElementAnimations(...elements) {
-        elements.forEach((element) => {
-            element.getAnimations().forEach((animation) => animation.cancel());
-        });
-    }
-
     function waitForAnimations(animations) {
         return Promise.allSettled(
             animations.map((animation) => animation.finished)
@@ -1191,8 +1159,6 @@
             els.currentPage,
             els.nextPage
         ].forEach(clearMorphCard);
-
-        cancelElementAnimations(els.topbar, els.bottomBar, els.app);
     }
 
     async function transitionToOverview() {
@@ -1644,22 +1610,19 @@
         state.dragging = false;
     }
 
-    function finishTurn(direction) {
+    function finishTurn(delta) {
         if (state.isTurning) return;
 
-        const canMove =
-            direction === "next"
-                ? state.currentPage < state.pages.length - 1
-                : state.currentPage > 0;
+        const nextPage = state.currentPage + delta;
 
-        if (!canMove) {
+        if (nextPage < 0 || nextPage >= state.pages.length) {
             snapReaderBack();
             return;
         }
 
         beginTurnAnimation();
 
-        if (direction === "next") {
+        if (delta > 0) {
             requestAnimationFrame(() => {
                 setDragX(-window.innerWidth);
             });
@@ -1671,12 +1634,7 @@
         }
 
         window.setTimeout(() => {
-            if (direction === "next") {
-                state.currentPage += 1;
-            } else {
-                state.currentPage -= 1;
-            }
-
+            state.currentPage = nextPage;
             renderCurrentPage();
             endTurnAnimation();
         }, CONFIG.pageTurn.duration);
@@ -1704,7 +1662,7 @@
 
     function navigateBy(delta) {
         if (state.mode === "normal") {
-            finishTurn(delta > 0 ? "next" : "prev");
+            finishTurn(delta);
             return;
         }
 
@@ -1787,14 +1745,14 @@
             stage.classList.remove("turn-prev");
 
             if (state.currentPage === state.pages.length - 1) {
-                setDragX(dx * 0.16);
+                setDragX(dx * CONFIG.pageTurn.edgeResistance);
             } else {
                 setDragX(dx);
             }
         } else {
             if (state.currentPage === 0) {
                 stage.classList.remove("turn-prev");
-                setDragX(dx * 0.12);
+                setDragX(dx * CONFIG.pageTurn.edgeResistance);
             } else {
                 stage.classList.add("turn-prev");
                 const returnX = -window.innerWidth + dx;
@@ -1808,14 +1766,15 @@
     function endReaderPointer(event) {
         if (state.pointerId !== event.pointerId) return;
 
-        const now = performance.now();
         const rawDx = event.clientX - state.pointerStartX;
-        const totalTime = Math.max(1, now - state.pointerStartTime);
-        const velocity = rawDx / totalTime;
+        const totalTime = Math.max(
+            1,
+            performance.now() - state.pointerStartTime
+        );
+        const distance = Math.abs(rawDx);
+        const speed = distance / totalTime;
         const threshold =
             window.innerWidth * CONFIG.pageTurn.thresholdRatio;
-        const fastFlick =
-            Math.abs(velocity) >= CONFIG.pageTurn.flickVelocity;
 
         state.pointerId = null;
 
@@ -1837,18 +1796,15 @@
             return;
         }
 
-        const wantsNext =
-            rawDx < -threshold ||
-            (rawDx < -CONFIG.pageTurn.flickDistance && fastFlick);
+        const shouldTurn =
+            distance > threshold ||
+            (
+                distance > CONFIG.pageTurn.flickDistance &&
+                speed >= CONFIG.pageTurn.flickVelocity
+            );
 
-        const wantsPrev =
-            rawDx > threshold ||
-            (rawDx > CONFIG.pageTurn.flickDistance && fastFlick);
-
-        if (wantsNext && state.currentPage < state.pages.length - 1) {
-            finishTurn("next");
-        } else if (wantsPrev && state.currentPage > 0) {
-            finishTurn("prev");
+        if (shouldTurn) {
+            finishTurn(rawDx < 0 ? 1 : -1);
         } else {
             snapReaderBack();
         }
