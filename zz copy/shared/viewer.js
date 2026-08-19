@@ -26,9 +26,7 @@
 
     const CONFIG = Object.freeze({
         font: {
-            min: 14,
-            max: 32,
-            step: 2,
+            sizes: [16, 20, 24],
             defaultSize: 20
         },
         pageTurn: {
@@ -63,8 +61,7 @@
         },
         timing: {
             resizeDebounce: 160,
-            fullscreenRepaginate: 180,
-            fontRepaginateDebounce: 70
+            fullscreenRepaginate: 180
         }
     });
 
@@ -249,9 +246,9 @@
       <section class="popover" id="displayPopover" aria-hidden="true">
         <h2 class="popover__title">文字サイズ</h2>
         <div class="font-control">
-          <button class="font-button" id="fontDown" aria-label="文字を小さく">A−</button>
-          <div class="font-value" id="fontValue">20 px</div>
-          <button class="font-button" id="fontUp" aria-label="文字を大きく">A＋</button>
+          <button class="font-button" data-font-size="16" aria-pressed="false">小</button>
+          <button class="font-button" data-font-size="20" aria-pressed="false">中</button>
+          <button class="font-button" data-font-size="24" aria-pressed="false">大</button>
         </div>
       </section>
 
@@ -299,6 +296,11 @@
         }
     };
 
+    const savedFontSize = storage.getNumber(
+        STORAGE.fontSize,
+        CONFIG.font.defaultSize
+    );
+
     /* Minimal placeholder image for this reader demo. */
     function svgDataUri(svg) {
         return `data:image/svg+xml;charset=UTF-8,${encodeURIComponent(svg)}`;
@@ -343,7 +345,9 @@
         pages: [],
         chapterStarts: [],
         currentPage: storage.getNumber(STORAGE.currentPage, 0),
-        fontSize: storage.getNumber(STORAGE.fontSize, CONFIG.font.defaultSize),
+        fontSize: CONFIG.font.sizes.includes(savedFontSize)
+            ? savedFontSize
+            : CONFIG.font.defaultSize,
         mode: "normal",
 
         resizeTimer: null,
@@ -362,9 +366,7 @@
         overviewProgrammaticScrollRaf: 0,
         sliderRaf: 0,
         sliderDragging: false,
-        pendingSliderPosition: 1,
-
-        fontRepaginateTimer: null
+        pendingSliderPosition: 1
     };
 
     const els = {
@@ -387,9 +389,7 @@
         fullscreenButton: document.getElementById("fullscreenButton"),
         fullscreenEnterIcon: document.querySelector("#fullscreenButton .fullscreen-enter-icon"),
         fullscreenExitIcon: document.querySelector("#fullscreenButton .fullscreen-exit-icon"),
-        fontDown: document.getElementById("fontDown"),
-        fontUp: document.getElementById("fontUp"),
-        fontValue: document.getElementById("fontValue"),
+        fontButtons: [...document.querySelectorAll(".font-button")],
         tocOpenButton: document.getElementById("tocOpenButton"),
         tocDrawer: document.getElementById("tocDrawer"),
         tocList: document.getElementById("tocList"),
@@ -774,12 +774,13 @@
         els.pageSlider.step = "0.01";
     }
 
-    function updateFontControls() {
-        els.fontValue.textContent = `${state.fontSize} px`;
-        els.fontDown.disabled =
-            state.fontSize <= CONFIG.font.min;
-        els.fontUp.disabled =
-            state.fontSize >= CONFIG.font.max;
+    function updateFontButtons() {
+        els.fontButtons.forEach((button) => {
+            button.setAttribute(
+                "aria-pressed",
+                String(Number(button.dataset.fontSize) === state.fontSize)
+            );
+        });
     }
 
     function updateReadingPositionUI({
@@ -1692,40 +1693,18 @@
     }
 
     function setFontSize(size, { repaginate = true } = {}) {
-        const nextSize = clamp(
-            size,
-            CONFIG.font.min,
-            CONFIG.font.max
-        );
+        if (!CONFIG.font.sizes.includes(size)) return;
 
-        state.fontSize = nextSize;
-
-        updateFontControls();
-
-        storage.set(
-            STORAGE.fontSize,
-            nextSize
-        );
+        state.fontSize = size;
+        updateFontButtons();
+        storage.set(STORAGE.fontSize, size);
 
         if (!repaginate) {
-            setFontCss(nextSize);
+            setFontCss(size);
             return;
         }
 
-        /*
-          Collapse rapid A+/A- taps into one pagination pass.
-          This avoids doing a full-book layout for every intermediate size.
-        */
-        clearTimeout(
-            state.fontRepaginateTimer
-        );
-
-        state.fontRepaginateTimer =
-            setTimeout(() => {
-                repaginateForFontSize(
-                    state.fontSize
-                );
-            }, CONFIG.timing.fontRepaginateDebounce);
+        repaginateForFontSize(size);
     }
 
     /*
@@ -2515,8 +2494,12 @@
             handleFullscreenChange
         );
     });
-    els.fontDown.addEventListener("click", () => setFontSize(state.fontSize - CONFIG.font.step));
-    els.fontUp.addEventListener("click", () => setFontSize(state.fontSize + CONFIG.font.step));
+
+    els.fontButtons.forEach((button) => {
+        button.addEventListener("click", () => {
+            setFontSize(Number(button.dataset.fontSize));
+        });
+    });
 
     els.tocOpenButton.addEventListener("pointerdown", (event) => {
         if (event.pointerType === "mouse" && event.button !== 0) return;
@@ -2622,7 +2605,6 @@
             );
 
         renderCurrentPage();
-        updateFontControls();
         els.loading.hidden = true;
     }
 
