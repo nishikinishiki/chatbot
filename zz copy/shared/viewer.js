@@ -297,7 +297,6 @@
         pointerStartY: 0,
         pointerStartTime: 0,
         dragging: false,
-        suppressTap: false,
         isTurning: false,
         modeTransitioning: false,
 
@@ -665,9 +664,7 @@
     }
 
     function configurePageSlider() {
-        els.pageSlider.min = "1";
         els.pageSlider.max = String(Math.max(1, state.pages.length));
-        els.pageSlider.step = "0.01";
     }
 
     function updateFontButtons() {
@@ -1663,14 +1660,10 @@
         stage.classList.add("is-animating");
     }
 
-    function endTurnAnimation(suppressTapDelay) {
+    function endTurnAnimation() {
         resetStackTurn();
         state.isTurning = false;
         state.dragging = false;
-
-        window.setTimeout(() => {
-            state.suppressTap = false;
-        }, suppressTapDelay);
     }
 
     function finishTurn(direction) {
@@ -1707,7 +1700,7 @@
             }
 
             renderCurrentPage();
-            endTurnAnimation(90);
+            endTurnAnimation();
         }, CONFIG.pageTurn.duration);
     }
 
@@ -1727,7 +1720,7 @@
         }
 
         window.setTimeout(() => {
-            endTurnAnimation(70);
+            endTurnAnimation();
         }, CONFIG.pageTurn.duration);
     }
 
@@ -1782,7 +1775,6 @@
         state.pointerStartY = event.clientY;
         state.pointerStartTime = performance.now();
         state.dragging = false;
-        state.suppressTap = false;
 
         resetStackTurn();
 
@@ -1811,7 +1803,6 @@
             }
 
             state.dragging = true;
-            state.suppressTap = true;
         }
 
         if (dx < 0) {
