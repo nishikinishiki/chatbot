@@ -301,7 +301,7 @@
         modeTransitioning: false,
 
         overviewDirty: true,
-        overviewMetrics: null,
+        overviewStep: null,
         overviewScrollRaf: 0,
         overviewProgrammaticScrollRaf: 0,
         sliderRaf: 0,
@@ -678,7 +678,6 @@
 
     function updateReadingPositionUI({
         sliderValue = state.currentPage + 1,
-        persist = true,
         updateSlider = true
     } = {}) {
         if (updateSlider) {
@@ -688,21 +687,16 @@
         els.pageCounter.textContent = `${state.currentPage + 1}/${state.pages.length}`;
         els.topbarTitle.textContent = currentChapterTitle();
         updateTocHighlight();
-
-        if (persist) {
-            storage.set(STORAGE.currentPage, state.currentPage);
-        }
+        storage.set(STORAGE.currentPage, state.currentPage);
     }
 
     function setCurrentPageIndex(index, {
-        sliderValue = null,
-        persist = true
+        sliderValue = null
     } = {}) {
         state.currentPage = clampPageIndex(index);
 
         updateReadingPositionUI({
-            sliderValue: sliderValue ?? state.currentPage + 1,
-            persist
+            sliderValue: sliderValue ?? state.currentPage + 1
         });
     }
 
@@ -722,8 +716,8 @@
         renderCurrentPage();
     }
 
-    function invalidateOverviewMetrics() {
-        state.overviewMetrics = null;
+    function invalidateOverviewStep() {
+        state.overviewStep = null;
     }
 
     function getReaderPageSize() {
@@ -781,7 +775,7 @@
             `${sidePad.toFixed(1)}px`
         );
 
-        invalidateOverviewMetrics();
+        invalidateOverviewStep();
     }
 
     function renderOverviewStrip() {
@@ -801,33 +795,23 @@
         });
 
         els.overviewStrip.replaceChildren(fragment);
-        invalidateOverviewMetrics();
+        invalidateOverviewStep();
     }
 
-    function getOverviewScrollMetrics() {
-        if (state.overviewMetrics) {
-            return state.overviewMetrics;
+    function getOverviewStep() {
+        if (state.overviewStep != null) {
+            return state.overviewStep;
         }
 
         const first = els.overviewStrip.children[0];
-
-        if (!first) {
-            state.overviewMetrics = null;
-            return null;
-        }
+        if (!first) return null;
 
         const second = els.overviewStrip.children[1];
-
-        const firstLeft =
-            first.offsetLeft -
-            (els.overviewScroller.clientWidth - first.offsetWidth) / 2;
-
-        const step = second
+        state.overviewStep = second
             ? second.offsetLeft - first.offsetLeft
             : first.offsetWidth;
 
-        state.overviewMetrics = { firstLeft, step };
-        return state.overviewMetrics;
+        return state.overviewStep;
     }
 
     function clampOverviewScrollLeft(left) {
@@ -854,10 +838,10 @@
     }
 
     function getOverviewScrollLeftForPage(index) {
-        const metrics = getOverviewScrollMetrics();
-        if (!metrics) return null;
+        const step = getOverviewStep();
+        if (step == null) return null;
 
-        return metrics.firstLeft + clampPageIndex(index) * metrics.step;
+        return clampPageIndex(index) * step;
     }
 
     function scrollOverviewToPage(index, behavior = "auto") {
@@ -951,8 +935,8 @@
         state.sliderRaf = requestAnimationFrame(() => {
             state.sliderRaf = 0;
 
-            const metrics = getOverviewScrollMetrics();
-            if (!metrics) return;
+            const step = getOverviewStep();
+            if (step == null) return;
 
             const sliderValue = clamp(
                 Number(els.pageSlider.value),
@@ -961,9 +945,7 @@
             );
             const fractionalIndex = sliderValue - 1;
 
-            els.overviewScroller.scrollLeft =
-                metrics.firstLeft + fractionalIndex * metrics.step;
-
+            els.overviewScroller.scrollLeft = fractionalIndex * step;
             syncOverviewPosition(fractionalIndex);
         });
     }
@@ -974,15 +956,11 @@
         cancelAnimationFrame(state.overviewScrollRaf);
 
         state.overviewScrollRaf = requestAnimationFrame(() => {
-            const metrics = getOverviewScrollMetrics();
-
-            if (!metrics || metrics.step <= 0) return;
+            const step = getOverviewStep();
+            if (!step || step <= 0) return;
 
             const fractionalIndex = clamp(
-                (
-                    els.overviewScroller.scrollLeft -
-                    metrics.firstLeft
-                ) / metrics.step,
+                els.overviewScroller.scrollLeft / step,
                 0,
                 Math.max(0, state.pages.length - 1)
             );
@@ -993,7 +971,7 @@
 
     function markOverviewDirty() {
         state.overviewDirty = true;
-        invalidateOverviewMetrics();
+        invalidateOverviewStep();
     }
 
     function ensureOverviewStrip() {
@@ -1022,7 +1000,7 @@
         const scale =
             parseFloat(cssVar("--overview-scale")) || 0.67;
         const step =
-            getOverviewScrollMetrics()?.step ||
+            getOverviewStep() ||
             window.innerWidth * scale;
 
         return {
@@ -2037,10 +2015,12 @@
         }
     });
 
-    window.addEventListener("resize", () => {
+    function handleViewportResize() {
         updateOverviewGeometry();
         scheduleRepagination();
-    });
+    }
+
+    window.addEventListener("resize", handleViewportResize);
 
     if (window.visualViewport) {
         let lastVisualViewportHeight = window.visualViewport.height;
@@ -2051,8 +2031,7 @@
             if (Math.abs(nextHeight - lastVisualViewportHeight) < 8) return;
 
             lastVisualViewportHeight = nextHeight;
-            updateOverviewGeometry();
-            scheduleRepagination();
+            handleViewportResize();
         });
     }
 
