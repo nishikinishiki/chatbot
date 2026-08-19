@@ -444,12 +444,6 @@ button {
     line-height: 1.7;
 }
 
-.colophon__paragraph {
-    margin: 0.8em 0 0 !important;
-    color: var(--text-tertiary);
-    font-size: 0.72em;
-    line-height: 1.8;
-}
 
 .page-footer {
     flex: 0 0 var(--inline-footer-height);

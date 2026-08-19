@@ -584,12 +584,12 @@
             })),
             ...COLOPHON.copyright.map((text) => ({
                 text,
-                className: "colophon__paragraph"
+                className: "colophon__text"
             })),
             { text: "【注意】", className: "colophon__label" },
             ...COLOPHON.notice.map((text) => ({
                 text,
-                className: "colophon__paragraph"
+                className: "colophon__text"
             }))
         ];
     }
