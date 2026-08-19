@@ -53,7 +53,6 @@
     --control-icon-size: 24px;
     --toc-hit-size: 56px;
     --topbar-left-slot: var(--toc-hit-size);
-    --font-control-size: 42px;
     --popover-width: 250px;
 
     /* Keep a reliable tap-to-close area beside the TOC drawer. */
@@ -660,9 +659,9 @@ button {
 
 .font-control {
     display: grid;
-    grid-template-columns: var(--font-control-size) 1fr var(--font-control-size);
+    grid-template-columns: repeat(3, 1fr);
     align-items: center;
-    gap: 12px;
+    gap: 8px;
 }
 
 .font-button {
@@ -672,10 +671,9 @@ button {
     background: var(--paper);
 }
 
-.font-value {
-    color: var(--muted);
-    text-align: center;
-    font-size: 13px;
+.font-button[aria-pressed="true"] {
+    background: var(--hover-bg);
+    font-weight: 600;
 }
 
 .scrim {
