@@ -14,9 +14,7 @@
     --paper: #ffffff;
     --text: #222;
     --text-secondary: #666;
-    --text-tertiary: #888;
     --line: #dedede;
-    --line-strong: #bbbbbb;
     --surface-soft: #fafafa;
     --cover-bg: #e9e4da;
     --toc-hover-bg: #f3f3f3;
@@ -541,22 +539,10 @@ button {
     display: flex;
     align-items: center;
     gap: var(--overview-gap);
+    padding-inline: var(--overview-side-pad);
 
     /* Center cards within the space between header and footer. */
     transform: translateY(calc((var(--bottombar-height) - var(--topbar-height)) / 2));
-}
-
-/* Physical end spacers keep first/last overview cards centerable. */
-.overview-strip::before,
-.overview-strip::after {
-    content: "";
-    display: block;
-    flex: 0 0 max(0px,
-            calc(var(--overview-side-pad) - var(--overview-gap)));
-    width: max(0px,
-            calc(var(--overview-side-pad) - var(--overview-gap)));
-    height: 1px;
-    pointer-events: none;
 }
 
 .overview-item {
