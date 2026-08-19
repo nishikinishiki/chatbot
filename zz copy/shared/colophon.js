@@ -53,9 +53,9 @@
     window.bookMarkdown = `${body}\n\n# 奥付\n${colophonMarkdown}\n`;
 
     /*
-      viewer.js still creates its legacy colophon heading and metadata list.
-      Hide those structural elements so only the shared colophon content is shown.
-      The same CSS also applies to the hidden measurement DOM, so pagination stays accurate.
+      viewer.js uses an internal "奥付" marker to detect the final section.
+      Keep that marker internally, but hide the generated heading and metadata
+      so the user only sees the shared colophon content.
     */
     const style = document.createElement("style");
     style.textContent = `
@@ -72,6 +72,22 @@
             text-indent: 0 !important;
         }
     `;
-
     document.head.appendChild(style);
+
+    // The overview header previously displayed the internal "奥付" marker.
+    const hideInternalColophonLabel = () => {
+        const title = document.getElementById("topbarTitle");
+        if (title?.textContent.trim() === "奥付") {
+            title.textContent = "";
+        }
+    };
+
+    const observer = new MutationObserver(hideInternalColophonLabel);
+    observer.observe(document.body, {
+        childList: true,
+        subtree: true,
+        characterData: true
+    });
+
+    hideInternalColophonLabel();
 })();
