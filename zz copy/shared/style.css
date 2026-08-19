@@ -448,6 +448,7 @@ button {
     transform-origin: center center;
     border-radius: 0;
     box-shadow: none;
+    pointer-events: none;
 }
 
 /* Idle stack */
