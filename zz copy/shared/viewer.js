@@ -993,8 +993,6 @@
 
     function getMorphTheme() {
         return {
-            paper: cssVar("--paper", "#ffffff"),
-            overview: cssVar("--overview-bg", "#efefef"),
             radius: cssVar("--overview-card-radius", "10px"),
             shadow: cssVar("--shadow", "0 3px 14px rgba(0,0,0,.12)"),
             shadowNone: cssVar("--shadow-none", "0 0 0 rgba(0,0,0,0)")
@@ -1100,21 +1098,7 @@
             }
         });
 
-        animations.push(
-            els.app.animate(
-                toOverview
-                    ? [
-                        { backgroundColor: theme.paper },
-                        { backgroundColor: theme.overview }
-                    ]
-                    : [
-                        { backgroundColor: theme.overview },
-                        { backgroundColor: theme.paper }
-                    ],
-                options
-            ),
-            ...animateChrome(toOverview)
-        );
+        animations.push(...animateChrome(toOverview));
 
         return animations;
     }
