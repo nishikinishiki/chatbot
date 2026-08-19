@@ -425,38 +425,30 @@ button {
     padding-bottom: 2.5em;
 }
 
-.colophon h1 {
-    margin: 0 0 2.2em;
-    padding-bottom: 0.7em;
-    border-bottom: 1px solid var(--line-strong);
-    font-size: 1.15em;
+.colophon p {
+    text-indent: 0 !important;
+}
+
+.colophon__label {
+    margin: 1.5em 0 0.35em !important;
     font-weight: 600;
 }
 
-.colophon dl {
-    display: grid;
-    grid-template-columns: 5.5em 1fr;
-    gap: 0.8em 1.2em;
-    margin: 0;
-    font-size: 0.8em;
+.colophon__label:first-child {
+    margin-top: 0 !important;
+}
+
+.colophon__text {
+    margin: 0.2em 0 !important;
+    font-size: 0.78em;
     line-height: 1.7;
 }
 
-.colophon dt,
-.colophon dd {
-    margin: 0;
-}
-
-.colophon dt {
-    color: var(--text-secondary);
-}
-
-.colophon__note {
-    margin-top: 2.2em !important;
+.colophon__paragraph {
+    margin: 0.8em 0 0 !important;
     color: var(--text-tertiary);
     font-size: 0.72em;
-    line-height: 1.7;
-    text-indent: 0 !important;
+    line-height: 1.8;
 }
 
 .page-footer {

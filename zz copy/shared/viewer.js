@@ -68,13 +68,32 @@
         }
     });
 
+    const COLOPHON = Object.freeze({
+        publisher: [
+            "J.P.RETURNS 編集部",
+            "https://wealthknowledge.jpreturns.com/",
+            "〒100-6923 東京都千代田区丸の内 2-6-1 丸の内パークビルディング23階",
+            "© J.P.Returns. All rights reserved"
+        ],
+        copyright: [
+            "本作品の全部あるいは一部を無断で複製・転載・配信・送信したり、ホームページやSNS上に転載することを禁止します。本作品の内容を無断で改変、改ざん等を行うことも禁止します。",
+            "また、有償・無償にかかわらず本作品を第三者に譲渡することはできません。"
+        ],
+        notice: [
+            "本書は情報の提供および学習を目的としたものであり、発行元であるウェルスナレッジ編集部独自の調査・見解に基づいて執筆しています。投資の運用における成功においてを保証するものではありません。",
+            "本書の内容に基づいた運用や判断等については必ずご自身の責任と判断によって行ってください。",
+            "本書の内容に基づいて行った結果については、発刊元および J.P.RETURNS 株式会社はいかなる責任も負いかねます。",
+            "なお、本書に記載されているケース等については、いずれも執筆当時の事例を参考にしたものであり今後変更される可能性があります。"
+        ]
+    });
+
     function parseBookMarkdown(md) {
         const book = {
             title: "無題",
             author: "不明",
+            published: "",
             cover: { src: "", alt: "表紙" },
-            chapters: [],
-            colophon: { title: "奥付", rows: [], notes: [] }
+            chapters: []
         };
 
         const lines = md.split('\n');
@@ -113,6 +132,7 @@
                     if (key === 'title') book.title = val;
                     if (key === 'author') book.author = val;
                     if (key === 'cover') book.cover.src = val;
+                    if (key === 'published') book.published = val;
                 }
                 continue;
             }
@@ -126,14 +146,11 @@
             // 章の始まり（H1）
             if (line.startsWith('# ')) {
                 flushParagraph();
-                const title = line.replace(/^#\s+/, '');
-                if (title === '奥付') {
-                    state = 'colophon';
-                } else {
-                    state = 'body';
-                    currentChapter = { title: title, blocks: [] };
-                    book.chapters.push(currentChapter);
-                }
+                currentChapter = {
+                    title: line.replace(/^#\s+/, ''),
+                    blocks: []
+                };
+                book.chapters.push(currentChapter);
                 continue;
             }
 
@@ -167,20 +184,6 @@
                 paragraphBuffer.push(line);
             }
 
-            // 奥付の処理
-            if (state === 'colophon') {
-                if (line.startsWith('- ')) {
-                    const text = line.replace(/^-\s+/, '');
-                    const match = text.match(/^(.*?)(?:[:：])\s*(.*)$/);
-                    if (match) {
-                        book.colophon.rows.push([match[1].trim(), match[2].trim()]);
-                    } else {
-                        book.colophon.rows.push(["", text]);
-                    }
-                } else if (line.startsWith('> ')) {
-                    book.colophon.notes.push(line.replace(/^>\s+/, ''));
-                }
-            }
         }
         flushParagraph(); // 最後の段落を確定
 
@@ -567,105 +570,61 @@
     function createColophonSection() {
         const section = document.createElement("section");
         section.className = "colophon";
-
-        const title =
-            createTextElement(
-                "h1",
-                book.colophon.title
-            );
-
-        const dl = document.createElement("dl");
-
-        section.append(title, dl);
-
-        return {
-            section,
-            dl
-        };
+        return section;
     }
 
-    function appendColophonRow(dl, label, value) {
-        const dt = createTextElement("dt", label);
-        const dd = createTextElement("dd", value);
-        dl.append(dt, dd);
-        return { dt, dd };
+    function getColophonBlocks() {
+        return [
+            { text: "【発行日】", className: "colophon__label" },
+            { text: book.published, className: "colophon__text" },
+            { text: "【発行元】", className: "colophon__label" },
+            ...COLOPHON.publisher.map((text) => ({
+                text,
+                className: "colophon__text"
+            })),
+            ...COLOPHON.copyright.map((text) => ({
+                text,
+                className: "colophon__paragraph"
+            })),
+            { text: "【注意】", className: "colophon__label" },
+            ...COLOPHON.notice.map((text) => ({
+                text,
+                className: "colophon__paragraph"
+            }))
+        ];
     }
 
-    /*
-      奥付のルール:
-      - 必ず新しいページから開始
-      - 文字サイズ変更後も実際のDOM高さで再計測
-      - 入らない行／注記は次ページへ送る
-      - したがって「奥付=必ず1ページ」という例外を作らない
-    */
     function paginateColophon() {
         const chapterIndex = book.chapters.length - 1;
 
-        if (els.measureBody.childNodes.length > 0) {
-            commitMeasuredPage({
-                chapterIndex,
-                type: "text"
-            });
+        if (els.measureBody.childNodes.length) {
+            commitMeasuredPage({ chapterIndex });
         }
 
-        let current = createColophonSection();
-        els.measureBody.appendChild(current.section);
+        let section = createColophonSection();
+        els.measureBody.appendChild(section);
 
-        const startNewColophonPage = () => {
+        const startNewPage = () => {
             commitMeasuredPage({
                 chapterIndex,
                 type: "colophon"
             });
-
-            current = createColophonSection();
-            els.measureBody.appendChild(current.section);
+            section = createColophonSection();
+            els.measureBody.appendChild(section);
         };
 
-        const rows = [
-            ["書名", book.title],
-            ["著者", book.author],
-            ...book.colophon.rows
-        ];
-
-        rows.forEach(([label, value]) => {
-            const row = appendColophonRow(
-                current.dl,
-                label,
-                value
-            );
+        getColophonBlocks().forEach(({ text, className }) => {
+            const element = createTextElement("p", text, className);
+            section.appendChild(element);
 
             if (fitsMeasureBody()) return;
 
-            row.dt.remove();
-            row.dd.remove();
-
-            startNewColophonPage();
-
-            appendColophonRow(
-                current.dl,
-                label,
-                value
-            );
+            element.remove();
+            startNewPage();
+            section.appendChild(element);
         });
 
-        book.colophon.notes.forEach((text) => {
-            const note =
-                createTextElement(
-                    "p",
-                    text,
-                    "colophon__note"
-                );
-
-            current.section.appendChild(note);
-
-            if (fitsMeasureBody()) return;
-
-            note.remove();
-            startNewColophonPage();
-            current.section.appendChild(note);
-        });
-
-        if (els.measureBody.childNodes.length > 0) {
+        if (els.measureBody.childNodes.length) {
             commitMeasuredPage({
                 chapterIndex,
                 type: "colophon"
@@ -784,7 +743,7 @@
 
         if (!page) return book.title;
         if (page.type === "cover") return book.title;
-        if (page.type === "colophon") return "奥付";
+        if (page.type === "colophon") return "";
 
         const index = page.chapterIndex ?? 0;
         return book.chapters[index]?.title ?? book.title;
