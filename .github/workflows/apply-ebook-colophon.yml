@@ -1,0 +1,150 @@
+name: Apply ebook colophon migration
+
+on:
+  push:
+    branches: [main]
+    paths:
+      - 'zz copy/.apply-colophon-change'
+
+permissions:
+  contents: write
+
+jobs:
+  migrate:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+        with:
+          fetch-depth: 0
+
+      - uses: actions/setup-python@v5
+        with:
+          python-version: '3.x'
+
+      - name: Apply migration
+        shell: bash
+        run: |
+          python <<'PY'
+          from pathlib import Path
+          import re
+
+          root = Path('zz copy')
+          data_path = root / 'book01' / 'data.js'
+          index_path = root / 'book01' / 'index.html'
+          viewer_path = root / 'shared' / 'viewer.js'
+          style_path = root / 'shared' / 'style.css'
+          colophon_path = root / 'shared' / 'colophon.js'
+
+          # book01: publication date belongs to the book; all other colophon text is shared.
+          data = data_path.read_text(encoding='utf-8')
+          if 'published:' not in data:
+              data = data.replace(
+                  'cover: img/test.png\n',
+                  'cover: img/test.png\npublished: 2026年 5月 1日\n',
+                  1,
+              )
+          data, count = re.subn(
+              r'\n# 奥付\n[\s\S]*?(?=\n`;)',
+              '',
+              data,
+              count=1,
+          )
+          if count != 1:
+              raise RuntimeError('book01 legacy colophon block not found')
+          data_path.write_text(data, encoding='utf-8')
+
+          # index: data -> shared viewer only.
+          index = index_path.read_text(encoding='utf-8')
+          index = re.sub(
+              r'\s*<script src="\.\./shared/colophon\.js"></script>\s*',
+              '\n    ',
+              index,
+              count=1,
+          )
+          index_path.write_text(index, encoding='utf-8')
+
+          viewer = viewer_path.read_text(encoding='utf-8')
+
+          # Shared colophon data lives next to the reader configuration.
+          config_end = '''    });\n\n    function parseBookMarkdown(md) {'''
+          if config_end not in viewer:
+              raise RuntimeError('CONFIG insertion point not found')
+
+          colophon_constant = '''    });\n\n    const COLOPHON = Object.freeze({\n        publisher: [\n            "J.P.RETURNS 編集部",\n            "https://wealthknowledge.jpreturns.com/",\n            "〒100-6923 東京都千代田区丸の内 2-6-1 丸の内パークビルディング23階",\n            "© J.P.Returns. All rights reserved"\n        ],\n        copyright: [\n            "本作品の全部あるいは一部を無断で複製・転載・配信・送信したり、ホームページやSNS上に転載することを禁止します。本作品の内容を無断で改変、改ざん等を行うことも禁止します。",\n            "また、有償・無償にかかわらず本作品を第三者に譲渡することはできません。"\n        ],\n        notice: [\n            "本書は情報の提供および学習を目的としたものであり、発行元であるウェルスナレッジ編集部独自の調査・見解に基づいて執筆しています。投資の運用における成功においてを保証するものではありません。",\n            "本書の内容に基づいた運用や判断等については必ずご自身の責任と判断によって行ってください。",\n            "本書の内容に基づいて行った結果については、発刊元および J.P.RETURNS 株式会社はいかなる責任も負いかねます。",\n            "なお、本書に記載されているケース等については、いずれも執筆当時の事例を参考にしたものであり今後変更される可能性があります。"\n        ]\n    });\n\n    function parseBookMarkdown(md) {'''
+          viewer = viewer.replace(config_end, colophon_constant, 1)
+
+          viewer, count = re.subn(
+              r'''            title: "無題",\n            author: "不明",\n            cover: \{ src: "", alt: "表紙" \},\n            chapters: \[\],\n            colophon: \{ title: "奥付", rows: \[\], notes: \[\] \}\n''',
+              '''            title: "無題",\n            author: "不明",\n            published: "",\n            cover: { src: "", alt: "表紙" },\n            chapters: []\n''',
+              viewer,
+              count=1,
+          )
+          if count != 1:
+              raise RuntimeError('book model not found')
+
+          viewer = viewer.replace(
+              "                    if (key === 'cover') book.cover.src = val;\n",
+              "                    if (key === 'cover') book.cover.src = val;\n                    if (key === 'published') book.published = val;\n",
+              1,
+          )
+
+          old_h1 = '''                const title = line.replace(/^#\\s+/, '');\n                if (title === '奥付') {\n                    state = 'colophon';\n                } else {\n                    state = 'body';\n                    currentChapter = { title: title, blocks: [] };\n                    book.chapters.push(currentChapter);\n                }\n                continue;'''
+          new_h1 = '''                currentChapter = {\n                    title: line.replace(/^#\\s+/, ''),\n                    blocks: []\n                };\n                book.chapters.push(currentChapter);\n                continue;'''
+          if old_h1 not in viewer:
+              raise RuntimeError('H1 parser block not found')
+          viewer = viewer.replace(old_h1, new_h1, 1)
+
+          viewer, count = re.subn(
+              r'''\n            // 奥付の処理\n            if \(state === 'colophon'\) \{[\s\S]*?\n            \}\n''',
+              '\n',
+              viewer,
+              count=1,
+          )
+          if count != 1:
+              raise RuntimeError('legacy colophon parser not found')
+
+          start = viewer.find('    function createColophonSection() {')
+          end = viewer.find('    function paginateBook() {', start)
+          if start < 0 or end < 0:
+              raise RuntimeError('colophon pagination block not found')
+
+          new_pagination = '''    function createColophonSection() {\n        const section = document.createElement("section");\n        section.className = "colophon";\n        return section;\n    }\n\n    function getColophonBlocks() {\n        return [\n            { text: "【発行日】", className: "colophon__label" },\n            { text: book.published, className: "colophon__text" },\n            { text: "【発行元】", className: "colophon__label" },\n            ...COLOPHON.publisher.map((text) => ({\n                text,\n                className: "colophon__text"\n            })),\n            ...COLOPHON.copyright.map((text) => ({\n                text,\n                className: "colophon__paragraph"\n            })),\n            { text: "【注意】", className: "colophon__label" },\n            ...COLOPHON.notice.map((text) => ({\n                text,\n                className: "colophon__paragraph"\n            }))\n        ];\n    }\n\n    function paginateColophon() {\n        const chapterIndex = book.chapters.length - 1;\n\n        if (els.measureBody.childNodes.length) {\n            commitMeasuredPage({ chapterIndex });\n        }\n\n        let section = createColophonSection();\n        els.measureBody.appendChild(section);\n\n        const startNewPage = () => {\n            commitMeasuredPage({\n                chapterIndex,\n                type: "colophon"\n            });\n            section = createColophonSection();\n            els.measureBody.appendChild(section);\n        };\n\n        getColophonBlocks().forEach(({ text, className }) => {\n            const element = createTextElement("p", text, className);\n            section.appendChild(element);\n\n            if (fitsMeasureBody()) return;\n\n            element.remove();\n            startNewPage();\n            section.appendChild(element);\n        });\n\n        if (els.measureBody.childNodes.length) {\n            commitMeasuredPage({\n                chapterIndex,\n                type: "colophon"\n            });\n        }\n    }\n\n'''
+          viewer = viewer[:start] + new_pagination + viewer[end:]
+
+          if 'if (page.type === "colophon") return "奥付";' not in viewer:
+              raise RuntimeError('colophon header title branch not found')
+          viewer = viewer.replace(
+              'if (page.type === "colophon") return "奥付";',
+              'if (page.type === "colophon") return "";',
+              1,
+          )
+
+          viewer_path.write_text(viewer, encoding='utf-8')
+
+          # Replace only the colophon-specific CSS.
+          style = style_path.read_text(encoding='utf-8')
+          start = style.find('/* ---------- Colophon ---------- */')
+          end = style.find('.page-footer {', start)
+          if start < 0 or end < 0:
+              raise RuntimeError('colophon CSS block not found')
+
+          colophon_css = '''/* ---------- Colophon ---------- */\n\n.colophon-card .page-body {\n    display: flex;\n    align-items: flex-end;\n}\n\n.colophon {\n    width: 100%;\n    padding-bottom: 2.5em;\n}\n\n.colophon p {\n    text-indent: 0 !important;\n}\n\n.colophon__label {\n    margin: 1.5em 0 0.35em !important;\n    font-weight: 600;\n}\n\n.colophon__label:first-child {\n    margin-top: 0 !important;\n}\n\n.colophon__text {\n    margin: 0.2em 0 !important;\n    font-size: 0.78em;\n    line-height: 1.7;\n}\n\n.colophon__paragraph {\n    margin: 0.8em 0 0 !important;\n    color: var(--text-tertiary);\n    font-size: 0.72em;\n    line-height: 1.8;\n}\n\n'''
+          style = style[:start] + colophon_css + style[end:]
+          style_path.write_text(style, encoding='utf-8')
+
+          if colophon_path.exists():
+              colophon_path.unlink()
+          PY
+
+          node --check 'zz copy/shared/viewer.js'
+          node --check 'zz copy/book01/data.js'
+          git diff --check
+
+      - name: Commit migration
+        shell: bash
+        run: |
+          git config user.name 'github-actions[bot]'
+          git config user.email '41898282+github-actions[bot]@users.noreply.github.com'
+          git add -A
+          git commit -m 'Simplify shared ebook colophon'
+          git push
