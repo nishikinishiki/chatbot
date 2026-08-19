@@ -535,10 +535,18 @@ button {
     display: flex;
     align-items: center;
     gap: var(--overview-gap);
-    padding-inline: var(--overview-side-pad);
 
     /* Center cards within the space between header and footer. */
     transform: translateY(calc((var(--bottombar-height) - var(--topbar-height)) / 2));
+}
+
+.overview-strip::before,
+.overview-strip::after {
+    content: "";
+    flex: 0 0 max(0px,
+            calc(var(--overview-side-pad) - var(--overview-gap)));
+    height: 1px;
+    pointer-events: none;
 }
 
 .overview-item {
