@@ -1,0 +1,13 @@
+.stage.is-animating .page-card {
+    transition:
+        transform var(--page-turn-duration) var(--ease-page-turn),
+        filter var(--page-turn-duration) var(--ease-page-turn);
+}
+
+.app.normal .stage:not(.turn-prev) .page-card--current,
+.app.normal .stage.turn-prev .page-card--prev {
+    filter: drop-shadow(
+        12px 0 12px
+        rgba(0, 0, 0, calc(var(--turn-shadow-opacity) * .42))
+    );
+}
