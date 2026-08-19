@@ -55,11 +55,7 @@
             calc(100vw - var(--drawer-edge-gap)));
 
     /* Overview */
-    --overview-scale: 0.67;
     --overview-gap: 28px;
-    --overview-item-width: 67vw;
-    --overview-item-height: 67vh;
-    --overview-side-pad: 16.5vw;
     --overview-card-radius: 10px;
 
     /* Radii */
