@@ -2,7 +2,7 @@
     /* Typography */
     --reader-font-size: 20px;
     --measure-font-size: var(--reader-font-size);
-    --reader-line-height: 1.92;
+    --reader-line-height: 1.9;
     --font-sans:
         "Noto Sans JP",
         "Hiragino Sans",
@@ -12,12 +12,9 @@
 
     /* Colors */
     --paper: #ffffff;
-    --text: #202124;
-    --muted: #6d6d6d;
-    --text-secondary: #666666;
-    --text-tertiary: #777777;
-    --heading-text: #303030;
-    --counter-text: #404040;
+    --text: #222;
+    --text-secondary: #666;
+    --text-tertiary: #888;
     --line: #dedede;
     --line-strong: #bbbbbb;
     --surface-soft: #fafafa;
@@ -170,7 +167,7 @@ button {
 .topbar__title {
     min-width: 0;
     padding: 0 8px 0 4px;
-    color: var(--heading-text);
+    color: var(--text);
     font-size: 14px;
     font-weight: 600;
     text-align: left;
@@ -247,7 +244,7 @@ button {
     min-width: 68px;
     font-size: 16px;
     text-align: right;
-    color: var(--counter-text);
+    color: var(--text-secondary);
 }
 
 /* ---------- Reader stage ---------- */
@@ -320,20 +317,18 @@ button {
 
 .page-body h1,
 .measure-body h1 {
-    margin: 0 0 1.95em;
-    font-size: 1.46em;
+    margin: 0 0 2em;
+    font-size: 1.5em;
     font-weight: 600;
-    line-height: 1.45;
-    letter-spacing: 0.04em;
+    line-height: 1.5;
 }
 
 .page-body h2,
 .measure-body h2 {
-    margin: 1.75em 0 0.8em;
-    font-size: 1.14em;
+    margin: 1.5em 0 0.75em;
+    font-size: 1.15em;
     font-weight: 600;
-    line-height: 1.55;
-    letter-spacing: 0.035em;
+    line-height: 1.5;
     text-align: left;
 }
 
@@ -344,7 +339,7 @@ button {
 
 .page-body p,
 .measure-body p {
-    margin: 0 0 1.15em;
+    margin: 0 0 1em;
     word-break: normal;
     overflow-wrap: anywhere;
 }
@@ -367,7 +362,7 @@ button {
 /* ---------- Book images ---------- */
 
 .book-image-block {
-    margin: 1.5em 0 1.7em;
+    margin: 1.5em 0;
     break-inside: avoid;
 }
 
@@ -381,10 +376,10 @@ button {
 }
 
 .book-image-caption {
-    margin-top: 0.65em;
+    margin-top: 0.5em;
     color: var(--text-secondary);
-    font-size: 0.72em;
-    line-height: 1.55;
+    font-size: 0.75em;
+    line-height: 1.5;
     text-align: center;
     letter-spacing: 0;
 }
@@ -425,7 +420,7 @@ button {
 }
 
 .colophon__label {
-    margin: 1em 0 0.35em !important;
+    margin: 1em 0 0.5em !important;
     font-weight: 600;
 }
 
@@ -435,7 +430,7 @@ button {
 
 .colophon__text {
     margin: 0 !important;
-    font-size: 0.78em;
+    font-size: 0.8em;
     line-height: 1.6;
 }
 
@@ -446,7 +441,7 @@ button {
     justify-content: space-between;
     margin-top: 6px;
     color: var(--text-secondary);
-    font-size: 0.82em;
+    font-size: 0.8em;
 }
 
 /* Normal mode uses stacked sheets for page turns. */
@@ -758,7 +753,7 @@ button {
     place-items: center;
     background: var(--loading-bg);
     font-size: 14px;
-    color: var(--muted);
+    color: var(--text-secondary);
 }
 
 .loading[hidden] {
