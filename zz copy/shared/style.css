@@ -58,7 +58,7 @@
 
     /* Overview */
     --overview-scale: 0.67;
-    --overview-gap: 18px;
+    --overview-gap: 28px;
     --overview-item-width: 67vw;
     --overview-item-height: 67vh;
     --overview-side-pad: 16.5vw;
@@ -581,29 +581,6 @@ button {
     cursor: pointer;
 }
 
-/* Tap zones for normal mode */
-.tap-zone {
-    position: absolute;
-    top: 0;
-    bottom: 0;
-    z-index: 10;
-}
-
-.tap-zone--left {
-    left: 0;
-    width: 32%;
-}
-
-.tap-zone--center {
-    left: 32%;
-    width: 36%;
-}
-
-.tap-zone--right {
-    right: 0;
-    width: 32%;
-}
-
 /* ---------- Popover / Drawer ---------- */
 
 /* Popover stays mounted so opening/closing can animate smoothly. */
@@ -782,6 +759,7 @@ button {
     :root {
         --topbar-height: 70px;
         --bottombar-height: 76px;
+        --overview-gap: 18px;
     }
 
     .topbar {
@@ -844,10 +822,6 @@ button {
     left: 0 !important;
     transform-origin: center center !important;
     will-change: transform, opacity, box-shadow, border-radius;
-}
-
-.stage.mode-morph .tap-zone {
-    display: none !important;
 }
 
 /* ---------- Fullscreen control ---------- */
