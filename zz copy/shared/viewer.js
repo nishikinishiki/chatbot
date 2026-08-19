@@ -87,23 +87,21 @@
     function parseBookMarkdown(md) {
         const book = {
             title: "無題",
-            author: "不明",
             published: "",
             cover: { src: "", alt: "表紙" },
             chapters: []
         };
 
         const lines = md.split('\n');
-        let state = 'start'; // 状態管理
+        let state = 'start';
         let currentChapter = null;
         let paragraphBuffer = [];
 
-        // 溜まったテキストを1つの段落ブロックとして確定する
         function flushParagraph() {
             if (paragraphBuffer.length > 0 && currentChapter) {
                 currentChapter.blocks.push({
                     type: 'paragraph',
-                    text: paragraphBuffer.join('') // 日本語なので改行を詰めて結合
+                    text: paragraphBuffer.join('')
                 });
                 paragraphBuffer = [];
             }
@@ -122,25 +120,23 @@
                     state = 'body';
                     continue;
                 }
+
                 const match = line.match(/^([a-zA-Z0-9_]+):\s*(.*)$/);
                 if (match) {
                     const key = match[1];
                     const val = match[2];
                     if (key === 'title') book.title = val;
-                    if (key === 'author') book.author = val;
                     if (key === 'cover') book.cover.src = val;
                     if (key === 'published') book.published = val;
                 }
                 continue;
             }
 
-            // 空行が来たら段落を区切る
             if (line === '') {
                 flushParagraph();
                 continue;
             }
 
-            // 章の始まり（H1）
             if (line.startsWith('# ')) {
                 flushParagraph();
                 currentChapter = {
@@ -151,18 +147,18 @@
                 continue;
             }
 
-            // 本文の処理
             if (state === 'body') {
-                // 小見出し（H2）
                 if (line.startsWith('## ')) {
                     flushParagraph();
                     if (currentChapter) {
-                        currentChapter.blocks.push({ type: 'h2', text: line.replace(/^##\s+/, '') });
+                        currentChapter.blocks.push({
+                            type: 'h2',
+                            text: line.replace(/^##\s+/, '')
+                        });
                     }
                     continue;
                 }
 
-                // 画像
                 const imgMatch = line.match(/^!\[(.*?)\]\((.*?)\)$/);
                 if (imgMatch) {
                     flushParagraph();
@@ -177,27 +173,20 @@
                     continue;
                 }
 
-                // 普通のテキスト（段落バッファに追加）
                 paragraphBuffer.push(line);
             }
-
         }
-        flushParagraph(); // 最後の段落を確定
 
+        flushParagraph();
         return book;
     }
 
-    // マークダウンデータが存在すれば変換し、bookDataとして扱う
-    let book = window.bookData;
-    if (window.bookMarkdown) {
-        book = parseBookMarkdown(window.bookMarkdown);
-        window.bookData = book; // グローバルにセット（エラー回避用）
-    }
-    
-    if (!book) {
+    if (!window.bookMarkdown) {
         console.error("書籍データが見つかりません。data.jsが正しく読み込まれているか確認してください。");
         return;
     }
+
+    const book = parseBookMarkdown(window.bookMarkdown);
 
     document.body.innerHTML = `
     <div class="app normal" id="app">
@@ -260,7 +249,6 @@
       </aside>
 
       <div class="loading" id="loading">ページを再計算しています…</div>
-
     </div>
 
     <div class="measure-host" aria-hidden="true">
@@ -301,46 +289,6 @@
         CONFIG.font.defaultSize
     );
 
-    /* Minimal placeholder image for this reader demo. */
-    function svgDataUri(svg) {
-        return `data:image/svg+xml;charset=UTF-8,${encodeURIComponent(svg)}`;
-    }
-
-    const sampleImage = svgDataUri(`
-    <svg
-      xmlns="http://www.w3.org/2000/svg"
-      width="1200"
-      height="800"
-      viewBox="0 0 1200 800"
-    >
-      <rect
-        width="1200"
-        height="800"
-        fill="#f2f2f2"
-      />
-      <rect
-        x="24"
-        y="24"
-        width="1152"
-        height="752"
-        rx="20"
-        fill="none"
-        stroke="#c8c8c8"
-        stroke-width="4"
-      />
-      <text
-        x="600"
-        y="400"
-        dominant-baseline="middle"
-        text-anchor="middle"
-        font-family="sans-serif"
-        font-size="72"
-        font-weight="600"
-        fill="#777"
-      >サンプル画像</text>
-    </svg>
-  `);
-
     const state = {
         pages: [],
         chapterStarts: [],
@@ -379,9 +327,6 @@
         nextPage: document.getElementById("nextPage"),
         overviewScroller: document.getElementById("overviewScroller"),
         overviewStrip: document.getElementById("overviewStrip"),
-        tapLeft: document.getElementById("tapLeft"),
-        tapCenter: document.getElementById("tapCenter"),
-        tapRight: document.getElementById("tapRight"),
         pageSlider: document.getElementById("pageSlider"),
         pageCounter: document.getElementById("pageCounter"),
         displayButton: document.getElementById("displayButton"),
@@ -397,10 +342,6 @@
         loading: document.getElementById("loading"),
         measureBody: document.getElementById("measureBody")
     };
-
-    // ============================================================
-    // Pagination
-    // ============================================================
 
     function createTextElement(tag, text, className = "") {
         const element = document.createElement(tag);
@@ -451,7 +392,6 @@
             commitMeasuredPage({ chapterIndex });
         }
 
-        /* Atomic blocks move whole; they are never split between pages. */
         els.measureBody.appendChild(node);
     }
 
@@ -527,34 +467,20 @@
             const fittingLength = findLargestFittingPrefix(remaining, continuation);
 
             if (fittingLength === 0) {
-                const trailingHeading =
-                    els.measureBody.lastElementChild;
+                const trailingHeading = els.measureBody.lastElementChild;
 
-                /*
-                  If the page ends with H2 and not even the first character of
-                  the following paragraph fits, move that H2 to the next page.
-                */
-                if (
-                    trailingHeading?.tagName === "H2"
-                ) {
+                if (trailingHeading?.tagName === "H2") {
                     trailingHeading.remove();
 
                     if (els.measureBody.childNodes.length) {
-                        commitMeasuredPage({
-                            chapterIndex
-                        });
+                        commitMeasuredPage({ chapterIndex });
                     }
 
-                    els.measureBody.appendChild(
-                        trailingHeading
-                    );
-
+                    els.measureBody.appendChild(trailingHeading);
                     continue;
                 }
 
-                commitMeasuredPage({
-                    chapterIndex
-                });
+                commitMeasuredPage({ chapterIndex });
                 continue;
             }
 
@@ -637,7 +563,6 @@
         state.chapterStarts = [];
         els.measureBody.innerHTML = "";
 
-        // Page 1: cover
         state.pages.push({
             bodyHTML: `<img class="cover-image" src="${book.cover.src}" alt="${book.cover.alt}">`,
             chapterIndex: -1,
@@ -645,7 +570,6 @@
         });
 
         book.chapters.forEach((chapter, chapterIndex) => {
-            // Every chapter starts from the top of a new page.
             if (els.measureBody.childNodes.length > 0) {
                 commitMeasuredPage({
                     chapterIndex: Math.max(0, chapterIndex - 1)
@@ -654,40 +578,26 @@
 
             state.chapterStarts[chapterIndex] = state.pages.length;
             els.measureBody.appendChild(
-                createTextElement(
-                    "h1",
-                    chapter.title
-                )
+                createTextElement("h1", chapter.title)
             );
 
             chapter.blocks.forEach((block) => {
                 if (block.type === "image") {
-                    paginateImageBlock(
-                        block,
-                        chapterIndex
-                    );
+                    paginateImageBlock(block, chapterIndex);
                     return;
                 }
 
                 if (block.type === "h2") {
-                    paginateSubheading(
-                        block.text,
-                        chapterIndex
-                    );
+                    paginateSubheading(block.text, chapterIndex);
                     return;
                 }
 
                 if (block.type === "paragraph") {
-                    paginateParagraph(
-                        block.text,
-                        chapterIndex
-                    );
+                    paginateParagraph(block.text, chapterIndex);
                     return;
                 }
 
-                console.warn(
-                    `Unsupported book block type: ${block.type}`
-                );
+                console.warn(`Unsupported book block type: ${block.type}`);
             });
 
             if (els.measureBody.childNodes.length > 0) {
@@ -695,9 +605,7 @@
             }
         });
 
-        // Final section: dynamically paginated colophon
         paginateColophon();
-
     }
 
     function getPageProgress(index) {
@@ -759,18 +667,12 @@
     }
 
     function clampPageIndex(index) {
-        return clamp(
-            index,
-            0,
-            Math.max(0, state.pages.length - 1)
-        );
+        return clamp(index, 0, Math.max(0, state.pages.length - 1));
     }
 
     function configurePageSlider() {
         els.pageSlider.min = "1";
-        els.pageSlider.max = String(
-            Math.max(1, state.pages.length)
-        );
+        els.pageSlider.max = String(Math.max(1, state.pages.length));
         els.pageSlider.step = "0.01";
     }
 
@@ -789,23 +691,15 @@
         updateSlider = true
     } = {}) {
         if (updateSlider) {
-            els.pageSlider.value =
-                String(sliderValue);
+            els.pageSlider.value = String(sliderValue);
         }
 
-        els.pageCounter.textContent =
-            `${state.currentPage + 1}/${state.pages.length}`;
-
-        els.topbarTitle.textContent =
-            currentChapterTitle();
-
+        els.pageCounter.textContent = `${state.currentPage + 1}/${state.pages.length}`;
+        els.topbarTitle.textContent = currentChapterTitle();
         updateTocHighlight();
 
         if (persist) {
-            storage.set(
-                STORAGE.currentPage,
-                state.currentPage
-            );
+            storage.set(STORAGE.currentPage, state.currentPage);
         }
     }
 
@@ -813,29 +707,18 @@
         sliderValue = null,
         persist = true
     } = {}) {
-        state.currentPage =
-            clampPageIndex(index);
+        state.currentPage = clampPageIndex(index);
 
         updateReadingPositionUI({
-            sliderValue:
-                sliderValue ?? state.currentPage + 1,
+            sliderValue: sliderValue ?? state.currentPage + 1,
             persist
         });
     }
 
     function renderPageStack() {
-        renderPageCard(
-            els.currentPage,
-            state.currentPage
-        );
-        renderPageCard(
-            els.prevPage,
-            state.currentPage - 1
-        );
-        renderPageCard(
-            els.nextPage,
-            state.currentPage + 1
-        );
+        renderPageCard(els.currentPage, state.currentPage);
+        renderPageCard(els.prevPage, state.currentPage - 1);
+        renderPageCard(els.nextPage, state.currentPage + 1);
     }
 
     function renderCurrentPage() {
@@ -844,25 +727,15 @@
     }
 
     function goToPage(index) {
-        state.currentPage =
-            clampPageIndex(index);
+        state.currentPage = clampPageIndex(index);
         renderCurrentPage();
     }
-
-    // ============================================================
-    // Overview mode
-    // ============================================================
 
     function invalidateOverviewMetrics() {
         state.overviewMetrics = null;
     }
 
     function getReaderPageSize() {
-        /*
-          offsetWidth/offsetHeight represent the untransformed CSS box.
-          That is exactly what we need because both normal and overview pages
-          are the same page box with only a scale transform applied later.
-        */
         const width =
             els.currentPage.offsetWidth ||
             document.documentElement.clientWidth ||
@@ -873,19 +746,12 @@
             window.visualViewport?.height ||
             window.innerHeight;
 
-        return {
-            width,
-            height
-        };
+        return { width, height };
     }
 
     function updateOverviewGeometry() {
-        const {
-            width,
-            height
-        } = getReaderPageSize();
+        const { width, height } = getReaderPageSize();
 
-        // Preserve the exact normal-page line breaks; only scale the page visually.
         const widthScale =
             (width - CONFIG.overview.horizontalReserve) / width;
         const heightScale =
@@ -904,15 +770,11 @@
                 ? CONFIG.overview.mobileGap
                 : CONFIG.overview.desktopGap;
         const overviewViewportWidth =
-            els.overviewScroller.clientWidth ||
-            width;
+            els.overviewScroller.clientWidth || width;
 
         const sidePad = Math.max(
             0,
-            (
-                overviewViewportWidth -
-                itemWidth
-            ) / 2
+            (overviewViewportWidth - itemWidth) / 2
         );
 
         document.documentElement.style.setProperty(
@@ -936,10 +798,6 @@
             `${sidePad.toFixed(1)}px`
         );
 
-        /*
-          Spacer widths depend on --overview-side-pad, so any previously
-          cached offset metrics are invalid after this geometry update.
-        */
         invalidateOverviewMetrics();
     }
 
@@ -963,58 +821,38 @@
         invalidateOverviewMetrics();
     }
 
-    function getOverviewScrollMetrics({
-        refresh = false
-    } = {}) {
-        if (
-            !refresh &&
-            state.overviewMetrics
-        ) {
+    function getOverviewScrollMetrics({ refresh = false } = {}) {
+        if (!refresh && state.overviewMetrics) {
             return state.overviewMetrics;
         }
 
-        const first =
-            els.overviewStrip.children[0];
+        const first = els.overviewStrip.children[0];
 
         if (!first) {
             state.overviewMetrics = null;
             return null;
         }
 
-        const second =
-            els.overviewStrip.children[1];
+        const second = els.overviewStrip.children[1];
 
         const firstLeft =
             first.offsetLeft -
-            (
-                els.overviewScroller.clientWidth -
-                first.offsetWidth
-            ) / 2;
+            (els.overviewScroller.clientWidth - first.offsetWidth) / 2;
 
         const step = second
             ? second.offsetLeft - first.offsetLeft
             : first.offsetWidth;
 
-        state.overviewMetrics = {
-            firstLeft,
-            step
-        };
-
+        state.overviewMetrics = { firstLeft, step };
         return state.overviewMetrics;
     }
-
-
 
     function clampOverviewScrollLeft(left) {
         const max =
             els.overviewScroller.scrollWidth -
             els.overviewScroller.clientWidth;
 
-        return clamp(
-            left,
-            0,
-            Math.max(0, max)
-        );
+        return clamp(left, 0, Math.max(0, max));
     }
 
     function setOverviewSnapSuppressed(suppressed) {
@@ -1027,33 +865,20 @@
     function cancelOverviewProgrammaticScroll() {
         if (!state.overviewProgrammaticScrollRaf) return;
 
-        cancelAnimationFrame(
-            state.overviewProgrammaticScrollRaf
-        );
+        cancelAnimationFrame(state.overviewProgrammaticScrollRaf);
         state.overviewProgrammaticScrollRaf = 0;
         setOverviewSnapSuppressed(false);
     }
 
     function getOverviewScrollLeftForPage(index) {
-        const metrics =
-            getOverviewScrollMetrics();
-
+        const metrics = getOverviewScrollMetrics();
         if (!metrics) return null;
 
-        return (
-            metrics.firstLeft +
-            clampPageIndex(index) *
-            metrics.step
-        );
+        return metrics.firstLeft + clampPageIndex(index) * metrics.step;
     }
 
-    function scrollOverviewToPage(
-        index,
-        behavior = "auto"
-    ) {
-        const left =
-            getOverviewScrollLeftForPage(index);
-
+    function scrollOverviewToPage(index, behavior = "auto") {
+        const left = getOverviewScrollLeftForPage(index);
         if (left == null) return;
 
         els.overviewScroller.scrollTo({
@@ -1062,149 +887,74 @@
         });
     }
 
-    /*
-      Slider value is a fractional page position:
-        1.00 = page 1 centered
-        1.50 = exactly halfway between page 1 and 2
-        8.27 = 27% of the way from page 8 to 9
-  
-      This makes the card strip move continuously, exactly like horizontal
-      touch scrolling, instead of jumping from one page center to another.
-    */
     function scrollOverviewToPageAnimated(index) {
-        const targetIndex =
-            clampPageIndex(index);
+        const targetIndex = clampPageIndex(index);
+        const targetLeft = getOverviewScrollLeftForPage(targetIndex);
 
-        const targetLeft =
-            getOverviewScrollLeftForPage(
-                targetIndex
-            );
-
-        if (targetLeft == null) {
-            return;
-        }
+        if (targetLeft == null) return;
 
         cancelOverviewProgrammaticScroll();
 
-        const scroller =
-            els.overviewScroller;
-
-        const startLeft =
-            scroller.scrollLeft;
-
-        const endLeft =
-            clampOverviewScrollLeft(
-                targetLeft
-            );
-
-        const distance =
-            Math.abs(
-                endLeft - startLeft
-            );
+        const scroller = els.overviewScroller;
+        const startLeft = scroller.scrollLeft;
+        const endLeft = clampOverviewScrollLeft(targetLeft);
+        const distance = Math.abs(endLeft - startLeft);
 
         if (distance < 1) {
-            setCurrentPageIndex(
-                targetIndex
-            );
-
-            scrollOverviewToPage(
-                targetIndex,
-                "auto"
-            );
-
+            setCurrentPageIndex(targetIndex);
+            scrollOverviewToPage(targetIndex, "auto");
             return;
         }
 
-        /*
-          Longer jumps remain visibly animated, but cap the duration
-          so navigating across a long book does not feel sluggish.
-        */
         const duration = clamp(
             CONFIG.overview.navigationBaseDuration +
-            distance / Math.max(
-                1,
-                scroller.clientWidth
-            ) * CONFIG.overview.navigationPerViewport,
+            distance / Math.max(1, scroller.clientWidth) *
+            CONFIG.overview.navigationPerViewport,
             CONFIG.overview.navigationMinDuration,
             CONFIG.overview.navigationMaxDuration
         );
 
-        const startTime =
-            performance.now();
-
-        /*
-          Disable scroll snap while the strip is moving.
-          Otherwise the browser may try to capture intermediate pages.
-        */
+        const startTime = performance.now();
         setOverviewSnapSuppressed(true);
 
         const easeInOutCubic = (t) =>
             t < 0.5
                 ? 4 * t * t * t
-                : 1 -
-                Math.pow(
-                    -2 * t + 2,
-                    3
-                ) / 2;
+                : 1 - Math.pow(-2 * t + 2, 3) / 2;
 
         const tick = (now) => {
             const progress = clamp(
-                (now - startTime) /
-                duration,
+                (now - startTime) / duration,
                 0,
                 1
             );
 
-            const eased =
-                easeInOutCubic(progress);
+            const eased = easeInOutCubic(progress);
 
             scroller.scrollLeft =
                 startLeft +
-                (
-                    endLeft -
-                    startLeft
-                ) *
-                eased;
+                (endLeft - startLeft) * eased;
 
             if (progress < 1) {
                 state.overviewProgrammaticScrollRaf =
-                    requestAnimationFrame(
-                        tick
-                    );
+                    requestAnimationFrame(tick);
                 return;
             }
 
             state.overviewProgrammaticScrollRaf = 0;
-
             setOverviewSnapSuppressed(false);
-
-            /*
-              Finalize exactly on the chapter's first page.
-              The scroll handler has already updated the counter/title while
-              all intermediate cards passed through the viewport.
-            */
-            setCurrentPageIndex(
-                targetIndex
-            );
-
-            scrollOverviewToPage(
-                targetIndex,
-                "auto"
-            );
+            setCurrentPageIndex(targetIndex);
+            scrollOverviewToPage(targetIndex, "auto");
         };
 
-        state.overviewProgrammaticScrollRaf =
-            requestAnimationFrame(
-                tick
-            );
+        state.overviewProgrammaticScrollRaf = requestAnimationFrame(tick);
     }
 
     function syncOverviewPosition(
         fractionalIndex,
         sliderValue = fractionalIndex + 1
     ) {
-        const nearestIndex =
-            clampPageIndex(Math.round(fractionalIndex));
+        const nearestIndex = clampPageIndex(Math.round(fractionalIndex));
 
         if (nearestIndex === state.currentPage) {
             els.pageSlider.value = String(sliderValue);
@@ -1223,64 +973,45 @@
 
         if (state.sliderRaf) return;
 
-        state.sliderRaf =
-            requestAnimationFrame(() => {
-                state.sliderRaf = 0;
+        state.sliderRaf = requestAnimationFrame(() => {
+            state.sliderRaf = 0;
 
-                const metrics =
-                    getOverviewScrollMetrics();
+            const metrics = getOverviewScrollMetrics();
+            if (!metrics) return;
 
-                if (!metrics) return;
+            const fractionalIndex = state.pendingSliderPosition - 1;
 
-                const fractionalIndex =
-                    state.pendingSliderPosition - 1;
+            els.overviewScroller.scrollLeft =
+                metrics.firstLeft + fractionalIndex * metrics.step;
 
-                els.overviewScroller.scrollLeft =
-                    metrics.firstLeft +
-                    fractionalIndex *
-                    metrics.step;
-
-                syncOverviewPosition(
-                    fractionalIndex,
-                    state.pendingSliderPosition
-                );
-            });
+            syncOverviewPosition(
+                fractionalIndex,
+                state.pendingSliderPosition
+            );
+        });
     }
+
     function syncPageFromOverviewScroll() {
         if (state.sliderDragging) return;
 
-        cancelAnimationFrame(
-            state.overviewScrollRaf
-        );
+        cancelAnimationFrame(state.overviewScrollRaf);
 
-        state.overviewScrollRaf =
-            requestAnimationFrame(() => {
-                const metrics =
-                    getOverviewScrollMetrics();
+        state.overviewScrollRaf = requestAnimationFrame(() => {
+            const metrics = getOverviewScrollMetrics();
 
-                if (
-                    !metrics ||
-                    metrics.step <= 0
-                ) {
-                    return;
-                }
+            if (!metrics || metrics.step <= 0) return;
 
-                const fractionalIndex = clamp(
-                    (
-                        els.overviewScroller.scrollLeft -
-                        metrics.firstLeft
-                    ) / metrics.step,
-                    0,
-                    Math.max(
-                        0,
-                        state.pages.length - 1
-                    )
-                );
+            const fractionalIndex = clamp(
+                (
+                    els.overviewScroller.scrollLeft -
+                    metrics.firstLeft
+                ) / metrics.step,
+                0,
+                Math.max(0, state.pages.length - 1)
+            );
 
-                syncOverviewPosition(
-                    fractionalIndex
-                );
-            });
+            syncOverviewPosition(fractionalIndex);
+        });
     }
 
     function markOverviewDirty() {
@@ -1350,7 +1081,11 @@
         };
     }
 
-    function setMorphCard(card, { transform, opacity = 1, elevated = false }) {
+    function setMorphCard(card, {
+        transform,
+        opacity = 1,
+        elevated = false
+    }) {
         card.style.transform = transform;
         card.style.opacity = String(opacity);
         card.style.borderRadius =
@@ -1516,7 +1251,6 @@
             els.nextPage
         ].forEach(clearMorphCard);
 
-        // Mode class changes can also create CSS transitions.
         cancelElementAnimations(els.topbar, els.bottomBar, els.app);
     }
 
@@ -1543,7 +1277,6 @@
 
         await waitForAnimations(animations);
 
-        // Swap only after the stage matches the real overview.
         applyAppMode("overview");
         await nextPaint();
 
@@ -1570,7 +1303,6 @@
         setMorphStart(false, transforms, sides);
         await nextPaint();
 
-        // The stage now matches the overview cards underneath it.
         applyAppMode("normal");
 
         const animations =
@@ -1623,23 +1355,17 @@
     }
 
     function getReadingProgress() {
-        const pageCount =
-            Math.max(state.pages.length, 1);
+        const pageCount = Math.max(state.pages.length, 1);
 
         return pageCount <= 1
             ? 0
-            : state.currentPage /
-            (pageCount - 1);
+            : state.currentPage / (pageCount - 1);
     }
 
     function getPageIndexForProgress(progress) {
         return clampPageIndex(
             Math.round(
-                progress *
-                Math.max(
-                    0,
-                    state.pages.length - 1
-                )
+                progress * Math.max(0, state.pages.length - 1)
             )
         );
     }
@@ -1666,27 +1392,19 @@
     function refreshOverviewAfterPagination() {
         markOverviewDirty();
 
-        if (state.mode !== "overview") {
-            return;
-        }
+        if (state.mode !== "overview") return;
 
         ensureOverviewStrip();
 
         requestAnimationFrame(() => {
-            scrollOverviewToPage(
-                state.currentPage,
-                "auto"
-            );
+            scrollOverviewToPage(state.currentPage, "auto");
         });
     }
 
-    function commitPaginationAtProgress(
-        progress
-    ) {
+    function commitPaginationAtProgress(progress) {
         configurePageSlider();
 
-        state.currentPage =
-            getPageIndexForProgress(progress);
+        state.currentPage = getPageIndexForProgress(progress);
 
         renderCurrentPage();
         refreshOverviewAfterPagination();
@@ -1707,104 +1425,53 @@
         repaginateForFontSize(size);
     }
 
-    /*
-      Font-size position invariant:
-      - chapter first page -> same chapter first page
-      - any other page     -> approximate reading progress
-    */
     function getCurrentChapterStartAnchor() {
-        const page =
-            state.pages[state.currentPage];
-
+        const page = state.pages[state.currentPage];
         if (!page) return null;
 
-        const chapterIndex =
-            page.chapterIndex;
+        const chapterIndex = page.chapterIndex;
 
-        if (
-            !Number.isInteger(chapterIndex)
-        ) {
+        if (!Number.isInteger(chapterIndex)) {
             return null;
         }
 
-        const chapterStart =
-            state.chapterStarts[chapterIndex];
+        const chapterStart = state.chapterStarts[chapterIndex];
 
-        return (
-            chapterStart === state.currentPage
-                ? chapterIndex
-                : null
-        );
+        return chapterStart === state.currentPage
+            ? chapterIndex
+            : null;
     }
 
     function restoreFontChangePage({
         readingProgress,
         chapterStartAnchor
     }) {
-        /*
-          Semantic anchor wins over percentage progress.
-    
-          If the user was looking at the first page of a chapter,
-          keep that exact chapter boundary after repagination.
-        */
-        if (
-            Number.isInteger(
-                chapterStartAnchor
-            )
-        ) {
-            const anchoredPage =
-                state.chapterStarts[
-                chapterStartAnchor
-                ];
+        if (Number.isInteger(chapterStartAnchor)) {
+            const anchoredPage = state.chapterStarts[chapterStartAnchor];
 
-            if (
-                Number.isInteger(
-                    anchoredPage
-                )
-            ) {
-                return clampPageIndex(
-                    anchoredPage
-                );
+            if (Number.isInteger(anchoredPage)) {
+                return clampPageIndex(anchoredPage);
             }
         }
 
-        /*
-          For ordinary pages, keep the existing percentage-based
-          reading-position approximation.
-        */
         return clampPageIndex(
             Math.round(
                 readingProgress *
-                Math.max(
-                    0,
-                    state.pages.length - 1
-                )
+                Math.max(0, state.pages.length - 1)
             )
         );
     }
 
     function repaginateForFontSize(nextSize) {
-        const oldPageCount =
-            Math.max(state.pages.length, 1);
+        const oldPageCount = Math.max(state.pages.length, 1);
 
         const readingProgress =
             oldPageCount <= 1
                 ? 0
-                : state.currentPage /
-                (oldPageCount - 1);
+                : state.currentPage / (oldPageCount - 1);
 
-        /*
-          Preserve semantic position when currently showing
-          the first page of a chapter.
-        */
-        const chapterStartAnchor =
-            getCurrentChapterStartAnchor();
+        const chapterStartAnchor = getCurrentChapterStartAnchor();
 
-        /*
-          Phase 1:
-          Only the hidden measurement page receives the new font size.
-          The visible reader remains completely untouched.
-        */
         setFontCss(
             nextSize,
             {
@@ -1814,30 +1481,15 @@
         );
 
         requestAnimationFrame(() => {
-            /*
-              Build the entire new pagination off-screen.
-              No loading overlay and no overview DOM rebuild here.
-            */
             paginateBook();
 
-            const nextIndex =
-                restoreFontChangePage({
-                    readingProgress,
-                    chapterStartAnchor
-                });
+            const nextIndex = restoreFontChangePage({
+                readingProgress,
+                chapterStartAnchor
+            });
 
             state.currentPage = nextIndex;
 
-            /*
-              Phase 2 — minimal atomic visual commit.
-      
-              Keep this section intentionally small.
-              Do NOT call the generic commitPaginationAtProgress() here:
-              that function also updates slider configuration / overview state.
-      
-              The visible font and the new page HTML are changed in one JS task,
-              so the browser never paints "new font + old page splitting".
-            */
             setFontCss(
                 nextSize,
                 {
@@ -1848,67 +1500,33 @@
 
             renderPageStack();
 
-            /*
-              Only the small pieces of reading-position UI that can actually
-              change are updated. Avoid reconfiguring the range control here.
-            */
             updateReadingPositionUI({
-                updateSlider:
-                    state.mode === "overview"
+                updateSlider: state.mode === "overview"
             });
 
-            /*
-              Overview is expensive because it contains a copy of every page.
-              In normal reading mode, merely invalidate it.
-            */
             markOverviewDirty();
 
             if (state.mode === "overview") {
-                /*
-                  If overview is currently visible we have no choice but to refresh
-                  it, but do so AFTER the main reader has already been committed.
-                */
                 requestAnimationFrame(() => {
                     ensureOverviewStrip();
-
-                    scrollOverviewToPage(
-                        state.currentPage,
-                        "auto"
-                    );
+                    scrollOverviewToPage(state.currentPage, "auto");
                 });
             }
         });
     }
 
     function repaginateKeepingProgress() {
-        const progress =
-            getReadingProgress();
+        const progress = getReadingProgress();
 
-        setFontCss(
-            state.fontSize
-        );
-
+        setFontCss(state.fontSize);
         els.loading.hidden = false;
 
         requestAnimationFrame(() => {
             paginateBook();
-
-            /*
-              TOC button labels do not depend on pagination.
-              chapterStarts is refreshed by paginateBook(), so there is no
-              reason to rebuild the TOC DOM on every resize/fullscreen change.
-            */
-            commitPaginationAtProgress(
-                progress
-            );
-
+            commitPaginationAtProgress(progress);
             els.loading.hidden = true;
         });
     }
-
-    // ============================================================
-    // UI overlays / fullscreen
-    // ============================================================
 
     function isDisplayPopoverOpen() {
         return els.displayPopover.classList.contains("open");
@@ -2038,13 +1656,7 @@
         els.fullscreenExitIcon.hidden = !active;
     }
 
-    // ---------- Event bindings ----------
-
     const stage = document.querySelector(".stage");
-
-    // ============================================================
-    // Normal-mode stacked page turn
-    // ============================================================
 
     function setTurnShadow(progress) {
         stage.style.setProperty(
@@ -2052,18 +1664,14 @@
             String(
                 Math.min(
                     1,
-                    Math.max(0, progress) *
-                    1.25
+                    Math.max(0, progress) * 1.25
                 )
             )
         );
     }
 
     function setDragX(px) {
-        stage.style.setProperty(
-            "--drag-x",
-            `${px}px`
-        );
+        stage.style.setProperty("--drag-x", `${px}px`);
 
         setTurnShadow(
             Math.abs(px) /
@@ -2072,10 +1680,7 @@
     }
 
     function setReturnX(px) {
-        stage.style.setProperty(
-            "--return-x",
-            `${px}px`
-        );
+        stage.style.setProperty("--return-x", `${px}px`);
 
         setTurnShadow(
             1 -
@@ -2085,10 +1690,7 @@
     }
 
     function resetStackTurn() {
-        stage.classList.remove(
-            "is-animating",
-            "turn-prev"
-        );
+        stage.classList.remove("is-animating", "turn-prev");
         stage.style.setProperty("--drag-x", "0px");
         stage.style.setProperty("--return-x", "-100vw");
         stage.style.setProperty("--turn-shadow-opacity", "0");
@@ -2125,17 +1727,10 @@
         beginTurnAnimation();
 
         if (direction === "next") {
-            /*
-              Top sheet leaves to the LEFT.
-              NEXT never moves; it is simply uncovered.
-            */
             requestAnimationFrame(() => {
                 setDragX(-window.innerWidth);
             });
         } else {
-            /*
-              PREVIOUS is already above CURRENT and returns from the LEFT.
-            */
             stage.classList.add("turn-prev");
             requestAnimationFrame(() => {
                 setReturnX(0);
@@ -2199,51 +1794,20 @@
     });
 
     els.tocList.addEventListener("click", (event) => {
-        const button =
-            event.target.closest(
-                ".toc-button"
-            );
-
+        const button = event.target.closest(".toc-button");
         if (!button) return;
 
-        const chapterIndex =
-            Number(
-                button.dataset.chapterIndex
-            );
+        const chapterIndex = Number(button.dataset.chapterIndex);
+        if (!Number.isInteger(chapterIndex)) return;
 
-        if (
-            !Number.isInteger(
-                chapterIndex
-            )
-        ) {
-            return;
-        }
-
-        const targetPage =
-            state.chapterStarts[
-            chapterIndex
-            ] ?? 0;
-
+        const targetPage = state.chapterStarts[chapterIndex] ?? 0;
         closeToc();
 
-        /*
-          TOC exists in overview chrome, so navigation always moves the
-          already-visible overview strip.
-        */
         requestAnimationFrame(() => {
-            scrollOverviewToPageAnimated(
-                targetPage
-            );
+            scrollOverviewToPageAnimated(targetPage);
         });
     });
 
-    /*
-      Normal reader drag behavior:
-      - current/adjacent page follows the finger 1:1
-      - fast flick commits even with a short distance
-      - slower drag commits around 18% of the viewport width
-      - release snaps smoothly to the next/previous page
-    */
     stage.addEventListener("pointerdown", (event) => {
         if (
             state.mode !== "normal" ||
@@ -2290,17 +1854,14 @@
         }
 
         if (dx < 0) {
-            // Forward: only the current/top sheet moves.
             stage.classList.remove("turn-prev");
 
             if (state.currentPage === state.pages.length - 1) {
-                // Small elastic response at the end of the book.
                 setDragX(dx * 0.16);
             } else {
                 setDragX(dx);
             }
         } else {
-            // Backward: previous page returns over the current sheet.
             if (state.currentPage === 0) {
                 stage.classList.remove("turn-prev");
                 setDragX(dx * 0.12);
@@ -2320,8 +1881,6 @@
         const now = performance.now();
         const rawDx = event.clientX - state.pointerStartX;
         const totalTime = Math.max(1, now - state.pointerStartTime);
-
-        // px/ms; total gesture velocity is stable on mobile browsers.
         const velocity = rawDx / totalTime;
         const threshold =
             window.innerWidth * CONFIG.pageTurn.thresholdRatio;
@@ -2368,7 +1927,6 @@
     stage.addEventListener("pointerup", endReaderPointer);
     stage.addEventListener("pointercancel", endReaderPointer);
 
-    // Native inertial scrolling in overview mode.
     els.overviewScroller.addEventListener(
         "scroll",
         syncPageFromOverviewScroll,
@@ -2397,13 +1955,7 @@
             return;
         }
 
-        /*
-          In normal mode the slider still behaves as a page selector.
-          Fractional values are rounded to the nearest page.
-        */
-        goToPage(
-            Math.round(position) - 1
-        );
+        goToPage(Math.round(position) - 1);
     });
 
     function finishSliderDrag() {
@@ -2421,23 +1973,10 @@
             Math.max(0, state.pages.length - 1)
         );
 
-        const target = Math.round(
-            fractionalIndex
-        );
+        const target = Math.round(fractionalIndex);
 
-        /*
-          Re-enable scroll-snap and settle once.
-          The entire drag has already moved continuously through intermediate
-          cards, so this final movement is only a small centering correction.
-        */
-        setCurrentPageIndex(
-            target
-        );
-
-        scrollOverviewToPage(
-            target,
-            "smooth"
-        );
+        setCurrentPageIndex(target);
+        scrollOverviewToPage(target, "smooth");
     }
 
     [
@@ -2445,10 +1984,7 @@
         "pointercancel",
         "change"
     ].forEach((type) => {
-        els.pageSlider.addEventListener(
-            type,
-            finishSliderDrag
-        );
+        els.pageSlider.addEventListener(type, finishSliderDrag);
     });
 
     els.displayButton.addEventListener("click", toggleDisplayPopover);
@@ -2462,12 +1998,7 @@
     });
 
     els.fullscreenButton.addEventListener("click", (event) => {
-        /*
-          Touch pointerdown above already handled the request.
-          Prevent the synthetic click from toggling fullscreen a second time.
-        */
         if (event.detail === 0) {
-            // Keyboard-generated click remains usable.
             toggleFullscreen();
         }
 
@@ -2489,10 +2020,7 @@
         "fullscreenchange",
         "webkitfullscreenchange"
     ].forEach((type) => {
-        document.addEventListener(
-            type,
-            handleFullscreenChange
-        );
+        document.addEventListener(type, handleFullscreenChange);
     });
 
     els.fontButtons.forEach((button) => {
@@ -2506,14 +2034,9 @@
 
         event.preventDefault();
         event.stopPropagation();
-
         toggleToc();
     });
 
-    /*
-      Suppress the synthetic click generated after touch pointerup.
-      Without this, some Android browsers can effectively toggle twice.
-    */
     els.tocOpenButton.addEventListener("click", (event) => {
         event.preventDefault();
         event.stopPropagation();
@@ -2573,10 +2096,6 @@
         window.visualViewport.addEventListener("resize", () => {
             const nextHeight = window.visualViewport.height;
 
-            /*
-              Ignore tiny sub-pixel/layout fluctuations. Reflow only when the
-              visible browser viewport actually changes meaningfully.
-            */
             if (Math.abs(nextHeight - lastVisualViewportHeight) < 8) return;
 
             lastVisualViewportHeight = nextHeight;
@@ -2592,17 +2111,9 @@
         paginateBook();
         buildToc();
         configurePageSlider();
-
-        /*
-          Overview clones are invisible at startup and can be expensive for
-          long books. Build them lazily on the first overview transition.
-        */
         markOverviewDirty();
 
-        state.currentPage =
-            clampPageIndex(
-                state.currentPage
-            );
+        state.currentPage = clampPageIndex(state.currentPage);
 
         renderCurrentPage();
         els.loading.hidden = true;
