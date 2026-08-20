@@ -236,6 +236,14 @@
       <div class="loading" id="loading">ページを再計算しています…</div>
     </div>
 
+    <div class="image-viewer" id="imageViewer" role="dialog" aria-modal="true" aria-hidden="true" aria-label="画像拡大表示">
+      <button class="image-viewer__close" id="imageViewerClose" type="button" aria-label="画像を閉じる">×</button>
+      <div class="image-viewer__viewport" id="imageViewerViewport">
+        <img class="image-viewer__image" id="imageViewerImage" alt="" draggable="false" />
+      </div>
+      <div class="image-viewer__hint">ピンチ / ホイールで拡大・ドラッグで移動</div>
+    </div>
+
     <div class="measure-host" aria-hidden="true">
       <article class="measure-page" id="measurePage">
         <div class="measure-body" id="measureBody"></div>
@@ -323,10 +331,262 @@
         tocList: document.getElementById("tocList"),
         scrim: document.getElementById("scrim"),
         loading: document.getElementById("loading"),
-        measureBody: document.getElementById("measureBody")
+        measureBody: document.getElementById("measureBody"),
+        imageViewer: document.getElementById("imageViewer"),
+        imageViewerViewport: document.getElementById("imageViewerViewport"),
+        imageViewerImage: document.getElementById("imageViewerImage"),
+        imageViewerClose: document.getElementById("imageViewerClose")
     };
 
     const stage = document.querySelector(".stage");
+
+    const imageViewerGesture = {
+        scale: 1,
+        x: 0,
+        y: 0,
+        pointers: new Map(),
+        panStart: null,
+        pinchStart: null
+    };
+
+    function isImageViewerOpen() {
+        return els.imageViewer.classList.contains("open");
+    }
+
+    function constrainImageViewerPan() {
+        const width = els.imageViewerImage.offsetWidth * imageViewerGesture.scale;
+        const height = els.imageViewerImage.offsetHeight * imageViewerGesture.scale;
+        const maxX = Math.max(0, (width - els.imageViewerViewport.clientWidth) / 2);
+        const maxY = Math.max(0, (height - els.imageViewerViewport.clientHeight) / 2);
+
+        imageViewerGesture.x = clamp(imageViewerGesture.x, -maxX, maxX);
+        imageViewerGesture.y = clamp(imageViewerGesture.y, -maxY, maxY);
+    }
+
+    function applyImageViewerTransform() {
+        constrainImageViewerPan();
+        els.imageViewerImage.style.transform =
+            `translate3d(${imageViewerGesture.x}px, ${imageViewerGesture.y}px, 0) ` +
+            `scale(${imageViewerGesture.scale})`;
+    }
+
+    function resetImageViewerTransform() {
+        imageViewerGesture.scale = 1;
+        imageViewerGesture.x = 0;
+        imageViewerGesture.y = 0;
+        imageViewerGesture.pointers.clear();
+        imageViewerGesture.panStart = null;
+        imageViewerGesture.pinchStart = null;
+        applyImageViewerTransform();
+    }
+
+    function openImageViewer(sourceImage) {
+        closeDisplayPopover();
+        closeToc();
+
+        els.imageViewerImage.src = sourceImage.currentSrc || sourceImage.src;
+        els.imageViewerImage.alt = sourceImage.alt || "";
+        resetImageViewerTransform();
+
+        els.imageViewer.classList.add("open");
+        els.imageViewer.setAttribute("aria-hidden", "false");
+        els.imageViewerClose.focus({ preventScroll: true });
+    }
+
+    function closeImageViewer() {
+        if (!isImageViewerOpen()) return;
+
+        els.imageViewer.classList.remove("open");
+        els.imageViewer.setAttribute("aria-hidden", "true");
+        resetImageViewerTransform();
+    }
+
+    function getReaderImage(target) {
+        if (!(target instanceof Element)) return null;
+
+        const image = target.closest(".book-image-block img");
+        return image?.closest(".stage") ? image : null;
+    }
+
+    function imageViewerDistance(a, b) {
+        return Math.hypot(a.x - b.x, a.y - b.y);
+    }
+
+    function startImageViewerPinch() {
+        const points = [...imageViewerGesture.pointers.values()];
+        if (points.length < 2) return;
+
+        imageViewerGesture.pinchStart = {
+            distance: Math.max(1, imageViewerDistance(points[0], points[1])),
+            scale: imageViewerGesture.scale
+        };
+    }
+
+    function endImageViewerPointer(event) {
+        if (!imageViewerGesture.pointers.has(event.pointerId)) return;
+
+        imageViewerGesture.pointers.delete(event.pointerId);
+        imageViewerGesture.pinchStart = null;
+
+        if (imageViewerGesture.pointers.size === 1) {
+            const point = [...imageViewerGesture.pointers.values()][0];
+            imageViewerGesture.panStart = {
+                pointerX: point.x,
+                pointerY: point.y,
+                x: imageViewerGesture.x,
+                y: imageViewerGesture.y
+            };
+        } else {
+            imageViewerGesture.panStart = null;
+        }
+
+        try {
+            els.imageViewerViewport.releasePointerCapture(event.pointerId);
+        } catch (_) { }
+    }
+
+    document.addEventListener("pointerdown", (event) => {
+        if (getReaderImage(event.target)) {
+            event.stopPropagation();
+        }
+    }, true);
+
+    document.addEventListener("click", (event) => {
+        const image = getReaderImage(event.target);
+        if (!image) return;
+
+        event.preventDefault();
+        event.stopPropagation();
+        openImageViewer(image);
+    }, true);
+
+    document.addEventListener("keydown", (event) => {
+        if (!isImageViewerOpen()) return;
+
+        event.stopImmediatePropagation();
+
+        if (event.key === "Escape") {
+            event.preventDefault();
+            closeImageViewer();
+        }
+    }, true);
+
+    els.imageViewerClose.addEventListener("click", closeImageViewer);
+
+    els.imageViewerViewport.addEventListener("click", (event) => {
+        if (event.target === els.imageViewerViewport) {
+            closeImageViewer();
+        }
+    });
+
+    els.imageViewerViewport.addEventListener("pointerdown", (event) => {
+        if (event.pointerType === "mouse" && event.button !== 0) return;
+
+        imageViewerGesture.pointers.set(event.pointerId, {
+            x: event.clientX,
+            y: event.clientY
+        });
+
+        try {
+            els.imageViewerViewport.setPointerCapture(event.pointerId);
+        } catch (_) { }
+
+        if (imageViewerGesture.pointers.size === 1) {
+            imageViewerGesture.panStart = {
+                pointerX: event.clientX,
+                pointerY: event.clientY,
+                x: imageViewerGesture.x,
+                y: imageViewerGesture.y
+            };
+        } else if (imageViewerGesture.pointers.size === 2) {
+            startImageViewerPinch();
+        }
+
+        event.preventDefault();
+    });
+
+    els.imageViewerViewport.addEventListener("pointermove", (event) => {
+        if (!imageViewerGesture.pointers.has(event.pointerId)) return;
+
+        imageViewerGesture.pointers.set(event.pointerId, {
+            x: event.clientX,
+            y: event.clientY
+        });
+
+        if (imageViewerGesture.pointers.size >= 2) {
+            if (!imageViewerGesture.pinchStart) {
+                startImageViewerPinch();
+            }
+
+            const points = [...imageViewerGesture.pointers.values()];
+            const distance = Math.max(1, imageViewerDistance(points[0], points[1]));
+            const start = imageViewerGesture.pinchStart;
+
+            imageViewerGesture.scale = clamp(
+                start.scale * distance / start.distance,
+                1,
+                4
+            );
+
+            if (imageViewerGesture.scale === 1) {
+                imageViewerGesture.x = 0;
+                imageViewerGesture.y = 0;
+            }
+
+            applyImageViewerTransform();
+            event.preventDefault();
+            return;
+        }
+
+        if (
+            imageViewerGesture.scale > 1 &&
+            imageViewerGesture.panStart
+        ) {
+            imageViewerGesture.x =
+                imageViewerGesture.panStart.x +
+                event.clientX -
+                imageViewerGesture.panStart.pointerX;
+            imageViewerGesture.y =
+                imageViewerGesture.panStart.y +
+                event.clientY -
+                imageViewerGesture.panStart.pointerY;
+            applyImageViewerTransform();
+        }
+
+        event.preventDefault();
+    });
+
+    els.imageViewerViewport.addEventListener("pointerup", endImageViewerPointer);
+    els.imageViewerViewport.addEventListener("pointercancel", endImageViewerPointer);
+
+    els.imageViewerViewport.addEventListener("wheel", (event) => {
+        if (!isImageViewerOpen()) return;
+
+        event.preventDefault();
+
+        imageViewerGesture.scale = clamp(
+            imageViewerGesture.scale * (event.deltaY < 0 ? 1.18 : 0.85),
+            1,
+            4
+        );
+
+        if (imageViewerGesture.scale === 1) {
+            imageViewerGesture.x = 0;
+            imageViewerGesture.y = 0;
+        }
+
+        applyImageViewerTransform();
+    }, { passive: false });
+
+    els.imageViewerImage.addEventListener("dblclick", (event) => {
+        event.preventDefault();
+        event.stopPropagation();
+
+        imageViewerGesture.scale = imageViewerGesture.scale > 1 ? 1 : 2;
+        imageViewerGesture.x = 0;
+        imageViewerGesture.y = 0;
+        applyImageViewerTransform();
+    });
 
     function createTextElement(tag, text, className = "") {
         const element = document.createElement(tag);
@@ -359,6 +619,7 @@
         const img = document.createElement("img");
         img.src = block.src;
         img.alt = block.alt || "";
+        img.draggable = false;
         figure.appendChild(img);
 
         if (block.caption) {
