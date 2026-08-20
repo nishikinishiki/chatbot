@@ -765,11 +765,21 @@ button {
 @media (min-width: 1024px) {
     :root {
         --reader-page-width: 50vw;
+        --reader-viewport-height:
+            calc(100vh - var(--topbar-height) - var(--bottombar-height));
     }
 
     .topbar,
     .bottom-bar {
+        opacity: 1;
+        pointer-events: auto;
+        transform: translateY(0);
         transition: none;
+    }
+
+    .app.normal .stage {
+        top: var(--topbar-height);
+        bottom: var(--bottombar-height);
     }
 
     .app.normal .stage:not(.turn-prev) .page-card--current,
