@@ -764,6 +764,8 @@ button {
 
 @media (min-width: 1024px) {
     :root {
+        --page-padding-top: 50px;
+        --page-padding-bottom: 50px;
         --reader-page-width: 50vw;
         --reader-viewport-height:
             calc(100vh - var(--topbar-height) - var(--bottombar-height));
