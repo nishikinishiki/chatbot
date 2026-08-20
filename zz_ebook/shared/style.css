@@ -943,3 +943,97 @@ button {
 .page-body {
     text-rendering: optimizeLegibility;
 }
+
+/* ---------- Image viewer ---------- */
+
+.app.normal .stage .book-image-block img {
+    pointer-events: auto;
+    cursor: zoom-in;
+}
+
+.image-viewer {
+    position: fixed;
+    inset: 0;
+    z-index: 80;
+    background: rgba(0, 0, 0, 0.92);
+    opacity: 0;
+    visibility: hidden;
+    pointer-events: none;
+    transition:
+        opacity 160ms var(--ease-standard),
+        visibility 0s linear 160ms;
+}
+
+.image-viewer.open {
+    opacity: 1;
+    visibility: visible;
+    pointer-events: auto;
+    transition:
+        opacity 160ms var(--ease-standard),
+        visibility 0s linear 0s;
+}
+
+.image-viewer__viewport {
+    position: absolute;
+    inset: 0;
+    display: grid;
+    place-items: center;
+    overflow: hidden;
+    padding: 24px;
+    touch-action: none;
+    overscroll-behavior: contain;
+}
+
+.image-viewer__image {
+    display: block;
+    max-width: calc(100vw - 48px);
+    max-height: calc(100vh - 48px);
+    object-fit: contain;
+    transform-origin: center center;
+    will-change: transform;
+    user-select: none;
+    -webkit-user-select: none;
+    -webkit-user-drag: none;
+}
+
+@supports (height: 100dvh) {
+    .image-viewer__image {
+        max-height: calc(100dvh - 48px);
+    }
+}
+
+.image-viewer__close {
+    position: absolute;
+    z-index: 2;
+    top: calc(env(safe-area-inset-top, 0px) + 12px);
+    right: 12px;
+    width: 44px;
+    height: 44px;
+    display: grid;
+    place-items: center;
+    border-radius: var(--radius-pill);
+    background: rgba(0, 0, 0, 0.5);
+    color: #fff;
+    font-size: 30px;
+    font-weight: 300;
+    line-height: 1;
+}
+
+.image-viewer__close:hover,
+.image-viewer__close:focus-visible {
+    background: rgba(255, 255, 255, 0.16);
+    outline: none;
+}
+
+.image-viewer__hint {
+    position: absolute;
+    z-index: 2;
+    right: 16px;
+    bottom: calc(env(safe-area-inset-bottom, 0px) + 14px);
+    left: 16px;
+    color: rgba(255, 255, 255, 0.72);
+    font-size: 12px;
+    line-height: 1.4;
+    text-align: center;
+    pointer-events: none;
+}
