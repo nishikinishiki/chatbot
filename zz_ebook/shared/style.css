@@ -789,6 +789,26 @@ button {
         z-index: 2;
     }
 
+    .app.normal .stage:not(.turn-prev):has(.page-card--next:not(.is-empty))::after {
+        content: "";
+        position: absolute;
+        top: 0;
+        bottom: 0;
+        left: 50%;
+        z-index: 3;
+        width: 24px;
+        transform: translateX(-50%);
+        background: linear-gradient(
+            to right,
+            transparent,
+            rgba(0, 0, 0, 0.05) 30%,
+            rgba(0, 0, 0, 0.12) 50%,
+            rgba(0, 0, 0, 0.05) 70%,
+            transparent
+        );
+        pointer-events: none;
+    }
+
     .app.normal .stage:not(.turn-prev) .page-card--current.cover-card {
         left: 25vw;
     }
