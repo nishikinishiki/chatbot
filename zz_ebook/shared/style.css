@@ -773,10 +773,60 @@ button {
         --topbar-height: 70px;
         --bottombar-height: 76px;
         --overview-gap: 18px;
+        --reader-viewport-height:
+            calc(
+                100vh -
+                var(--topbar-height) -
+                var(--bottombar-height) -
+                env(safe-area-inset-bottom, 0px)
+            );
+    }
+
+    @supports (height: 100dvh) {
+        :root {
+            --reader-viewport-height:
+                calc(
+                    100dvh -
+                    var(--topbar-height) -
+                    var(--bottombar-height) -
+                    env(safe-area-inset-bottom, 0px)
+                );
+        }
+    }
+
+    .topbar,
+    .bottom-bar {
+        opacity: 1;
+        pointer-events: auto;
+        transform: translateY(0);
+        transition: none;
     }
 
     .topbar {
         padding-right: 10px;
+    }
+
+    .stage {
+        top: var(--topbar-height);
+        bottom: calc(var(--bottombar-height) + env(safe-area-inset-bottom, 0px));
+    }
+
+    .overview-scroller {
+        bottom: calc(var(--bottombar-height) + env(safe-area-inset-bottom, 0px));
+    }
+
+    .page-card,
+    .measure-page {
+        padding:
+            var(--page-padding-top) var(--page-padding-x) var(--page-padding-bottom);
+    }
+
+    #overviewButton {
+        display: none;
+    }
+
+    .app.normal #overviewButton {
+        display: inline-grid;
     }
 
     .bottom-bar {
@@ -936,6 +986,11 @@ button {
 }
 
 /* ---------- Fullscreen control ---------- */
+
+#overviewButton {
+    display: none;
+    touch-action: manipulation;
+}
 
 #fullscreenButton {
     touch-action: manipulation;
