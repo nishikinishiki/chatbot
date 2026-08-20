@@ -946,9 +946,16 @@ button {
 
 /* ---------- Image viewer ---------- */
 
-.app.normal .stage .book-image-block img {
+.app.normal .stage .page-card--current .book-image-block img {
     pointer-events: auto;
     cursor: zoom-in;
+}
+
+@media (min-width: 1024px) {
+    .app.normal .stage .page-card--next .book-image-block img {
+        pointer-events: auto;
+        cursor: zoom-in;
+    }
 }
 
 .image-viewer {
