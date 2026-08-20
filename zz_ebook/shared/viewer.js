@@ -90,90 +90,80 @@
             chapters: []
         };
 
-        const lines = md.split('\n');
-        let state = 'start';
+        const parts = md.trim().split(/^---\s*$/m);
+        const frontmatter = parts.length >= 3 ? parts[1] : "";
+        const body = parts.length >= 3
+            ? parts.slice(2).join("---")
+            : md;
+
+        frontmatter.split("\n").forEach((line) => {
+            const separator = line.indexOf(":");
+            if (separator < 0) return;
+
+            const key = line.slice(0, separator).trim();
+            const value = line.slice(separator + 1).trim();
+
+            if (key === "title") book.title = value;
+            if (key === "cover") book.cover.src = value;
+            if (key === "published") book.published = value;
+        });
+
         let currentChapter = null;
         let paragraphBuffer = [];
 
         function flushParagraph() {
-            if (paragraphBuffer.length > 0 && currentChapter) {
-                currentChapter.blocks.push({
-                    type: 'paragraph',
-                    text: paragraphBuffer.join('')
-                });
-                paragraphBuffer = [];
-            }
+            if (!paragraphBuffer.length || !currentChapter) return;
+
+            currentChapter.blocks.push({
+                type: "paragraph",
+                text: paragraphBuffer.join("")
+            });
+            paragraphBuffer = [];
         }
 
-        for (let i = 0; i < lines.length; i++) {
-            const line = lines[i].trim();
+        body.split("\n").forEach((rawLine) => {
+            const line = rawLine.trim();
 
-            if (state === 'start' && line === '---') {
-                state = 'frontmatter';
-                continue;
-            }
-
-            if (state === 'frontmatter') {
-                if (line === '---') {
-                    state = 'body';
-                    continue;
-                }
-
-                const match = line.match(/^([a-zA-Z0-9_]+):\s*(.*)$/);
-                if (match) {
-                    const key = match[1];
-                    const val = match[2];
-                    if (key === 'title') book.title = val;
-                    if (key === 'cover') book.cover.src = val;
-                    if (key === 'published') book.published = val;
-                }
-                continue;
-            }
-
-            if (line === '') {
+            if (!line) {
                 flushParagraph();
-                continue;
+                return;
             }
 
-            if (line.startsWith('# ')) {
+            if (line.startsWith("# ")) {
                 flushParagraph();
                 currentChapter = {
-                    title: line.replace(/^#\s+/, ''),
+                    title: line.replace(/^#\s+/, ""),
                     blocks: []
                 };
                 book.chapters.push(currentChapter);
-                continue;
+                return;
             }
 
-            if (state === 'body') {
-                if (line.startsWith('## ')) {
-                    flushParagraph();
-                    if (currentChapter) {
-                        currentChapter.blocks.push({
-                            type: 'h2',
-                            text: line.replace(/^##\s+/, '')
-                        });
-                    }
-                    continue;
-                }
+            if (!currentChapter) return;
 
-                const imgMatch = line.match(/^!\[(.*?)\]\((.*?)\)$/);
-                if (imgMatch) {
-                    flushParagraph();
-                    if (currentChapter) {
-                        currentChapter.blocks.push({
-                            type: 'image',
-                            alt: imgMatch[1],
-                            caption: imgMatch[1],
-                            src: imgMatch[2]
-                        });
-                    }
-                    continue;
-                }
-
-                paragraphBuffer.push(line);
+            if (line.startsWith("## ")) {
+                flushParagraph();
+                currentChapter.blocks.push({
+                    type: "h2",
+                    text: line.replace(/^##\s+/, "")
+                });
+                return;
             }
-        }
+
+            const image = line.match(/^!\[(.*?)\]\((.*?)\)$/);
+            if (image) {
+                flushParagraph();
+                currentChapter.blocks.push({
+                    type: "image",
+                    alt: image[1],
+                    caption: image[1],
+                    src: image[2]
+                });
+                return;
+            }
+
+            paragraphBuffer.push(line);
+        });
 
         flushParagraph();
         return book;
@@ -185,6 +175,7 @@
     }
 
     const book = parseBookMarkdown(window.bookMarkdown);
+    document.title = `${book.title} | JPリターンズ`;
 
     document.body.innerHTML = `
     <div class="app normal" id="app">
@@ -777,7 +768,6 @@
         });
 
         els.overviewStrip.replaceChildren(fragment);
-        invalidateOverviewStep();
     }
 
     function getOverviewStep() {
