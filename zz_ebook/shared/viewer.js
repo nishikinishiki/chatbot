@@ -197,8 +197,11 @@
           <button class="text-button" id="displayButton" aria-label="文字サイズ" title="文字サイズ">Aa</button>
 
           <button class="icon-button" id="overviewButton" aria-label="俯瞰表示" title="俯瞰表示">
-            <svg viewBox="0 0 24 24" aria-hidden="true">
+            <svg class="overview-enter-icon" viewBox="0 0 24 24" aria-hidden="true">
               <path d="M4 4h6v6H4V4Zm10 0h6v6h-6V4ZM4 14h6v6H4v-6Zm10 0h6v6h-6v-6Z"/>
+            </svg>
+            <svg class="overview-exit-icon" viewBox="0 0 24 24" aria-hidden="true" hidden>
+              <path d="M6 3h12a2 2 0 0 1 2 2v14a2 2 0 0 1-2 2H6a2 2 0 0 1-2-2V5a2 2 0 0 1 2-2Zm0 2v14h12V5H6Zm2 3h8v2H8V8Zm0 4h8v2H8v-2Z"/>
             </svg>
           </button>
 
@@ -334,6 +337,8 @@
         displayButton: document.getElementById("displayButton"),
         displayPopover: document.getElementById("displayPopover"),
         overviewButton: document.getElementById("overviewButton"),
+        overviewEnterIcon: document.querySelector("#overviewButton .overview-enter-icon"),
+        overviewExitIcon: document.querySelector("#overviewButton .overview-exit-icon"),
         fullscreenButton: document.getElementById("fullscreenButton"),
         fullscreenEnterIcon: document.querySelector("#fullscreenButton .fullscreen-enter-icon"),
         fullscreenExitIcon: document.querySelector("#fullscreenButton .fullscreen-exit-icon"),
@@ -1476,10 +1481,28 @@
         state.modeTransitioning = false;
     }
 
+    function updateOverviewButton() {
+        const active = state.mode === "overview";
+
+        els.overviewButton.classList.toggle("is-active", active);
+        els.overviewButton.setAttribute(
+            "aria-label",
+            active ? "通常表示に戻る" : "俯瞰表示"
+        );
+        els.overviewButton.setAttribute(
+            "title",
+            active ? "通常表示に戻る" : "俯瞰表示"
+        );
+
+        els.overviewEnterIcon.hidden = active;
+        els.overviewExitIcon.hidden = !active;
+    }
+
     function applyAppMode(mode) {
         state.mode = mode;
         els.app.classList.toggle("normal", mode === "normal");
         els.app.classList.toggle("overview", mode === "overview");
+        updateOverviewButton();
     }
 
     function closeOverlays() {
@@ -2204,7 +2227,7 @@
     els.overviewButton.addEventListener("click", (event) => {
         event.preventDefault();
         event.stopPropagation();
-        setMode("overview");
+        setMode(state.mode === "overview" ? "normal" : "overview");
     });
 
     els.fullscreenButton.addEventListener("pointerdown", (event) => {
@@ -2325,6 +2348,7 @@
 
     function init() {
         updateFullscreenButton();
+        updateOverviewButton();
         updateOverviewGeometry();
         setFontSize(state.fontSize, { repaginate: false });
         paginateBook();
