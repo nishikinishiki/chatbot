@@ -991,33 +991,20 @@
         };
     }
 
-    function getMorphTheme() {
-        return {
-            radius: cssVar("--overview-card-radius", "10px"),
-            shadow: cssVar("--shadow", "0 3px 14px rgba(0,0,0,.12)"),
-            shadowNone: cssVar("--shadow-none", "0 0 0 rgba(0,0,0,0)")
-        };
-    }
-
     function setMorphCard(card, {
         transform,
-        opacity = 1,
-        elevated = false
+        opacity = 1
     }) {
         card.style.transform = transform;
         card.style.opacity = String(opacity);
-        card.style.borderRadius =
-            elevated ? "var(--overview-card-radius)" : "0";
-        card.style.boxShadow =
-            elevated ? "var(--shadow)" : "none";
     }
 
     function setMorphStart(toOverview, transforms, sides) {
         const full = "translate3d(0,0,0) scale(1)";
+        stage.classList.toggle("morph-elevated", !toOverview);
 
         setMorphCard(els.currentPage, {
-            transform: toOverview ? full : transforms.current,
-            elevated: !toOverview
+            transform: toOverview ? full : transforms.current
         });
 
         [
@@ -1026,8 +1013,7 @@
         ].forEach(([card, transform, visible]) => {
             setMorphCard(card, {
                 transform,
-                opacity: toOverview ? 0 : visible ? 1 : 0,
-                elevated: visible
+                opacity: toOverview ? 0 : visible ? 1 : 0
             });
         });
     }
@@ -1057,17 +1043,13 @@
 
     function createMorphAnimations(toOverview, transforms, sides) {
         const options = animationOptions();
-        const theme = getMorphTheme();
+        stage.classList.toggle("morph-elevated", toOverview);
 
         const full = {
-            transform: "translate3d(0,0,0) scale(1)",
-            borderRadius: "0px",
-            boxShadow: theme.shadowNone
+            transform: "translate3d(0,0,0) scale(1)"
         };
         const overview = {
-            transform: transforms.current,
-            borderRadius: theme.radius,
-            boxShadow: theme.shadow
+            transform: transforms.current
         };
 
         const animations = [
@@ -1113,18 +1095,14 @@
             [els.currentPage, 4]
         ].forEach(([card, zIndex]) => {
             card.style.zIndex = String(zIndex);
-            card.style.transition = "none";
         });
     }
 
     function clearMorphCard(card) {
         [
             "z-index",
-            "transition",
             "transform",
-            "opacity",
-            "border-radius",
-            "box-shadow"
+            "opacity"
         ].forEach((property) => card.style.removeProperty(property));
     }
 
@@ -1136,7 +1114,7 @@
 
     function cleanupModeMorph(animations) {
         animations.forEach((animation) => animation.cancel());
-        stage.classList.remove("mode-morph");
+        stage.classList.remove("mode-morph", "morph-elevated");
 
         [
             els.prevPage,
