@@ -27,6 +27,7 @@
     const CONFIG = {
         font: {
             sizes: [14, 18, 22],
+            labels: ["小", "中", "大"],
             defaultSize: 18
         },
         pageTurn: {
@@ -177,6 +178,12 @@
     const book = parseBookMarkdown(window.bookMarkdown);
     document.title = `${book.title} | JPリターンズ`;
 
+    const fontButtonsHTML = CONFIG.font.sizes
+        .map((size, index) =>
+            `<button class="font-button" data-font-size="${size}" aria-pressed="false">${CONFIG.font.labels[index]}</button>`
+        )
+        .join("");
+
     document.body.innerHTML = `
     <div class="app normal" id="app">
       <header class="topbar" id="topbar">
@@ -219,11 +226,7 @@
 
       <section class="popover" id="displayPopover" aria-hidden="true">
         <h2 class="popover__title">文字サイズ</h2>
-        <div class="font-control">
-          <button class="font-button" data-font-size="14" aria-pressed="false">小</button>
-          <button class="font-button" data-font-size="18" aria-pressed="false">中</button>
-          <button class="font-button" data-font-size="22" aria-pressed="false">大</button>
-        </div>
+        <div class="font-control">${fontButtonsHTML}</div>
       </section>
 
       <div class="scrim" id="scrim" aria-hidden="true"></div>
