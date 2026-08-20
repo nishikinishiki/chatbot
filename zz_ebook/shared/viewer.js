@@ -259,7 +259,6 @@
     <div class="measure-host" aria-hidden="true">
       <article class="measure-page" id="measurePage">
         <div class="measure-body" id="measureBody"></div>
-        <div class="measure-page__footer-placeholder"></div>
       </article>
     </div>
   `;
@@ -876,15 +875,6 @@
         paginateColophon();
     }
 
-    function getPageProgress(index) {
-        if (!state.pages[index]) return "";
-        const percent = Math.max(
-            1,
-            Math.round(((index + 1) / state.pages.length) * 100)
-        );
-        return `${percent}%`;
-    }
-
     function renderPageCard(target, pageIndex) {
         if (pageIndex < 0 || pageIndex >= state.pages.length) {
             target.classList.add("is-empty");
@@ -897,21 +887,7 @@
         target.classList.remove("is-empty");
         target.classList.toggle("cover-card", page.type === "cover");
         target.classList.toggle("colophon-card", page.type === "colophon");
-
-        if (page.type === "cover") {
-            target.innerHTML = `<div class="page-body">${page.bodyHTML}</div>`;
-            return;
-        }
-
-        const progress = getPageProgress(pageIndex);
-
-        target.innerHTML = `
-      <div class="page-body">${page.bodyHTML}</div>
-      <div class="page-footer">
-        <span></span>
-        <span>${progress}</span>
-      </div>
-    `;
+        target.innerHTML = `<div class="page-body">${page.bodyHTML}</div>`;
     }
 
     function currentChapterTitle() {
@@ -2019,8 +1995,6 @@
             navigateBy(-1);
         } else if (x > width * 0.68) {
             navigateBy(1);
-        } else if (width > 720) {
-            setMode("overview");
         }
     }
 
