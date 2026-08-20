@@ -38,6 +38,7 @@
     --inline-footer-height: 30px;
     --topbar-height: 72px;
     --bottombar-height: 82px;
+    --reader-page-width: 100vw;
 
     /* Shared control dimensions */
     --control-size: 40px;
@@ -271,7 +272,7 @@ button {
 
 .page-card,
 .measure-page {
-    width: 100vw;
+    width: var(--reader-page-width);
     height: var(--reader-viewport-height);
     display: flex;
     flex-direction: column;
@@ -552,7 +553,7 @@ button {
 .overview-item .page-card {
     top: 0;
     left: 0;
-    width: 100vw;
+    width: var(--reader-page-width);
 
     /* Must match the normal reader page box exactly. */
     height: var(--reader-viewport-height);
@@ -758,6 +759,42 @@ button {
     .page-counter {
         min-width: 60px;
         font-size: 15px;
+    }
+}
+
+@media (min-width: 1024px) {
+    :root {
+        --reader-page-width: 50vw;
+    }
+
+    .topbar,
+    .bottom-bar {
+        transition: none;
+    }
+
+    .app.normal .stage:not(.turn-prev) .page-card--current,
+    .app.normal .stage:not(.turn-prev) .page-card--next {
+        opacity: 1;
+        transform: translateX(0);
+        filter: none;
+    }
+
+    .app.normal .stage:not(.turn-prev) .page-card--current {
+        left: 0;
+        z-index: 2;
+    }
+
+    .app.normal .stage:not(.turn-prev) .page-card--next {
+        left: 50vw;
+        z-index: 2;
+    }
+
+    .app.normal .stage:not(.turn-prev) .page-card--current.cover-card {
+        left: 25vw;
+    }
+
+    .app.normal .stage:not(.turn-prev) .page-card--prev {
+        display: none;
     }
 }
 
