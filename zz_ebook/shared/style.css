@@ -1,6 +1,6 @@
 :root {
     /* Typography */
-    --reader-font-size: 20px;
+    --reader-font-size: 18px;
     --measure-font-size: var(--reader-font-size);
     --reader-line-height: 1.9;
     --font-sans:
