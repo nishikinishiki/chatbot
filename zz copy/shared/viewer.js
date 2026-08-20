@@ -962,13 +962,11 @@
         });
     }
 
-    function animationOptions() {
-        return {
-            duration: CONFIG.overview.transitionDuration,
-            easing: CONFIG.overview.transitionEasing,
-            fill: "forwards"
-        };
-    }
+    const MORPH_ANIMATION_OPTIONS = {
+        duration: CONFIG.overview.transitionDuration,
+        easing: CONFIG.overview.transitionEasing,
+        fill: "forwards"
+    };
 
     function getOverviewMorphTransforms() {
         const scale =
@@ -984,43 +982,28 @@
         };
     }
 
-    function getMorphSides() {
-        return {
-            prev: state.currentPage > 0,
-            next: state.currentPage < state.pages.length - 1
-        };
-    }
-
-    function setMorphCard(card, {
-        transform,
-        opacity = 1
-    }) {
-        card.style.transform = transform;
-        card.style.opacity = String(opacity);
-    }
-
-    function setMorphStart(toOverview, transforms, sides) {
+    function setMorphStart(toOverview, transforms) {
         const full = "translate3d(0,0,0) scale(1)";
         stage.classList.toggle("morph-elevated", !toOverview);
 
-        setMorphCard(els.currentPage, {
-            transform: toOverview ? full : transforms.current
-        });
+        els.currentPage.style.transform =
+            toOverview ? full : transforms.current;
+        els.currentPage.style.opacity = "1";
 
         [
-            [els.prevPage, transforms.prev, sides.prev],
-            [els.nextPage, transforms.next, sides.next]
+            [els.prevPage, transforms.prev, state.currentPage > 0],
+            [
+                els.nextPage,
+                transforms.next,
+                state.currentPage < state.pages.length - 1
+            ]
         ].forEach(([card, transform, visible]) => {
-            setMorphCard(card, {
-                transform,
-                opacity: toOverview ? 0 : visible ? 1 : 0
-            });
+            card.style.transform = transform;
+            card.style.opacity = String(toOverview ? 0 : visible ? 1 : 0);
         });
     }
 
     function animateChrome(show) {
-        const options = animationOptions();
-
         return [
             [els.topbar, -5],
             [els.bottomBar, 5]
@@ -1036,26 +1019,27 @@
 
             return element.animate(
                 show ? [hidden, visible] : [visible, hidden],
-                options
+                MORPH_ANIMATION_OPTIONS
             );
         });
     }
 
-    function createMorphAnimations(toOverview, transforms, sides) {
-        const options = animationOptions();
+    function createMorphAnimations(toOverview, transforms) {
+        const full = "translate3d(0,0,0) scale(1)";
         stage.classList.toggle("morph-elevated", toOverview);
-
-        const full = {
-            transform: "translate3d(0,0,0) scale(1)"
-        };
-        const overview = {
-            transform: transforms.current
-        };
 
         const animations = [
             els.currentPage.animate(
-                toOverview ? [full, overview] : [overview, full],
-                options
+                toOverview
+                    ? [
+                        { transform: full },
+                        { transform: transforms.current }
+                    ]
+                    : [
+                        { transform: transforms.current },
+                        { transform: full }
+                    ],
+                MORPH_ANIMATION_OPTIONS
             )
         ];
 
@@ -1072,11 +1056,13 @@
             ];
 
         [
-            [els.prevPage, sides.prev],
-            [els.nextPage, sides.next]
+            [els.prevPage, state.currentPage > 0],
+            [els.nextPage, state.currentPage < state.pages.length - 1]
         ].forEach(([card, visible]) => {
             if (visible) {
-                animations.push(card.animate(sideFrames, options));
+                animations.push(
+                    card.animate(sideFrames, MORPH_ANIMATION_OPTIONS)
+                );
             }
         });
 
@@ -1135,14 +1121,12 @@
         await nextPaint();
 
         const transforms = getOverviewMorphTransforms();
-        const sides = getMorphSides();
         prepareStageMorph();
 
-        setMorphStart(true, transforms, sides);
+        setMorphStart(true, transforms);
         await nextPaint();
 
-        const animations =
-            createMorphAnimations(true, transforms, sides);
+        const animations = createMorphAnimations(true, transforms);
 
         await waitForAnimations(animations);
 
@@ -1150,7 +1134,7 @@
         await nextPaint();
 
         cleanupModeMorph(animations);
-        unlockModeTransition();
+        state.modeTransitioning = false;
     }
 
     async function transitionToNormal() {
@@ -1166,20 +1150,18 @@
         renderCurrentPage();
 
         const transforms = getOverviewMorphTransforms();
-        const sides = getMorphSides();
         prepareStageMorph();
 
-        setMorphStart(false, transforms, sides);
+        setMorphStart(false, transforms);
         await nextPaint();
 
         applyAppMode("normal");
 
-        const animations =
-            createMorphAnimations(false, transforms, sides);
+        const animations = createMorphAnimations(false, transforms);
 
         await waitForAnimations(animations);
         cleanupModeMorph(animations);
-        unlockModeTransition();
+        state.modeTransitioning = false;
     }
 
     function applyAppMode(mode) {
@@ -1191,10 +1173,6 @@
     function closeOverlays() {
         closeDisplayPopover();
         closeToc();
-    }
-
-    function unlockModeTransition() {
-        state.modeTransitioning = false;
     }
 
     function setMode(mode) {
