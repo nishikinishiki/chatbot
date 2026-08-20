@@ -299,6 +299,8 @@
         pointerStartX: 0,
         pointerStartY: 0,
         pointerStartTime: 0,
+        pointerStartImage: null,
+        suppressImageClick: false,
         dragging: false,
         isTurning: false,
         modeTransitioning: false,
@@ -448,18 +450,18 @@
         } catch (_) { }
     }
 
-    document.addEventListener("pointerdown", (event) => {
-        if (getReaderImage(event.target)) {
-            event.stopPropagation();
-        }
-    }, true);
-
     document.addEventListener("click", (event) => {
         const image = getReaderImage(event.target);
         if (!image) return;
 
         event.preventDefault();
         event.stopPropagation();
+
+        if (state.suppressImageClick) {
+            state.suppressImageClick = false;
+            return;
+        }
+
         openImageViewer(image);
     }, true);
 
@@ -619,11 +621,26 @@
         const figure = document.createElement("figure");
         figure.className = "book-image-block";
 
+        const frame = document.createElement("div");
+        frame.className = "book-image-frame";
+
         const img = document.createElement("img");
         img.src = block.src;
         img.alt = block.alt || "";
         img.draggable = false;
-        figure.appendChild(img);
+        frame.appendChild(img);
+
+        const zoomIcon = document.createElement("span");
+        zoomIcon.className = "book-image-zoom-icon";
+        zoomIcon.setAttribute("aria-hidden", "true");
+        zoomIcon.innerHTML = `
+            <svg viewBox="0 0 24 24">
+                <path d="M7 14H5v5h5v-2H7v-3Zm-2-4h2V7h3V5H5v5Zm12 7h-3v2h5v-5h-2v3Zm-3-12v2h3v3h2V5h-5Z"/>
+            </svg>
+        `;
+        frame.appendChild(zoomIcon);
+
+        figure.appendChild(frame);
 
         if (block.caption) {
             figure.appendChild(
@@ -1998,6 +2015,8 @@
         state.pointerStartX = event.clientX;
         state.pointerStartY = event.clientY;
         state.pointerStartTime = performance.now();
+        state.pointerStartImage = getReaderImage(event.target);
+        state.suppressImageClick = false;
         state.dragging = false;
 
         resetStackTurn();
@@ -2051,6 +2070,13 @@
         event.preventDefault();
     });
 
+    function suppressPendingImageClick() {
+        state.suppressImageClick = true;
+        setTimeout(() => {
+            state.suppressImageClick = false;
+        }, 0);
+    }
+
     function endReaderPointer(event) {
         if (state.pointerId !== event.pointerId) return;
 
@@ -2063,16 +2089,28 @@
         const speed = distance / totalTime;
         const threshold =
             window.innerWidth * CONFIG.pageTurn.thresholdRatio;
+        const pointerStartImage = state.pointerStartImage;
 
         state.pointerId = null;
+        state.pointerStartImage = null;
 
         try {
             stage.releasePointerCapture(event.pointerId);
         } catch (_) { }
 
         if (!state.dragging) {
+            if (pointerStartImage) {
+                suppressPendingImageClick();
+                openImageViewer(pointerStartImage);
+                return;
+            }
+
             handleReaderTap(event.clientX);
             return;
+        }
+
+        if (pointerStartImage) {
+            suppressPendingImageClick();
         }
 
         const shouldTurn =
