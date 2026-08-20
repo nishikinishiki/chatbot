@@ -26,8 +26,8 @@
 
     const CONFIG = {
         font: {
-            sizes: [16, 20, 24],
-            defaultSize: 20
+            sizes: [14, 18, 22],
+            defaultSize: 18
         },
         pageTurn: {
             duration: cssTimeMs(
@@ -220,9 +220,9 @@
       <section class="popover" id="displayPopover" aria-hidden="true">
         <h2 class="popover__title">文字サイズ</h2>
         <div class="font-control">
-          <button class="font-button" data-font-size="16" aria-pressed="false">小</button>
-          <button class="font-button" data-font-size="20" aria-pressed="false">中</button>
-          <button class="font-button" data-font-size="24" aria-pressed="false">大</button>
+          <button class="font-button" data-font-size="14" aria-pressed="false">小</button>
+          <button class="font-button" data-font-size="18" aria-pressed="false">中</button>
+          <button class="font-button" data-font-size="22" aria-pressed="false">大</button>
         </div>
       </section>
 
@@ -241,7 +241,7 @@
       <div class="image-viewer__viewport" id="imageViewerViewport">
         <img class="image-viewer__image" id="imageViewerImage" alt="" draggable="false" />
       </div>
-      <div class="image-viewer__hint">ピンチ / ホイールで拡大・ドラッグで移動</div>
+      <div class="image-viewer__hint">ピンチ / ホイールで拡大</div>
     </div>
 
     <div class="measure-host" aria-hidden="true">
