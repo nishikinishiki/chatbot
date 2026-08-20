@@ -116,7 +116,7 @@
 
             currentChapter.blocks.push({
                 type: "paragraph",
-                text: paragraphBuffer.join("")
+                text: paragraphBuffer.join("\n")
             });
             paragraphBuffer = [];
         }
@@ -336,11 +336,20 @@
     }
 
     function createParagraph(text, continuation = false) {
-        return createTextElement(
+        const paragraph = createTextElement(
             "p",
-            text,
+            "",
             continuation ? "continuation" : ""
         );
+
+        text.split("\n").forEach((line, index) => {
+            if (index > 0) {
+                paragraph.appendChild(document.createElement("br"));
+            }
+            paragraph.appendChild(document.createTextNode(line));
+        });
+
+        return paragraph;
     }
 
     function createImageBlock(block) {
