@@ -356,6 +356,10 @@ button {
     break-inside: avoid;
 }
 
+.book-image-frame {
+    position: relative;
+}
+
 .book-image-block img {
     display: block;
     width: 100%;
@@ -363,6 +367,31 @@ button {
     object-fit: contain;
     border: 1px solid var(--ui-subtle);
     background: var(--surface-soft);
+}
+
+.book-image-zoom-icon {
+    position: absolute;
+    right: 8px;
+    bottom: 8px;
+    width: 32px;
+    height: 32px;
+    display: grid;
+    place-items: center;
+    border-radius: 7px;
+    background: rgba(0, 0, 0, 0.58);
+    color: #fff;
+    box-shadow: 0 1px 4px rgba(0, 0, 0, 0.2);
+    pointer-events: none;
+}
+
+.book-image-zoom-icon svg {
+    width: 20px;
+    height: 20px;
+    fill: currentColor;
+}
+
+.overview-item .book-image-zoom-icon {
+    display: none;
 }
 
 .book-image-caption {
