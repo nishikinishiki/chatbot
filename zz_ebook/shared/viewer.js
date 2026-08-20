@@ -196,6 +196,12 @@
         <div class="topbar__actions">
           <button class="text-button" id="displayButton" aria-label="文字サイズ" title="文字サイズ">Aa</button>
 
+          <button class="icon-button" id="overviewButton" aria-label="俯瞰表示" title="俯瞰表示">
+            <svg viewBox="0 0 24 24" aria-hidden="true">
+              <path d="M4 4h6v6H4V4Zm10 0h6v6h-6V4ZM4 14h6v6H4v-6Zm10 0h6v6h-6v-6Z"/>
+            </svg>
+          </button>
+
           <button class="icon-button" id="fullscreenButton" aria-label="全画面表示" title="全画面表示">
             <svg class="fullscreen-enter-icon" viewBox="0 0 24 24" aria-hidden="true">
               <path d="M7 14H5v5h5v-2H7v-3Zm-2-4h2V7h3V5H5v5Zm12 7h-3v2h5v-5h-2v3Zm-3-12v2h3v3h2V5h-5Z"/>
@@ -327,6 +333,7 @@
         pageCounter: document.getElementById("pageCounter"),
         displayButton: document.getElementById("displayButton"),
         displayPopover: document.getElementById("displayPopover"),
+        overviewButton: document.getElementById("overviewButton"),
         fullscreenButton: document.getElementById("fullscreenButton"),
         fullscreenEnterIcon: document.querySelector("#fullscreenButton .fullscreen-enter-icon"),
         fullscreenExitIcon: document.querySelector("#fullscreenButton .fullscreen-exit-icon"),
@@ -1307,6 +1314,8 @@
     }
 
     function animateChrome(show) {
+        if (window.innerWidth <= 720) return [];
+
         return [
             [els.topbar, -5],
             [els.bottomBar, 5]
@@ -1987,7 +1996,7 @@
             navigateBy(-1);
         } else if (x > width * 0.68) {
             navigateBy(1);
-        } else {
+        } else if (width > 720) {
             setMode("overview");
         }
     }
@@ -2191,6 +2200,12 @@
     });
 
     els.displayButton.addEventListener("click", toggleDisplayPopover);
+
+    els.overviewButton.addEventListener("click", (event) => {
+        event.preventDefault();
+        event.stopPropagation();
+        setMode("overview");
+    });
 
     els.fullscreenButton.addEventListener("pointerdown", (event) => {
         if (event.pointerType === "mouse" && event.button !== 0) return;
