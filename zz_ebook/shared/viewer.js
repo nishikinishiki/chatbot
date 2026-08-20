@@ -673,7 +673,30 @@
         });
     }
 
+    function isSpreadView() {
+        return window.innerWidth >= 1024;
+    }
+
+    function getSpreadStart(index) {
+        const page = clampPageIndex(index);
+        if (page === 0) return 0;
+        return page % 2 === 0 ? page - 1 : page;
+    }
+
     function renderPageStack() {
+        if (isSpreadView()) {
+            const start = getSpreadStart(state.currentPage);
+
+            resetStackTurn();
+            renderPageCard(els.currentPage, start);
+            renderPageCard(els.prevPage, -1);
+            renderPageCard(
+                els.nextPage,
+                start === 0 ? -1 : start + 1
+            );
+            return;
+        }
+
         renderPageCard(els.currentPage, state.currentPage);
         renderPageCard(els.prevPage, state.currentPage - 1);
         renderPageCard(els.nextPage, state.currentPage + 1);
@@ -1168,6 +1191,21 @@
     function setMode(mode) {
         if (mode === state.mode || state.modeTransitioning) return;
 
+        if (isSpreadView()) {
+            closeOverlays();
+
+            if (mode === "overview") {
+                ensureOverviewStrip();
+                updateOverviewGeometry();
+                scrollOverviewToPage(state.currentPage, "auto");
+                applyAppMode("overview");
+            } else {
+                renderCurrentPage();
+                applyAppMode("normal");
+            }
+            return;
+        }
+
         if (mode === "overview") {
             transitionToOverview();
         } else {
@@ -1590,9 +1628,25 @@
         }, CONFIG.pageTurn.duration);
     }
 
+    function navigateSpread(delta) {
+        const start = getSpreadStart(state.currentPage);
+        const target = delta > 0
+            ? start === 0 ? 1 : start + 2
+            : start <= 1 ? 0 : start - 2;
+
+        if (target < 0 || target >= state.pages.length) return;
+
+        state.currentPage = target;
+        renderCurrentPage();
+    }
+
     function navigateBy(delta) {
         if (state.mode === "normal") {
-            finishTurn(delta);
+            if (isSpreadView()) {
+                navigateSpread(delta);
+            } else {
+                finishTurn(delta);
+            }
             return;
         }
 
@@ -1628,8 +1682,31 @@
         });
     });
 
+    function handleReaderTap(x) {
+        const width = window.innerWidth;
+
+        if (x < width * 0.32) {
+            navigateBy(-1);
+        } else if (x > width * 0.68) {
+            navigateBy(1);
+        } else {
+            setMode("overview");
+        }
+    }
+
+    stage.addEventListener("click", (event) => {
+        if (
+            !isSpreadView() ||
+            state.mode !== "normal" ||
+            state.modeTransitioning
+        ) return;
+
+        handleReaderTap(event.clientX);
+    });
+
     stage.addEventListener("pointerdown", (event) => {
         if (
+            isSpreadView() ||
             state.mode !== "normal" ||
             state.isTurning ||
             state.modeTransitioning
@@ -1713,16 +1790,7 @@
         } catch (_) { }
 
         if (!state.dragging) {
-            const x = event.clientX;
-            const width = window.innerWidth;
-
-            if (x < width * 0.32) {
-                navigateBy(-1);
-            } else if (x > width * 0.68) {
-                navigateBy(1);
-            } else {
-                setMode("overview");
-            }
+            handleReaderTap(event.clientX);
             return;
         }
 
