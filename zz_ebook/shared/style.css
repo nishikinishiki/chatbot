@@ -767,8 +767,8 @@ button {
         --reader-page-width: 50vw;
         --reader-viewport-height:
             calc(100vh - var(--topbar-height) - var(--bottombar-height));
-        --reader-content-max-width: 620px;
-        --reader-gutter-padding: 32px;
+        --reader-content-max-width: 720px;
+        --reader-gutter-padding: 64px;
         --reader-outer-padding:
             max(
                 var(--reader-gutter-padding),
@@ -828,16 +828,14 @@ button {
         bottom: 0;
         left: 50%;
         z-index: 3;
-        width: 24px;
+        width: 30px;
         transform: translateX(-50%);
-        background: linear-gradient(
-            to right,
-            transparent,
-            rgba(0, 0, 0, 0.05) 30%,
-            rgba(0, 0, 0, 0.12) 50%,
-            rgba(0, 0, 0, 0.05) 70%,
-            transparent
-        );
+        background: linear-gradient(to right,
+                transparent,
+                rgba(0, 0, 0, 0.03) 45%,
+                rgba(0, 0, 0, 0.1) 50%,
+                rgba(0, 0, 0, 0.03) 55%,
+                transparent);
         pointer-events: none;
     }
 
