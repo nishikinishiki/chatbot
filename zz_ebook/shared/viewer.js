@@ -1686,6 +1686,14 @@
         const targetPage = state.chapterStarts[chapterIndex] ?? 0;
         closeToc();
 
+        if (isSpreadView()) {
+            goToPage(targetPage);
+            if (state.mode !== "normal") {
+                applyAppMode("normal");
+            }
+            return;
+        }
+
         requestAnimationFrame(() => {
             scrollOverviewToPageAnimated(targetPage);
         });
