@@ -767,6 +767,17 @@ button {
         --reader-page-width: 50vw;
         --reader-viewport-height:
             calc(100vh - var(--topbar-height) - var(--bottombar-height));
+        --reader-content-max-width: 620px;
+        --reader-gutter-padding: 32px;
+        --reader-outer-padding:
+            max(
+                var(--reader-gutter-padding),
+                calc(
+                    var(--reader-page-width) -
+                    var(--reader-content-max-width) -
+                    var(--reader-gutter-padding)
+                )
+            );
     }
 
     .topbar,
@@ -780,6 +791,17 @@ button {
     .app.normal .stage {
         top: var(--topbar-height);
         bottom: var(--bottombar-height);
+    }
+
+    .measure-page,
+    .app.normal .page-card--current {
+        padding-left: var(--reader-outer-padding);
+        padding-right: var(--reader-gutter-padding);
+    }
+
+    .app.normal .page-card--next {
+        padding-left: var(--reader-gutter-padding);
+        padding-right: var(--reader-outer-padding);
     }
 
     .app.normal .stage:not(.turn-prev) .page-card--current,
