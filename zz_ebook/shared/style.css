@@ -770,8 +770,11 @@ button {
 
 @media (max-width: 720px) {
     :root {
-        --topbar-height: 70px;
-        --bottombar-height: 76px;
+        --topbar-height: 60px;
+        --bottombar-height: 64px;
+        --control-size: 36px;
+        --control-icon-size: 21px;
+        --toc-hit-size: 48px;
         --overview-gap: 18px;
         --reader-viewport-height:
             calc(
@@ -803,7 +806,16 @@ button {
     }
 
     .topbar {
-        padding-right: 10px;
+        padding-right: 6px;
+    }
+
+    .topbar__actions {
+        gap: 0;
+    }
+
+    .text-button {
+        padding: 0 7px;
+        font-size: 16px;
     }
 
     .stage {
@@ -821,23 +833,19 @@ button {
             var(--page-padding-top) var(--page-padding-x) var(--page-padding-bottom);
     }
 
-    #overviewButton {
-        display: none;
-    }
-
-    .app.normal #overviewButton {
+    .app #overviewButton {
         display: inline-grid;
     }
 
     .bottom-bar {
-        padding-left: 14px;
-        padding-right: 14px;
-        gap: 10px;
+        padding-left: 10px;
+        padding-right: 10px;
+        gap: 8px;
     }
 
     .page-counter {
-        min-width: 60px;
-        font-size: 15px;
+        min-width: 54px;
+        font-size: 14px;
     }
 }
 
@@ -992,16 +1000,18 @@ button {
     touch-action: manipulation;
 }
 
-#fullscreenButton {
-    touch-action: manipulation;
-}
-
+#overviewButton.is-active,
 #fullscreenButton.is-active {
     background: var(--ui-subtle);
 }
 
+#overviewButton svg[hidden],
 #fullscreenButton svg[hidden] {
     display: none;
+}
+
+#fullscreenButton {
+    touch-action: manipulation;
 }
 
 /* Fullscreen app surface. */
