@@ -59,8 +59,7 @@
             navigationMaxDuration: 950
         },
         timing: {
-            resizeDebounce: 160,
-            fullscreenRepaginate: 180
+            resizeDebounce: 160
         }
     };
 
@@ -204,15 +203,6 @@
               <path d="M6 3h12a2 2 0 0 1 2 2v14a2 2 0 0 1-2 2H6a2 2 0 0 1-2-2V5a2 2 0 0 1 2-2Zm0 2v14h12V5H6Zm2 3h8v2H8V8Zm0 4h8v2H8v-2Z"/>
             </svg>
           </button>
-
-          <button class="icon-button" id="fullscreenButton" aria-label="全画面表示" title="全画面表示">
-            <svg class="fullscreen-enter-icon" viewBox="0 0 24 24" aria-hidden="true">
-              <path d="M7 14H5v5h5v-2H7v-3Zm-2-4h2V7h3V5H5v5Zm12 7h-3v2h5v-5h-2v3Zm-3-12v2h3v3h2V5h-5Z"/>
-            </svg>
-            <svg class="fullscreen-exit-icon" viewBox="0 0 24 24" aria-hidden="true" hidden>
-              <path d="M5 16h3v3h2v-5H5v2Zm3-8H5v2h5V5H8v3Zm6 11h2v-3h3v-2h-5v5Zm2-11V5h-2v5h5V8h-3Z"/>
-            </svg>
-          </button>
         </div>
       </header>
 
@@ -338,9 +328,6 @@
         overviewButton: document.getElementById("overviewButton"),
         overviewEnterIcon: document.querySelector("#overviewButton .overview-enter-icon"),
         overviewExitIcon: document.querySelector("#overviewButton .overview-exit-icon"),
-        fullscreenButton: document.getElementById("fullscreenButton"),
-        fullscreenEnterIcon: document.querySelector("#fullscreenButton .fullscreen-enter-icon"),
-        fullscreenExitIcon: document.querySelector("#fullscreenButton .fullscreen-exit-icon"),
         fontButtons: [...document.querySelectorAll(".font-button")],
         tocOpenButton: document.getElementById("tocOpenButton"),
         tocDrawer: document.getElementById("tocDrawer"),
@@ -1759,74 +1746,6 @@
         isTocOpen() ? closeToc() : openToc();
     }
 
-    function isFullscreen() {
-        return Boolean(
-            document.fullscreenElement ||
-            document.webkitFullscreenElement
-        );
-    }
-
-    async function enterFullscreen() {
-        const target = document.documentElement;
-
-        try {
-            if (target.requestFullscreen) {
-                await target.requestFullscreen({
-                    navigationUI: "hide"
-                });
-                return;
-            }
-
-            if (target.webkitRequestFullscreen) {
-                target.webkitRequestFullscreen();
-            }
-        } catch (error) {
-            console.warn("Fullscreen request was not accepted:", error);
-        }
-    }
-
-    async function exitFullscreen() {
-        try {
-            if (document.exitFullscreen) {
-                await document.exitFullscreen();
-                return;
-            }
-
-            if (document.webkitExitFullscreen) {
-                document.webkitExitFullscreen();
-            }
-        } catch (error) {
-            console.warn("Fullscreen exit failed:", error);
-        }
-    }
-
-    async function toggleFullscreen() {
-        closeOverlays();
-
-        if (isFullscreen()) {
-            await exitFullscreen();
-        } else {
-            await enterFullscreen();
-        }
-    }
-
-    function updateFullscreenButton() {
-        const active = isFullscreen();
-
-        els.fullscreenButton.classList.toggle("is-active", active);
-        els.fullscreenButton.setAttribute(
-            "aria-label",
-            active ? "全画面表示を終了" : "全画面表示"
-        );
-        els.fullscreenButton.setAttribute(
-            "title",
-            active ? "全画面表示を終了" : "全画面表示"
-        );
-
-        els.fullscreenEnterIcon.hidden = active;
-        els.fullscreenExitIcon.hidden = !active;
-    }
-
     function setTurnShadow(progress) {
         stage.style.setProperty(
             "--turn-shadow-opacity",
@@ -2204,39 +2123,10 @@
         setMode(state.mode === "overview" ? "normal" : "overview");
     });
 
-    els.fullscreenButton.addEventListener("pointerdown", (event) => {
-        if (event.pointerType === "mouse" && event.button !== 0) return;
-
-        event.preventDefault();
-        event.stopPropagation();
-        toggleFullscreen();
-    });
-
-    els.fullscreenButton.addEventListener("click", (event) => {
-        if (event.detail === 0) {
-            toggleFullscreen();
-        }
-
-        event.preventDefault();
-        event.stopPropagation();
-    });
-
     function scheduleRepagination(delay = CONFIG.timing.resizeDebounce) {
         clearTimeout(state.resizeTimer);
         state.resizeTimer = setTimeout(repaginateKeepingProgress, delay);
     }
-
-    function handleFullscreenChange() {
-        updateFullscreenButton();
-        scheduleRepagination(CONFIG.timing.fullscreenRepaginate);
-    }
-
-    [
-        "fullscreenchange",
-        "webkitfullscreenchange"
-    ].forEach((type) => {
-        document.addEventListener(type, handleFullscreenChange);
-    });
 
     els.fontButtons.forEach((button) => {
         button.addEventListener("click", () => {
@@ -2321,7 +2211,6 @@
     }
 
     function init() {
-        updateFullscreenButton();
         updateOverviewButton();
         updateOverviewGeometry();
         setFontSize(state.fontSize, { repaginate: false });
