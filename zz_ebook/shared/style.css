@@ -137,7 +137,6 @@ button {
 .topbar__title {
     min-width: 0;
     padding: 0 8px 0 4px;
-    color: var(--text);
     font-size: 14px;
     font-weight: 600;
     text-align: left;
@@ -247,20 +246,14 @@ button {
     padding:
         calc(env(safe-area-inset-top, 0px) + var(--page-padding-top)) var(--page-padding-x) calc(env(safe-area-inset-bottom, 0px) + var(--page-padding-bottom)) var(--page-padding-x);
     background: var(--paper);
-    color: var(--text);
-    font-family: var(--font-sans);
     line-height: var(--reader-line-height);
     letter-spacing: 0.02em;
 }
 
 .page-card {
     position: absolute;
-    top: 50%;
-    left: 50%;
     font-size: var(--reader-font-size);
     user-select: none;
-    transform-origin: center center;
-    will-change: transform;
 }
 
 :where(.page-body, .measure-body) {
@@ -292,7 +285,6 @@ button {
 
 :where(.page-body, .measure-body) p {
     margin: 0 0 0.5em;
-    word-break: normal;
     overflow-wrap: anywhere;
 }
 
@@ -312,7 +304,6 @@ button {
 
 .book-image-block {
     margin: 1em 0;
-    break-inside: avoid;
 }
 
 .book-image-frame {
@@ -422,6 +413,7 @@ button {
     border-radius: 0;
     box-shadow: none;
     pointer-events: none;
+    will-change: transform;
 }
 
 .app.normal .page-card--current {
@@ -474,8 +466,6 @@ button {
     scrollbar-width: none;
     touch-action: pan-x;
     visibility: hidden;
-    opacity: 0;
-    pointer-events: none;
 }
 
 .overview-scroller::-webkit-scrollbar {
@@ -484,8 +474,6 @@ button {
 
 .app.overview .overview-scroller {
     visibility: visible;
-    opacity: 1;
-    pointer-events: auto;
 }
 
 .overview-strip {
@@ -509,15 +497,12 @@ button {
     position: relative;
     flex: 0 0 var(--overview-item-width);
     height: var(--overview-item-height);
-    overflow: visible;
     scroll-snap-align: center;
 }
 
 .overview-item .page-card {
     top: 0;
     left: 0;
-    width: var(--reader-page-width);
-    height: var(--reader-viewport-height);
     border-radius: var(--overview-card-radius);
     box-shadow: var(--shadow);
     transform: scale(var(--overview-scale));
@@ -676,7 +661,6 @@ button {
     left: -100000px;
     top: 0;
     visibility: hidden;
-    pointer-events: none;
 }
 
 .measure-page {
@@ -748,15 +732,11 @@ button {
         padding-right: var(--reader-outer-padding);
     }
 
-    .app.normal .stage:not(.turn-prev) .page-card--current,
-    .app.normal .stage:not(.turn-prev) .page-card--next {
-        transform: translateX(0);
-        filter: none;
-    }
-
     .app.normal .stage:not(.turn-prev) .page-card--current {
         left: 0;
         z-index: 2;
+        transform: translateX(0);
+        filter: none;
     }
 
     .app.normal .stage:not(.turn-prev) .page-card--next:not(.is-empty) {
@@ -789,12 +769,17 @@ button {
     .app.normal .stage:not(.turn-prev) .page-card--prev {
         display: none;
     }
+
+    .app.normal .page-card--next .book-image-block img {
+        pointer-events: auto;
+        cursor: zoom-in;
+    }
 }
 
 @media (prefers-reduced-motion: reduce) {
     .drawer,
     .scrim {
-        transition-duration: 1ms !important;
+        transition-duration: 1ms;
     }
 }
 
@@ -818,17 +803,17 @@ button {
 
 /* ---------- Direct page → overview morph ---------- */
 
-.stage.mode-morph {
-    display: block !important;
+.app .stage.mode-morph {
+    display: block;
     z-index: 12;
     overflow: hidden;
     background: var(--overview-bg);
 }
 
 .stage.mode-morph .page-card {
-    top: 0 !important;
-    left: 0 !important;
-    transform-origin: center center !important;
+    top: 0;
+    left: 0;
+    transform-origin: center center;
     border-radius: 0;
     box-shadow: none;
     transition:
@@ -869,16 +854,9 @@ button {
 
 /* ---------- Image viewer ---------- */
 
-.app.normal .stage .page-card--current .book-image-block img {
+.app.normal .page-card--current .book-image-block img {
     pointer-events: auto;
     cursor: zoom-in;
-}
-
-@media (min-width: 1024px) {
-    .app.normal .stage .page-card--next .book-image-block img {
-        pointer-events: auto;
-        cursor: zoom-in;
-    }
 }
 
 .image-viewer {
