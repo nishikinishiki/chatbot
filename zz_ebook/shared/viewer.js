@@ -712,6 +712,16 @@
         return true;
     }
 
+    function moveBlockToNewPage(node, chapterIndex) {
+        node.remove();
+
+        if (els.measureBody.childNodes.length) {
+            commitMeasuredPage(chapterIndex);
+        }
+
+        els.measureBody.appendChild(node);
+    }
+
     function paginateImageBlock(block, chapterIndex) {
         const node = createImageBlock(block);
         els.measureBody.appendChild(node);
@@ -721,13 +731,7 @@
         if (fitImageBlockToCurrentPage(node)) return;
 
         resetImageBlockScale(node);
-        node.remove();
-
-        if (els.measureBody.childNodes.length) {
-            commitMeasuredPage(chapterIndex);
-        }
-
-        els.measureBody.appendChild(node);
+        moveBlockToNewPage(node, chapterIndex);
 
         if (!fitsMeasureBody()) {
             fitImageBlockToCurrentPage(node);
@@ -740,13 +744,7 @@
 
         if (fitsMeasureBody()) return;
 
-        node.remove();
-
-        if (els.measureBody.childNodes.length) {
-            commitMeasuredPage(chapterIndex);
-        }
-
-        els.measureBody.appendChild(node);
+        moveBlockToNewPage(node, chapterIndex);
     }
 
     function fitsMeasureBody() {
