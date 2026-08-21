@@ -15,21 +15,12 @@
     --text: #222;
     --text-secondary: #666;
     --line: #dedede;
-    --surface-soft: #fafafa;
-    --cover-bg: #f6f6f6;
-    --toc-hover-bg: #f3f3f3;
-    --accent: #000000;
-
     --chrome-bg: #f5f5f5;
     --overview-bg: #efefef;
     --ui-subtle: rgba(0, 0, 0, 0.06);
-    --scrim-bg: rgba(0, 0, 0, 0.16);
-    --loading-bg: rgba(255, 255, 255, 0.85);
 
     /* Shadows */
     --shadow: 0 3px 14px rgba(0, 0, 0, 0.15);
-    --popover-shadow: 0 8px 20px rgba(0, 0, 0, 0.15);
-    --drawer-shadow: 6px 0 18px rgba(0, 0, 0, 0.15);
 
     /* Reader dimensions */
     --page-padding-x: 24px;
@@ -56,10 +47,6 @@
     --ease-page-turn: cubic-bezier(.2, .72, .28, 1);
     --page-turn-duration: 220ms;
     --overview-transition-duration: 390ms;
-    --popover-opacity-duration: 220ms;
-    --popover-transform-duration: 250ms;
-    --scrim-transition-duration: 260ms;
-    --drawer-transition-duration: 320ms;
 
     --reader-viewport-height:
         calc(
@@ -209,7 +196,7 @@ button {
 
 .page-slider {
     width: 100%;
-    accent-color: var(--accent);
+    accent-color: #000;
     touch-action: none;
     cursor: pointer;
 }
@@ -338,7 +325,7 @@ button {
     max-height: 40vh;
     object-fit: contain;
     border: 1px solid var(--ui-subtle);
-    background: var(--surface-soft);
+    background: #fafafa;
 }
 
 .book-image-zoom-icon {
@@ -379,7 +366,7 @@ button {
 
 .page-card.cover-card {
     padding: 0;
-    background: var(--cover-bg);
+    background: #f6f6f6;
 }
 
 .cover-card .page-body {
@@ -551,7 +538,7 @@ button {
     background: var(--paper);
     border: 1px solid var(--line);
     border-radius: 12px;
-    box-shadow: var(--popover-shadow);
+    box-shadow: 0 8px 20px rgba(0, 0, 0, 0.15);
 
     opacity: 0;
     visibility: hidden;
@@ -559,22 +546,17 @@ button {
     transform: translateY(-7px) scale(0.975);
     transform-origin: top right;
     transition:
-        opacity var(--popover-opacity-duration) var(--ease-standard),
-        transform var(--popover-transform-duration) var(--ease-standard),
-        visibility 0s linear var(--popover-transform-duration);
+        opacity 220ms var(--ease-standard),
+        transform 250ms var(--ease-standard),
+        visibility 0s linear 250ms;
 }
 
 .popover.open {
     opacity: 1;
     visibility: visible;
     pointer-events: auto;
-    transform:
-        translateY(0) scale(1);
-
-    transition:
-        opacity var(--popover-opacity-duration) var(--ease-standard),
-        transform var(--popover-transform-duration) var(--ease-standard),
-        visibility 0s linear 0s;
+    transform: translateY(0) scale(1);
+    transition-delay: 0s;
 }
 
 .popover__title {
@@ -606,22 +588,20 @@ button {
     position: fixed;
     inset: 0;
     z-index: 34;
-    background: var(--scrim-bg);
+    background: rgba(0, 0, 0, 0.16);
     opacity: 0;
     visibility: hidden;
     pointer-events: none;
     transition:
-        opacity var(--scrim-transition-duration) var(--ease-standard),
-        visibility 0s linear var(--scrim-transition-duration);
+        opacity 260ms var(--ease-standard),
+        visibility 0s linear 260ms;
 }
 
 .scrim.open {
     opacity: 1;
     visibility: visible;
     pointer-events: auto;
-    transition:
-        opacity var(--scrim-transition-duration) var(--ease-standard),
-        visibility 0s linear 0s;
+    transition-delay: 0s;
 }
 
 .drawer {
@@ -633,7 +613,7 @@ button {
     width: min(320px, calc(100vw - 64px));
     padding-top: calc(env(safe-area-inset-top, 0px) + 18px);
     background: var(--paper);
-    box-shadow: var(--drawer-shadow);
+    box-shadow: 6px 0 18px rgba(0, 0, 0, 0.15);
     overflow: auto;
 
     visibility: hidden;
@@ -641,17 +621,15 @@ button {
     transform: translate3d(-100%, 0, 0);
 
     transition:
-        transform var(--drawer-transition-duration) var(--ease-standard),
-        visibility 0s linear var(--drawer-transition-duration);
+        transform 320ms var(--ease-standard),
+        visibility 0s linear 320ms;
 }
 
 .drawer.open {
     visibility: visible;
     pointer-events: auto;
     transform: translate3d(0, 0, 0);
-    transition:
-        transform var(--drawer-transition-duration) var(--ease-standard),
-        visibility 0s linear 0s;
+    transition-delay: 0s;
 }
 
 .drawer h2 {
@@ -669,7 +647,7 @@ button {
 
 .toc-button:hover,
 .toc-button.active {
-    background: var(--toc-hover-bg);
+    background: #f3f3f3;
 }
 
 .toc-button.active {
@@ -682,7 +660,7 @@ button {
     z-index: 50;
     display: grid;
     place-items: center;
-    background: var(--loading-bg);
+    background: rgba(255, 255, 255, 0.85);
     font-size: 14px;
     color: var(--text-secondary);
 }
@@ -920,9 +898,7 @@ button {
     opacity: 1;
     visibility: visible;
     pointer-events: auto;
-    transition:
-        opacity 160ms var(--ease-standard),
-        visibility 0s linear 0s;
+    transition-delay: 0s;
 }
 
 .image-viewer__viewport {
