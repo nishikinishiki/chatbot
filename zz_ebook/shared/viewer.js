@@ -32,7 +32,8 @@
         },
         image: {
             minInlineScale: 0.65,
-            fitIterations: 8
+            fitIterations: 8,
+            initialWaitMs: 1200
         },
         pageTurn: {
             duration: cssTimeMs(
@@ -2291,10 +2292,93 @@
         });
     }
 
-    function init() {
+    function getBookImageSources() {
+        const sources = new Set();
+
+        if (book.cover.src) {
+            sources.add(book.cover.src);
+        }
+
+        book.chapters.forEach((chapter) => {
+            chapter.blocks.forEach((block) => {
+                if (block.type === "image" && block.src) {
+                    sources.add(block.src);
+                }
+            });
+        });
+
+        return [...sources];
+    }
+
+    function preloadImage(src) {
+        const image = new Image();
+        image.src = src;
+
+        if (typeof image.decode === "function") {
+            return image.decode().catch(() => { });
+        }
+
+        if (image.complete) {
+            return Promise.resolve();
+        }
+
+        return new Promise((resolve) => {
+            image.addEventListener("load", resolve, { once: true });
+            image.addEventListener("error", resolve, { once: true });
+        });
+    }
+
+    function preloadBookImages() {
+        return Promise.all(
+            getBookImageSources().map(preloadImage)
+        );
+    }
+
+    async function waitForFonts() {
+        if (!document.fonts?.ready) return;
+
+        try {
+            await document.fonts.ready;
+        } catch (_) { }
+    }
+
+    function waitForInitialImages(imagesReadyPromise) {
+        return new Promise((resolve) => {
+            let settled = false;
+            let timeoutId = 0;
+
+            const finish = () => {
+                if (settled) return;
+                settled = true;
+                clearTimeout(timeoutId);
+                resolve();
+            };
+
+            timeoutId = window.setTimeout(
+                finish,
+                CONFIG.image.initialWaitMs
+            );
+
+            imagesReadyPromise.then(finish);
+        });
+    }
+
+    async function init() {
         updateOverviewButton();
         updateOverviewGeometry();
         setFontSize(state.fontSize, { repaginate: false });
+
+        let imagesReady = false;
+        const allImagesReady = preloadBookImages().then(() => {
+            imagesReady = true;
+        });
+
+        await Promise.all([
+            waitForFonts(),
+            waitForInitialImages(allImagesReady)
+        ]);
+        await nextPaint();
+
         paginateBook();
         buildToc();
         configurePageSlider();
@@ -2304,6 +2388,12 @@
 
         renderCurrentPage();
         els.loading.hidden = true;
+
+        if (!imagesReady) {
+            allImagesReady.then(() => {
+                scheduleRepagination(0);
+            });
+        }
     }
 
     init();
