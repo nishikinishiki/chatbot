@@ -813,10 +813,6 @@ button {
             var(--page-padding-top) var(--page-padding-x) var(--page-padding-bottom);
     }
 
-    .app #overviewButton {
-        display: inline-grid;
-    }
-
     .bottom-bar {
         padding-left: 10px;
         padding-right: 10px;
@@ -976,7 +972,7 @@ button {
 /* ---------- Overview control ---------- */
 
 #overviewButton {
-    display: none;
+    display: inline-grid;
     touch-action: manipulation;
 }
 
