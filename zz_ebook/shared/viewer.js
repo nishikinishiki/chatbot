@@ -194,7 +194,7 @@
         </button>
         <div class="topbar__title" id="topbarTitle"></div>
         <div class="topbar__actions">
-          <button class="text-button" id="displayButton" aria-label="文字サイズ" title="文字サイズ" popovertarget="displayPopover">Aa</button>
+          <button class="text-button" aria-label="文字サイズ" title="文字サイズ" popovertarget="displayPopover">Aa</button>
 
           <button class="icon-button" id="overviewButton" aria-label="俯瞰表示" title="俯瞰表示">
             <svg class="overview-enter-icon" viewBox="0 0 24 24" aria-hidden="true">
@@ -230,7 +230,7 @@
       </section>
 
       <dialog class="toc-dialog" id="tocDialog" aria-label="目次">
-        <aside class="drawer" id="tocDrawer">
+        <aside class="drawer">
           <h2>目次</h2>
           <nav id="tocList"></nav>
         </aside>
@@ -330,7 +330,6 @@
         overviewStrip: document.getElementById("overviewStrip"),
         pageSlider: document.getElementById("pageSlider"),
         pageCounter: document.getElementById("pageCounter"),
-        displayButton: document.getElementById("displayButton"),
         displayPopover: document.getElementById("displayPopover"),
         overviewButton: document.getElementById("overviewButton"),
         overviewEnterIcon: document.querySelector("#overviewButton .overview-enter-icon"),
@@ -338,7 +337,6 @@
         fontButtons: [...document.querySelectorAll(".font-button")],
         tocOpenButton: document.getElementById("tocOpenButton"),
         tocDialog: document.getElementById("tocDialog"),
-        tocDrawer: document.getElementById("tocDrawer"),
         tocList: document.getElementById("tocList"),
         loading: document.getElementById("loading"),
         measurePage: document.getElementById("measurePage"),
@@ -360,10 +358,6 @@
         panStart: null,
         pinchStart: null
     };
-
-    function isImageViewerOpen() {
-        return els.imageViewer.open;
-    }
 
     function constrainImageViewerPan() {
         const width = els.imageViewerImage.offsetWidth * imageViewerGesture.scale;
@@ -557,7 +551,7 @@
     els.imageViewerViewport.addEventListener("pointercancel", endImageViewerPointer);
 
     els.imageViewerViewport.addEventListener("wheel", (event) => {
-        if (!isImageViewerOpen()) return;
+        if (!els.imageViewer.open) return;
 
         event.preventDefault();
 
