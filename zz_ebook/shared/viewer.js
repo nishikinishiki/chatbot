@@ -1040,26 +1040,9 @@
         renderPageCard(els.nextPage, state.currentPage + 1);
     }
 
-    function invalidateOverviewStep() {
-        overviewInteraction.step = null;
-    }
-
-    function getReaderPageSize() {
-        const width =
-            els.currentPage.offsetWidth ||
-            document.documentElement.clientWidth ||
-            window.innerWidth;
-
-        const height =
-            els.currentPage.offsetHeight ||
-            window.visualViewport?.height ||
-            window.innerHeight;
-
-        return { width, height };
-    }
-
     function updateOverviewGeometry() {
-        const { width, height } = getReaderPageSize();
+        const width = els.measurePage.offsetWidth;
+        const height = els.measurePage.offsetHeight;
 
         const widthScale =
             (width - CONFIG.overview.horizontalReserve) / width;
@@ -1074,8 +1057,7 @@
 
         const itemWidth = width * scale;
         const itemHeight = height * scale;
-        const overviewViewportWidth =
-            els.overviewScroller.clientWidth || width;
+        const overviewViewportWidth = els.overviewScroller.clientWidth;
 
         const sidePad = Math.max(
             0,
@@ -1099,7 +1081,7 @@
             `${sidePad.toFixed(1)}px`
         );
 
-        invalidateOverviewStep();
+        overviewInteraction.step = null;
     }
 
     function renderOverviewStrip() {
@@ -1280,7 +1262,7 @@
 
     function markOverviewDirty() {
         overviewInteraction.dirty = true;
-        invalidateOverviewStep();
+        overviewInteraction.step = null;
     }
 
     function ensureOverviewStrip() {
@@ -1304,11 +1286,8 @@
     };
 
     function getOverviewMorphTransforms() {
-        const scale =
-            parseFloat(cssVar("--overview-scale")) || 0.67;
-        const step =
-            getOverviewStep() ||
-            window.innerWidth * scale;
+        const scale = parseFloat(cssVar("--overview-scale"));
+        const step = getOverviewStep();
 
         return {
             current: `translate3d(0,0,0) scale(${scale})`,
