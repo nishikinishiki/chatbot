@@ -43,15 +43,6 @@
     --control-size: 40px;
     --control-icon-size: 24px;
     --toc-hit-size: 56px;
-    --topbar-left-slot: var(--toc-hit-size);
-    --popover-width: 250px;
-
-    /* Keep a reliable tap-to-close area beside the TOC drawer. */
-    --drawer-max-width: 320px;
-    --drawer-edge-gap: 64px;
-    --drawer-width:
-        min(var(--drawer-max-width),
-            calc(100vw - var(--drawer-edge-gap)));
 
     /* Overview */
     --overview-gap: 28px;
@@ -59,8 +50,6 @@
 
     /* Radii */
     --radius-pill: 999px;
-    --radius-panel: 12px;
-    --radius-control: 8px;
 
     /* Animation */
     --ease-standard: cubic-bezier(.22, .61, .36, 1);
@@ -145,8 +134,6 @@ button {
     right: 0;
     z-index: 30;
     background: var(--chrome-bg);
-    opacity: 1;
-    pointer-events: auto;
 }
 
 .topbar {
@@ -154,7 +141,7 @@ button {
     height: var(--topbar-height);
     display: grid;
     grid-template-columns:
-        var(--topbar-left-slot) minmax(0, 1fr) auto;
+        var(--toc-hit-size) minmax(0, 1fr) auto;
     align-items: center;
     padding: env(safe-area-inset-top, 0px) 14px 0;
     border-bottom: 1px solid var(--ui-subtle);
@@ -240,7 +227,6 @@ button {
     position: fixed;
     inset: 0;
     overflow: hidden;
-    background: transparent;
 }
 
 .stage {
@@ -537,8 +523,6 @@ button {
     display: flex;
     align-items: center;
     gap: var(--overview-gap);
-
-    /* Center cards within the space between header and footer. */
     transform: translateY(calc((var(--bottombar-height) - var(--topbar-height)) / 2));
 }
 
@@ -563,10 +547,7 @@ button {
     top: 0;
     left: 0;
     width: var(--reader-page-width);
-
-    /* Must match the normal reader page box exactly. */
     height: var(--reader-viewport-height);
-
     border-radius: var(--overview-card-radius);
     box-shadow: var(--shadow);
     transform: scale(var(--overview-scale));
@@ -582,11 +563,11 @@ button {
     z-index: 40;
     top: calc(env(safe-area-inset-top, 0px) + 60px);
     right: 16px;
-    width: var(--popover-width);
+    width: 250px;
     padding: 16px;
     background: var(--paper);
     border: 1px solid var(--line);
-    border-radius: var(--radius-panel);
+    border-radius: 12px;
     box-shadow: var(--popover-shadow);
 
     opacity: 0;
@@ -629,7 +610,7 @@ button {
 .font-button {
     height: 38px;
     border: 1px solid var(--line);
-    border-radius: var(--radius-control);
+    border-radius: 8px;
     background: var(--paper);
 }
 
@@ -666,7 +647,7 @@ button {
     bottom: 0;
     left: 0;
     z-index: 35;
-    width: var(--drawer-width);
+    width: min(320px, calc(100vw - 64px));
     padding-top: calc(env(safe-area-inset-top, 0px) + 18px);
     background: var(--paper);
     box-shadow: var(--drawer-shadow);
@@ -726,8 +707,6 @@ button {
 .loading[hidden] {
     display: none;
 }
-
-/* Font-size changes intentionally skip this loading overlay. */
 
 /* ---------- Hidden measurement page ---------- */
 
@@ -859,8 +838,6 @@ button {
     }
 }
 
-/* ---------- More reliable TOC touch target ---------- */
-
 #tocOpenButton {
     width: var(--toc-hit-size);
     height: var(--toc-hit-size);
@@ -908,7 +885,6 @@ button {
 /* ---------- Overview control ---------- */
 
 #overviewButton {
-    display: inline-grid;
     touch-action: manipulation;
 }
 
@@ -926,9 +902,6 @@ button {
     scroll-snap-type: none;
 }
 
-/* ---------- Stable typography commit ---------- */
-
-/* Keep typography commits visually stable. */
 .page-card,
 .page-body {
     text-rendering: optimizeLegibility;
