@@ -403,8 +403,7 @@ button {
     line-height: 1.5;
 }
 
-/* Normal mode uses stacked sheets for page turns. */
-.app.normal .page-card {
+.stage .page-card {
     top: 0;
     left: 0;
     opacity: 0;
@@ -416,12 +415,12 @@ button {
     will-change: transform;
 }
 
-.app.normal .page-card--current {
+.stage .page-card--current {
     z-index: 3;
     opacity: 1;
 }
 
-.app.normal .stage:not(.turn-prev) .page-card--current {
+.stage:not(.turn-prev) .page-card--current {
     z-index: 4;
     transform: translateX(var(--drag-x));
     filter: drop-shadow(
@@ -430,16 +429,16 @@ button {
     );
 }
 
-.app.normal .stage:not(.turn-prev) .page-card--next:not(.is-empty) {
+.stage:not(.turn-prev) .page-card--next:not(.is-empty) {
     z-index: 3;
     opacity: 1;
 }
 
-.app.normal .stage:not(.turn-prev) .page-card--prev {
+.stage:not(.turn-prev) .page-card--prev {
     transform: translateX(-100vw);
 }
 
-.app.normal .stage.turn-prev .page-card--prev:not(.is-empty) {
+.stage.turn-prev .page-card--prev:not(.is-empty) {
     z-index: 5;
     opacity: 1;
     transform: translateX(var(--return-x));
@@ -722,29 +721,29 @@ button {
     }
 
     .measure-page,
-    .app.normal .page-card--current:not(.cover-card) {
+    .stage .page-card--current:not(.cover-card) {
         padding-left: var(--reader-outer-padding);
         padding-right: var(--reader-gutter-padding);
     }
 
-    .app.normal .page-card--next {
+    .stage .page-card--next {
         padding-left: var(--reader-gutter-padding);
         padding-right: var(--reader-outer-padding);
     }
 
-    .app.normal .stage:not(.turn-prev) .page-card--current {
+    .stage:not(.turn-prev) .page-card--current {
         left: 0;
         z-index: 2;
         transform: translateX(0);
         filter: none;
     }
 
-    .app.normal .stage:not(.turn-prev) .page-card--next:not(.is-empty) {
+    .stage:not(.turn-prev) .page-card--next:not(.is-empty) {
         left: 50vw;
         z-index: 2;
     }
 
-    .app.normal .stage:not(.turn-prev):has(.page-card--next:not(.is-empty))::after {
+    .stage:not(.turn-prev):has(.page-card--next:not(.is-empty))::after {
         content: "";
         position: absolute;
         top: 0;
@@ -762,15 +761,15 @@ button {
         pointer-events: none;
     }
 
-    .app.normal .stage:not(.turn-prev) .page-card--current.cover-card {
+    .stage:not(.turn-prev) .page-card--current.cover-card {
         left: 25vw;
     }
 
-    .app.normal .stage:not(.turn-prev) .page-card--prev {
+    .stage:not(.turn-prev) .page-card--prev {
         display: none;
     }
 
-    .app.normal .page-card--next .book-image-block img {
+    .stage .page-card--next .book-image-block img {
         pointer-events: auto;
         cursor: zoom-in;
     }
@@ -854,7 +853,7 @@ button {
 
 /* ---------- Image viewer ---------- */
 
-.app.normal .page-card--current .book-image-block img {
+.stage .page-card--current .book-image-block img {
     pointer-events: auto;
     cursor: zoom-in;
 }
