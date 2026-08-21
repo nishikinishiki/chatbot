@@ -1892,11 +1892,14 @@
         const targetPage = state.chapterStarts[chapterIndex] ?? 0;
         closeToc();
 
+        if (state.mode === "normal") {
+            goToPage(targetPage);
+            return;
+        }
+
         if (isSpreadView()) {
             goToPage(targetPage);
-            if (state.mode !== "normal") {
-                applyAppMode("normal");
-            }
+            applyAppMode("normal");
             return;
         }
 
