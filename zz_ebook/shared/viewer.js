@@ -293,9 +293,10 @@
         fontSize: CONFIG.font.sizes.includes(savedFontSize)
             ? savedFontSize
             : CONFIG.font.defaultSize,
-        mode: "normal",
+        mode: "normal"
+    };
 
-        resizeTimer: null,
+    const readerInteraction = {
         pointerId: null,
         pointerStartX: 0,
         pointerStartY: 0,
@@ -303,15 +304,20 @@
         pointerStartImage: null,
         suppressImageClick: false,
         dragging: false,
-        isTurning: false,
-        modeTransitioning: false,
-
-        overviewDirty: true,
-        overviewStep: null,
-        overviewScrollRaf: 0,
-        sliderRaf: 0,
-        sliderDragging: false
+        isTurning: false
     };
+
+    const overviewInteraction = {
+        dirty: true,
+        step: null,
+        scrollRaf: 0,
+        sliderRaf: 0,
+        sliderDragging: false,
+        navigationRaf: 0
+    };
+
+    let modeTransitioning = false;
+    let resizeTimer = null;
 
     const els = {
         app: document.getElementById("app"),
@@ -343,7 +349,6 @@
     };
 
     const stage = document.querySelector(".stage");
-    let overviewNavigationRaf = 0;
     let readerResizeObserver = null;
 
     const imageViewerGesture = {
@@ -458,8 +463,8 @@
         event.preventDefault();
         event.stopPropagation();
 
-        if (state.suppressImageClick) {
-            state.suppressImageClick = false;
+        if (readerInteraction.suppressImageClick) {
+            readerInteraction.suppressImageClick = false;
             return;
         }
 
@@ -1059,7 +1064,7 @@
     }
 
     function invalidateOverviewStep() {
-        state.overviewStep = null;
+        overviewInteraction.step = null;
     }
 
     function getReaderPageSize() {
@@ -1140,19 +1145,19 @@
     }
 
     function getOverviewStep() {
-        if (state.overviewStep != null) {
-            return state.overviewStep;
+        if (overviewInteraction.step != null) {
+            return overviewInteraction.step;
         }
 
         const first = els.overviewStrip.children[0];
         if (!first) return null;
 
         const second = els.overviewStrip.children[1];
-        state.overviewStep = second
+        overviewInteraction.step = second
             ? second.offsetLeft - first.offsetLeft
             : first.offsetWidth;
 
-        return state.overviewStep;
+        return overviewInteraction.step;
     }
 
     function setOverviewSnapSuppressed(suppressed) {
@@ -1163,10 +1168,10 @@
     }
 
     function cancelOverviewNavigation() {
-        if (!overviewNavigationRaf) return;
+        if (!overviewInteraction.navigationRaf) return;
 
-        cancelAnimationFrame(overviewNavigationRaf);
-        overviewNavigationRaf = 0;
+        cancelAnimationFrame(overviewInteraction.navigationRaf);
+        overviewInteraction.navigationRaf = 0;
         setOverviewSnapSuppressed(false);
     }
 
@@ -1231,17 +1236,17 @@
                 (targetLeft - startLeft) * eased;
 
             if (progress < 1) {
-                overviewNavigationRaf = requestAnimationFrame(tick);
+                overviewInteraction.navigationRaf = requestAnimationFrame(tick);
                 return;
             }
 
-            overviewNavigationRaf = 0;
+            overviewInteraction.navigationRaf = 0;
             setOverviewSnapSuppressed(false);
             setCurrentPage(targetIndex);
             scrollOverviewToPage(targetIndex);
         };
 
-        overviewNavigationRaf = requestAnimationFrame(tick);
+        overviewInteraction.navigationRaf = requestAnimationFrame(tick);
     }
 
     function syncOverviewPosition(fractionalIndex) {
@@ -1257,10 +1262,10 @@
     }
 
     function queueOverviewSliderPosition() {
-        if (state.sliderRaf) return;
+        if (overviewInteraction.sliderRaf) return;
 
-        state.sliderRaf = requestAnimationFrame(() => {
-            state.sliderRaf = 0;
+        overviewInteraction.sliderRaf = requestAnimationFrame(() => {
+            overviewInteraction.sliderRaf = 0;
 
             const step = getOverviewStep();
             if (step == null) return;
@@ -1278,11 +1283,11 @@
     }
 
     function syncPageFromOverviewScroll() {
-        if (state.sliderDragging) return;
+        if (overviewInteraction.sliderDragging) return;
 
-        cancelAnimationFrame(state.overviewScrollRaf);
+        cancelAnimationFrame(overviewInteraction.scrollRaf);
 
-        state.overviewScrollRaf = requestAnimationFrame(() => {
+        overviewInteraction.scrollRaf = requestAnimationFrame(() => {
             const step = getOverviewStep();
             if (!step || step <= 0) return;
 
@@ -1297,16 +1302,16 @@
     }
 
     function markOverviewDirty() {
-        state.overviewDirty = true;
+        overviewInteraction.dirty = true;
         invalidateOverviewStep();
     }
 
     function ensureOverviewStrip() {
-        if (!state.overviewDirty) return;
+        if (!overviewInteraction.dirty) return;
 
         renderOverviewStrip();
         configurePageSlider();
-        state.overviewDirty = false;
+        overviewInteraction.dirty = false;
     }
 
     function nextPaint() {
@@ -1440,10 +1445,10 @@
     }
 
     async function transitionToOverview() {
-        if (state.modeTransitioning || state.mode === "overview") return;
+        if (modeTransitioning || state.mode === "overview") return;
 
         closeOverlays();
-        state.modeTransitioning = true;
+        modeTransitioning = true;
 
         ensureOverviewStrip();
         updateOverviewGeometry();
@@ -1464,14 +1469,14 @@
         await nextPaint();
 
         cleanupModeMorph(animations);
-        state.modeTransitioning = false;
+        modeTransitioning = false;
     }
 
     async function transitionToNormal() {
-        if (state.modeTransitioning || state.mode === "normal") return;
+        if (modeTransitioning || state.mode === "normal") return;
 
         closeOverlays();
-        state.modeTransitioning = true;
+        modeTransitioning = true;
 
         ensureOverviewStrip();
         scrollOverviewToPage(state.currentPage, "auto");
@@ -1491,7 +1496,7 @@
 
         await waitForAnimations(animations);
         cleanupModeMorph(animations);
-        state.modeTransitioning = false;
+        modeTransitioning = false;
     }
 
     function updateOverviewButton() {
@@ -1524,7 +1529,7 @@
     }
 
     function setMode(mode) {
-        if (mode === state.mode || state.modeTransitioning) return;
+        if (mode === state.mode || modeTransitioning) return;
 
         if (isSpreadView()) {
             closeOverlays();
@@ -1802,18 +1807,18 @@
     }
 
     function beginTurnAnimation() {
-        state.isTurning = true;
+        readerInteraction.isTurning = true;
         stage.classList.add("is-animating");
     }
 
     function endTurnAnimation() {
         resetStackTurn();
-        state.isTurning = false;
-        state.dragging = false;
+        readerInteraction.isTurning = false;
+        readerInteraction.dragging = false;
     }
 
     function finishTurn(delta) {
-        if (state.isTurning) return;
+        if (readerInteraction.isTurning) return;
 
         const nextPage = state.currentPage + delta;
 
@@ -1842,7 +1847,7 @@
     }
 
     function snapReaderBack() {
-        if (state.isTurning) return;
+        if (readerInteraction.isTurning) return;
 
         beginTurnAnimation();
 
@@ -1939,7 +1944,7 @@
         if (
             !isSpreadView() ||
             state.mode !== "normal" ||
-            state.modeTransitioning
+            modeTransitioning
         ) return;
 
         handleReaderTap(event.clientX);
@@ -1949,18 +1954,18 @@
         if (
             isSpreadView() ||
             state.mode !== "normal" ||
-            state.isTurning ||
-            state.modeTransitioning
+            readerInteraction.isTurning ||
+            modeTransitioning
         ) return;
         if (event.pointerType === "mouse" && event.button !== 0) return;
 
-        state.pointerId = event.pointerId;
-        state.pointerStartX = event.clientX;
-        state.pointerStartY = event.clientY;
-        state.pointerStartTime = performance.now();
-        state.pointerStartImage = getReaderImage(event.target);
-        state.suppressImageClick = false;
-        state.dragging = false;
+        readerInteraction.pointerId = event.pointerId;
+        readerInteraction.pointerStartX = event.clientX;
+        readerInteraction.pointerStartY = event.clientY;
+        readerInteraction.pointerStartTime = performance.now();
+        readerInteraction.pointerStartImage = getReaderImage(event.target);
+        readerInteraction.suppressImageClick = false;
+        readerInteraction.dragging = false;
 
         resetStackTurn();
 
@@ -1972,23 +1977,23 @@
     stage.addEventListener("pointermove", (event) => {
         if (
             state.mode !== "normal" ||
-            state.isTurning ||
-            state.pointerId !== event.pointerId
+            readerInteraction.isTurning ||
+            readerInteraction.pointerId !== event.pointerId
         ) {
             return;
         }
 
-        let dx = event.clientX - state.pointerStartX;
-        const dy = event.clientY - state.pointerStartY;
+        let dx = event.clientX - readerInteraction.pointerStartX;
+        const dy = event.clientY - readerInteraction.pointerStartY;
 
-        if (!state.dragging) {
+        if (!readerInteraction.dragging) {
             if (Math.abs(dx) < 7) return;
 
             if (Math.abs(dx) <= Math.abs(dy)) {
                 return;
             }
 
-            state.dragging = true;
+            readerInteraction.dragging = true;
         }
 
         if (dx < 0) {
@@ -2014,34 +2019,34 @@
     });
 
     function suppressPendingImageClick() {
-        state.suppressImageClick = true;
+        readerInteraction.suppressImageClick = true;
         setTimeout(() => {
-            state.suppressImageClick = false;
+            readerInteraction.suppressImageClick = false;
         }, 0);
     }
 
     function endReaderPointer(event) {
-        if (state.pointerId !== event.pointerId) return;
+        if (readerInteraction.pointerId !== event.pointerId) return;
 
-        const rawDx = event.clientX - state.pointerStartX;
+        const rawDx = event.clientX - readerInteraction.pointerStartX;
         const totalTime = Math.max(
             1,
-            performance.now() - state.pointerStartTime
+            performance.now() - readerInteraction.pointerStartTime
         );
         const distance = Math.abs(rawDx);
         const speed = distance / totalTime;
         const threshold =
             window.innerWidth * CONFIG.pageTurn.thresholdRatio;
-        const pointerStartImage = state.pointerStartImage;
+        const pointerStartImage = readerInteraction.pointerStartImage;
 
-        state.pointerId = null;
-        state.pointerStartImage = null;
+        readerInteraction.pointerId = null;
+        readerInteraction.pointerStartImage = null;
 
         try {
             stage.releasePointerCapture(event.pointerId);
         } catch (_) { }
 
-        if (!state.dragging) {
+        if (!readerInteraction.dragging) {
             if (pointerStartImage) {
                 suppressPendingImageClick();
                 openImageViewer(pointerStartImage);
@@ -2089,7 +2094,7 @@
         if (state.mode !== "overview") return;
 
         cancelOverviewNavigation();
-        state.sliderDragging = true;
+        overviewInteraction.sliderDragging = true;
         setOverviewSnapSuppressed(true);
     });
 
@@ -2105,13 +2110,13 @@
     });
 
     function finishSliderDrag() {
-        if (!state.sliderDragging) return;
+        if (!overviewInteraction.sliderDragging) return;
 
-        state.sliderDragging = false;
+        overviewInteraction.sliderDragging = false;
         setOverviewSnapSuppressed(false);
 
-        cancelAnimationFrame(state.sliderRaf);
-        state.sliderRaf = 0;
+        cancelAnimationFrame(overviewInteraction.sliderRaf);
+        overviewInteraction.sliderRaf = 0;
 
         const fractionalIndex = clamp(
             Number(els.pageSlider.value) - 1,
@@ -2142,8 +2147,8 @@
     });
 
     function scheduleRepagination(delay = CONFIG.timing.resizeDebounce) {
-        clearTimeout(state.resizeTimer);
-        state.resizeTimer = setTimeout(() => {
+        clearTimeout(resizeTimer);
+        resizeTimer = setTimeout(() => {
             repaginate({
                 showLoading: true,
                 configureSlider: true
