@@ -159,7 +159,6 @@
                 currentChapter.blocks.push({
                     type: "image",
                     alt: image[1],
-                    caption: image[1],
                     src: image[2]
                 });
                 return;
@@ -187,8 +186,8 @@
         .join("");
 
     document.body.innerHTML = `
-    <div class="app normal" id="app">
-      <header class="topbar" id="topbar">
+    <div class="app" id="app">
+      <header class="topbar">
         <button class="icon-button" id="tocOpenButton" aria-label="目次" title="目次">
           <svg viewBox="0 0 24 24" aria-hidden="true">
             <path d="M3 13h2v-2H3v2zm0 4h2v-2H3v2zm0-8h2V7H3v2zm4 8h14v-2H7v2zm0-4h14v-2H7v2zm0-6v2h14V7H7z"/>
@@ -221,7 +220,7 @@
         </div>
       </main>
 
-      <footer class="bottom-bar" id="bottomBar">
+      <footer class="bottom-bar">
         <input class="page-slider" id="pageSlider" type="range" min="1" max="1" step="0.01" value="1" />
         <div class="page-counter" id="pageCounter">1/1</div>
       </footer>
@@ -257,16 +256,20 @@
   `;
 
     const STORAGE = {
-        currentPage: `reader-current-page-${book.title}`,
+        currentPage: `reader-current-page:${new URL(".", location.href).pathname}`,
         fontSize: "reader-font-size"
     };
+    const legacyCurrentPageKey = `reader-current-page-${book.title}`;
 
     const clamp = (value, min, max) => Math.max(min, Math.min(max, value));
 
     const storage = {
         getNumber(key, fallback) {
             try {
-                const value = Number(localStorage.getItem(key));
+                const raw = localStorage.getItem(key);
+                if (raw == null) return fallback;
+
+                const value = Number(raw);
                 return Number.isFinite(value) ? value : fallback;
             } catch {
                 return fallback;
@@ -285,11 +288,15 @@
         STORAGE.fontSize,
         CONFIG.font.defaultSize
     );
+    const savedCurrentPage = storage.getNumber(
+        STORAGE.currentPage,
+        storage.getNumber(legacyCurrentPageKey, 0)
+    );
 
     const state = {
         pages: [],
         chapterStarts: [],
-        currentPage: storage.getNumber(STORAGE.currentPage, 0),
+        currentPage: savedCurrentPage,
         fontSize: CONFIG.font.sizes.includes(savedFontSize)
             ? savedFontSize
             : CONFIG.font.defaultSize,
@@ -297,11 +304,7 @@
     };
 
     const readerInteraction = {
-        pointerId: null,
-        pointerStartX: 0,
-        pointerStartY: 0,
-        pointerStartTime: 0,
-        pointerStartImage: null,
+        pointer: null,
         suppressImageClick: false,
         dragging: false,
         isTurning: false
@@ -648,11 +651,11 @@
 
         figure.appendChild(frame);
 
-        if (block.caption) {
+        if (block.alt) {
             figure.appendChild(
                 createTextElement(
                     "figcaption",
-                    block.caption,
+                    block.alt,
                     "book-image-caption"
                 )
             );
@@ -1474,7 +1477,6 @@
 
     function applyAppMode(mode) {
         state.mode = mode;
-        els.app.classList.toggle("normal", mode === "normal");
         els.app.classList.toggle("overview", mode === "overview");
         updateOverviewButton();
     }
@@ -1878,11 +1880,13 @@
         ) return;
         if (event.pointerType === "mouse" && event.button !== 0) return;
 
-        readerInteraction.pointerId = event.pointerId;
-        readerInteraction.pointerStartX = event.clientX;
-        readerInteraction.pointerStartY = event.clientY;
-        readerInteraction.pointerStartTime = performance.now();
-        readerInteraction.pointerStartImage = getReaderImage(event.target);
+        readerInteraction.pointer = {
+            id: event.pointerId,
+            x: event.clientX,
+            y: event.clientY,
+            time: performance.now(),
+            image: getReaderImage(event.target)
+        };
         readerInteraction.suppressImageClick = false;
         readerInteraction.dragging = false;
 
@@ -1894,16 +1898,19 @@
     });
 
     stage.addEventListener("pointermove", (event) => {
+        const pointer = readerInteraction.pointer;
+
         if (
             state.mode !== "normal" ||
             readerInteraction.isTurning ||
-            readerInteraction.pointerId !== event.pointerId
+            !pointer ||
+            pointer.id !== event.pointerId
         ) {
             return;
         }
 
-        let dx = event.clientX - readerInteraction.pointerStartX;
-        const dy = event.clientY - readerInteraction.pointerStartY;
+        let dx = event.clientX - pointer.x;
+        const dy = event.clientY - pointer.y;
 
         if (!readerInteraction.dragging) {
             if (Math.abs(dx) < 7) return;
@@ -1945,30 +1952,29 @@
     }
 
     function endReaderPointer(event) {
-        if (readerInteraction.pointerId !== event.pointerId) return;
+        const pointer = readerInteraction.pointer;
+        if (!pointer || pointer.id !== event.pointerId) return;
 
-        const rawDx = event.clientX - readerInteraction.pointerStartX;
+        const rawDx = event.clientX - pointer.x;
         const totalTime = Math.max(
             1,
-            performance.now() - readerInteraction.pointerStartTime
+            performance.now() - pointer.time
         );
         const distance = Math.abs(rawDx);
         const speed = distance / totalTime;
         const threshold =
             window.innerWidth * CONFIG.pageTurn.thresholdRatio;
-        const pointerStartImage = readerInteraction.pointerStartImage;
 
-        readerInteraction.pointerId = null;
-        readerInteraction.pointerStartImage = null;
+        readerInteraction.pointer = null;
 
         try {
             stage.releasePointerCapture(event.pointerId);
         } catch (_) { }
 
         if (!readerInteraction.dragging) {
-            if (pointerStartImage) {
+            if (pointer.image) {
                 suppressPendingImageClick();
-                openImageViewer(pointerStartImage);
+                openImageViewer(pointer.image);
                 return;
             }
 
@@ -1976,7 +1982,7 @@
             return;
         }
 
-        if (pointerStartImage) {
+        if (pointer.image) {
             suppressPendingImageClick();
         }
 
