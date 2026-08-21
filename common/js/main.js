@@ -58,29 +58,28 @@ async function showSystemMessages(messageArray) {
 
 
 // ==========================================
-// UTMパラメータに応じた動的URL取得ロジック（部分一致対応）
+// UTMパラメータに応じた動的URL取得ロジック（記述順優先・部分一致対応）
 // ==========================================
 function getDynamicAssetUrl(defaultUrl, assetMap) {
-    let url = defaultUrl || null;
+    if (!assetMap) return defaultUrl || null;
 
-    // 判定したいUTMパラメータのリスト（優先順位順）
+    // 検索対象のUTMパラメータ
     const targetParams = ['utm_campaign', 'utm_source'];
 
-    for (const param of targetParams) {
-        const paramValue = state.utmParameters[param];
+    // 1. config.jsで定義された順番（上から順）でループを回す
+    for (const key in assetMap) {
+        // 2. そのキーワードが、utm_campaign または utm_source に含まれているか判定
+        for (const param of targetParams) {
+            const paramValue = state.utmParameters[param];
 
-        // パラメータが存在し、かつ対応表(assetMap)がある場合
-        if (paramValue && assetMap) {
-            // assetMapのキーをループして、パラメータ値がそのキー（指定文字列）を含んでいるか判定
-            for (const key in assetMap) {
-                if (paramValue.includes(key)) {
-                    return assetMap[key]; // 含まれている場合はそのURLを返す（前方が優先）
-                }
+            // 含まれていれば、その時点で最優先としてURLを返して終了
+            if (paramValue && paramValue.includes(key)) {
+                return assetMap[key];
             }
         }
     }
 
-    return url;
+    return defaultUrl || null;
 }
 
 // ==========================================
