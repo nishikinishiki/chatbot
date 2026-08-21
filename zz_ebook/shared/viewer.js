@@ -1403,57 +1403,41 @@
         ].forEach(clearMorphCard);
     }
 
-    async function transitionToOverview() {
-        if (modeTransitioning || state.mode === "overview") return;
+    async function transitionMode(mode) {
+        const toOverview = mode === "overview";
 
         closeOverlays();
         modeTransitioning = true;
 
         ensureOverviewStrip();
-        updateOverviewGeometry();
+        if (toOverview) {
+            updateOverviewGeometry();
+        }
         scrollOverviewToPage(state.currentPage, "auto");
         await nextPaint();
+
+        if (!toOverview) {
+            setCurrentPage(state.currentPage, { render: true });
+        }
 
         const transforms = getOverviewMorphTransforms();
         prepareStageMorph();
 
-        setMorphStart(true, transforms);
+        setMorphStart(toOverview, transforms);
         await nextPaint();
 
-        const animations = createMorphAnimations(true, transforms);
+        if (!toOverview) {
+            applyAppMode(mode);
+        }
 
+        const animations = createMorphAnimations(toOverview, transforms);
         await waitForAnimations(animations);
 
-        applyAppMode("overview");
-        await nextPaint();
+        if (toOverview) {
+            applyAppMode(mode);
+            await nextPaint();
+        }
 
-        cleanupModeMorph(animations);
-        modeTransitioning = false;
-    }
-
-    async function transitionToNormal() {
-        if (modeTransitioning || state.mode === "normal") return;
-
-        closeOverlays();
-        modeTransitioning = true;
-
-        ensureOverviewStrip();
-        scrollOverviewToPage(state.currentPage, "auto");
-        await nextPaint();
-
-        setCurrentPage(state.currentPage, { render: true });
-
-        const transforms = getOverviewMorphTransforms();
-        prepareStageMorph();
-
-        setMorphStart(false, transforms);
-        await nextPaint();
-
-        applyAppMode("normal");
-
-        const animations = createMorphAnimations(false, transforms);
-
-        await waitForAnimations(animations);
         cleanupModeMorph(animations);
         modeTransitioning = false;
     }
@@ -1504,11 +1488,7 @@
             return;
         }
 
-        if (mode === "overview") {
-            transitionToOverview();
-        } else {
-            transitionToNormal();
-        }
+        transitionMode(mode);
     }
 
     function buildToc() {
