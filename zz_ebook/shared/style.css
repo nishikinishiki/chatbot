@@ -884,6 +884,7 @@ button {
     overflow: hidden;
     background: rgba(0, 0, 0, 0.9);
     opacity: 0;
+    pointer-events: none;
     transition:
         opacity 160ms var(--ease-standard),
         overlay 160ms allow-discrete,
@@ -892,6 +893,7 @@ button {
 
 .image-viewer:open {
     opacity: 1;
+    pointer-events: auto;
 }
 
 .image-viewer::backdrop {
