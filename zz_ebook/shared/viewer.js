@@ -744,15 +744,6 @@
         }
     }
 
-    function paginateAtomicBlock(createNode, chapterIndex) {
-        const node = createNode();
-        els.measureBody.appendChild(node);
-
-        if (fitsMeasureBody()) return;
-
-        moveBlockToNewPage(node, chapterIndex);
-    }
-
     function fitsMeasureBody() {
         return els.measureBody.scrollHeight <= els.measureBody.clientHeight + 0.5;
     }
@@ -814,13 +805,7 @@
                 const trailingHeading = els.measureBody.lastElementChild;
 
                 if (trailingHeading?.tagName === "H2") {
-                    trailingHeading.remove();
-
-                    if (els.measureBody.childNodes.length) {
-                        commitMeasuredPage(chapterIndex);
-                    }
-
-                    els.measureBody.appendChild(trailingHeading);
+                    moveBlockToNewPage(trailingHeading, chapterIndex);
                     continue;
                 }
 
@@ -922,12 +907,15 @@
                     case "image":
                         paginateImageBlock(block, chapterIndex);
                         break;
-                    case "h2":
-                        paginateAtomicBlock(
-                            () => createTextElement("h2", block.text),
-                            chapterIndex
-                        );
+                    case "h2": {
+                        const node = createTextElement("h2", block.text);
+                        els.measureBody.appendChild(node);
+
+                        if (!fitsMeasureBody()) {
+                            moveBlockToNewPage(node, chapterIndex);
+                        }
                         break;
+                    }
                     case "paragraph":
                         paginateParagraph(block.text, chapterIndex);
                         break;
@@ -996,14 +984,8 @@
         });
     }
 
-    function updateReadingPositionUI({
-        sliderValue = state.currentPage + 1,
-        updateSlider = true
-    } = {}) {
-        if (updateSlider) {
-            els.pageSlider.value = String(sliderValue);
-        }
-
+    function updateReadingPositionUI(sliderValue = state.currentPage + 1) {
+        els.pageSlider.value = String(sliderValue);
         els.pageCounter.textContent = `${state.currentPage + 1}/${state.pages.length}`;
         els.topbarTitle.textContent = currentChapterTitle();
         updateTocHighlight();
@@ -1022,9 +1004,9 @@
         }
 
         if (syncUI) {
-            updateReadingPositionUI({
-                sliderValue: sliderValue ?? state.currentPage + 1
-            });
+            updateReadingPositionUI(
+                sliderValue ?? state.currentPage + 1
+            );
         }
     }
 
@@ -1056,11 +1038,6 @@
         renderPageCard(els.currentPage, state.currentPage);
         renderPageCard(els.prevPage, state.currentPage - 1);
         renderPageCard(els.nextPage, state.currentPage + 1);
-    }
-
-    function renderCurrentPage() {
-        renderPageStack();
-        updateReadingPositionUI();
     }
 
     function invalidateOverviewStep() {
@@ -1482,7 +1459,7 @@
         scrollOverviewToPage(state.currentPage, "auto");
         await nextPaint();
 
-        renderCurrentPage();
+        setCurrentPage(state.currentPage, { render: true });
 
         const transforms = getOverviewMorphTransforms();
         prepareStageMorph();
@@ -1540,7 +1517,7 @@
                 scrollOverviewToPage(state.currentPage, "auto");
                 applyAppMode("overview");
             } else {
-                renderCurrentPage();
+                setCurrentPage(state.currentPage, { render: true });
                 applyAppMode("normal");
             }
             return;
@@ -1565,46 +1542,6 @@
         });
 
         els.tocList.replaceChildren(fragment);
-    }
-
-    function getReadingProgress() {
-        const pageCount = Math.max(state.pages.length, 1);
-
-        return pageCount <= 1
-            ? 0
-            : state.currentPage / (pageCount - 1);
-    }
-
-    function getPageIndexForProgress(progress) {
-        return clampPageIndex(
-            Math.round(
-                progress * Math.max(0, state.pages.length - 1)
-            )
-        );
-    }
-
-    function getCurrentChapterStartAnchor() {
-        const page = state.pages[state.currentPage];
-        if (!page) return null;
-
-        const chapterIndex = page.chapterIndex;
-        if (!Number.isInteger(chapterIndex)) return null;
-
-        return state.chapterStarts[chapterIndex] === state.currentPage
-            ? chapterIndex
-            : null;
-    }
-
-    function getPageIndexAfterRepagination({
-        progress,
-        chapterStartAnchor
-    }) {
-        if (Number.isInteger(chapterStartAnchor)) {
-            const page = state.chapterStarts[chapterStartAnchor];
-            if (Number.isInteger(page)) return clampPageIndex(page);
-        }
-
-        return getPageIndexForProgress(progress);
     }
 
     function setFontCss(size, {
@@ -1638,24 +1575,26 @@
     }
 
     function repaginate({
-        fontSize = state.fontSize,
         anchorChapterStart = false,
         deferVisibleFont = false,
-        showLoading = false,
-        updateSlider = true,
-        configureSlider = false
+        showLoading = false
     } = {}) {
-        const position = {
-            progress: getReadingProgress(),
-            chapterStartAnchor: anchorChapterStart
-                ? getCurrentChapterStartAnchor()
-                : null
-        };
+        const pageCount = Math.max(state.pages.length, 1);
+        const currentPage = state.pages[state.currentPage];
+        const chapterIndex =
+            anchorChapterStart &&
+            Number.isInteger(currentPage?.chapterIndex) &&
+            state.chapterStarts[currentPage.chapterIndex] === state.currentPage
+                ? currentPage.chapterIndex
+                : null;
+        const progress = pageCount <= 1
+            ? 0
+            : state.currentPage / (pageCount - 1);
 
         if (deferVisibleFont) {
-            setFontCss(fontSize, { visible: false, measure: true });
+            setFontCss(state.fontSize, { visible: false, measure: true });
         } else {
-            setFontCss(fontSize);
+            setFontCss(state.fontSize);
         }
 
         if (showLoading) {
@@ -1664,22 +1603,25 @@
 
         requestAnimationFrame(() => {
             paginateBook();
+            configurePageSlider();
 
-            if (configureSlider) {
-                configurePageSlider();
-            }
+            const chapterPage = Number.isInteger(chapterIndex)
+                ? state.chapterStarts[chapterIndex]
+                : null;
+            const nextPage = Number.isInteger(chapterPage)
+                ? chapterPage
+                : Math.round(
+                    progress * Math.max(0, state.pages.length - 1)
+                );
 
-            setCurrentPage(
-                getPageIndexAfterRepagination(position),
-                { syncUI: false }
-            );
+            setCurrentPage(nextPage, { syncUI: false });
 
             if (deferVisibleFont) {
-                setFontCss(fontSize, { visible: true, measure: false });
+                setFontCss(state.fontSize, { visible: true, measure: false });
             }
 
             renderPageStack();
-            updateReadingPositionUI({ updateSlider });
+            updateReadingPositionUI();
             refreshOverviewAfterPagination();
 
             if (showLoading) {
@@ -1701,10 +1643,8 @@
         }
 
         repaginate({
-            fontSize: size,
             anchorChapterStart: true,
-            deferVisibleFont: true,
-            updateSlider: state.mode === "overview"
+            deferVisibleFont: true
         });
     }
 
@@ -2149,10 +2089,7 @@
     function scheduleRepagination(delay = CONFIG.timing.resizeDebounce) {
         clearTimeout(resizeTimer);
         resizeTimer = setTimeout(() => {
-            repaginate({
-                showLoading: true,
-                configureSlider: true
-            });
+            repaginate({ showLoading: true });
         }, delay);
     }
 
@@ -2339,9 +2276,7 @@
         configurePageSlider();
         markOverviewDirty();
 
-        setCurrentPage(state.currentPage, { syncUI: false });
-
-        renderCurrentPage();
+        setCurrentPage(state.currentPage, { render: true });
         els.loading.hidden = true;
         startReaderResizeTracking();
 
