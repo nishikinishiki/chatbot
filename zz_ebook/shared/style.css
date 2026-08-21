@@ -2,7 +2,7 @@
     /* Typography */
     --reader-font-size: 18px;
     --measure-font-size: var(--reader-font-size);
-    --reader-line-height: 1.9;
+    --reader-line-height: 1.8;
     --font-sans:
         "Noto Sans JP",
         "Hiragino Sans",
@@ -27,9 +27,9 @@
     --loading-bg: rgba(255, 255, 255, 0.85);
 
     /* Shadows */
-    --shadow: 0 3px 14px rgba(0, 0, 0, 0.12);
+    --shadow: 0 3px 14px rgba(0, 0, 0, 0.15);
     --popover-shadow: 0 8px 20px rgba(0, 0, 0, 0.15);
-    --drawer-shadow: 6px 0 18px rgba(0, 0, 0, 0.12);
+    --drawer-shadow: 6px 0 18px rgba(0, 0, 0, 0.15);
 
     /* Reader dimensions */
     --page-padding-x: 24px;
@@ -306,16 +306,16 @@ button {
 
 .page-body h1,
 .measure-body h1 {
-    margin: 0 0 1.5em;
-    font-size: 1.5em;
+    margin: 0 0 0.5em;
+    font-size: 1.25em;
     font-weight: 600;
     line-height: 1.5;
 }
 
 .page-body h2,
 .measure-body h2 {
-    margin: 1.5em 0 0.75em;
-    font-size: 1.15em;
+    margin: 1.5em 0 0.5em;
+    font-size: 1.1em;
     font-weight: 600;
     line-height: 1.5;
     text-align: left;
@@ -328,7 +328,7 @@ button {
 
 .page-body p,
 .measure-body p {
-    margin: 0 0 1em;
+    margin: 0 0 0.5em;
     word-break: normal;
     overflow-wrap: anywhere;
 }
@@ -351,7 +351,7 @@ button {
 /* ---------- Book images ---------- */
 
 .book-image-block {
-    margin: 1.5em 0;
+    margin: 1em 0;
     break-inside: avoid;
 }
 
@@ -377,7 +377,7 @@ button {
     display: grid;
     place-items: center;
     border-radius: 7px;
-    background: rgba(0, 0, 0, 0.58);
+    background: rgba(0, 0, 0, 0.6);
     color: #fff;
     box-shadow: 0 1px 4px rgba(0, 0, 0, 0.2);
     pointer-events: none;
@@ -437,8 +437,8 @@ button {
 }
 
 .colophon__label {
-    margin: 1em 0 0 !important;
-    font-size: 0.85em;
+    margin: 0.8em 0 0 !important;
+    font-size: 0.8em;
     font-weight: 600;
 }
 
@@ -448,8 +448,8 @@ button {
 
 .colophon__text {
     margin: 0 !important;
-    font-size: 0.8em;
-    line-height: 1.6;
+    font-size: 0.75em;
+    line-height: 1.5;
 }
 
 /* Normal mode uses stacked sheets for page turns. */
@@ -701,13 +701,13 @@ button {
 
 .drawer h2 {
     margin: 0;
-    padding: 0 22px 14px;
+    padding: 0 20px 14px;
     font-size: 16px;
 }
 
 .toc-button {
     width: 100%;
-    padding: 13px 22px;
+    padding: 12px 20px;
     text-align: left;
     font-size: 14px;
 }
@@ -755,7 +755,7 @@ button {
 @media (max-width: 720px) {
     :root {
         --topbar-height: 60px;
-        --bottombar-height: 64px;
+        --bottombar-height: 60px;
         --control-size: 36px;
         --control-icon-size: 21px;
         --toc-hit-size: 48px;
@@ -787,10 +787,6 @@ button {
         pointer-events: auto;
         transform: translateY(0);
         transition: none;
-    }
-
-    .topbar {
-        padding-right: 6px;
     }
 
     .topbar__actions {
