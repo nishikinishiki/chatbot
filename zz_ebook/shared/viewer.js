@@ -194,7 +194,7 @@
         </button>
         <div class="topbar__title" id="topbarTitle"></div>
         <div class="topbar__actions">
-          <button class="text-button" id="displayButton" aria-label="文字サイズ" title="文字サイズ" popovertarget="displayPopover">Aa</button>
+          <button class="text-button" aria-label="文字サイズ" title="文字サイズ" popovertarget="displayPopover">Aa</button>
 
           <button class="icon-button" id="overviewButton" aria-label="俯瞰表示" title="俯瞰表示">
             <svg class="overview-enter-icon" viewBox="0 0 24 24" aria-hidden="true">
@@ -229,23 +229,23 @@
         <div class="font-control">${fontButtonsHTML}</div>
       </section>
 
-      <div class="scrim" id="scrim" aria-hidden="true"></div>
-
-      <aside class="drawer" id="tocDrawer" aria-hidden="true">
-        <h2>目次</h2>
-        <nav id="tocList"></nav>
-      </aside>
+      <dialog class="toc-dialog" id="tocDialog" aria-label="目次">
+        <aside class="drawer">
+          <h2>目次</h2>
+          <nav id="tocList"></nav>
+        </aside>
+      </dialog>
 
       <div class="loading" id="loading">ページを再計算しています…</div>
     </div>
 
-    <div class="image-viewer" id="imageViewer" role="dialog" aria-modal="true" aria-hidden="true" aria-label="画像拡大表示">
+    <dialog class="image-viewer" id="imageViewer" aria-label="画像拡大表示">
       <button class="image-viewer__close" id="imageViewerClose" type="button" aria-label="画像を閉じる">×</button>
       <div class="image-viewer__viewport" id="imageViewerViewport">
         <img class="image-viewer__image" id="imageViewerImage" alt="" draggable="false" />
       </div>
       <div class="image-viewer__hint">ピンチ / ホイールで拡大</div>
-    </div>
+    </dialog>
 
     <div class="measure-host" aria-hidden="true">
       <article class="measure-page" id="measurePage">
@@ -330,16 +330,14 @@
         overviewStrip: document.getElementById("overviewStrip"),
         pageSlider: document.getElementById("pageSlider"),
         pageCounter: document.getElementById("pageCounter"),
-        displayButton: document.getElementById("displayButton"),
         displayPopover: document.getElementById("displayPopover"),
         overviewButton: document.getElementById("overviewButton"),
         overviewEnterIcon: document.querySelector("#overviewButton .overview-enter-icon"),
         overviewExitIcon: document.querySelector("#overviewButton .overview-exit-icon"),
         fontButtons: [...document.querySelectorAll(".font-button")],
         tocOpenButton: document.getElementById("tocOpenButton"),
-        tocDrawer: document.getElementById("tocDrawer"),
+        tocDialog: document.getElementById("tocDialog"),
         tocList: document.getElementById("tocList"),
-        scrim: document.getElementById("scrim"),
         loading: document.getElementById("loading"),
         measurePage: document.getElementById("measurePage"),
         measureBody: document.getElementById("measureBody"),
@@ -360,10 +358,6 @@
         panStart: null,
         pinchStart: null
     };
-
-    function isImageViewerOpen() {
-        return els.imageViewer.classList.contains("open");
-    }
 
     function constrainImageViewerPan() {
         const width = els.imageViewerImage.offsetWidth * imageViewerGesture.scale;
@@ -400,17 +394,16 @@
         els.imageViewerImage.alt = sourceImage.alt || "";
         resetImageViewerTransform();
 
-        els.imageViewer.classList.add("open");
-        els.imageViewer.setAttribute("aria-hidden", "false");
+        if (!els.imageViewer.open) {
+            els.imageViewer.showModal();
+        }
         els.imageViewerClose.focus({ preventScroll: true });
     }
 
     function closeImageViewer() {
-        if (!isImageViewerOpen()) return;
-
-        els.imageViewer.classList.remove("open");
-        els.imageViewer.setAttribute("aria-hidden", "true");
-        resetImageViewerTransform();
+        if (els.imageViewer.open) {
+            els.imageViewer.close();
+        }
     }
 
     function getReaderImage(target) {
@@ -468,17 +461,7 @@
         openImageViewer(image);
     }, true);
 
-    document.addEventListener("keydown", (event) => {
-        if (!isImageViewerOpen()) return;
-
-        event.stopImmediatePropagation();
-
-        if (event.key === "Escape") {
-            event.preventDefault();
-            closeImageViewer();
-        }
-    }, true);
-
+    els.imageViewer.addEventListener("close", resetImageViewerTransform);
     els.imageViewerClose.addEventListener("click", closeImageViewer);
 
     els.imageViewerViewport.addEventListener("click", (event) => {
@@ -568,7 +551,7 @@
     els.imageViewerViewport.addEventListener("pointercancel", endImageViewerPointer);
 
     els.imageViewerViewport.addEventListener("wheel", (event) => {
-        if (!isImageViewerOpen()) return;
+        if (!els.imageViewer.open) return;
 
         event.preventDefault();
 
@@ -1607,27 +1590,21 @@
     }
 
     function isTocOpen() {
-        return els.tocDrawer.classList.contains("open");
-    }
-
-    function setTocOpen(open) {
-        els.tocDrawer.classList.toggle("open", open);
-        els.scrim.classList.toggle("open", open);
-
-        const hidden = String(!open);
-        els.tocDrawer.setAttribute("aria-hidden", hidden);
-        els.scrim.setAttribute("aria-hidden", hidden);
+        return els.tocDialog.open;
     }
 
     function openToc() {
         if (isTocOpen()) return;
+
         closeDisplayPopover();
         updateTocHighlight();
-        setTocOpen(true);
+        els.tocDialog.showModal();
     }
 
     function closeToc() {
-        if (isTocOpen()) setTocOpen(false);
+        if (isTocOpen()) {
+            els.tocDialog.close();
+        }
     }
 
     function toggleToc() {
@@ -2048,9 +2025,10 @@
         event.stopPropagation();
     });
 
-    els.scrim.addEventListener("pointerdown", (event) => {
-        event.preventDefault();
-        closeToc();
+    els.tocDialog.addEventListener("click", (event) => {
+        if (event.target === els.tocDialog) {
+            closeToc();
+        }
     });
 
     document.addEventListener("keydown", (event) => {
@@ -2110,54 +2088,21 @@
         window.addEventListener("resize", handleSizeChange);
     }
 
-    function getBookImageSources() {
-        const sources = new Set();
-
-        if (book.cover.src) {
-            sources.add(book.cover.src);
-        }
-
-        book.chapters.forEach((chapter) => {
-            chapter.blocks.forEach((block) => {
-                if (block.type === "image" && block.src) {
-                    sources.add(block.src);
-                }
-            });
-        });
-
-        return [...sources];
-    }
-
-    function preloadImage(src) {
-        const image = new Image();
-        image.src = src;
-
-        if (typeof image.decode === "function") {
-            return image.decode().catch(() => { });
-        }
-
-        if (image.complete) {
-            return Promise.resolve();
-        }
-
-        return new Promise((resolve) => {
-            image.addEventListener("load", resolve, { once: true });
-            image.addEventListener("error", resolve, { once: true });
-        });
-    }
-
     function preloadBookImages() {
-        return Promise.all(
-            getBookImageSources().map(preloadImage)
-        );
-    }
+        const sources = new Set([
+            book.cover.src,
+            ...book.chapters.flatMap((chapter) =>
+                chapter.blocks
+                    .filter((block) => block.type === "image")
+                    .map((block) => block.src)
+            )
+        ].filter(Boolean));
 
-    async function waitForFonts() {
-        if (!document.fonts?.ready) return;
-
-        try {
-            await document.fonts.ready;
-        } catch (_) { }
+        return Promise.all([...sources].map((src) => {
+            const image = new Image();
+            image.src = src;
+            return image.decode().catch(() => { });
+        }));
     }
 
     async function init() {
@@ -2166,7 +2111,7 @@
         setFontSize(state.fontSize, { repaginate: false });
 
         await Promise.all([
-            waitForFonts(),
+            document.fonts.ready,
             preloadBookImages()
         ]);
         await nextPaint();
