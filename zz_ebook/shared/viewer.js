@@ -1007,14 +1007,22 @@
         storage.set(STORAGE.currentPage, state.currentPage);
     }
 
-    function setCurrentPageIndex(index, {
+    function setCurrentPage(index, {
+        render = false,
+        syncUI = true,
         sliderValue = null
     } = {}) {
         state.currentPage = clampPageIndex(index);
 
-        updateReadingPositionUI({
-            sliderValue: sliderValue ?? state.currentPage + 1
-        });
+        if (render) {
+            renderPageStack();
+        }
+
+        if (syncUI) {
+            updateReadingPositionUI({
+                sliderValue: sliderValue ?? state.currentPage + 1
+            });
+        }
     }
 
     function isSpreadView() {
@@ -1049,11 +1057,6 @@
     function renderCurrentPage() {
         renderPageStack();
         updateReadingPositionUI();
-    }
-
-    function goToPage(index) {
-        state.currentPage = clampPageIndex(index);
-        renderCurrentPage();
     }
 
     function invalidateOverviewStep() {
@@ -1199,7 +1202,7 @@
         const distance = Math.abs(endLeft - startLeft);
 
         if (distance < 1) {
-            setCurrentPageIndex(targetIndex);
+            setCurrentPage(targetIndex);
             scrollOverviewToPage(targetIndex, "auto");
             return;
         }
@@ -1241,7 +1244,7 @@
 
             state.overviewProgrammaticScrollRaf = 0;
             setOverviewSnapSuppressed(false);
-            setCurrentPageIndex(targetIndex);
+            setCurrentPage(targetIndex);
             scrollOverviewToPage(targetIndex, "auto");
         };
 
@@ -1257,7 +1260,7 @@
             return;
         }
 
-        setCurrentPageIndex(nearestIndex, { sliderValue });
+        setCurrentPage(nearestIndex, { sliderValue });
     }
 
     function queueOverviewSliderPosition() {
@@ -1640,10 +1643,7 @@
 
     function commitPaginationAtProgress(progress) {
         configurePageSlider();
-
-        state.currentPage = getPageIndexForProgress(progress);
-
-        renderCurrentPage();
+        setCurrentPage(getPageIndexForProgress(progress), { render: true });
         refreshOverviewAfterPagination();
     }
 
@@ -1725,7 +1725,7 @@
                 chapterStartAnchor
             });
 
-            state.currentPage = nextIndex;
+            setCurrentPage(nextIndex, { syncUI: false });
 
             setFontCss(
                 nextSize,
@@ -1898,8 +1898,7 @@
         }
 
         window.setTimeout(() => {
-            state.currentPage = nextPage;
-            renderCurrentPage();
+            setCurrentPage(nextPage, { render: true });
             endTurnAnimation();
         }, CONFIG.pageTurn.duration);
     }
@@ -1932,8 +1931,7 @@
 
         if (target < 0 || target >= state.pages.length) return;
 
-        state.currentPage = target;
-        renderCurrentPage();
+        setCurrentPage(target, { render: true });
     }
 
     function navigateBy(delta) {
@@ -1959,7 +1957,7 @@
         const index = Number(item.dataset.index);
         if (!Number.isInteger(index)) return;
 
-        state.currentPage = index;
+        setCurrentPage(index, { syncUI: false });
         setMode("normal");
     });
 
@@ -1974,12 +1972,12 @@
         closeToc();
 
         if (state.mode === "normal") {
-            goToPage(targetPage);
+            setCurrentPage(targetPage, { render: true });
             return;
         }
 
         if (isSpreadView()) {
-            goToPage(targetPage);
+            setCurrentPage(targetPage, { render: true });
             applyAppMode("normal");
             return;
         }
@@ -2165,7 +2163,7 @@
             return;
         }
 
-        goToPage(Math.round(position) - 1);
+        setCurrentPage(Math.round(position) - 1, { render: true });
     });
 
     function finishSliderDrag() {
@@ -2185,7 +2183,7 @@
 
         const target = Math.round(fractionalIndex);
 
-        setCurrentPageIndex(target);
+        setCurrentPage(target);
         scrollOverviewToPage(target, "smooth");
     }
 
@@ -2384,7 +2382,7 @@
         configurePageSlider();
         markOverviewDirty();
 
-        state.currentPage = clampPageIndex(state.currentPage);
+        setCurrentPage(state.currentPage, { syncUI: false });
 
         renderCurrentPage();
         els.loading.hidden = true;
