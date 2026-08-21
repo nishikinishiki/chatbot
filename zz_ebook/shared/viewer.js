@@ -309,7 +309,6 @@
         overviewDirty: true,
         overviewStep: null,
         overviewScrollRaf: 0,
-        overviewProgrammaticScrollRaf: 0,
         sliderRaf: 0,
         sliderDragging: false
     };
@@ -344,6 +343,7 @@
     };
 
     const stage = document.querySelector(".stage");
+    let overviewNavigationRaf = 0;
 
     const imageViewerGesture = {
         scale: 1,
@@ -1163,11 +1163,11 @@
         );
     }
 
-    function cancelOverviewProgrammaticScroll() {
-        if (!state.overviewProgrammaticScrollRaf) return;
+    function cancelOverviewNavigation() {
+        if (!overviewNavigationRaf) return;
 
-        cancelAnimationFrame(state.overviewProgrammaticScrollRaf);
-        state.overviewProgrammaticScrollRaf = 0;
+        cancelAnimationFrame(overviewNavigationRaf);
+        overviewNavigationRaf = 0;
         setOverviewSnapSuppressed(false);
     }
 
@@ -1194,16 +1194,15 @@
 
         if (targetLeft == null) return;
 
-        cancelOverviewProgrammaticScroll();
+        cancelOverviewNavigation();
 
         const scroller = els.overviewScroller;
         const startLeft = scroller.scrollLeft;
-        const endLeft = targetLeft;
-        const distance = Math.abs(endLeft - startLeft);
+        const distance = Math.abs(targetLeft - startLeft);
 
         if (distance < 1) {
             setCurrentPage(targetIndex);
-            scrollOverviewToPage(targetIndex, "auto");
+            scrollOverviewToPage(targetIndex);
             return;
         }
 
@@ -1218,37 +1217,32 @@
         const startTime = performance.now();
         setOverviewSnapSuppressed(true);
 
-        const easeInOutCubic = (t) =>
-            t < 0.5
-                ? 4 * t * t * t
-                : 1 - Math.pow(-2 * t + 2, 3) / 2;
-
         const tick = (now) => {
             const progress = clamp(
                 (now - startTime) / duration,
                 0,
                 1
             );
-
-            const eased = easeInOutCubic(progress);
+            const eased = progress < 0.5
+                ? 4 * progress * progress * progress
+                : 1 - Math.pow(-2 * progress + 2, 3) / 2;
 
             scroller.scrollLeft =
                 startLeft +
-                (endLeft - startLeft) * eased;
+                (targetLeft - startLeft) * eased;
 
             if (progress < 1) {
-                state.overviewProgrammaticScrollRaf =
-                    requestAnimationFrame(tick);
+                overviewNavigationRaf = requestAnimationFrame(tick);
                 return;
             }
 
-            state.overviewProgrammaticScrollRaf = 0;
+            overviewNavigationRaf = 0;
             setOverviewSnapSuppressed(false);
             setCurrentPage(targetIndex);
-            scrollOverviewToPage(targetIndex, "auto");
+            scrollOverviewToPage(targetIndex);
         };
 
-        state.overviewProgrammaticScrollRaf = requestAnimationFrame(tick);
+        overviewNavigationRaf = requestAnimationFrame(tick);
     }
 
     function syncOverviewPosition(fractionalIndex) {
@@ -2088,14 +2082,14 @@
 
     els.overviewScroller.addEventListener(
         "pointerdown",
-        cancelOverviewProgrammaticScroll,
+        cancelOverviewNavigation,
         { passive: true }
     );
 
     els.pageSlider.addEventListener("pointerdown", () => {
         if (state.mode !== "overview") return;
 
-        cancelOverviewProgrammaticScroll();
+        cancelOverviewNavigation();
         state.sliderDragging = true;
         setOverviewSnapSuppressed(true);
     });
