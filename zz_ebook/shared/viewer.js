@@ -26,9 +26,9 @@
 
     const CONFIG = {
         font: {
-            sizes: [14, 18, 22],
+            sizes: [14, 17, 20],
             labels: ["小", "中", "大"],
-            defaultSize: 18
+            defaultSize: 17
         },
         pageTurn: {
             duration: cssTimeMs(

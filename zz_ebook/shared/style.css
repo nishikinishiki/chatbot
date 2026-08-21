@@ -1,6 +1,6 @@
 :root {
     /* Typography */
-    --reader-font-size: 18px;
+    --reader-font-size: 17px;
     --measure-font-size: var(--reader-font-size);
     --reader-line-height: 1.8;
     --font-sans:
@@ -16,7 +16,7 @@
     --text-secondary: #666;
     --line: #dedede;
     --surface-soft: #fafafa;
-    --cover-bg: #e9e4da;
+    --cover-bg: #f6f6f6;
     --toc-hover-bg: #f3f3f3;
     --accent: #000000;
 
@@ -282,7 +282,7 @@ button {
     color: var(--text);
     font-family: var(--font-sans);
     line-height: var(--reader-line-height);
-    letter-spacing: 0.025em;
+    letter-spacing: 0.02em;
 }
 
 .page-card {
