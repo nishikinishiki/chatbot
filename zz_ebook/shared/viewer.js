@@ -32,8 +32,7 @@
         },
         image: {
             minInlineScale: 0.65,
-            fitIterations: 8,
-            initialWaitMs: 1200
+            fitIterations: 8
         },
         pageTurn: {
             duration: cssTimeMs(
@@ -2197,40 +2196,14 @@
         } catch (_) { }
     }
 
-    function waitForInitialImages(imagesReadyPromise) {
-        return new Promise((resolve) => {
-            let settled = false;
-            let timeoutId = 0;
-
-            const finish = () => {
-                if (settled) return;
-                settled = true;
-                clearTimeout(timeoutId);
-                resolve();
-            };
-
-            timeoutId = window.setTimeout(
-                finish,
-                CONFIG.image.initialWaitMs
-            );
-
-            imagesReadyPromise.then(finish);
-        });
-    }
-
     async function init() {
         updateOverviewButton();
         updateOverviewGeometry();
         setFontSize(state.fontSize, { repaginate: false });
 
-        let imagesReady = false;
-        const allImagesReady = preloadBookImages().then(() => {
-            imagesReady = true;
-        });
-
         await Promise.all([
             waitForFonts(),
-            waitForInitialImages(allImagesReady)
+            preloadBookImages()
         ]);
         await nextPaint();
 
@@ -2242,12 +2215,6 @@
         setCurrentPage(state.currentPage, { render: true });
         els.loading.hidden = true;
         startReaderResizeTracking();
-
-        if (!imagesReady) {
-            allImagesReady.then(() => {
-                scheduleRepagination(0);
-            });
-        }
     }
 
     init();
