@@ -344,6 +344,7 @@
 
     const stage = document.querySelector(".stage");
     let overviewNavigationRaf = 0;
+    let readerResizeObserver = null;
 
     const imageViewerGesture = {
         scale: 1,
@@ -2212,24 +2213,33 @@
         }
     });
 
-    function handleViewportResize() {
+    function handleReaderResize() {
         updateOverviewGeometry();
         scheduleRepagination();
     }
 
-    window.addEventListener("resize", handleViewportResize);
+    function startReaderResizeTracking() {
+        let width = els.measureBody.clientWidth;
+        let height = els.measureBody.clientHeight;
 
-    if (window.visualViewport) {
-        let lastVisualViewportHeight = window.visualViewport.height;
+        const handleSizeChange = () => {
+            const nextWidth = els.measureBody.clientWidth;
+            const nextHeight = els.measureBody.clientHeight;
 
-        window.visualViewport.addEventListener("resize", () => {
-            const nextHeight = window.visualViewport.height;
+            if (nextWidth === width && nextHeight === height) return;
 
-            if (Math.abs(nextHeight - lastVisualViewportHeight) < 8) return;
+            width = nextWidth;
+            height = nextHeight;
+            handleReaderResize();
+        };
 
-            lastVisualViewportHeight = nextHeight;
-            handleViewportResize();
-        });
+        if (typeof ResizeObserver === "function") {
+            readerResizeObserver = new ResizeObserver(handleSizeChange);
+            readerResizeObserver.observe(els.measureBody);
+            return;
+        }
+
+        window.addEventListener("resize", handleSizeChange);
     }
 
     function getBookImageSources() {
@@ -2328,6 +2338,7 @@
 
         renderCurrentPage();
         els.loading.hidden = true;
+        startReaderResizeTracking();
 
         if (!imagesReady) {
             allImagesReady.then(() => {
