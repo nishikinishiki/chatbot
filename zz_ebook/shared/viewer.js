@@ -31,7 +31,8 @@
             defaultSize: 17
         },
         image: {
-            minInlineScale: 0.65
+            minInlineScale: 0.65,
+            fitIterations: 8
         },
         pageTurn: {
             duration: cssTimeMs(
@@ -667,21 +668,34 @@
 
         const baseFrameWidth = frame.getBoundingClientRect().width;
         const baseImageHeight = image.getBoundingClientRect().height;
+
         if (baseFrameWidth <= 0 || baseImageHeight <= 0) return false;
 
-        const overflow =
-            els.measureBody.scrollHeight - els.measureBody.clientHeight;
-        const scale = clamp(
-            (baseImageHeight - overflow - 1) / baseImageHeight,
-            CONFIG.image.minInlineScale,
-            1
-        );
+        let low = CONFIG.image.minInlineScale;
+        let high = 1;
+        let best = low;
 
-        applyImageBlockScale(figure, scale, baseFrameWidth, baseImageHeight);
-        if (fitsMeasureBody()) return true;
+        applyImageBlockScale(figure, low, baseFrameWidth, baseImageHeight);
 
-        resetImageBlockScale(figure);
-        return false;
+        if (!fitsMeasureBody()) {
+            resetImageBlockScale(figure);
+            return false;
+        }
+
+        for (let i = 0; i < CONFIG.image.fitIterations; i += 1) {
+            const mid = (low + high) / 2;
+            applyImageBlockScale(figure, mid, baseFrameWidth, baseImageHeight);
+
+            if (fitsMeasureBody()) {
+                best = mid;
+                low = mid;
+            } else {
+                high = mid;
+            }
+        }
+
+        applyImageBlockScale(figure, best, baseFrameWidth, baseImageHeight);
+        return true;
     }
 
     function moveBlockToNewPage(node, chapterIndex) {
