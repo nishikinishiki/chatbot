@@ -1610,6 +1610,30 @@
         );
     }
 
+    function getCurrentChapterStartAnchor() {
+        const page = state.pages[state.currentPage];
+        if (!page) return null;
+
+        const chapterIndex = page.chapterIndex;
+        if (!Number.isInteger(chapterIndex)) return null;
+
+        return state.chapterStarts[chapterIndex] === state.currentPage
+            ? chapterIndex
+            : null;
+    }
+
+    function getPageIndexAfterRepagination({
+        progress,
+        chapterStartAnchor
+    }) {
+        if (Number.isInteger(chapterStartAnchor)) {
+            const page = state.chapterStarts[chapterStartAnchor];
+            if (Number.isInteger(page)) return clampPageIndex(page);
+        }
+
+        return getPageIndexForProgress(progress);
+    }
+
     function setFontCss(size, {
         visible = true,
         measure = true
@@ -1635,133 +1659,79 @@
         if (state.mode !== "overview") return;
 
         ensureOverviewStrip();
-
         requestAnimationFrame(() => {
             scrollOverviewToPage(state.currentPage, "auto");
         });
     }
 
-    function commitPaginationAtProgress(progress) {
-        configurePageSlider();
-        setCurrentPage(getPageIndexForProgress(progress), { render: true });
-        refreshOverviewAfterPagination();
+    function repaginate({
+        fontSize = state.fontSize,
+        anchorChapterStart = false,
+        deferVisibleFont = false,
+        showLoading = false,
+        updateSlider = true,
+        configureSlider = false
+    } = {}) {
+        const position = {
+            progress: getReadingProgress(),
+            chapterStartAnchor: anchorChapterStart
+                ? getCurrentChapterStartAnchor()
+                : null
+        };
+
+        if (deferVisibleFont) {
+            setFontCss(fontSize, { visible: false, measure: true });
+        } else {
+            setFontCss(fontSize);
+        }
+
+        if (showLoading) {
+            els.loading.hidden = false;
+        }
+
+        requestAnimationFrame(() => {
+            paginateBook();
+
+            if (configureSlider) {
+                configurePageSlider();
+            }
+
+            setCurrentPage(
+                getPageIndexAfterRepagination(position),
+                { syncUI: false }
+            );
+
+            if (deferVisibleFont) {
+                setFontCss(fontSize, { visible: true, measure: false });
+            }
+
+            renderPageStack();
+            updateReadingPositionUI({ updateSlider });
+            refreshOverviewAfterPagination();
+
+            if (showLoading) {
+                els.loading.hidden = true;
+            }
+        });
     }
 
-    function setFontSize(size, { repaginate = true } = {}) {
+    function setFontSize(size, { repaginate: shouldRepaginate = true } = {}) {
         if (!CONFIG.font.sizes.includes(size)) return;
 
         state.fontSize = size;
         updateFontButtons();
         storage.set(STORAGE.fontSize, size);
 
-        if (!repaginate) {
+        if (!shouldRepaginate) {
             setFontCss(size);
             return;
         }
 
-        repaginateForFontSize(size);
-    }
-
-    function getCurrentChapterStartAnchor() {
-        const page = state.pages[state.currentPage];
-        if (!page) return null;
-
-        const chapterIndex = page.chapterIndex;
-
-        if (!Number.isInteger(chapterIndex)) {
-            return null;
-        }
-
-        const chapterStart = state.chapterStarts[chapterIndex];
-
-        return chapterStart === state.currentPage
-            ? chapterIndex
-            : null;
-    }
-
-    function restoreFontChangePage({
-        readingProgress,
-        chapterStartAnchor
-    }) {
-        if (Number.isInteger(chapterStartAnchor)) {
-            const anchoredPage = state.chapterStarts[chapterStartAnchor];
-
-            if (Number.isInteger(anchoredPage)) {
-                return clampPageIndex(anchoredPage);
-            }
-        }
-
-        return clampPageIndex(
-            Math.round(
-                readingProgress *
-                Math.max(0, state.pages.length - 1)
-            )
-        );
-    }
-
-    function repaginateForFontSize(nextSize) {
-        const oldPageCount = Math.max(state.pages.length, 1);
-
-        const readingProgress =
-            oldPageCount <= 1
-                ? 0
-                : state.currentPage / (oldPageCount - 1);
-
-        const chapterStartAnchor = getCurrentChapterStartAnchor();
-
-        setFontCss(
-            nextSize,
-            {
-                visible: false,
-                measure: true
-            }
-        );
-
-        requestAnimationFrame(() => {
-            paginateBook();
-
-            const nextIndex = restoreFontChangePage({
-                readingProgress,
-                chapterStartAnchor
-            });
-
-            setCurrentPage(nextIndex, { syncUI: false });
-
-            setFontCss(
-                nextSize,
-                {
-                    visible: true,
-                    measure: false
-                }
-            );
-
-            renderPageStack();
-
-            updateReadingPositionUI({
-                updateSlider: state.mode === "overview"
-            });
-
-            markOverviewDirty();
-
-            if (state.mode === "overview") {
-                requestAnimationFrame(() => {
-                    ensureOverviewStrip();
-                    scrollOverviewToPage(state.currentPage, "auto");
-                });
-            }
-        });
-    }
-
-    function repaginateKeepingProgress() {
-        const progress = getReadingProgress();
-
-        setFontCss(state.fontSize);
-        els.loading.hidden = false;
-
-        requestAnimationFrame(() => {
-            paginateBook();
-            commitPaginationAtProgress(progress);
-            els.loading.hidden = true;
+        repaginate({
+            fontSize: size,
+            anchorChapterStart: true,
+            deferVisibleFont: true,
+            updateSlider: state.mode === "overview"
         });
     }
 
@@ -2205,7 +2175,12 @@
 
     function scheduleRepagination(delay = CONFIG.timing.resizeDebounce) {
         clearTimeout(state.resizeTimer);
-        state.resizeTimer = setTimeout(repaginateKeepingProgress, delay);
+        state.resizeTimer = setTimeout(() => {
+            repaginate({
+                showLoading: true,
+                configureSlider: true
+            });
+        }, delay);
     }
 
     els.fontButtons.forEach((button) => {
