@@ -194,7 +194,7 @@
         </button>
         <div class="topbar__title" id="topbarTitle"></div>
         <div class="topbar__actions">
-          <button class="text-button" id="displayButton" aria-label="文字サイズ" title="文字サイズ">Aa</button>
+          <button class="text-button" id="displayButton" aria-label="文字サイズ" title="文字サイズ" popovertarget="displayPopover">Aa</button>
 
           <button class="icon-button" id="overviewButton" aria-label="俯瞰表示" title="俯瞰表示">
             <svg class="overview-enter-icon" viewBox="0 0 24 24" aria-hidden="true">
@@ -224,7 +224,7 @@
         <div class="page-counter" id="pageCounter">1/1</div>
       </footer>
 
-      <section class="popover" id="displayPopover" aria-hidden="true">
+      <section class="popover" id="displayPopover" popover="auto">
         <h2 class="popover__title">文字サイズ</h2>
         <div class="font-control">${fontButtonsHTML}</div>
       </section>
@@ -1602,36 +1602,8 @@
         });
     }
 
-    function isDisplayPopoverOpen() {
-        return els.displayPopover.classList.contains("open");
-    }
-
-    function openDisplayPopover() {
-        if (isDisplayPopoverOpen()) return;
-
-        closeToc();
-
-        els.displayPopover.classList.add("open");
-        els.displayPopover.setAttribute("aria-hidden", "false");
-        els.displayButton.classList.add("active");
-    }
-
     function closeDisplayPopover() {
-        if (!isDisplayPopoverOpen()) return;
-
-        els.displayPopover.classList.remove("open");
-        els.displayPopover.setAttribute("aria-hidden", "true");
-        els.displayButton.classList.remove("active");
-    }
-
-    function toggleDisplayPopover(event) {
-        event?.stopPropagation();
-
-        if (isDisplayPopoverOpen()) {
-            closeDisplayPopover();
-        } else {
-            openDisplayPopover();
-        }
+        els.displayPopover.togglePopover(false);
     }
 
     function isTocOpen() {
@@ -2040,7 +2012,9 @@
         els.pageSlider.addEventListener(type, finishSliderDrag);
     });
 
-    els.displayButton.addEventListener("click", toggleDisplayPopover);
+    els.displayPopover.addEventListener("beforetoggle", (event) => {
+        if (event.newState === "open") closeToc();
+    });
 
     els.overviewButton.addEventListener("click", (event) => {
         event.preventDefault();
@@ -2079,16 +2053,6 @@
         closeToc();
     });
 
-    document.addEventListener("click", (event) => {
-        if (
-            isDisplayPopoverOpen() &&
-            !els.displayPopover.contains(event.target) &&
-            !els.displayButton.contains(event.target)
-        ) {
-            closeDisplayPopover();
-        }
-    });
-
     document.addEventListener("keydown", (event) => {
         if (event.key === "ArrowRight" || event.key === "PageDown") {
             event.preventDefault();
@@ -2113,7 +2077,7 @@
             if (state.mode === "overview") {
                 setMode("normal");
             }
-            closeOverlays();
+            closeToc();
         }
     });
 
