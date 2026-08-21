@@ -269,8 +269,7 @@ button {
     box-shadow: none !important;
 }
 
-.page-card,
-.measure-page {
+:is(.page-card, .measure-page) {
     width: var(--reader-page-width);
     height: var(--reader-viewport-height);
     display: flex;
@@ -295,8 +294,7 @@ button {
     will-change: transform;
 }
 
-.page-body,
-.measure-body {
+:is(.page-body, .measure-body) {
     flex: 1;
     min-height: 0;
     overflow: hidden;
@@ -304,16 +302,14 @@ button {
     text-justify: inter-ideograph;
 }
 
-.page-body h1,
-.measure-body h1 {
+:is(.page-body, .measure-body) h1 {
     margin: 0 0 0.5em;
     font-size: 1.25em;
     font-weight: 600;
     line-height: 1.5;
 }
 
-.page-body h2,
-.measure-body h2 {
+:is(.page-body, .measure-body) h2 {
     margin: 1.5em 0 0.5em;
     font-size: 1.1em;
     font-weight: 600;
@@ -321,30 +317,25 @@ button {
     text-align: left;
 }
 
-.page-body h1+h2,
-.measure-body h1+h2 {
+:is(.page-body, .measure-body) h1+h2 {
     margin-top: 0;
 }
 
-.page-body p,
-.measure-body p {
+:is(.page-body, .measure-body) p {
     margin: 0 0 0.5em;
     word-break: normal;
     overflow-wrap: anywhere;
 }
 
-.page-body p:not(.continuation),
-.measure-body p:not(.continuation) {
+:is(.page-body, .measure-body) p:not(.continuation) {
     text-indent: 1em;
 }
 
-.page-body p.continuation,
-.measure-body p.continuation {
+:is(.page-body, .measure-body) p.continuation {
     text-indent: 0;
 }
 
-.page-body p:last-child,
-.measure-body p:last-child {
+:is(.page-body, .measure-body) p:last-child {
     margin-bottom: 0;
 }
 
@@ -807,8 +798,7 @@ button {
         bottom: calc(var(--bottombar-height) + env(safe-area-inset-bottom, 0px));
     }
 
-    .page-card,
-    .measure-page {
+    :is(.page-card, .measure-page) {
         padding:
             var(--page-padding-top) var(--page-padding-x) var(--page-padding-bottom);
     }
