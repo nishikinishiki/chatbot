@@ -30,6 +30,10 @@
             labels: ["小", "中", "大"],
             defaultSize: 17
         },
+        image: {
+            minInlineScale: 0.65,
+            fitIterations: 8
+        },
         pageTurn: {
             duration: cssTimeMs(
                 "--page-turn-duration",
@@ -651,6 +655,85 @@
         return figure;
     }
 
+    function applyImageBlockScale(figure, scale, baseFrameWidth, baseImageHeight) {
+        const frame = figure.querySelector(".book-image-frame");
+        const image = frame?.querySelector("img");
+        if (!frame || !image) return;
+
+        frame.style.width = `${(baseFrameWidth * scale).toFixed(1)}px`;
+        frame.style.marginInline = "auto";
+        image.style.maxHeight = `${(baseImageHeight * scale).toFixed(1)}px`;
+    }
+
+    function resetImageBlockScale(figure) {
+        const frame = figure.querySelector(".book-image-frame");
+        const image = frame?.querySelector("img");
+        if (!frame || !image) return;
+
+        frame.style.removeProperty("width");
+        frame.style.removeProperty("margin-inline");
+        image.style.removeProperty("max-height");
+    }
+
+    function fitImageBlockToCurrentPage(figure) {
+        const frame = figure.querySelector(".book-image-frame");
+        const image = frame?.querySelector("img");
+        if (!frame || !image) return false;
+
+        const baseFrameWidth = frame.getBoundingClientRect().width;
+        const baseImageHeight = image.getBoundingClientRect().height;
+
+        if (baseFrameWidth <= 0 || baseImageHeight <= 0) return false;
+
+        let low = CONFIG.image.minInlineScale;
+        let high = 1;
+        let best = low;
+
+        applyImageBlockScale(figure, low, baseFrameWidth, baseImageHeight);
+
+        if (!fitsMeasureBody()) {
+            resetImageBlockScale(figure);
+            return false;
+        }
+
+        for (let i = 0; i < CONFIG.image.fitIterations; i += 1) {
+            const mid = (low + high) / 2;
+            applyImageBlockScale(figure, mid, baseFrameWidth, baseImageHeight);
+
+            if (fitsMeasureBody()) {
+                best = mid;
+                low = mid;
+            } else {
+                high = mid;
+            }
+        }
+
+        applyImageBlockScale(figure, best, baseFrameWidth, baseImageHeight);
+        return true;
+    }
+
+    function paginateImageBlock(block, chapterIndex) {
+        const node = createImageBlock(block);
+        els.measureBody.appendChild(node);
+
+        if (fitsMeasureBody()) return;
+
+        if (fitImageBlockToCurrentPage(node)) return;
+
+        resetImageBlockScale(node);
+        node.remove();
+
+        if (els.measureBody.childNodes.length) {
+            commitMeasuredPage(chapterIndex);
+        }
+
+        els.measureBody.appendChild(node);
+
+        if (!fitsMeasureBody()) {
+            fitImageBlockToCurrentPage(node);
+        }
+    }
+
     function paginateAtomicBlock(createNode, chapterIndex) {
         const node = createNode();
         els.measureBody.appendChild(node);
@@ -833,10 +916,7 @@
             chapter.blocks.forEach((block) => {
                 switch (block.type) {
                     case "image":
-                        paginateAtomicBlock(
-                            () => createImageBlock(block),
-                            chapterIndex
-                        );
+                        paginateImageBlock(block, chapterIndex);
                         break;
                     case "h2":
                         paginateAtomicBlock(
