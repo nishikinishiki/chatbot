@@ -305,7 +305,6 @@
 
     const readerInteraction = {
         pointer: null,
-        suppressImageClick: false,
         dragging: false,
         isTurning: false
     };
@@ -460,17 +459,13 @@
     }
 
     document.addEventListener("click", (event) => {
+        if (!isSpreadView()) return;
+
         const image = getReaderImage(event.target);
         if (!image) return;
 
         event.preventDefault();
         event.stopPropagation();
-
-        if (readerInteraction.suppressImageClick) {
-            readerInteraction.suppressImageClick = false;
-            return;
-        }
-
         openImageViewer(image);
     }, true);
 
@@ -1272,7 +1267,6 @@
         if (!overviewInteraction.dirty) return;
 
         renderOverviewStrip();
-        configurePageSlider();
         overviewInteraction.dirty = false;
     }
 
@@ -1867,7 +1861,6 @@
             time: performance.now(),
             image: getReaderImage(event.target)
         };
-        readerInteraction.suppressImageClick = false;
         readerInteraction.dragging = false;
 
         resetStackTurn();
@@ -1924,13 +1917,6 @@
         event.preventDefault();
     });
 
-    function suppressPendingImageClick() {
-        readerInteraction.suppressImageClick = true;
-        setTimeout(() => {
-            readerInteraction.suppressImageClick = false;
-        }, 0);
-    }
-
     function endReaderPointer(event) {
         const pointer = readerInteraction.pointer;
         if (!pointer || pointer.id !== event.pointerId) return;
@@ -1953,17 +1939,12 @@
 
         if (!readerInteraction.dragging) {
             if (pointer.image) {
-                suppressPendingImageClick();
                 openImageViewer(pointer.image);
                 return;
             }
 
             handleReaderTap(event.clientX);
             return;
-        }
-
-        if (pointer.image) {
-            suppressPendingImageClick();
         }
 
         const shouldTurn =
@@ -1980,8 +1961,25 @@
         }
     }
 
+    function cancelReaderPointer(event) {
+        const pointer = readerInteraction.pointer;
+        if (!pointer || pointer.id !== event.pointerId) return;
+
+        readerInteraction.pointer = null;
+
+        try {
+            stage.releasePointerCapture(event.pointerId);
+        } catch (_) { }
+
+        if (readerInteraction.dragging) {
+            snapReaderBack();
+        } else {
+            readerInteraction.dragging = false;
+        }
+    }
+
     stage.addEventListener("pointerup", endReaderPointer);
-    stage.addEventListener("pointercancel", endReaderPointer);
+    stage.addEventListener("pointercancel", cancelReaderPointer);
 
     els.overviewScroller.addEventListener(
         "scroll",
