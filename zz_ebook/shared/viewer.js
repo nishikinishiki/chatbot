@@ -316,8 +316,6 @@
 
     const els = {
         app: document.getElementById("app"),
-        topbar: document.getElementById("topbar"),
-        bottomBar: document.getElementById("bottomBar"),
         topbarTitle: document.getElementById("topbarTitle"),
         currentPage: document.getElementById("currentPage"),
         prevPage: document.getElementById("prevPage"),
@@ -337,6 +335,7 @@
         tocList: document.getElementById("tocList"),
         scrim: document.getElementById("scrim"),
         loading: document.getElementById("loading"),
+        measurePage: document.getElementById("measurePage"),
         measureBody: document.getElementById("measureBody"),
         imageViewer: document.getElementById("imageViewer"),
         imageViewerViewport: document.getElementById("imageViewerViewport"),
@@ -1026,7 +1025,8 @@
     }
 
     function isSpreadView() {
-        return window.innerWidth >= 1024;
+        const viewportWidth = document.documentElement.clientWidth;
+        return viewportWidth > 0 && els.measurePage.offsetWidth < viewportWidth;
     }
 
     function getSpreadStart(index) {
@@ -1363,29 +1363,6 @@
         });
     }
 
-    function animateChrome(show) {
-        if (window.innerWidth <= 720) return [];
-
-        return [
-            [els.topbar, -5],
-            [els.bottomBar, 5]
-        ].map(([element, offset]) => {
-            const hidden = {
-                opacity: 0,
-                transform: `translateY(${offset}px)`
-            };
-            const visible = {
-                opacity: 1,
-                transform: "translateY(0)"
-            };
-
-            return element.animate(
-                show ? [hidden, visible] : [visible, hidden],
-                MORPH_ANIMATION_OPTIONS
-            );
-        });
-    }
-
     function createMorphAnimations(toOverview, transforms) {
         const full = "translate3d(0,0,0) scale(1)";
         stage.classList.toggle("morph-elevated", toOverview);
@@ -1427,8 +1404,6 @@
                 );
             }
         });
-
-        animations.push(...animateChrome(toOverview));
 
         return animations;
     }
