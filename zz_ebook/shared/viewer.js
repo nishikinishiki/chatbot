@@ -1589,26 +1589,10 @@
         els.displayPopover.togglePopover(false);
     }
 
-    function isTocOpen() {
-        return els.tocDialog.open;
-    }
-
-    function openToc() {
-        if (isTocOpen()) return;
-
-        closeDisplayPopover();
-        updateTocHighlight();
-        els.tocDialog.showModal();
-    }
-
     function closeToc() {
-        if (isTocOpen()) {
+        if (els.tocDialog.open) {
             els.tocDialog.close();
         }
-    }
-
-    function toggleToc() {
-        isTocOpen() ? closeToc() : openToc();
     }
 
     function setTurnShadow(progress) {
@@ -2017,7 +2001,14 @@
 
         event.preventDefault();
         event.stopPropagation();
-        toggleToc();
+
+        if (els.tocDialog.open) {
+            closeToc();
+        } else {
+            closeDisplayPopover();
+            updateTocHighlight();
+            els.tocDialog.showModal();
+        }
     });
 
     els.tocOpenButton.addEventListener("click", (event) => {
@@ -2059,16 +2050,11 @@
         }
     });
 
-    function handleReaderResize() {
-        updateOverviewGeometry();
-        scheduleRepagination();
-    }
-
     function startReaderResizeTracking() {
         let width = els.measureBody.clientWidth;
         let height = els.measureBody.clientHeight;
 
-        const handleSizeChange = () => {
+        readerResizeObserver = new ResizeObserver(() => {
             const nextWidth = els.measureBody.clientWidth;
             const nextHeight = els.measureBody.clientHeight;
 
@@ -2076,16 +2062,10 @@
 
             width = nextWidth;
             height = nextHeight;
-            handleReaderResize();
-        };
-
-        if (typeof ResizeObserver === "function") {
-            readerResizeObserver = new ResizeObserver(handleSizeChange);
-            readerResizeObserver.observe(els.measureBody);
-            return;
-        }
-
-        window.addEventListener("resize", handleSizeChange);
+            updateOverviewGeometry();
+            scheduleRepagination();
+        });
+        readerResizeObserver.observe(els.measureBody);
     }
 
     function preloadBookImages() {
