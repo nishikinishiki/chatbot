@@ -831,11 +831,6 @@
 
     function paginateColophon() {
         const chapterIndex = book.chapters.length - 1;
-
-        if (els.measureBody.childNodes.length) {
-            commitMeasuredPage(chapterIndex);
-        }
-
         let section = createColophonSection();
         els.measureBody.appendChild(section);
 
@@ -873,10 +868,6 @@
         });
 
         book.chapters.forEach((chapter, chapterIndex) => {
-            if (els.measureBody.childNodes.length > 0) {
-                commitMeasuredPage(Math.max(0, chapterIndex - 1));
-            }
-
             state.chapterStarts[chapterIndex] = state.pages.length;
             els.measureBody.appendChild(
                 createTextElement("h1", chapter.title)
@@ -1977,9 +1968,7 @@
         if (event.newState === "open") closeToc();
     });
 
-    els.overviewButton.addEventListener("click", (event) => {
-        event.preventDefault();
-        event.stopPropagation();
+    els.overviewButton.addEventListener("click", () => {
         setMode(state.mode === "overview" ? "normal" : "overview");
     });
 
@@ -1996,24 +1985,13 @@
         });
     });
 
-    els.tocOpenButton.addEventListener("pointerdown", (event) => {
-        if (event.pointerType === "mouse" && event.button !== 0) return;
-
-        event.preventDefault();
-        event.stopPropagation();
-
+    els.tocOpenButton.addEventListener("click", () => {
         if (els.tocDialog.open) {
             closeToc();
         } else {
             closeDisplayPopover();
-            updateTocHighlight();
             els.tocDialog.showModal();
         }
-    });
-
-    els.tocOpenButton.addEventListener("click", (event) => {
-        event.preventDefault();
-        event.stopPropagation();
     });
 
     els.tocDialog.addEventListener("click", (event) => {
@@ -2023,6 +2001,14 @@
     });
 
     document.addEventListener("keydown", (event) => {
+        if (
+            modeTransitioning ||
+            readerInteraction.isTurning ||
+            els.tocDialog.open ||
+            els.imageViewer.open ||
+            els.displayPopover.matches(":popover-open")
+        ) return;
+
         if (event.key === "ArrowRight" || event.key === "PageDown") {
             event.preventDefault();
             navigateBy(1);
@@ -2042,11 +2028,8 @@
             }
         }
 
-        if (event.key === "Escape") {
-            if (state.mode === "overview") {
-                setMode("normal");
-            }
-            closeToc();
+        if (event.key === "Escape" && state.mode === "overview") {
+            setMode("normal");
         }
     });
 
