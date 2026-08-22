@@ -50,23 +50,11 @@
 
     --reader-viewport-height:
         calc(
-            100vh -
+            100dvh -
             var(--topbar-height) -
             var(--bottombar-height) -
             env(safe-area-inset-bottom, 0px)
         );
-}
-
-@supports (height: 100dvh) {
-    :root {
-        --reader-viewport-height:
-            calc(
-                100dvh -
-                var(--topbar-height) -
-                var(--bottombar-height) -
-                env(safe-area-inset-bottom, 0px)
-            );
-    }
 }
 
 * {
@@ -920,19 +908,13 @@ button {
 .image-viewer__image {
     display: block;
     max-width: calc(100vw - 48px);
-    max-height: calc(100vh - 48px);
+    max-height: calc(100dvh - 48px);
     object-fit: contain;
     transform-origin: center center;
     will-change: transform;
     user-select: none;
     -webkit-user-select: none;
     -webkit-user-drag: none;
-}
-
-@supports (height: 100dvh) {
-    .image-viewer__image {
-        max-height: calc(100dvh - 48px);
-    }
 }
 
 .image-viewer__close {
