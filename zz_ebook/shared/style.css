@@ -37,7 +37,7 @@
 
     /* Overview */
     --overview-gap: 28px;
-    --overview-card-radius: 10px;
+    --overview-card-radius: 12px;
 
     /* Radii */
     --radius-pill: 999px;
@@ -118,7 +118,7 @@ button {
     grid-template-columns:
         var(--toc-hit-size) minmax(0, 1fr) auto;
     align-items: center;
-    padding: env(safe-area-inset-top, 0px) 14px 0;
+    padding: env(safe-area-inset-top, 0px) 16px 0;
     border-bottom: 1px solid var(--ui-subtle);
 }
 
@@ -146,7 +146,7 @@ button {
     grid-template-columns: 1fr auto;
     align-items: center;
     gap: 16px;
-    padding: 0 18px env(safe-area-inset-bottom, 0px);
+    padding: 0 16px env(safe-area-inset-bottom, 0px);
     border-top: 1px solid var(--ui-subtle);
 }
 
@@ -304,7 +304,7 @@ button {
     max-height: 40vh;
     object-fit: contain;
     border: 1px solid var(--ui-subtle);
-    background: #fafafa;
+    background: var(--chrome-bg);
 }
 
 .book-image-zoom-icon {
@@ -315,7 +315,7 @@ button {
     height: 32px;
     display: grid;
     place-items: center;
-    border-radius: 7px;
+    border-radius: 8px;
     background: rgba(0, 0, 0, 0.6);
     color: #fff;
     box-shadow: 0 1px 4px rgba(0, 0, 0, 0.2);
@@ -345,7 +345,7 @@ button {
 
 .page-card.cover-card {
     padding: 0;
-    background: #f6f6f6;
+    background: var(--chrome-bg);
 }
 
 .cover-card .page-body {
@@ -548,7 +548,7 @@ button {
 }
 
 .font-button {
-    height: 38px;
+    height: var(--control-size);
     border: 1px solid var(--line);
     border-radius: 8px;
     background: var(--paper);
@@ -592,7 +592,7 @@ button {
 .drawer {
     width: min(320px, calc(100vw - 64px));
     height: 100%;
-    padding-top: calc(env(safe-area-inset-top, 0px) + 18px);
+    padding-top: calc(env(safe-area-inset-top, 0px) + 16px);
     background: var(--paper);
     box-shadow: 6px 0 18px rgba(0, 0, 0, 0.15);
     overflow: auto;
@@ -616,7 +616,7 @@ button {
 
 .drawer h2 {
     margin: 0;
-    padding: 0 20px 14px;
+    padding: 0 20px 16px;
     font-size: 16px;
 }
 
@@ -629,7 +629,7 @@ button {
 
 .toc-button:hover,
 .toc-button.active {
-    background: #f3f3f3;
+    background: var(--chrome-bg);
 }
 
 .toc-button.active {
@@ -679,7 +679,7 @@ button {
     }
 
     .text-button {
-        padding: 0 7px;
+        padding: 0 8px;
         font-size: 16px;
     }
 
@@ -689,8 +689,8 @@ button {
     }
 
     .bottom-bar {
-        padding-left: 10px;
-        padding-right: 10px;
+        padding-left: 8px;
+        padding-right: 8px;
         gap: 8px;
     }
 
@@ -920,8 +920,8 @@ button {
 .image-viewer__close {
     position: absolute;
     z-index: 2;
-    top: calc(env(safe-area-inset-top, 0px) + 10px);
-    right: 10px;
+    top: calc(env(safe-area-inset-top, 0px) + 8px);
+    right: 8px;
     width: 40px;
     height: 40px;
     display: grid;
@@ -944,7 +944,7 @@ button {
     position: absolute;
     z-index: 2;
     right: 16px;
-    bottom: calc(env(safe-area-inset-bottom, 0px) + 14px);
+    bottom: calc(env(safe-area-inset-bottom, 0px) + 16px);
     left: 16px;
     color: rgba(255, 255, 255, 0.7);
     font-size: 12px;
