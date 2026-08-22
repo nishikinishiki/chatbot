@@ -46,7 +46,7 @@
     --ease-standard: cubic-bezier(.22, .61, .36, 1);
     --ease-page-turn: cubic-bezier(.2, .72, .28, 1);
     --page-turn-duration: 220ms;
-    --overview-transition-duration: 390ms;
+    --overview-transition-duration: 400ms;
 
     --reader-viewport-height:
         calc(
@@ -318,7 +318,7 @@ button {
     border-radius: 8px;
     background: rgba(0, 0, 0, 0.6);
     color: #fff;
-    box-shadow: 0 1px 4px rgba(0, 0, 0, 0.2);
+    box-shadow: 0 1px 4px rgba(0, 0, 0, 0.15);
     pointer-events: none;
 }
 
@@ -516,7 +516,7 @@ button {
     transform: translateY(-7px) scale(0.975);
     transform-origin: top right;
     transition:
-        opacity 220ms var(--ease-standard),
+        opacity 250ms var(--ease-standard),
         transform 250ms var(--ease-standard),
         overlay 250ms allow-discrete,
         display 250ms allow-discrete;
@@ -577,10 +577,10 @@ button {
 }
 
 .toc-dialog::backdrop {
-    background: rgba(0, 0, 0, 0.16);
+    background: rgba(0, 0, 0, 0.15);
     opacity: 0;
     transition:
-        opacity 260ms var(--ease-standard),
+        opacity 250ms var(--ease-standard),
         overlay 320ms allow-discrete,
         display 320ms allow-discrete;
 }
