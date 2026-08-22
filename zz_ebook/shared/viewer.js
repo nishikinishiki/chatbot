@@ -51,7 +51,7 @@
             verticalReserve: 176,
             transitionDuration: cssTimeMs(
                 "--overview-transition-duration",
-                390
+                400
             ),
             transitionEasing: cssVar(
                 "--ease-standard",
