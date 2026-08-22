@@ -49,14 +49,6 @@
             maxScale: 0.72,
             horizontalReserve: 118,
             verticalReserve: 176,
-            transitionDuration: cssTimeMs(
-                "--overview-transition-duration",
-                390
-            ),
-            transitionEasing: cssVar(
-                "--ease-standard",
-                "cubic-bezier(.22,.61,.36,1)"
-            ),
             navigationBaseDuration: 360,
             navigationPerViewport: 85,
             navigationMinDuration: 420,
@@ -1258,127 +1250,6 @@
         });
     }
 
-    const MORPH_ANIMATION_OPTIONS = {
-        duration: CONFIG.overview.transitionDuration,
-        easing: CONFIG.overview.transitionEasing,
-        fill: "forwards"
-    };
-
-    function getOverviewMorphTransforms() {
-        const scale = parseFloat(cssVar("--overview-scale"));
-        const step = getOverviewStep();
-
-        return {
-            current: `translate3d(0,0,0) scale(${scale})`,
-            prev: `translate3d(${-step}px,0,0) scale(${scale})`,
-            next: `translate3d(${step}px,0,0) scale(${scale})`
-        };
-    }
-
-    function setMorphStart(toOverview, transforms) {
-        const full = "translate3d(0,0,0) scale(1)";
-        stage.classList.toggle("morph-elevated", !toOverview);
-
-        els.currentPage.style.transform =
-            toOverview ? full : transforms.current;
-        els.currentPage.style.opacity = "1";
-
-        [
-            [els.prevPage, transforms.prev, state.currentPage > 0],
-            [
-                els.nextPage,
-                transforms.next,
-                state.currentPage < state.pages.length - 1
-            ]
-        ].forEach(([card, transform, visible]) => {
-            card.style.transform = transform;
-            card.style.opacity = String(toOverview ? 0 : visible ? 1 : 0);
-        });
-    }
-
-    function createMorphAnimations(toOverview, transforms) {
-        const full = "translate3d(0,0,0) scale(1)";
-        stage.classList.toggle("morph-elevated", toOverview);
-
-        const animations = [
-            els.currentPage.animate(
-                toOverview
-                    ? [
-                        { transform: full },
-                        { transform: transforms.current }
-                    ]
-                    : [
-                        { transform: transforms.current },
-                        { transform: full }
-                    ],
-                MORPH_ANIMATION_OPTIONS
-            )
-        ];
-
-        const sideFrames = toOverview
-            ? [
-                { opacity: 0 },
-                { opacity: 0, offset: 0.35 },
-                { opacity: 1 }
-            ]
-            : [
-                { opacity: 1 },
-                { opacity: 0, offset: 0.60 },
-                { opacity: 0 }
-            ];
-
-        [
-            [els.prevPage, state.currentPage > 0],
-            [els.nextPage, state.currentPage < state.pages.length - 1]
-        ].forEach(([card, visible]) => {
-            if (visible) {
-                animations.push(
-                    card.animate(sideFrames, MORPH_ANIMATION_OPTIONS)
-                );
-            }
-        });
-
-        return animations;
-    }
-
-    function prepareStageMorph() {
-        resetStackTurn();
-        stage.classList.add("mode-morph");
-
-        [
-            [els.prevPage, 2],
-            [els.nextPage, 2],
-            [els.currentPage, 4]
-        ].forEach(([card, zIndex]) => {
-            card.style.zIndex = String(zIndex);
-        });
-    }
-
-    function clearMorphCard(card) {
-        [
-            "z-index",
-            "transform",
-            "opacity"
-        ].forEach((property) => card.style.removeProperty(property));
-    }
-
-    function waitForAnimations(animations) {
-        return Promise.allSettled(
-            animations.map((animation) => animation.finished)
-        );
-    }
-
-    function cleanupModeMorph(animations) {
-        animations.forEach((animation) => animation.cancel());
-        stage.classList.remove("mode-morph", "morph-elevated");
-
-        [
-            els.prevPage,
-            els.currentPage,
-            els.nextPage
-        ].forEach(clearMorphCard);
-    }
-
     async function transitionMode(mode) {
         const toOverview = mode === "overview";
 
@@ -1390,32 +1261,46 @@
             updateOverviewGeometry();
         }
         scrollOverviewToPage(state.currentPage, "auto");
-        await nextPaint();
 
-        if (!toOverview) {
-            setCurrentPage(state.currentPage, { render: true });
-        }
+        const overviewCard =
+            els.overviewStrip.children[state.currentPage]
+                ?.querySelector(".page-card");
+        const fromCard = toOverview ? els.currentPage : overviewCard;
+        const toCard = toOverview ? overviewCard : els.currentPage;
 
-        const transforms = getOverviewMorphTransforms();
-        prepareStageMorph();
-
-        setMorphStart(toOverview, transforms);
-        await nextPaint();
-
-        if (!toOverview) {
+        if (
+            typeof document.startViewTransition !== "function" ||
+            !fromCard ||
+            !toCard
+        ) {
+            if (!toOverview) {
+                setCurrentPage(state.currentPage, { render: true });
+            }
             applyAppMode(mode);
+            modeTransitioning = false;
+            return;
         }
 
-        const animations = createMorphAnimations(toOverview, transforms);
-        await waitForAnimations(animations);
+        fromCard.style.viewTransitionName = "reader-page";
 
-        if (toOverview) {
+        const transition = document.startViewTransition(() => {
+            fromCard.style.removeProperty("view-transition-name");
+
+            if (!toOverview) {
+                setCurrentPage(state.currentPage, { render: true });
+            }
+
             applyAppMode(mode);
-            await nextPaint();
-        }
+            toCard.style.viewTransitionName = "reader-page";
+        });
 
-        cleanupModeMorph(animations);
-        modeTransitioning = false;
+        try {
+            await transition.finished;
+        } finally {
+            fromCard.style.removeProperty("view-transition-name");
+            toCard.style.removeProperty("view-transition-name");
+            modeTransitioning = false;
+        }
     }
 
     function updateOverviewButton() {
