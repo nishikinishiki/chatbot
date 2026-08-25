@@ -671,6 +671,8 @@ button {
         --control-icon-size: 21px;
         --toc-hit-size: 48px;
         --overview-gap: 18px;
+        --page-padding-top: 40px;
+        --page-padding-bottom: 40px;
     }
 
     .topbar__actions {
