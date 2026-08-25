@@ -661,7 +661,10 @@
         image.style.removeProperty("max-height");
     }
 
-    function fitImageBlockToCurrentPage(figure) {
+    function fitImageBlockToCurrentPage(
+        figure,
+        minScale = CONFIG.image.minInlineScale
+    ) {
         const frame = figure.querySelector(".book-image-frame");
         const image = frame?.querySelector("img");
         if (!frame || !image) return false;
@@ -671,7 +674,7 @@
 
         if (baseFrameWidth <= 0 || baseImageHeight <= 0) return false;
 
-        let low = CONFIG.image.minInlineScale;
+        let low = minScale;
         let high = 1;
         let best = low;
 
@@ -720,7 +723,7 @@
         moveBlockToNewPage(node, chapterIndex);
 
         if (!fitsMeasureBody()) {
-            fitImageBlockToCurrentPage(node);
+            fitImageBlockToCurrentPage(node, 0);
         }
     }
 
