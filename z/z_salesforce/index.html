@@ -11,16 +11,12 @@
             theme: {
                 extend: {
                     colors: {
-                        sfBlue: '#00A1E0',
-                        sfRed: '#E53935',
-                        appBg: '#F3F4F6',
+                        sfBlue: '#2563eb',
+                        sfRed: '#dc2626',
+                        appBg: '#f8fafc',
                     },
                     fontFamily: {
                         sans: ['"Helvetica Neue"', 'Arial', '"Hiragino Kaku Gothic ProN"', '"Hiragino Sans"', 'Meiryo', 'sans-serif'],
-                    },
-                    boxShadow: {
-                        'app': '0 4px 20px rgba(0, 0, 0, 0.05)',
-                        'app-lg': '0 10px 30px rgba(0, 0, 0, 0.08)',
                     }
                 }
             }
@@ -40,13 +36,13 @@
 
         /* フェードインアニメーション */
         .fade-in-up {
-            animation: fadeInUp 0.6s cubic-bezier(0.16, 1, 0.3, 1) forwards;
+            animation: fadeInUp 0.4s ease-out forwards;
         }
 
         @keyframes fadeInUp {
             from {
                 opacity: 0;
-                transform: translateY(20px);
+                transform: translateY(12px);
             }
 
             to {
@@ -57,40 +53,32 @@
     </style>
 </head>
 
-<body class="bg-gray-200 text-gray-800 font-sans antialiased flex justify-center selection:bg-sfBlue selection:text-white">
+<body class="bg-gray-100 text-gray-900 font-sans antialiased flex justify-center selection:bg-blue-100 selection:text-blue-900">
 
     <!-- アプリコンテナ（モバイルサイズ固定） -->
-    <div class="w-full max-w-md bg-appBg min-h-screen relative shadow-app-lg overflow-x-hidden">
+    <div class="w-full max-w-md bg-appBg min-h-screen relative border-x border-gray-200 overflow-x-hidden">
 
         <!-- ヘッダー (Sticky) -->
-        <header class="sticky top-0 bg-white/95 backdrop-blur-sm z-50 border-b border-gray-100 px-4 py-3 shadow-sm flex items-center justify-center">
-            <h1 class="text-lg font-bold text-sfBlue tracking-wide flex items-center">
-                <svg xmlns="http://www.w3.org/2000/svg" width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round" class="mr-2">
-                    <path d="M2 12h4l3-9 5 18 3-9h5" />
-                </svg>
+        <header class="sticky top-0 bg-white/90 backdrop-blur-md z-50 border-b border-gray-200 px-4 py-3.5 flex items-center justify-center">
+            <h1 class="text-base font-bold text-gray-900 tracking-tight flex items-center">
                 RSU資産形成診断
             </h1>
         </header>
 
-        <main class="p-4 pb-24 space-y-6">
+        <main class="p-4 pb-20 space-y-4">
 
             <!-- ヒーローセクション -->
-            <div class="bg-gradient-to-br from-sfBlue to-blue-600 rounded-3xl p-6 text-white shadow-app relative overflow-hidden">
-                <div class="relative z-10">
-                    <h2 class="text-xl font-extrabold mb-2 leading-tight">RSUの税金、<br>そのまま払っていませんか？</h2>
-                    <p class="text-sm opacity-90 leading-relaxed mt-3">
-                        高額になりがちな税金を、不動産投資の<span class="font-bold text-yellow-300">「減価償却」</span>を活用して賢くコントロールしましょう。
-                    </p>
-                </div>
-                <!-- 装飾用サークル -->
-                <div class="absolute -bottom-10 -right-10 w-32 h-32 bg-white opacity-10 rounded-full blur-2xl"></div>
-                <div class="absolute -top-10 -left-10 w-24 h-24 bg-white opacity-10 rounded-full blur-xl"></div>
+            <div class="bg-white border border-gray-200 rounded-2xl p-5 shadow-sm">
+                <h2 class="text-lg font-bold text-gray-900 leading-snug">RSUの税金、<br>最適化できていますか？</h2>
+                <p class="text-xs text-gray-600 leading-relaxed mt-2">
+                    高額になりがちな所得税・住民税を、不動産投資の<span class="font-semibold text-gray-900 underline decoration-sfBlue decoration-2 underline-offset-2">減価償却</span>を活用してコントロールする手引きを試算します。
+                </p>
             </div>
 
             <!-- 入力フォームカード -->
-            <div class="bg-white rounded-3xl p-6 shadow-app">
-                <h3 class="font-bold text-gray-800 mb-5 flex items-center text-base">
-                    <svg xmlns="http://www.w3.org/2000/svg" width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" class="mr-2 text-sfBlue">
+            <div class="bg-white border border-gray-200 rounded-2xl p-5 shadow-sm">
+                <h3 class="font-bold text-gray-900 mb-4 flex items-center text-sm">
+                    <svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" class="mr-2 text-gray-500">
                         <rect x="4" y="2" width="16" height="20" rx="2" ry="2" />
                         <line x1="8" y1="6" x2="16" y2="6" />
                         <line x1="16" y1="14" x2="16" y2="14" />
@@ -100,57 +88,53 @@
                         <line x1="8" y1="14" x2="8" y2="14" />
                         <line x1="8" y1="18" x2="8" y2="18" />
                     </svg>
-                    1分で簡単シミュレーション
+                    試算条件の入力
                 </h3>
 
-                <div class="space-y-5">
+                <div class="space-y-4">
                     <!-- 年齢 -->
                     <div>
-                        <label for="age" class="block text-xs font-bold text-gray-500 mb-1.5 pl-1">年齢</label>
+                        <label for="age" class="block text-xs font-semibold text-gray-600 mb-1">年齢</label>
                         <div class="relative flex items-center">
-                            <input type="number" id="age" value="40" class="w-full bg-gray-50 border border-gray-200 text-gray-800 rounded-2xl px-4 py-3.5 text-lg font-semibold focus:outline-none focus:ring-2 focus:ring-sfBlue/40 focus:border-sfBlue transition-all shadow-inner" />
-                            <span class="absolute right-4 text-gray-400 font-medium">歳</span>
+                            <input type="number" id="age" value="40" class="w-full bg-white border border-gray-300 text-gray-900 rounded-xl px-3.5 py-2.5 text-base font-semibold focus:outline-none focus:border-sfBlue focus:ring-1 focus:ring-sfBlue transition-colors" />
+                            <span class="absolute right-3.5 text-xs text-gray-500 font-medium">歳</span>
                         </div>
                     </div>
 
                     <!-- 年収 -->
                     <div>
-                        <label for="income" class="block text-xs font-bold text-gray-500 mb-1.5 pl-1">現在の年収（額面）</label>
+                        <label for="income" class="block text-xs font-semibold text-gray-600 mb-1">現在の年収（額面）</label>
                         <div class="relative flex items-center">
-                            <input type="number" id="income" value="1400" class="w-full bg-gray-50 border border-gray-200 text-gray-800 rounded-2xl px-4 py-3.5 text-lg font-semibold focus:outline-none focus:ring-2 focus:ring-sfBlue/40 focus:border-sfBlue transition-all shadow-inner" />
-                            <span class="absolute right-4 text-gray-400 font-medium">万円</span>
+                            <input type="number" id="income" value="1400" class="w-full bg-white border border-gray-300 text-gray-900 rounded-xl px-3.5 py-2.5 text-base font-semibold focus:outline-none focus:border-sfBlue focus:ring-1 focus:ring-sfBlue transition-colors" />
+                            <span class="absolute right-3.5 text-xs text-gray-500 font-medium">万円</span>
                         </div>
                     </div>
 
-
-
                     <!-- RSU株数入力 -->
-                    <div id="rsuWrapper" class="grid transition-all duration-300 ease-in-out grid-rows-[1fr] opacity-100">
+                    <div id="rsuWrapper" class="grid transition-all duration-200 ease-in-out grid-rows-[1fr] opacity-100">
                         <div class="overflow-hidden">
-                            <div class="pt-1 pb-1">
-                                <label for="rsuShares" class="block text-xs font-bold text-gray-500 mb-1.5 pl-1">今年度 Vest(確定) するRSU株数</label>
+                            <div class="pt-0.5 pb-0.5">
+                                <label for="rsuShares" class="block text-xs font-semibold text-gray-600 mb-1">今年度 Vest(確定) するRSU株数</label>
                                 <div class="relative flex items-center">
-                                    <input type="number" id="rsuShares" value="150" class="w-full bg-gray-50 border border-gray-200 text-gray-800 rounded-2xl px-4 py-3.5 text-lg font-semibold focus:outline-none focus:ring-2 focus:ring-sfBlue/40 focus:border-sfBlue transition-all shadow-inner" />
-                                    <span class="absolute right-4 text-gray-400 font-medium">株</span>
+                                    <input type="number" id="rsuShares" value="150" class="w-full bg-white border border-gray-300 text-gray-900 rounded-xl px-3.5 py-2.5 text-base font-semibold focus:outline-none focus:border-sfBlue focus:ring-1 focus:ring-sfBlue transition-colors" />
+                                    <span class="absolute right-3.5 text-xs text-gray-500 font-medium">株</span>
                                 </div>
                             </div>
                         </div>
                     </div>
 
                     <!-- RSU概算チェックボックス -->
-                    <div class="pt-1">
-                        <label class="flex items-start space-x-3 cursor-pointer p-2 rounded-xl hover:bg-gray-50 transition-colors">
-                            <div class="flex-shrink-0 mt-0.5">
-                                <input type="checkbox" id="isApprox" class="w-5 h-5 text-sfBlue bg-white border-gray-300 rounded focus:ring-sfBlue focus:ring-2 accent-sfBlue" />
-                            </div>
-                            <span class="text-sm text-gray-600 leading-snug">RSU株数が不明なため、年収の20%で概算する</span>
+                    <div class="pt-0.5">
+                        <label class="flex items-center space-x-2.5 cursor-pointer py-1">
+                            <input type="checkbox" id="isApprox" class="w-4 h-4 text-sfBlue bg-white border-gray-300 rounded focus:ring-sfBlue accent-sfBlue" />
+                            <span class="text-xs text-gray-600">RSU株数が不明なため、年収の20%で概算する</span>
                         </label>
                     </div>
                 </div>
 
-                <button id="calcBtn" class="w-full mt-7 bg-gray-900 hover:bg-black text-white font-bold py-4 rounded-2xl shadow-md transition-transform transform active:scale-[0.98] flex justify-center items-center group">
+                <button id="calcBtn" class="w-full mt-6 bg-gray-900 hover:bg-gray-800 text-white font-semibold py-3.5 rounded-xl transition-colors flex justify-center items-center">
                     <span>結果を見る</span>
-                    <svg xmlns="http://www.w3.org/2000/svg" width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" class="ml-2 group-hover:translate-x-1 transition-transform">
+                    <svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" class="ml-1.5">
                         <path d="M5 12h14" />
                         <path d="m12 5 7 7-7 7" />
                     </svg>
@@ -158,74 +142,69 @@
             </div>
 
             <!-- 結果表示エリア (初期非表示) -->
-            <div id="resultArea" class="hidden space-y-6">
+            <div id="resultArea" class="hidden space-y-4">
 
                 <!-- サマリー -->
-                <div class="bg-white rounded-3xl p-6 shadow-app text-center border-t-4 border-sfBlue relative">
-                    <p class="text-xs font-bold text-gray-500 tracking-wider mb-1">今年度の予想総税額</p>
+                <div class="bg-white border border-gray-200 rounded-2xl p-5 shadow-sm text-center">
+                    <p class="text-xs font-semibold text-gray-500 uppercase tracking-wider mb-1">今年度の予想総税額</p>
                     <div class="flex items-baseline justify-center">
-                        <span class="text-4xl font-extrabold text-gray-900 tracking-tight" id="resTotalTax">--</span>
-                        <span class="text-lg font-bold text-gray-600 ml-1">万円</span>
+                        <span class="text-3xl font-extrabold text-gray-900 tracking-tight" id="resTotalTax">--</span>
+                        <span class="text-sm font-semibold text-gray-600 ml-1">万円</span>
                     </div>
 
-                    <div class="mt-6 flex space-x-3">
-                        <div class="flex-1 bg-gray-50 rounded-2xl p-4 border border-gray-100">
-                            <p class="text-[11px] font-bold text-gray-500 mb-1">基本給の税金</p>
-                            <p class="text-xl font-bold text-gray-800"><span id="resBaseTax">--</span><span class="text-xs ml-0.5 text-gray-500">万円</span></p>
+                    <div class="mt-5 grid grid-cols-2 gap-3">
+                        <div class="bg-gray-50 rounded-xl p-3 border border-gray-100 text-left">
+                            <p class="text-[11px] font-medium text-gray-500 mb-0.5">基本給の税金</p>
+                            <p class="text-lg font-bold text-gray-800"><span id="resBaseTax">--</span><span class="text-xs ml-0.5 font-normal text-gray-500">万円</span></p>
                         </div>
-                        <div class="flex-1 bg-red-50 rounded-2xl p-4 border border-red-100 relative overflow-hidden">
-                            <div class="absolute -right-2 -top-2 opacity-10">
-                                <svg xmlns="http://www.w3.org/2000/svg" width="48" height="48" viewBox="0 0 24 24" fill="none" stroke="#E53935" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
-                                    <path d="m18 15-6-6-6 6" />
-                                </svg>
-                            </div>
-                            <p class="text-[11px] font-bold text-sfRed mb-1 relative z-10">RSUによる増税分</p>
-                            <p class="text-2xl font-black text-sfRed relative z-10"><span id="resRsuTax">--</span><span class="text-xs ml-0.5 font-bold">万円</span></p>
+                        <div class="bg-red-50/50 rounded-xl p-3 border border-red-100 text-left">
+                            <p class="text-[11px] font-medium text-sfRed mb-0.5">RSUによる増税分</p>
+                            <p class="text-lg font-bold text-sfRed"><span id="resRsuTax">--</span><span class="text-xs ml-0.5 font-normal">万円</span></p>
                         </div>
                     </div>
                 </div>
 
                 <!-- パーソナライズメッセージ -->
-                <div class="bg-blue-50 border border-blue-100 rounded-3xl p-6 shadow-sm">
-                    <h4 class="font-bold text-sfBlue mb-3 flex items-center text-sm">
-                        <svg xmlns="http://www.w3.org/2000/svg" width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" class="mr-2">
+                <div class="bg-white border border-gray-200 rounded-2xl p-5 shadow-sm">
+                    <h4 class="font-bold text-gray-900 mb-2 flex items-center text-xs tracking-wider uppercase">
+                        <svg xmlns="http://www.w3.org/2000/svg" width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" class="mr-1.5 text-sfBlue">
                             <circle cx="12" cy="12" r="10" />
                             <path d="M12 16v-4" />
                             <path d="M12 8h.01" />
                         </svg>
                         分析結果
                     </h4>
-                    <p class="text-sm text-gray-700 leading-relaxed" id="resMessage">
+                    <p class="text-xs text-gray-700 leading-relaxed" id="resMessage">
                         <!-- JSで動的に生成されます -->
                     </p>
                 </div>
 
                 <!-- CTAエリア -->
-                <div class="bg-white border border-gray-100 rounded-3xl p-6 shadow-app text-center">
-                    <h4 class="font-bold text-gray-800 mb-2">税金をコントロールしませんか？</h4>
-                    <p class="text-xs text-gray-500 mb-5 leading-relaxed text-left">
-                        不動産の「減価償却」を活用して課税所得を圧縮することで、現在<span id="resMarginalRate" class="font-bold text-sfRed text-sm">--</span>%の税率を下げ、効率的に税金を取り戻せる可能性があります。
+                <div class="bg-white border border-gray-200 rounded-2xl p-5 shadow-sm text-center">
+                    <h4 class="font-bold text-gray-900 text-sm mb-1.5">税負担のコントロールをご検討ですか？</h4>
+                    <p class="text-xs text-gray-600 mb-4 leading-relaxed text-left">
+                        不動産の減価償却を活用して課税所得を圧縮することで、現在<span id="resMarginalRate" class="font-bold text-sfRed">--</span>%の限界税率を抑え、税負担を緩和できる可能性があります。
                     </p>
 
-                    <a href="https://calendar.app.google/5LATxn1q2pmYRyRu5" target="_blank" rel="noopener noreferrer" class="block w-full bg-sfBlue hover:bg-blue-500 text-white font-bold py-4 rounded-2xl shadow-[0_8px_20px_rgba(0,161,224,0.3)] transition-all transform hover:-translate-y-0.5 active:translate-y-0 active:scale-[0.98] flex justify-center items-center">
-                        <svg xmlns="http://www.w3.org/2000/svg" width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" class="mr-2">
+                    <a href="https://calendar.app.google/5LATxn1q2pmYRyRu5" target="_blank" rel="noopener noreferrer" class="block w-full bg-sfBlue hover:bg-blue-700 text-white font-semibold py-3.5 rounded-xl transition-colors flex justify-center items-center text-sm">
+                        <svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" class="mr-2">
                             <rect x="3" y="4" width="18" height="18" rx="2" ry="2" />
                             <line x1="16" y1="2" x2="16" y2="6" />
                             <line x1="8" y1="2" x2="8" y2="6" />
                             <line x1="3" y1="10" x2="21" y2="10" />
                         </svg>
-                        無料の個別面談を予約する
+                        無料個別相談を予約する
                     </a>
                 </div>
             </div>
 
             <!-- 注釈・免責事項 -->
-            <div class="pt-4 border-t border-gray-200">
-                <ul class="text-[10px] text-gray-400 space-y-2 list-none pl-1">
-                    <li class="flex items-start"><span class="mr-1">※1</span>本シミュレーションは概算であり、実際の税額を保証するものではありません。</li>
-                    <li class="flex items-start"><span class="mr-1">※2</span>参照株価：$301.20、参照為替：151.40円/ドル（シミュレーション前提値）を用いて計算しています。</li>
-                    <li class="flex items-start"><span class="mr-1">※3</span>税金計算は、所得税（累進課税、基礎控除48万円、給与所得控除を年収の20%として概算）および住民税（一律10%）を前提とし、復興特別所得税や社会保険料、各種控除（配偶者控除、扶養控除など）は考慮していません。</li>
-                    <li class="flex items-start"><span class="mr-1">※4</span>具体的な税務相談については、税理士等の専門家にご確認ください。</li>
+            <div class="pt-2">
+                <ul class="text-[10px] text-gray-400 space-y-1 list-none pl-1 leading-normal">
+                    <li>※1 本シミュレーションは概算であり、実際の税額を保証するものではありません。</li>
+                    <li>※2 参照株価：$301.20、参照為替：151.40円/ドルを用いて試算しています。</li>
+                    <li>※3 所得税・住民税を前提とした簡易計算であり、各種控除や復興特別所得税等は考慮していません。</li>
+                    <li>※4 具体的な税務判断については税理士等の専門家にご相談ください。</li>
                 </ul>
             </div>
 
@@ -239,15 +218,12 @@
 
         // --- 税金計算ロジック ---
         function calculateTax(totalIncomeYen) {
-            // 簡易給与所得控除 (要件に従い年収の20%と仮定)
             let deduction = totalIncomeYen * 0.2;
-            // 基礎控除
             let basicDeduction = 480000;
 
             let taxableIncome = totalIncomeYen - deduction - basicDeduction;
             if (taxableIncome < 0) taxableIncome = 0;
 
-            // 所得税計算 (簡易累進課税)
             let incomeTax = 0;
             let taxRate = 0;
 
@@ -259,18 +235,15 @@
             else if (taxableIncome <= 39999000) { incomeTax = taxableIncome * 0.40 - 2796000; taxRate = 40; }
             else { incomeTax = taxableIncome * 0.45 - 4796000; taxRate = 45; }
 
-            // 住民税計算 (一律10%)
             let residentTax = taxableIncome * 0.10;
 
             return {
                 totalTax: incomeTax + residentTax,
-                marginalRate: taxRate + 10 // 所得税率 + 住民税率
+                marginalRate: taxRate + 10
             };
         }
 
         // --- イベントリスナー ---
-
-        // チェックボックスの連動（入力欄の開閉）
         document.getElementById('isApprox').addEventListener('change', (e) => {
             const rsuWrapper = document.getElementById('rsuWrapper');
             const rsuInput = document.getElementById('rsuShares');
@@ -286,18 +259,14 @@
             }
         });
 
-        // 計算ボタン押下時
         document.getElementById('calcBtn').addEventListener('click', () => {
-            // 入力値の取得
             const age = parseInt(document.getElementById('age').value) || 0;
             const incomeMan = parseInt(document.getElementById('income').value) || 0;
             const isApprox = document.getElementById('isApprox').checked;
             const rsuShares = parseInt(document.getElementById('rsuShares').value) || 0;
 
-            // 円単位に変換
             const baseIncomeYen = incomeMan * 10000;
 
-            // RSU評価額の算出
             let rsuValueYen = 0;
             if (isApprox) {
                 rsuValueYen = baseIncomeYen * 0.2;
@@ -307,40 +276,31 @@
 
             const totalIncomeYen = baseIncomeYen + rsuValueYen;
 
-            // 税金計算の実行
             const baseTaxObj = calculateTax(baseIncomeYen);
             const totalTaxObj = calculateTax(totalIncomeYen);
 
-            // RSUによる税金増加分
             const rsuTaxYen = totalTaxObj.totalTax - baseTaxObj.totalTax;
 
-            // フォーマット関数 (万円単位に変換して四捨五入、カンマ区切り)
             const formatMan = (yen) => Math.round(yen / 10000).toLocaleString();
 
-            // UIへの反映
             document.getElementById('resTotalTax').innerText = formatMan(totalTaxObj.totalTax);
             document.getElementById('resBaseTax').innerText = formatMan(baseTaxObj.totalTax);
             document.getElementById('resRsuTax').innerText = formatMan(rsuTaxYen);
             document.getElementById('resMarginalRate').innerText = totalTaxObj.marginalRate;
 
-            // パーソナライズメッセージの生成
-            const msgHtml = `<span class="font-bold text-gray-900">${age}歳、基本年収${incomeMan}万円</span>のあなた。<br><br>
-                今回のシミュレーションでは、RSUの確定（Vest）により所得が増えた分、あなたの税率は<span class="font-bold text-sfRed text-base">${totalTaxObj.marginalRate}%</span>に達する見込みです。<br><br>
-                RSUによって増えた<span class="font-bold text-sfRed text-base">約${formatMan(rsuTaxYen)}万円</span>の税金および、基本給の税金約${formatMan(baseTaxObj.totalTax)}万円は、<span class="font-bold text-sfBlue">不動産投資の減価償却</span>を活用することで手元に大きく残せる可能性があります。<br><br>
-                まずは無料のオンライン面談で、あなたの節税ポテンシャルを確認してみませんか？`;
+            const msgHtml = `<span class="font-semibold text-gray-900">${age}歳、基本年収${incomeMan}万円</span>の試算結果です。<br><br>
+                RSUの確定（Vest）に伴う所得増加により、想定される税率は<span class="font-bold text-sfRed">${totalTaxObj.marginalRate}%</span>に達する見込みです。<br><br>
+                RSU増加分の税額<span class="font-bold text-sfRed">約${formatMan(rsuTaxYen)}万円</span>を含め、税負担の抑止には<span class="font-semibold text-gray-900">不動産投資の減価償却</span>の活用が有効な手段となり得ます。`;
 
             document.getElementById('resMessage').innerHTML = msgHtml;
 
-            // 結果エリアの表示とアニメーション
             const resultArea = document.getElementById('resultArea');
             resultArea.classList.remove('hidden');
 
-            // クラスを付け直してアニメーションをリセット
             resultArea.classList.remove('fade-in-up');
-            void resultArea.offsetWidth; // リフロー強制
+            void resultArea.offsetWidth;
             resultArea.classList.add('fade-in-up');
 
-            // スムーズスクロール
             setTimeout(() => {
                 resultArea.scrollIntoView({ behavior: 'smooth', block: 'start' });
             }, 100);

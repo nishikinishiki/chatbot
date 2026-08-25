@@ -6,7 +6,7 @@
 window.bookMarkdown = `
 ---
 title: 【完全保存版】不動産投資と節税
-cover: img/cover.png
+cover: img/cover.webp
 published: 2026年 5月 1日
 ---
 # バブル後最大の伸び＆5年連続で上昇中
