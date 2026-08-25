@@ -701,14 +701,6 @@ button {
     :where(.page-body, .measure-body) h1 {
         margin: 0 0 1em;
     }
-
-    :where(.page-body, .measure-body) h2 {
-        margin: 1.5em 0 0.5em;
-    }
-
-    :where(.page-body, .measure-body) p {
-        margin: 0 0 1em;
-    }
 }
 
 @media (min-width: 1024px) {
