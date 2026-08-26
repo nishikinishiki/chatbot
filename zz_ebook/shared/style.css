@@ -338,19 +338,25 @@ button {
     letter-spacing: 0;
 }
 
-/* ---------- Cover ---------- */
+/* ---------- Full-page images / Cover ---------- */
+
+.page-card.cover-card,
+.page-card.full-image-card {
+    padding: 0;
+}
 
 .page-card.cover-card {
-    padding: 0;
     background: var(--chrome-bg);
 }
 
-.cover-card .page-body {
+.cover-card .page-body,
+.full-image-card .page-body {
     width: 100%;
     height: 100%;
 }
 
-.cover-card .cover-image {
+.cover-card .cover-image,
+.full-image-card .full-page-image {
     display: block;
     width: 100%;
     height: 100%;
@@ -720,12 +726,12 @@ button {
     }
 
     .measure-page,
-    .stage .page-card--current:not(.cover-card) {
+    .stage .page-card--current:not(.cover-card):not(.full-image-card) {
         padding-left: var(--reader-outer-padding);
         padding-right: var(--reader-gutter-padding);
     }
 
-    .stage .page-card--next {
+    .stage .page-card--next:not(.full-image-card) {
         padding-left: var(--reader-gutter-padding);
         padding-right: var(--reader-outer-padding);
     }
