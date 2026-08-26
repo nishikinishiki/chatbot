@@ -30,9 +30,6 @@
             labels: ["小", "中", "大"],
             defaultSize: 17
         },
-        image: {
-            minInlineScale: 0.65
-        },
         pageTurn: {
             duration: cssTimeMs(
                 "--page-turn-duration",
@@ -60,9 +57,6 @@
             navigationPerViewport: 85,
             navigationMinDuration: 420,
             navigationMaxDuration: 950
-        },
-        timing: {
-            resizeDebounce: 160
         }
     };
 
@@ -641,7 +635,6 @@
         if (!frame || !image) return;
 
         frame.style.width = `${(baseFrameWidth * scale).toFixed(1)}px`;
-        frame.style.marginInline = "auto";
         image.style.height = `${(baseImageHeight * scale).toFixed(1)}px`;
     }
 
@@ -651,13 +644,12 @@
         if (!frame || !image) return;
 
         frame.style.removeProperty("width");
-        frame.style.removeProperty("margin-inline");
         image.style.removeProperty("height");
     }
 
     function fitImageBlockToCurrentPage(
         figure,
-        minScale = CONFIG.image.minInlineScale
+        minScale = 0.65
     ) {
         const frame = figure.querySelector(".book-image-frame");
         const image = frame?.querySelector("img");
@@ -743,7 +735,6 @@
 
         if (fitImageBlockToCurrentPage(node)) return;
 
-        resetImageBlockScale(node);
         moveBlockToNewPage(node, chapterIndex);
 
         if (!fitsMeasureBody()) {
@@ -2043,11 +2034,11 @@
         setMode(state.mode === "overview" ? "normal" : "overview");
     });
 
-    function scheduleRepagination(delay = CONFIG.timing.resizeDebounce) {
+    function scheduleRepagination() {
         clearTimeout(resizeTimer);
         resizeTimer = setTimeout(() => {
             repaginate({ showLoading: true });
-        }, delay);
+        }, 160);
     }
 
     els.fontButtons.forEach((button) => {
