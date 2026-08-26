@@ -31,8 +31,7 @@
             defaultSize: 17
         },
         image: {
-            minInlineScale: 0.65,
-            fitIterations: 8
+            minInlineScale: 0.65
         },
         pageTurn: {
             duration: cssTimeMs(
@@ -643,7 +642,8 @@
 
         frame.style.width = `${(baseFrameWidth * scale).toFixed(1)}px`;
         frame.style.marginInline = "auto";
-        image.style.maxHeight = `${(baseImageHeight * scale).toFixed(1)}px`;
+        image.style.height = `${(baseImageHeight * scale).toFixed(1)}px`;
+        image.style.maxHeight = "none";
     }
 
     function resetImageBlockScale(figure) {
@@ -653,47 +653,95 @@
 
         frame.style.removeProperty("width");
         frame.style.removeProperty("margin-inline");
+        image.style.removeProperty("height");
         image.style.removeProperty("max-height");
+    }
+
+    function measureImageFit(figure) {
+        const frame = figure.querySelector(".book-image-frame");
+        const image = frame?.querySelector("img");
+        if (!frame || !image) return null;
+
+        const bodyRect = els.measureBody.getBoundingClientRect();
+        const figureRect = figure.getBoundingClientRect();
+        const frameRect = frame.getBoundingClientRect();
+        const imageRect = image.getBoundingClientRect();
+
+        if (
+            frameRect.width <= 0 ||
+            imageRect.height <= 0
+        ) return null;
+
+        const trailingHeight = Math.max(
+            0,
+            figureRect.bottom - frameRect.bottom
+        );
+        const availableImageHeight = Math.max(
+            0,
+            bodyRect.bottom - frameRect.top - trailingHeight - 1
+        );
+
+        return {
+            baseFrameWidth: frameRect.width,
+            baseImageHeight: imageRect.height,
+            scale: clamp(
+                availableImageHeight / imageRect.height,
+                0,
+                1
+            )
+        };
     }
 
     function fitImageBlockToCurrentPage(
         figure,
         minScale = CONFIG.image.minInlineScale
     ) {
-        const frame = figure.querySelector(".book-image-frame");
-        const image = frame?.querySelector("img");
-        if (!frame || !image) return false;
+        const metrics = measureImageFit(figure);
+        if (!metrics || metrics.scale < minScale) return false;
 
-        const baseFrameWidth = frame.getBoundingClientRect().width;
-        const baseImageHeight = image.getBoundingClientRect().height;
+        let scale = metrics.scale;
+        applyImageBlockScale(
+            figure,
+            scale,
+            metrics.baseFrameWidth,
+            metrics.baseImageHeight
+        );
 
-        if (baseFrameWidth <= 0 || baseImageHeight <= 0) return false;
+        if (fitsMeasureBody()) return true;
 
-        let low = minScale;
-        let high = 1;
-        let best = low;
+        const image = figure.querySelector(".book-image-frame img");
+        const renderedHeight = image?.getBoundingClientRect().height ?? 0;
+        const overflow = Math.max(
+            0,
+            els.measureBody.scrollHeight - els.measureBody.clientHeight
+        );
 
-        applyImageBlockScale(figure, low, baseFrameWidth, baseImageHeight);
+        if (renderedHeight > 0 && overflow > 0) {
+            scale *= clamp(
+                (renderedHeight - overflow - 1) / renderedHeight,
+                0,
+                1
+            );
+        }
 
-        if (!fitsMeasureBody()) {
+        if (scale < minScale) {
             resetImageBlockScale(figure);
             return false;
         }
 
-        for (let i = 0; i < CONFIG.image.fitIterations; i += 1) {
-            const mid = (low + high) / 2;
-            applyImageBlockScale(figure, mid, baseFrameWidth, baseImageHeight);
+        applyImageBlockScale(
+            figure,
+            scale,
+            metrics.baseFrameWidth,
+            metrics.baseImageHeight
+        );
 
-            if (fitsMeasureBody()) {
-                best = mid;
-                low = mid;
-            } else {
-                high = mid;
-            }
+        if (fitsMeasureBody()) return true;
+
+        if (minScale > 0) {
+            resetImageBlockScale(figure);
         }
-
-        applyImageBlockScale(figure, best, baseFrameWidth, baseImageHeight);
-        return true;
+        return false;
     }
 
     function moveBlockToNewPage(node, chapterIndex) {
