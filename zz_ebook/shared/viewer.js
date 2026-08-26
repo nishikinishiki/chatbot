@@ -719,11 +719,7 @@
 
     function moveBlockToNewPage(node, chapterIndex) {
         node.remove();
-
-        if (els.measureBody.childNodes.length) {
-            commitMeasuredPage(chapterIndex);
-        }
-
+        commitMeasuredPage(chapterIndex);
         els.measureBody.appendChild(node);
     }
 
@@ -743,9 +739,7 @@
     }
 
     function appendFullImagePage(block, chapterIndex) {
-        if (els.measureBody.childNodes.length) {
-            commitMeasuredPage(chapterIndex);
-        }
+        commitMeasuredPage(chapterIndex);
 
         const image = document.createElement("img");
         image.className = "full-page-image";
@@ -886,9 +880,7 @@
             section.appendChild(element);
         });
 
-        if (els.measureBody.childNodes.length) {
-            commitMeasuredPage(chapterIndex, "colophon");
-        }
+        commitMeasuredPage(chapterIndex, "colophon");
     }
 
     function paginateBook() {
@@ -945,10 +937,7 @@
             });
 
             ensureChapterHeading();
-
-            if (els.measureBody.childNodes.length > 0) {
-                commitMeasuredPage(chapterIndex);
-            }
+            commitMeasuredPage(chapterIndex);
         });
 
         paginateColophon();
@@ -1651,12 +1640,7 @@
     function setTurnShadow(progress) {
         stage.style.setProperty(
             "--turn-shadow-opacity",
-            String(
-                Math.min(
-                    1,
-                    Math.max(0, progress) * 1.25
-                )
-            )
+            String(clamp(progress * 1.25, 0, 1))
         );
     }
 
@@ -1958,8 +1942,6 @@
 
         if (readerInteraction.dragging) {
             snapReaderBack();
-        } else {
-            readerInteraction.dragging = false;
         }
     }
 
@@ -2131,8 +2113,6 @@
     }
 
     async function init() {
-        updateOverviewButton();
-        updateOverviewGeometry();
         setFontSize(state.fontSize, { repaginate: false });
 
         await Promise.all([
@@ -2144,7 +2124,6 @@
         paginateBook();
         buildToc();
         configurePageSlider();
-        markOverviewDirty();
 
         setCurrentPage(state.currentPage, { render: true });
         els.loading.hidden = true;
