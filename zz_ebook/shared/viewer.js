@@ -152,11 +152,11 @@
                 return;
             }
 
-            const image = line.match(/^!\[(.*?)\]\((.*?)\)$/);
+            const image = line.match(/^!\[(.*?)\]\((.*?)\)(\{page\})?$/);
             if (image) {
                 flushParagraph();
                 currentChapter.blocks.push({
-                    type: "image",
+                    type: image[3] ? "full-image" : "image",
                     alt: image[1],
                     src: image[2]
                 });
@@ -727,6 +727,23 @@
         }
     }
 
+    function appendFullImagePage(block, chapterIndex) {
+        if (els.measureBody.childNodes.length) {
+            commitMeasuredPage(chapterIndex);
+        }
+
+        const image = document.createElement("img");
+        image.className = "full-page-image";
+        image.src = block.src;
+        image.alt = block.alt || "";
+
+        state.pages.push({
+            bodyHTML: image.outerHTML,
+            chapterIndex,
+            type: "full-image"
+        });
+    }
+
     function fitsMeasureBody() {
         return els.measureBody.scrollHeight <= els.measureBody.clientHeight + 0.5;
     }
@@ -872,11 +889,25 @@
 
         book.chapters.forEach((chapter, chapterIndex) => {
             state.chapterStarts[chapterIndex] = state.pages.length;
-            els.measureBody.appendChild(
-                createTextElement("h1", chapter.title)
-            );
+            let headingPending = true;
+
+            const ensureChapterHeading = () => {
+                if (!headingPending) return;
+
+                els.measureBody.appendChild(
+                    createTextElement("h1", chapter.title)
+                );
+                headingPending = false;
+            };
 
             chapter.blocks.forEach((block) => {
+                if (block.type === "full-image") {
+                    appendFullImagePage(block, chapterIndex);
+                    return;
+                }
+
+                ensureChapterHeading();
+
                 switch (block.type) {
                     case "image":
                         paginateImageBlock(block, chapterIndex);
@@ -898,6 +929,8 @@
                 }
             });
 
+            ensureChapterHeading();
+
             if (els.measureBody.childNodes.length > 0) {
                 commitMeasuredPage(chapterIndex);
             }
@@ -909,7 +942,11 @@
     function renderPageCard(target, pageIndex) {
         if (pageIndex < 0 || pageIndex >= state.pages.length) {
             target.classList.add("is-empty");
-            target.classList.remove("cover-card", "colophon-card");
+            target.classList.remove(
+                "cover-card",
+                "full-image-card",
+                "colophon-card"
+            );
             target.innerHTML = "";
             return;
         }
@@ -917,6 +954,7 @@
         const page = state.pages[pageIndex];
         target.classList.remove("is-empty");
         target.classList.toggle("cover-card", page.type === "cover");
+        target.classList.toggle("full-image-card", page.type === "full-image");
         target.classList.toggle("colophon-card", page.type === "colophon");
         target.innerHTML = `<div class="page-body">${page.bodyHTML}</div>`;
     }
@@ -2059,8 +2097,8 @@
             book.cover.src,
             ...book.chapters.flatMap((chapter) =>
                 chapter.blocks
-                    .filter((block) => block.type === "image")
                     .map((block) => block.src)
+                    .filter(Boolean)
             )
         ].filter(Boolean));
 
