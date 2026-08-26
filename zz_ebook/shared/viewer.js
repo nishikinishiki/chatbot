@@ -197,11 +197,8 @@
           <button class="text-button" aria-label="文字サイズ" title="文字サイズ" popovertarget="displayPopover">Aa</button>
 
           <button class="icon-button" id="overviewButton" aria-label="俯瞰表示" title="俯瞰表示">
-            <svg class="overview-enter-icon" viewBox="0 0 24 24" aria-hidden="true">
+            <svg viewBox="0 0 24 24" aria-hidden="true">
               <path d="M4 4h6v6H4V4Zm10 0h6v6h-6V4ZM4 14h6v6H4v-6Zm10 0h6v6h-6v-6Z"/>
-            </svg>
-            <svg class="overview-exit-icon" viewBox="0 0 24 24" aria-hidden="true" hidden>
-              <path d="M6 3h12a2 2 0 0 1 2 2v14a2 2 0 0 1-2 2H6a2 2 0 0 1-2-2V5a2 2 0 0 1 2-2Zm0 2v14h12V5H6Zm2 3h8v2H8V8Zm0 4h8v2H8v-2Z"/>
             </svg>
           </button>
         </div>
@@ -332,8 +329,6 @@
         pageCounter: document.getElementById("pageCounter"),
         displayPopover: document.getElementById("displayPopover"),
         overviewButton: document.getElementById("overviewButton"),
-        overviewEnterIcon: document.querySelector("#overviewButton .overview-enter-icon"),
-        overviewExitIcon: document.querySelector("#overviewButton .overview-exit-icon"),
         fontButtons: [...document.querySelectorAll(".font-button")],
         tocOpenButton: document.getElementById("tocOpenButton"),
         tocDialog: document.getElementById("tocDialog"),
@@ -996,9 +991,19 @@
         });
     }
 
-    function updateReadingPositionUI(sliderValue = state.currentPage + 1) {
-        els.pageSlider.value = String(sliderValue);
-        els.pageCounter.textContent = `${state.currentPage + 1}/${state.pages.length}`;
+    function updateReadingPositionUI(sliderValue = null) {
+        const readingPage =
+            state.mode === "normal" &&
+            isSpreadView() &&
+            state.currentPage > 0
+                ? Math.min(
+                    getSpreadStart(state.currentPage) + 1,
+                    state.pages.length - 1
+                )
+                : state.currentPage;
+
+        els.pageSlider.value = String(sliderValue ?? readingPage + 1);
+        els.pageCounter.textContent = `${readingPage + 1}/${state.pages.length}`;
         els.topbarTitle.textContent = currentChapterTitle();
         updateTocHighlight();
         storage.set(STORAGE.currentPage, state.currentPage);
@@ -1016,9 +1021,7 @@
         }
 
         if (syncUI) {
-            updateReadingPositionUI(
-                sliderValue ?? state.currentPage + 1
-            );
+            updateReadingPositionUI(sliderValue);
         }
     }
 
@@ -1462,15 +1465,13 @@
             "title",
             active ? "通常表示に戻る" : "俯瞰表示"
         );
-
-        els.overviewEnterIcon.hidden = active;
-        els.overviewExitIcon.hidden = !active;
     }
 
     function applyAppMode(mode) {
         state.mode = mode;
         els.app.classList.toggle("overview", mode === "overview");
         updateOverviewButton();
+        updateReadingPositionUI();
     }
 
     function closeOverlays() {
