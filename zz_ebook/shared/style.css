@@ -75,9 +75,7 @@ body {
 }
 
 button,
-input,
-select,
-textarea {
+input {
     font: inherit;
     color: inherit;
 }
@@ -294,6 +292,7 @@ button {
 
 .book-image-frame {
     position: relative;
+    margin-inline: auto;
 }
 
 .book-image-block img {
@@ -478,7 +477,6 @@ button {
     content: "";
     flex: 0 0 max(0px,
             calc(var(--overview-side-pad) - var(--overview-gap)));
-    height: 1px;
     pointer-events: none;
 }
 
@@ -544,7 +542,6 @@ button {
 .font-control {
     display: grid;
     grid-template-columns: repeat(3, 1fr);
-    align-items: center;
     gap: 8px;
 }
 
@@ -552,7 +549,6 @@ button {
     height: var(--control-size);
     border: 1px solid var(--line);
     border-radius: 8px;
-    background: var(--paper);
 }
 
 .font-button[aria-pressed="true"] {
