@@ -19,8 +19,7 @@
     --page-padding-x: 48px;
     --page-padding-top: 50px;
     --page-padding-bottom: 50px;
-    --topbar-height: 72px;
-    --bottombar-height: 72px;
+    --bar-height: 72px;
     --reader-page-width: 100vw;
 
     /* Shared control dimensions */
@@ -43,8 +42,8 @@
     --reader-viewport-height:
         calc(
             100dvh -
-            var(--topbar-height) -
-            var(--bottombar-height) -
+            var(--bar-height) -
+            var(--bar-height) -
             env(safe-area-inset-bottom, 0px)
         );
 }
@@ -85,13 +84,7 @@ button {
     cursor: pointer;
 }
 
-.app {
-    position: fixed;
-    inset: 0;
-    background: var(--paper);
-}
-
-.app.overview {
+body.overview {
     background: var(--overview-bg);
 }
 
@@ -108,7 +101,7 @@ button {
 
 .topbar {
     top: 0;
-    height: var(--topbar-height);
+    height: var(--bar-height);
     display: grid;
     grid-template-columns:
         var(--toc-hit-size) minmax(0, 1fr) auto;
@@ -136,7 +129,7 @@ button {
 
 .bottom-bar {
     bottom: 0;
-    height: calc(var(--bottombar-height) + env(safe-area-inset-bottom, 0px));
+    height: calc(var(--bar-height) + env(safe-area-inset-bottom, 0px));
     display: grid;
     grid-template-columns: 1fr auto;
     align-items: center;
@@ -196,8 +189,8 @@ button {
 .reader-shell {
     position: fixed;
     inset:
-        var(--topbar-height) 0
-        calc(var(--bottombar-height) + env(safe-area-inset-bottom, 0px));
+        var(--bar-height) 0
+        calc(var(--bar-height) + env(safe-area-inset-bottom, 0px));
     overflow: hidden;
 }
 
@@ -392,10 +385,6 @@ button {
     top: 0;
     left: 0;
     opacity: 0;
-    transform: translateX(0);
-    filter: none;
-    border-radius: 0;
-    box-shadow: none;
     pointer-events: none;
     will-change: transform;
 }
@@ -434,7 +423,7 @@ button {
 }
 
 /* Overview uses native horizontal scrolling + scroll snap. */
-.app.overview .stage {
+body.overview .stage {
     display: none;
 }
 
@@ -455,7 +444,7 @@ button {
     display: none;
 }
 
-.app.overview .overview-scroller {
+body.overview .overview-scroller {
     visibility: visible;
 }
 
@@ -464,15 +453,7 @@ button {
     display: flex;
     align-items: center;
     gap: var(--overview-gap);
-    transform: translateY(calc((var(--bottombar-height) - var(--topbar-height)) / 2));
-}
-
-.overview-strip::before,
-.overview-strip::after {
-    content: "";
-    flex: 0 0 max(0px,
-            calc(var(--overview-side-pad) - var(--overview-gap)));
-    pointer-events: none;
+    padding-inline: var(--overview-side-pad);
 }
 
 .overview-item {
@@ -551,7 +532,7 @@ button {
     font-weight: 600;
 }
 
-.toc-dialog {
+:where(.toc-dialog, .image-viewer) {
     position: fixed;
     inset: 0;
     width: 100%;
@@ -561,8 +542,11 @@ button {
     margin: 0;
     padding: 0;
     border: 0;
-    background: transparent;
     overflow: hidden;
+}
+
+.toc-dialog {
+    background: transparent;
     transition:
         overlay 320ms allow-discrete,
         display 320ms allow-discrete;
@@ -658,8 +642,7 @@ button {
 
 @media (max-width: 720px) {
     :root {
-        --topbar-height: 60px;
-        --bottombar-height: 60px;
+        --bar-height: 60px;
         --control-size: 36px;
         --control-icon-size: 21px;
         --toc-hit-size: 48px;
@@ -677,10 +660,6 @@ button {
         margin: 1em 0;
     }
 
-    .topbar__title {
-        font-weight: 600;
-    }
-
     .topbar__actions {
         gap: 0;
     }
@@ -688,11 +667,6 @@ button {
     .text-button {
         padding: 0 8px;
         font-size: 16px;
-    }
-
-    :where(.page-card, .measure-page) {
-        padding:
-            var(--page-padding-top) var(--page-padding-x) var(--page-padding-bottom);
     }
 
     .bottom-bar {
@@ -736,19 +710,19 @@ button {
         padding-right: var(--reader-outer-padding);
     }
 
-    .stage:not(.turn-prev) .page-card--current {
+    .stage .page-card--current {
         left: 0;
         z-index: 2;
         transform: translateX(0);
         filter: none;
     }
 
-    .stage:not(.turn-prev) .page-card--next:not(.is-empty) {
+    .stage .page-card--next:not(.is-empty) {
         left: 50vw;
         z-index: 2;
     }
 
-    .stage:not(.turn-prev):has(.page-card--next:not(.is-empty))::after {
+    .stage:has(.page-card--next:not(.is-empty))::after {
         content: "";
         position: absolute;
         top: 0;
@@ -766,11 +740,11 @@ button {
         pointer-events: none;
     }
 
-    .stage:not(.turn-prev) .page-card--current.cover-card {
+    .stage .page-card--current.cover-card {
         left: 25vw;
     }
 
-    .stage:not(.turn-prev) .page-card--prev {
+    .stage .page-card--prev {
         display: none;
     }
 
@@ -811,16 +785,6 @@ button {
 }
 
 .image-viewer {
-    position: fixed;
-    inset: 0;
-    width: 100%;
-    height: 100%;
-    max-width: none;
-    max-height: none;
-    margin: 0;
-    padding: 0;
-    border: 0;
-    overflow: hidden;
     background: rgba(0, 0, 0, 0.9);
     opacity: 0;
     pointer-events: none;

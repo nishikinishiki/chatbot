@@ -157,8 +157,7 @@
         .join("");
 
     document.body.innerHTML = `
-    <div class="app" id="app">
-      <header class="topbar">
+    <header class="topbar">
         <button class="icon-button" id="tocOpenButton" aria-label="目次" title="目次">
           <svg viewBox="0 0 24 24" aria-hidden="true">
             <path d="M3 13h2v-2H3v2zm0 4h2v-2H3v2zm0-8h2V7H3v2zm4 8h14v-2H7v2zm0-4h14v-2H7v2zm0-6v2h14V7H7z"/>
@@ -205,8 +204,7 @@
         </aside>
       </dialog>
 
-      <div class="loading" id="loading">ページを再計算しています…</div>
-    </div>
+    <div class="loading" id="loading">ページを再計算しています…</div>
 
     <dialog class="image-viewer" id="imageViewer" aria-label="画像拡大表示">
       <button class="image-viewer__close" id="imageViewerClose" type="button" aria-label="画像を閉じる">×</button>
@@ -284,7 +282,6 @@
     let readerResizeObserver = null;
 
     const els = {
-        app: document.getElementById("app"),
         readerShell: document.getElementById("readerShell"),
         topbarTitle: document.getElementById("topbarTitle"),
         currentPage: document.getElementById("currentPage"),
@@ -1157,7 +1154,7 @@
 
     function applyAppMode(mode) {
         state.mode = mode;
-        els.app.classList.toggle("overview", mode === "overview");
+        document.body.classList.toggle("overview", mode === "overview");
         updateOverviewButton();
         updateReadingPositionUI();
     }
