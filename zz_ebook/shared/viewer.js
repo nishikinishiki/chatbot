@@ -1,17 +1,10 @@
 (() => {
     "use strict";
 
-    function cssVar(name, fallback = "") {
-        return (
-            getComputedStyle(document.documentElement)
-                .getPropertyValue(name)
-                .trim() ||
-            fallback
-        );
-    }
-
     function cssTimeMs(name, fallback) {
-        const raw = cssVar(name);
+        const raw = getComputedStyle(document.documentElement)
+            .getPropertyValue(name)
+            .trim();
         if (!raw) return fallback;
 
         const value = parseFloat(raw);
@@ -31,10 +24,7 @@
             defaultSize: 17
         },
         pageTurn: {
-            duration: cssTimeMs(
-                "--page-turn-duration",
-                220
-            ),
+            duration: cssTimeMs("--page-turn-duration", 220),
             thresholdRatio: 0.18,
             flickVelocity: 0.42,
             flickDistance: 24,
@@ -45,18 +35,7 @@
             maxScale: 0.72,
             horizontalReserve: 118,
             verticalReserve: 176,
-            transitionDuration: cssTimeMs(
-                "--overview-transition-duration",
-                400
-            ),
-            transitionEasing: cssVar(
-                "--ease-standard",
-                "cubic-bezier(.22,.61,.36,1)"
-            ),
-            navigationBaseDuration: 360,
-            navigationPerViewport: 85,
-            navigationMinDuration: 420,
-            navigationMaxDuration: 950
+            fadeDuration: 90
         }
     };
 
@@ -197,7 +176,7 @@
         </div>
       </header>
 
-      <main class="reader-shell">
+      <main class="reader-shell" id="readerShell">
         <div class="stage">
           <article class="page-card page-card--prev" id="prevPage"></article>
           <article class="page-card page-card--current" id="currentPage"></article>
@@ -210,7 +189,7 @@
       </main>
 
       <footer class="bottom-bar">
-        <input class="page-slider" id="pageSlider" type="range" min="1" max="1" step="0.01" value="1" />
+        <input class="page-slider" id="pageSlider" type="range" min="1" max="1" step="1" value="1" />
         <div class="page-counter" id="pageCounter">1/1</div>
       </footer>
 
@@ -248,7 +227,6 @@
         currentPage: `reader-current-page:${new URL(".", location.href).pathname}`,
         fontSize: "reader-font-size"
     };
-    const legacyCurrentPageKey = `reader-current-page-${book.title}`;
 
     const clamp = (value, min, max) => Math.max(min, Math.min(max, value));
 
@@ -277,10 +255,7 @@
         STORAGE.fontSize,
         CONFIG.font.defaultSize
     );
-    const savedCurrentPage = storage.getNumber(
-        STORAGE.currentPage,
-        storage.getNumber(legacyCurrentPageKey, 0)
-    );
+    const savedCurrentPage = storage.getNumber(STORAGE.currentPage, 0);
 
     const state = {
         pages: [],
@@ -301,17 +276,16 @@
     const overviewInteraction = {
         dirty: true,
         step: null,
-        scrollRaf: 0,
-        sliderRaf: 0,
-        sliderDragging: false,
-        navigationRaf: 0
+        scrollRaf: 0
     };
 
     let modeTransitioning = false;
     let resizeTimer = null;
+    let readerResizeObserver = null;
 
     const els = {
         app: document.getElementById("app"),
+        readerShell: document.getElementById("readerShell"),
         topbarTitle: document.getElementById("topbarTitle"),
         currentPage: document.getElementById("currentPage"),
         prevPage: document.getElementById("prevPage"),
@@ -336,7 +310,6 @@
     };
 
     const stage = document.querySelector(".stage");
-    let readerResizeObserver = null;
 
     const imageViewerGesture = {
         scale: 1,
@@ -647,10 +620,7 @@
         image.style.removeProperty("height");
     }
 
-    function fitImageBlockToCurrentPage(
-        figure,
-        minScale = 0.65
-    ) {
+    function fitImageBlockToCurrentPage(figure, minScale = 0.65) {
         const frame = figure.querySelector(".book-image-frame");
         const image = frame?.querySelector("img");
         if (!frame || !image) return false;
@@ -718,15 +688,11 @@
         els.measureBody.appendChild(node);
 
         if (fitsMeasureBody()) return;
-
         if (fitImageBlockToCurrentPage(node)) return;
 
         moveBlockToNewPage(node, chapterIndex);
 
-        if (
-            !fitsMeasureBody() &&
-            !fitImageBlockToCurrentPage(node, 0)
-        ) {
+        if (!fitsMeasureBody() && !fitImageBlockToCurrentPage(node, 0)) {
             throw new Error(
                 `Image block cannot fit on an empty page: ${block.src}`
             );
@@ -797,9 +763,7 @@
             const fullNode = createParagraph(remaining, continuation);
             els.measureBody.appendChild(fullNode);
 
-            if (fitsMeasureBody()) {
-                return;
-            }
+            if (fitsMeasureBody()) return;
 
             fullNode.remove();
 
@@ -973,8 +937,8 @@
         const page = state.pages[state.currentPage];
         const chapterIndex = page?.type === "cover" ? -1 : (page?.chapterIndex ?? 0);
 
-        els.tocList.querySelectorAll(".toc-button").forEach((btn, idx) => {
-            btn.classList.toggle("active", idx === chapterIndex);
+        els.tocList.querySelectorAll(".toc-button").forEach((button, index) => {
+            button.classList.toggle("active", index === chapterIndex);
         });
     }
 
@@ -995,7 +959,7 @@
         });
     }
 
-    function updateReadingPositionUI(sliderValue = null) {
+    function updateReadingPositionUI() {
         const readingPage =
             state.mode === "normal" &&
             isSpreadView() &&
@@ -1006,18 +970,14 @@
                 )
                 : state.currentPage;
 
-        els.pageSlider.value = String(sliderValue ?? readingPage + 1);
+        els.pageSlider.value = String(readingPage + 1);
         els.pageCounter.textContent = `${readingPage + 1}/${state.pages.length}`;
         els.topbarTitle.textContent = currentChapterTitle();
         updateTocHighlight();
         storage.set(STORAGE.currentPage, state.currentPage);
     }
 
-    function setCurrentPage(index, {
-        render = false,
-        syncUI = true,
-        sliderValue = null
-    } = {}) {
+    function setCurrentPage(index, { render = false, syncUI = true } = {}) {
         state.currentPage = clampPageIndex(index);
 
         if (render) {
@@ -1025,7 +985,7 @@
         }
 
         if (syncUI) {
-            updateReadingPositionUI(sliderValue);
+            updateReadingPositionUI();
         }
     }
 
@@ -1138,21 +1098,6 @@
         return overviewInteraction.step;
     }
 
-    function setOverviewSnapSuppressed(suppressed) {
-        els.overviewScroller.classList.toggle(
-            "slider-dragging",
-            suppressed
-        );
-    }
-
-    function cancelOverviewNavigation() {
-        if (!overviewInteraction.navigationRaf) return;
-
-        cancelAnimationFrame(overviewInteraction.navigationRaf);
-        overviewInteraction.navigationRaf = 0;
-        setOverviewSnapSuppressed(false);
-    }
-
     function getOverviewScrollLeftForPage(index) {
         const step = getOverviewStep();
         if (step == null) return null;
@@ -1164,118 +1109,23 @@
         const left = getOverviewScrollLeftForPage(index);
         if (left == null) return;
 
-        els.overviewScroller.scrollTo({
-            left,
-            behavior
-        });
-    }
-
-    function scrollOverviewToPageAnimated(index) {
-        const targetIndex = clampPageIndex(index);
-        const targetLeft = getOverviewScrollLeftForPage(targetIndex);
-
-        if (targetLeft == null) return;
-
-        cancelOverviewNavigation();
-
-        const scroller = els.overviewScroller;
-        const startLeft = scroller.scrollLeft;
-        const distance = Math.abs(targetLeft - startLeft);
-
-        if (distance < 1) {
-            setCurrentPage(targetIndex);
-            scrollOverviewToPage(targetIndex);
-            return;
-        }
-
-        const duration = clamp(
-            CONFIG.overview.navigationBaseDuration +
-            distance / Math.max(1, scroller.clientWidth) *
-            CONFIG.overview.navigationPerViewport,
-            CONFIG.overview.navigationMinDuration,
-            CONFIG.overview.navigationMaxDuration
-        );
-
-        const startTime = performance.now();
-        setOverviewSnapSuppressed(true);
-
-        const tick = (now) => {
-            const progress = clamp(
-                (now - startTime) / duration,
-                0,
-                1
-            );
-            const eased = progress < 0.5
-                ? 4 * progress * progress * progress
-                : 1 - Math.pow(-2 * progress + 2, 3) / 2;
-
-            scroller.scrollLeft =
-                startLeft +
-                (targetLeft - startLeft) * eased;
-
-            if (progress < 1) {
-                overviewInteraction.navigationRaf = requestAnimationFrame(tick);
-                return;
-            }
-
-            overviewInteraction.navigationRaf = 0;
-            setOverviewSnapSuppressed(false);
-            setCurrentPage(targetIndex);
-            scrollOverviewToPage(targetIndex);
-        };
-
-        overviewInteraction.navigationRaf = requestAnimationFrame(tick);
-    }
-
-    function syncOverviewPosition(fractionalIndex) {
-        const sliderValue = fractionalIndex + 1;
-        const nearestIndex = clampPageIndex(Math.round(fractionalIndex));
-
-        if (nearestIndex === state.currentPage) {
-            els.pageSlider.value = String(sliderValue);
-            return;
-        }
-
-        setCurrentPage(nearestIndex, { sliderValue });
-    }
-
-    function queueOverviewSliderPosition() {
-        if (overviewInteraction.sliderRaf) return;
-
-        overviewInteraction.sliderRaf = requestAnimationFrame(() => {
-            overviewInteraction.sliderRaf = 0;
-
-            const step = getOverviewStep();
-            if (step == null) return;
-
-            const sliderValue = clamp(
-                Number(els.pageSlider.value),
-                1,
-                Math.max(1, state.pages.length)
-            );
-            const fractionalIndex = sliderValue - 1;
-
-            els.overviewScroller.scrollLeft = fractionalIndex * step;
-            syncOverviewPosition(fractionalIndex);
-        });
+        els.overviewScroller.scrollTo({ left, behavior });
     }
 
     function syncPageFromOverviewScroll() {
-        if (overviewInteraction.sliderDragging) return;
-
         cancelAnimationFrame(overviewInteraction.scrollRaf);
 
         overviewInteraction.scrollRaf = requestAnimationFrame(() => {
             const step = getOverviewStep();
             if (!step || step <= 0) return;
 
-            const fractionalIndex = clamp(
-                els.overviewScroller.scrollLeft / step,
-                0,
-                Math.max(0, state.pages.length - 1)
+            const index = clampPageIndex(
+                Math.round(els.overviewScroller.scrollLeft / step)
             );
 
-            syncOverviewPosition(fractionalIndex);
+            if (index !== state.currentPage) {
+                setCurrentPage(index);
+            }
         });
     }
 
@@ -1295,166 +1145,6 @@
         return new Promise((resolve) => {
             requestAnimationFrame(() => requestAnimationFrame(resolve));
         });
-    }
-
-    const MORPH_ANIMATION_OPTIONS = {
-        duration: CONFIG.overview.transitionDuration,
-        easing: CONFIG.overview.transitionEasing,
-        fill: "forwards"
-    };
-
-    function getOverviewMorphTransforms() {
-        const scale = parseFloat(cssVar("--overview-scale"));
-        const step = getOverviewStep();
-
-        return {
-            current: `translate3d(0,0,0) scale(${scale})`,
-            prev: `translate3d(${-step}px,0,0) scale(${scale})`,
-            next: `translate3d(${step}px,0,0) scale(${scale})`
-        };
-    }
-
-    function setMorphStart(toOverview, transforms) {
-        const full = "translate3d(0,0,0) scale(1)";
-        stage.classList.toggle("morph-elevated", !toOverview);
-
-        els.currentPage.style.transform =
-            toOverview ? full : transforms.current;
-        els.currentPage.style.opacity = "1";
-
-        [
-            [els.prevPage, transforms.prev, state.currentPage > 0],
-            [
-                els.nextPage,
-                transforms.next,
-                state.currentPage < state.pages.length - 1
-            ]
-        ].forEach(([card, transform, visible]) => {
-            card.style.transform = transform;
-            card.style.opacity = String(toOverview ? 0 : visible ? 1 : 0);
-        });
-    }
-
-    function createMorphAnimations(toOverview, transforms) {
-        const full = "translate3d(0,0,0) scale(1)";
-        stage.classList.toggle("morph-elevated", toOverview);
-
-        const animations = [
-            els.currentPage.animate(
-                toOverview
-                    ? [
-                        { transform: full },
-                        { transform: transforms.current }
-                    ]
-                    : [
-                        { transform: transforms.current },
-                        { transform: full }
-                    ],
-                MORPH_ANIMATION_OPTIONS
-            )
-        ];
-
-        const sideFrames = toOverview
-            ? [
-                { opacity: 0 },
-                { opacity: 0, offset: 0.35 },
-                { opacity: 1 }
-            ]
-            : [
-                { opacity: 1 },
-                { opacity: 0, offset: 0.60 },
-                { opacity: 0 }
-            ];
-
-        [
-            [els.prevPage, state.currentPage > 0],
-            [els.nextPage, state.currentPage < state.pages.length - 1]
-        ].forEach(([card, visible]) => {
-            if (visible) {
-                animations.push(
-                    card.animate(sideFrames, MORPH_ANIMATION_OPTIONS)
-                );
-            }
-        });
-
-        return animations;
-    }
-
-    function prepareStageMorph() {
-        resetStackTurn();
-        stage.classList.add("mode-morph");
-
-        [
-            [els.prevPage, 2],
-            [els.nextPage, 2],
-            [els.currentPage, 4]
-        ].forEach(([card, zIndex]) => {
-            card.style.zIndex = String(zIndex);
-        });
-    }
-
-    function clearMorphCard(card) {
-        [
-            "z-index",
-            "transform",
-            "opacity"
-        ].forEach((property) => card.style.removeProperty(property));
-    }
-
-    function waitForAnimations(animations) {
-        return Promise.allSettled(
-            animations.map((animation) => animation.finished)
-        );
-    }
-
-    function cleanupModeMorph(animations) {
-        animations.forEach((animation) => animation.cancel());
-        stage.classList.remove("mode-morph", "morph-elevated");
-
-        [
-            els.prevPage,
-            els.currentPage,
-            els.nextPage
-        ].forEach(clearMorphCard);
-    }
-
-    async function transitionMode(mode) {
-        const toOverview = mode === "overview";
-
-        closeOverlays();
-        modeTransitioning = true;
-
-        ensureOverviewStrip();
-        if (toOverview) {
-            updateOverviewGeometry();
-        }
-        scrollOverviewToPage(state.currentPage, "auto");
-        await nextPaint();
-
-        if (!toOverview) {
-            setCurrentPage(state.currentPage, { render: true });
-        }
-
-        const transforms = getOverviewMorphTransforms();
-        prepareStageMorph();
-
-        setMorphStart(toOverview, transforms);
-        await nextPaint();
-
-        if (!toOverview) {
-            applyAppMode(mode);
-        }
-
-        const animations = createMorphAnimations(toOverview, transforms);
-        await waitForAnimations(animations);
-
-        if (toOverview) {
-            applyAppMode(mode);
-            await nextPaint();
-        }
-
-        cleanupModeMorph(animations);
-        modeTransitioning = false;
     }
 
     function updateOverviewButton() {
@@ -1483,25 +1173,62 @@
         closeToc();
     }
 
-    function setMode(mode) {
+    async function fadeModeChange(changeMode) {
+        const reducedMotion = window.matchMedia(
+            "(prefers-reduced-motion: reduce)"
+        ).matches;
+
+        if (reducedMotion || !els.readerShell.animate) {
+            changeMode();
+            return;
+        }
+
+        const options = {
+            duration: CONFIG.overview.fadeDuration,
+            easing: "ease",
+            fill: "forwards"
+        };
+
+        const fadeOut = els.readerShell.animate(
+            [{ opacity: 1 }, { opacity: 0 }],
+            options
+        );
+        await fadeOut.finished.catch(() => { });
+
+        changeMode();
+
+        const fadeIn = els.readerShell.animate(
+            [{ opacity: 0 }, { opacity: 1 }],
+            options
+        );
+        await fadeIn.finished.catch(() => { });
+
+        fadeOut.cancel();
+        fadeIn.cancel();
+    }
+
+    async function setMode(mode) {
         if (mode === state.mode || modeTransitioning) return;
 
-        if (isSpreadView()) {
-            closeOverlays();
+        closeOverlays();
+        modeTransitioning = true;
 
+        const changeMode = () => {
             if (mode === "overview") {
                 ensureOverviewStrip();
                 updateOverviewGeometry();
                 scrollOverviewToPage(state.currentPage, "auto");
-                applyAppMode("overview");
             } else {
-                setCurrentPage(state.currentPage, { render: true });
-                applyAppMode("normal");
+                renderPageStack();
             }
-            return;
-        }
+            applyAppMode(mode);
+        };
 
-        transitionMode(mode);
+        try {
+            await fadeModeChange(changeMode);
+        } finally {
+            modeTransitioning = false;
+        }
     }
 
     function buildToc() {
@@ -1518,10 +1245,7 @@
         els.tocList.replaceChildren(fragment);
     }
 
-    function setFontCss(size, {
-        visible = true,
-        measure = true
-    } = {}) {
+    function setFontCss(size, { visible = true, measure = true } = {}) {
         if (visible) {
             document.documentElement.style.setProperty(
                 "--reader-font-size",
@@ -1746,10 +1470,9 @@
             return;
         }
 
-        scrollOverviewToPage(
-            clampPageIndex(state.currentPage + delta),
-            "smooth"
-        );
+        const target = clampPageIndex(state.currentPage + delta);
+        setCurrentPage(target);
+        scrollOverviewToPage(target, "smooth");
     }
 
     els.overviewStrip.addEventListener("click", (event) => {
@@ -1778,15 +1501,13 @@
             return;
         }
 
-        if (isSpreadView()) {
-            setCurrentPage(targetPage, { render: true });
-            applyAppMode("normal");
-            return;
-        }
+        setCurrentPage(targetPage);
 
-        requestAnimationFrame(() => {
-            scrollOverviewToPageAnimated(targetPage);
-        });
+        if (isSpreadView()) {
+            setMode("normal");
+        } else {
+            scrollOverviewToPage(targetPage, "smooth");
+        }
     });
 
     function handleReaderTap(x) {
@@ -1949,58 +1670,16 @@
         { passive: true }
     );
 
-    els.overviewScroller.addEventListener(
-        "pointerdown",
-        cancelOverviewNavigation,
-        { passive: true }
-    );
-
-    els.pageSlider.addEventListener("pointerdown", () => {
-        if (state.mode !== "overview") return;
-
-        cancelOverviewNavigation();
-        overviewInteraction.sliderDragging = true;
-        setOverviewSnapSuppressed(true);
-    });
-
     els.pageSlider.addEventListener("input", (event) => {
-        const position = Number(event.target.value);
+        const target = clampPageIndex(Number(event.target.value) - 1);
+
+        setCurrentPage(target, {
+            render: state.mode === "normal"
+        });
 
         if (state.mode === "overview") {
-            queueOverviewSliderPosition();
-            return;
+            scrollOverviewToPage(target, "auto");
         }
-
-        setCurrentPage(Math.round(position) - 1, { render: true });
-    });
-
-    function finishSliderDrag() {
-        if (!overviewInteraction.sliderDragging) return;
-
-        overviewInteraction.sliderDragging = false;
-        setOverviewSnapSuppressed(false);
-
-        cancelAnimationFrame(overviewInteraction.sliderRaf);
-        overviewInteraction.sliderRaf = 0;
-
-        const fractionalIndex = clamp(
-            Number(els.pageSlider.value) - 1,
-            0,
-            Math.max(0, state.pages.length - 1)
-        );
-
-        const target = Math.round(fractionalIndex);
-
-        setCurrentPage(target);
-        scrollOverviewToPage(target, "smooth");
-    }
-
-    [
-        "pointerup",
-        "pointercancel",
-        "change"
-    ].forEach((type) => {
-        els.pageSlider.addEventListener(type, finishSliderDrag);
     });
 
     els.displayPopover.addEventListener("beforetoggle", (event) => {
