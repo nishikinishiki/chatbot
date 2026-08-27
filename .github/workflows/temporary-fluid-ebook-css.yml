@@ -1,0 +1,187 @@
+name: Temporary fluid ebook CSS refactor
+
+on:
+  push:
+    paths:
+      - .github/workflows/temporary-fluid-ebook-css.yml
+
+permissions:
+  contents: write
+
+jobs:
+  refactor:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+
+      - name: Make one-page layout fluid
+        shell: bash
+        run: |
+          python - <<'PY'
+          from pathlib import Path
+
+          path = Path('zz_ebook/shared/style.css')
+          css = path.read_text(encoding='utf-8')
+
+          def replace_once(old, new, label):
+              global css
+              count = css.count(old)
+              if count != 1:
+                  raise SystemExit(f'{label}: expected 1 match, found {count}')
+              css = css.replace(old, new, 1)
+
+          replace_once(
+              '''    --page-padding-x: 48px;
+    --page-padding-top: 50px;
+    --page-padding-bottom: 50px;
+    --bar-height: 72px;
+    --reader-page-width: 100vw;
+
+    /* Shared control dimensions */
+    --control-size: 40px;
+    --control-icon-size: 24px;
+    --toc-hit-size: 56px;
+
+    /* Overview */
+    --overview-gap: 28px;''',
+              '''    --page-padding-x: clamp(24px, calc(10px + 3.8vw), 48px);
+    --page-padding-y: clamp(40px, calc(34px + 1.6vw), 50px);
+    --bar-height: clamp(60px, calc(52px + 2vw), 72px);
+    --reader-page-width: 100vw;
+
+    /* Shared control dimensions */
+    --control-size: clamp(36px, calc(34px + 0.6vw), 40px);
+    --control-icon-size: clamp(21px, calc(19.5px + 0.45vw), 24px);
+    --toc-hit-size: clamp(48px, calc(43.5px + 1.2vw), 56px);
+
+    /* Overview */
+    --overview-gap: clamp(18px, calc(12.5px + 1.5vw), 28px);''',
+              'fluid root dimensions'
+          )
+
+          replace_once(
+              '''    padding:
+        calc(env(safe-area-inset-top, 0px) + var(--page-padding-top)) var(--page-padding-x) calc(env(safe-area-inset-bottom, 0px) + var(--page-padding-bottom)) var(--page-padding-x);''',
+              '''    padding:
+        calc(env(safe-area-inset-top, 0px) + var(--page-padding-y)) var(--page-padding-x) calc(env(safe-area-inset-bottom, 0px) + var(--page-padding-y)) var(--page-padding-x);''',
+              'merge vertical page padding'
+          )
+
+          replace_once('''    gap: 2px;\n}\n\n.bottom-bar {''', '''    gap: clamp(0px, calc(-1px + 0.3vw), 2px);\n}\n\n.bottom-bar {''', 'fluid topbar action gap')
+          replace_once('''    gap: 16px;\n    padding: 0 16px env(safe-area-inset-bottom, 0px);''', '''    gap: clamp(4px, calc(-3px + 2vw), 16px);\n    padding: 0 16px env(safe-area-inset-bottom, 0px);''', 'fluid bottom bar gap')
+          replace_once(
+              '''    padding: 0 10px;
+    border-radius: var(--radius-pill);
+    font-size: 18px;''',
+              '''    padding: 0 clamp(8px, calc(6.8px + 0.3vw), 10px);
+    border-radius: var(--radius-pill);
+    font-size: clamp(16px, calc(15px + 0.3vw), 18px);''',
+              'fluid text button'
+          )
+          replace_once(
+              '''.page-counter {
+    min-width: 68px;
+    font-size: 16px;''',
+              '''.page-counter {
+    min-width: clamp(54px, calc(46px + 2vw), 68px);
+    font-size: clamp(14px, calc(13px + 0.3vw), 16px);''',
+              'fluid page counter'
+          )
+          replace_once('''.book-image-block {
+    margin: 1.25em 0;
+}''', '''.book-image-block {
+    margin: clamp(1em, calc(0.85em + 0.6vw), 1.25em) 0;
+}''', 'fluid image block margin')
+          replace_once('''    font-size: 0.85em;
+    line-height: 1.5;
+    text-align: center;''', '''    font-size: clamp(0.75em, calc(0.69em + 0.25vw), 0.85em);
+    line-height: 1.5;
+    text-align: center;''', 'fluid image caption')
+          replace_once(
+              ''':where(.page-body, .measure-body) h1 {
+    margin: 0 0 1.5em;''',
+              ''':where(.page-body, .measure-body) h1 {
+    margin: 0 0 clamp(1em, calc(0.5em + 2vw), 1.5em);''',
+              'fluid heading spacing'
+          )
+
+          mobile_block = '''@media (max-width: 720px) {
+    :root {
+        --bar-height: 60px;
+        --control-size: 36px;
+        --control-icon-size: 21px;
+        --toc-hit-size: 48px;
+        --overview-gap: 18px;
+        --page-padding-x: 24px;
+        --page-padding-top: 40px;
+        --page-padding-bottom: 40px;
+    }
+
+    .book-image-caption {
+        font-size: 0.75em;
+    }
+
+    .book-image-block {
+        margin: 1em 0;
+    }
+
+    .topbar__actions {
+        gap: 0;
+    }
+
+    .text-button {
+        padding: 0 8px;
+        font-size: 16px;
+    }
+
+    .bottom-bar {
+        gap: 4px;
+    }
+
+    .page-counter {
+        min-width: 54px;
+        font-size: 14px;
+    }
+
+    :where(.page-body, .measure-body) h1 {
+        margin: 0 0 1em;
+    }
+}
+
+'''
+          replace_once(mobile_block, '', 'remove device-specific mobile breakpoint')
+
+          css = css.replace('@media (min-width: 1024px) {', '/* Switch to a two-page spread only when the viewport is wide enough. */\n@media (min-width: 1024px) {', 1)
+
+          path.write_text(css, encoding='utf-8')
+          PY
+
+      - name: Validate CSS structure
+        shell: bash
+        run: |
+          ! grep -q '@media (max-width: 720px)' zz_ebook/shared/style.css
+          ! grep -q -- '--page-padding-top\|--page-padding-bottom' zz_ebook/shared/style.css
+          grep -q -- '--page-padding-y:' zz_ebook/shared/style.css
+          grep -q 'clamp(24px' zz_ebook/shared/style.css
+          grep -q '@media (min-width: 1024px)' zz_ebook/shared/style.css
+          python - <<'PY'
+          from pathlib import Path
+          css = Path('zz_ebook/shared/style.css').read_text(encoding='utf-8')
+          depth = 0
+          for ch in css:
+              if ch == '{': depth += 1
+              elif ch == '}': depth -= 1
+              if depth < 0: raise SystemExit('unbalanced CSS braces')
+          if depth != 0: raise SystemExit('unbalanced CSS braces')
+          PY
+
+      - name: Validate JavaScript
+        run: node --check zz_ebook/shared/viewer.js
+
+      - name: Commit refactor
+        run: |
+          git config user.name "github-actions[bot]"
+          git config user.email "41898282+github-actions[bot]@users.noreply.github.com"
+          git add zz_ebook/shared/style.css
+          git commit -m "Make ebook layout fluid below spread mode"
+          git push
