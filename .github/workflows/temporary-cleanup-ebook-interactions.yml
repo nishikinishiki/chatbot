@@ -1,0 +1,44 @@
+name: Temporary cleanup ebook interactions
+
+on:
+  push:
+    paths:
+      - .github/workflows/temporary-cleanup-ebook-interactions.yml
+      - .github/scripts/temporary_cleanup_ebook_interactions.py
+
+permissions:
+  contents: write
+
+jobs:
+  cleanup:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+
+      - name: Apply cleanup
+        run: python .github/scripts/temporary_cleanup_ebook_interactions.py
+
+      - name: Validate JavaScript
+        run: node --check zz_ebook/shared/viewer.js
+
+      - name: Validate cleanup
+        shell: bash
+        run: |
+          ! grep -q 'edgeResistance' zz_ebook/shared/viewer.js
+          ! grep -q 'dblclick' zz_ebook/shared/viewer.js
+          ! grep -q 'repaginate({' zz_ebook/shared/viewer.js
+          ! grep -q 'scroll snap' zz_ebook/shared/style.css
+          ! grep -q 'document.addEventListener("click"' zz_ebook/shared/viewer.js
+          grep -q 'function handleReaderPointerTap' zz_ebook/shared/viewer.js
+          grep -q 'repaginate("font")' zz_ebook/shared/viewer.js
+          grep -q 'repaginate("resize")' zz_ebook/shared/viewer.js
+          grep -q 'pointer.spread' zz_ebook/shared/viewer.js
+          grep -q 'Overview uses native horizontal scrolling.' zz_ebook/shared/style.css
+
+      - name: Commit cleanup
+        run: |
+          git config user.name "github-actions[bot]"
+          git config user.email "41898282+github-actions[bot]@users.noreply.github.com"
+          git add zz_ebook/shared/viewer.js zz_ebook/shared/style.css
+          git commit -m "Simplify ebook interaction handling"
+          git push
