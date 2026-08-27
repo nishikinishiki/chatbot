@@ -1,3 +1,4 @@
+# Temporary one-shot refactor script.
 from pathlib import Path
 
 path = Path("zz_ebook/shared/style.css")
