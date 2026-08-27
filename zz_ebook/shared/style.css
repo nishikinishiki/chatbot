@@ -16,11 +16,11 @@
     --shadow: 0 3px 14px rgba(0, 0, 0, 0.15);
 
     /* Reader dimensions */
-    --page-padding-x: 24px;
-    --page-padding-top: 24px;
-    --page-padding-bottom: 28px;
+    --page-padding-x: 48px;
+    --page-padding-top: 50px;
+    --page-padding-bottom: 50px;
     --topbar-height: 72px;
-    --bottombar-height: 82px;
+    --bottombar-height: 72px;
     --reader-page-width: 100vw;
 
     /* Shared control dimensions */
@@ -121,7 +121,7 @@ button {
 .topbar__title {
     min-width: 0;
     padding: 0 8px 0 4px;
-    font-size: 14px;
+    font-size: 16px;
     font-weight: 600;
     text-align: left;
     white-space: nowrap;
@@ -283,7 +283,7 @@ button {
 /* ---------- Book images ---------- */
 
 .book-image-block {
-    margin: 1em 0;
+    margin: 1.25em 0;
 }
 
 .book-image-frame {
@@ -327,7 +327,7 @@ button {
 .book-image-caption {
     margin-top: 0.5em;
     color: var(--text-secondary);
-    font-size: 0.75em;
+    font-size: 0.85em;
     line-height: 1.5;
     text-align: center;
     letter-spacing: 0;
@@ -665,8 +665,21 @@ button {
         --control-icon-size: 21px;
         --toc-hit-size: 48px;
         --overview-gap: 18px;
+        --page-padding-x: 24px;
         --page-padding-top: 40px;
         --page-padding-bottom: 40px;
+    }
+
+    .book-image-caption {
+        font-size: 0.75em;
+    }
+
+    .book-image-block {
+        margin: 1em 0;
+    }
+
+    .topbar__title {
+        font-weight: 600;
     }
 
     .topbar__actions {
@@ -684,9 +697,7 @@ button {
     }
 
     .bottom-bar {
-        padding-left: 8px;
-        padding-right: 8px;
-        gap: 8px;
+        gap: 4px;
     }
 
     .page-counter {
@@ -701,8 +712,6 @@ button {
 
 @media (min-width: 1024px) {
     :root {
-        --page-padding-top: 50px;
-        --page-padding-bottom: 50px;
         --reader-page-width: 50vw;
         --reader-content-max-width: 720px;
         --reader-gutter-padding: 64px;
@@ -923,7 +932,6 @@ button {
     left: 16px;
     color: rgba(255, 255, 255, 0.7);
     font-size: 12px;
-    line-height: 1.4;
     text-align: center;
     pointer-events: none;
 }
