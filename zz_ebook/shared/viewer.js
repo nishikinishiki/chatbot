@@ -189,7 +189,7 @@
       </main>
 
       <footer class="bottom-bar">
-        <input class="page-slider" id="pageSlider" type="range" min="1" max="1" step="1" value="1" />
+        <input class="page-slider" id="pageSlider" type="range" min="1" max="1" step="any" value="1" />
         <div class="page-counter" id="pageCounter">1/1</div>
       </footer>
 
@@ -213,7 +213,7 @@
       <div class="image-viewer__viewport" id="imageViewerViewport">
         <img class="image-viewer__image" id="imageViewerImage" alt="" draggable="false" />
       </div>
-      <div class="image-viewer__hint">ピンチ / ホイールで拡大</div>
+      <div class="image-viewer__hint">ピンチで拡大</div>
     </dialog>
 
     <div class="measure-host" aria-hidden="true">
@@ -511,24 +511,6 @@
     els.imageViewerViewport.addEventListener("pointerup", endImageViewerPointer);
     els.imageViewerViewport.addEventListener("pointercancel", endImageViewerPointer);
 
-    els.imageViewerViewport.addEventListener("wheel", (event) => {
-        if (!els.imageViewer.open) return;
-
-        event.preventDefault();
-
-        imageViewerGesture.scale = clamp(
-            imageViewerGesture.scale * (event.deltaY < 0 ? 1.18 : 0.85),
-            1,
-            4
-        );
-
-        if (imageViewerGesture.scale === 1) {
-            imageViewerGesture.x = 0;
-            imageViewerGesture.y = 0;
-        }
-
-        applyImageViewerTransform();
-    }, { passive: false });
 
     els.imageViewerImage.addEventListener("dblclick", (event) => {
         event.preventDefault();
@@ -1119,6 +1101,16 @@
             const step = getOverviewStep();
             if (!step || step <= 0) return;
 
+            const maxScroll = Math.max(
+                0,
+                els.overviewScroller.scrollWidth - els.overviewScroller.clientWidth
+            );
+            const progress = maxScroll > 0
+                ? els.overviewScroller.scrollLeft / maxScroll
+                : 0;
+            const sliderMax = Math.max(1, state.pages.length);
+            const sliderValue = 1 + progress * Math.max(0, sliderMax - 1);
+
             const index = clampPageIndex(
                 Math.round(els.overviewScroller.scrollLeft / step)
             );
@@ -1126,6 +1118,8 @@
             if (index !== state.currentPage) {
                 setCurrentPage(index);
             }
+
+            els.pageSlider.value = String(sliderValue);
         });
     }
 
@@ -1671,15 +1665,23 @@
     );
 
     els.pageSlider.addEventListener("input", (event) => {
-        const target = clampPageIndex(Number(event.target.value) - 1);
-
-        setCurrentPage(target, {
-            render: state.mode === "normal"
-        });
+        const value = Number(event.target.value);
 
         if (state.mode === "overview") {
-            scrollOverviewToPage(target, "auto");
+            const sliderMax = Math.max(1, state.pages.length);
+            const progress = sliderMax > 1
+                ? clamp((value - 1) / (sliderMax - 1), 0, 1)
+                : 0;
+            const maxScroll = Math.max(
+                0,
+                els.overviewScroller.scrollWidth - els.overviewScroller.clientWidth
+            );
+
+            els.overviewScroller.scrollLeft = progress * maxScroll;
+            return;
         }
+
+        setCurrentPage(Math.round(value) - 1, { render: true });
     });
 
     els.displayPopover.addEventListener("beforetoggle", (event) => {
