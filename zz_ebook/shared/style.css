@@ -433,7 +433,6 @@ body.overview .stage {
     overflow-x: auto;
     overflow-y: hidden;
     overscroll-behavior-x: contain;
-    scroll-snap-type: x proximity;
     scrollbar-width: none;
     touch-action: pan-x;
     visibility: hidden;
@@ -459,7 +458,6 @@ body.overview .overview-scroller {
     position: relative;
     flex: 0 0 var(--overview-item-width);
     height: var(--overview-item-height);
-    scroll-snap-align: center;
 }
 
 .overview-item .page-card {
