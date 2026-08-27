@@ -677,43 +677,33 @@
             1
         );
 
-        if (scale < minScale) return false;
+        for (let attempt = 0; attempt < 4; attempt += 1) {
+            if (scale < minScale) {
+                resetImageBlockScale(figure);
+                return false;
+            }
 
-        applyImageBlockScale(
-            figure,
-            scale,
-            frameRect.width,
-            imageRect.height
-        );
-        if (fitsMeasureBody()) return true;
+            applyImageBlockScale(
+                figure,
+                scale,
+                frameRect.width,
+                imageRect.height
+            );
 
-        const overflow = Math.max(
-            0,
-            els.measureBody.scrollHeight - els.measureBody.clientHeight
-        );
-        scale = clamp(
-            scale - (overflow + 1) / imageRect.height,
-            0,
-            1
-        );
+            if (fitsMeasureBody()) return true;
 
-        if (scale < minScale) {
-            resetImageBlockScale(figure);
-            return false;
+            const overflow = Math.max(
+                0,
+                els.measureBody.scrollHeight - els.measureBody.clientHeight
+            );
+            scale = clamp(
+                scale - (overflow + 1) / imageRect.height,
+                0,
+                1
+            );
         }
 
-        applyImageBlockScale(
-            figure,
-            scale,
-            frameRect.width,
-            imageRect.height
-        );
-
-        if (fitsMeasureBody()) return true;
-
-        if (minScale > 0) {
-            resetImageBlockScale(figure);
-        }
+        resetImageBlockScale(figure);
         return false;
     }
 
@@ -733,8 +723,13 @@
 
         moveBlockToNewPage(node, chapterIndex);
 
-        if (!fitsMeasureBody()) {
-            fitImageBlockToCurrentPage(node, 0);
+        if (
+            !fitsMeasureBody() &&
+            !fitImageBlockToCurrentPage(node, 0)
+        ) {
+            throw new Error(
+                `Image block cannot fit on an empty page: ${block.src}`
+            );
         }
     }
 
