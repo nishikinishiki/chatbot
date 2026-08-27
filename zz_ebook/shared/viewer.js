@@ -27,8 +27,7 @@
             duration: cssTimeMs("--page-turn-duration", 220),
             thresholdRatio: 0.18,
             flickVelocity: 0.42,
-            flickDistance: 24,
-            edgeResistance: 0.15
+            flickDistance: 24
         },
         overview: {
             minScale: 0.56,
@@ -408,17 +407,6 @@
         } catch (_) { }
     }
 
-    document.addEventListener("click", (event) => {
-        if (!isSpreadView()) return;
-
-        const image = getReaderImage(event.target);
-        if (!image) return;
-
-        event.preventDefault();
-        event.stopPropagation();
-        openImageViewer(image);
-    }, true);
-
     els.imageViewer.addEventListener("close", resetImageViewerTransform);
     els.imageViewerClose.addEventListener("click", closeImageViewer);
 
@@ -507,17 +495,6 @@
 
     els.imageViewerViewport.addEventListener("pointerup", endImageViewerPointer);
     els.imageViewerViewport.addEventListener("pointercancel", endImageViewerPointer);
-
-
-    els.imageViewerImage.addEventListener("dblclick", (event) => {
-        event.preventDefault();
-        event.stopPropagation();
-
-        imageViewerGesture.scale = imageViewerGesture.scale > 1 ? 1 : 2;
-        imageViewerGesture.x = 0;
-        imageViewerGesture.y = 0;
-        applyImageViewerTransform();
-    });
 
     function createTextElement(tag, text, className = "") {
         const element = document.createElement(tag);
@@ -1263,15 +1240,13 @@
         });
     }
 
-    function repaginate({
-        anchorChapterStart = false,
-        deferVisibleFont = false,
-        showLoading = false
-    } = {}) {
+    function repaginate(reason) {
+        const fontChange = reason === "font";
+        const resize = reason === "resize";
         const pageCount = Math.max(state.pages.length, 1);
         const currentPage = state.pages[state.currentPage];
         const chapterIndex =
-            anchorChapterStart &&
+            fontChange &&
             Number.isInteger(currentPage?.chapterIndex) &&
             state.chapterStarts[currentPage.chapterIndex] === state.currentPage
                 ? currentPage.chapterIndex
@@ -1280,13 +1255,13 @@
             ? 0
             : state.currentPage / (pageCount - 1);
 
-        if (deferVisibleFont) {
+        if (fontChange) {
             setFontCss(state.fontSize, { visible: false, measure: true });
         } else {
             setFontCss(state.fontSize);
         }
 
-        if (showLoading) {
+        if (resize) {
             els.loading.hidden = false;
         }
 
@@ -1305,7 +1280,7 @@
 
             setCurrentPage(nextPage, { syncUI: false });
 
-            if (deferVisibleFont) {
+            if (fontChange) {
                 setFontCss(state.fontSize, { visible: true, measure: false });
             }
 
@@ -1313,7 +1288,7 @@
             updateReadingPositionUI();
             refreshOverviewAfterPagination();
 
-            if (showLoading) {
+            if (resize) {
                 els.loading.hidden = true;
             }
         });
@@ -1331,10 +1306,7 @@
             return;
         }
 
-        repaginate({
-            anchorChapterStart: true,
-            deferVisibleFont: true
-        });
+        repaginate("font");
     }
 
     function closeDisplayPopover() {
@@ -1511,35 +1483,37 @@
         }
     }
 
-    stage.addEventListener("click", (event) => {
-        if (
-            !isSpreadView() ||
-            state.mode !== "normal" ||
-            modeTransitioning
-        ) return;
+    function handleReaderPointerTap(pointer, x) {
+        if (pointer.image) {
+            openImageViewer(pointer.image);
+            return;
+        }
 
-        handleReaderTap(event.clientX);
-    });
+        handleReaderTap(x);
+    }
 
     stage.addEventListener("pointerdown", (event) => {
         if (
-            isSpreadView() ||
             state.mode !== "normal" ||
             readerInteraction.isTurning ||
             modeTransitioning
         ) return;
         if (event.pointerType === "mouse" && event.button !== 0) return;
 
+        const spread = isSpreadView();
         readerInteraction.pointer = {
             id: event.pointerId,
             x: event.clientX,
             y: event.clientY,
             time: performance.now(),
-            image: getReaderImage(event.target)
+            image: getReaderImage(event.target),
+            spread
         };
         readerInteraction.dragging = false;
 
-        resetStackTurn();
+        if (!spread) {
+            resetStackTurn();
+        }
 
         try {
             stage.setPointerCapture(event.pointerId);
@@ -1553,6 +1527,7 @@
             state.mode !== "normal" ||
             readerInteraction.isTurning ||
             !pointer ||
+            pointer.spread ||
             pointer.id !== event.pointerId
         ) {
             return;
@@ -1573,16 +1548,13 @@
 
         if (dx < 0) {
             stage.classList.remove("turn-prev");
-
-            if (state.currentPage === state.pages.length - 1) {
-                setDragX(dx * CONFIG.pageTurn.edgeResistance);
-            } else {
-                setDragX(dx);
-            }
+            setDragX(
+                state.currentPage === state.pages.length - 1 ? 0 : dx
+            );
         } else {
             if (state.currentPage === 0) {
                 stage.classList.remove("turn-prev");
-                setDragX(dx * CONFIG.pageTurn.edgeResistance);
+                setDragX(0);
             } else {
                 stage.classList.add("turn-prev");
                 const returnX = -window.innerWidth + dx;
@@ -1613,13 +1585,8 @@
             stage.releasePointerCapture(event.pointerId);
         } catch (_) { }
 
-        if (!readerInteraction.dragging) {
-            if (pointer.image) {
-                openImageViewer(pointer.image);
-                return;
-            }
-
-            handleReaderTap(event.clientX);
+        if (pointer.spread || !readerInteraction.dragging) {
+            handleReaderPointerTap(pointer, event.clientX);
             return;
         }
 
@@ -1692,7 +1659,7 @@
     function scheduleRepagination() {
         clearTimeout(resizeTimer);
         resizeTimer = setTimeout(() => {
-            repaginate({ showLoading: true });
+            repaginate("resize");
         }, 160);
     }
 

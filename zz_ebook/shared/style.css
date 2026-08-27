@@ -421,7 +421,7 @@ body.overview {
     );
 }
 
-/* Overview uses native horizontal scrolling + scroll snap. */
+/* Overview uses native horizontal scrolling. */
 body.overview .stage {
     display: none;
 }
