@@ -39,7 +39,6 @@
     --ease-standard: cubic-bezier(.22, .61, .36, 1);
     --ease-page-turn: cubic-bezier(.2, .72, .28, 1);
     --page-turn-duration: 220ms;
-    --overview-transition-duration: 400ms;
 
     --reader-viewport-height:
         calc(
@@ -798,42 +797,10 @@ button {
     border-radius: var(--radius-pill);
 }
 
-/* ---------- Direct page → overview morph ---------- */
-
-.app .stage.mode-morph {
-    display: block;
-    z-index: 12;
-    overflow: hidden;
-    background: var(--overview-bg);
-}
-
-.stage.mode-morph .page-card {
-    top: 0;
-    left: 0;
-    transform-origin: center center;
-    border-radius: 0;
-    box-shadow: none;
-    transition:
-        border-radius var(--overview-transition-duration) var(--ease-standard),
-        box-shadow var(--overview-transition-duration) var(--ease-standard);
-    will-change: transform, opacity, box-shadow, border-radius;
-}
-
-.stage.mode-morph.morph-elevated .page-card {
-    border-radius: var(--overview-card-radius);
-    box-shadow: var(--shadow);
-}
-
 /* ---------- Overview control ---------- */
 
 #overviewButton.is-active {
     background: var(--ui-subtle);
-}
-
-/* ---------- Continuous overview scrubber ---------- */
-
-.overview-scroller.slider-dragging {
-    scroll-snap-type: none;
 }
 
 /* ---------- Image viewer ---------- */
