@@ -1,5 +1,6 @@
 name: Temporary cleanup ebook interactions
 
+# Trigger this temporary workflow once, then remove it.
 on:
   push:
     paths:
