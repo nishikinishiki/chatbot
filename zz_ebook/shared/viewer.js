@@ -263,6 +263,8 @@
         mode: "normal"
     };
 
+    const imageDimensions = new Map();
+
     const readerInteraction = {
         pointer: null,
         dragging: false,
@@ -527,6 +529,11 @@
         frame.className = "book-image-frame";
 
         const img = document.createElement("img");
+        const dimensions = imageDimensions.get(block.src);
+        if (dimensions) {
+            img.width = dimensions.width;
+            img.height = dimensions.height;
+        }
         img.src = block.src;
         img.alt = block.alt || "";
         img.draggable = false;
@@ -1296,6 +1303,7 @@
 
     function setFontSize(size, { repaginate: shouldRepaginate = true } = {}) {
         if (!CONFIG.font.sizes.includes(size)) return;
+        if (shouldRepaginate && size === state.fontSize) return;
 
         state.fontSize = size;
         updateFontButtons();
@@ -1745,10 +1753,20 @@
             )
         ].filter(Boolean));
 
-        return Promise.all([...sources].map((src) => {
+        return Promise.all([...sources].map(async (src) => {
             const image = new Image();
             image.src = src;
-            return image.decode().catch(() => { });
+
+            try {
+                await image.decode();
+            } catch (_) { }
+
+            if (image.naturalWidth > 0 && image.naturalHeight > 0) {
+                imageDimensions.set(src, {
+                    width: image.naturalWidth,
+                    height: image.naturalHeight
+                });
+            }
         }));
     }
 
