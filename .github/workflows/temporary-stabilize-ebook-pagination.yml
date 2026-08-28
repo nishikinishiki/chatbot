@@ -1,0 +1,70 @@
+name: Temporary stabilize ebook pagination
+
+on:
+  push:
+    paths:
+      - .github/workflows/temporary-stabilize-ebook-pagination.yml
+
+permissions:
+  contents: write
+
+jobs:
+  patch:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+
+      - name: Stabilize image dimensions and font repagination
+        run: |
+          python - <<'PY'
+          from pathlib import Path
+
+          path = Path('zz_ebook/shared/viewer.js')
+          text = path.read_text(encoding='utf-8')
+
+          state_marker = '''    const readerInteraction = {\n'''
+          dimensions = '''    const imageDimensions = new Map();\n\n'''
+          if text.count(state_marker) != 1:
+              raise SystemExit(f'readerInteraction marker count: {text.count(state_marker)}')
+          if 'const imageDimensions = new Map();' in text:
+              raise SystemExit('imageDimensions already exists')
+          text = text.replace(state_marker, dimensions + state_marker, 1)
+
+          old_image = '''        const img = document.createElement("img");\n        img.src = block.src;\n        img.alt = block.alt || "";\n        img.draggable = false;\n        frame.appendChild(img);\n'''
+          new_image = '''        const img = document.createElement("img");\n        const dimensions = imageDimensions.get(block.src);\n        if (dimensions) {\n            img.width = dimensions.width;\n            img.height = dimensions.height;\n        }\n        img.src = block.src;\n        img.alt = block.alt || "";\n        img.draggable = false;\n        frame.appendChild(img);\n'''
+          if text.count(old_image) != 1:
+              raise SystemExit(f'createImageBlock image snippet count: {text.count(old_image)}')
+          text = text.replace(old_image, new_image, 1)
+
+          old_font = '''    function setFontSize(size, { repaginate: shouldRepaginate = true } = {}) {\n        if (!CONFIG.font.sizes.includes(size)) return;\n\n        state.fontSize = size;\n'''
+          new_font = '''    function setFontSize(size, { repaginate: shouldRepaginate = true } = {}) {\n        if (!CONFIG.font.sizes.includes(size)) return;\n        if (shouldRepaginate && size === state.fontSize) return;\n\n        state.fontSize = size;\n'''
+          if text.count(old_font) != 1:
+              raise SystemExit(f'setFontSize snippet count: {text.count(old_font)}')
+          text = text.replace(old_font, new_font, 1)
+
+          old_preload = '''        return Promise.all([...sources].map((src) => {\n            const image = new Image();\n            image.src = src;\n            return image.decode().catch(() => { });\n        }));\n'''
+          new_preload = '''        return Promise.all([...sources].map(async (src) => {\n            const image = new Image();\n            image.src = src;\n\n            try {\n                await image.decode();\n            } catch (_) { }\n\n            if (image.naturalWidth > 0 && image.naturalHeight > 0) {\n                imageDimensions.set(src, {\n                    width: image.naturalWidth,\n                    height: image.naturalHeight\n                });\n            }\n        }));\n'''
+          if text.count(old_preload) != 1:
+              raise SystemExit(f'preload snippet count: {text.count(old_preload)}')
+          text = text.replace(old_preload, new_preload, 1)
+
+          path.write_text(text, encoding='utf-8')
+          PY
+
+      - name: Validate
+        run: |
+          node --check zz_ebook/shared/viewer.js
+          grep -q 'const imageDimensions = new Map();' zz_ebook/shared/viewer.js
+          grep -q 'const dimensions = imageDimensions.get(block.src);' zz_ebook/shared/viewer.js
+          grep -q 'img.width = dimensions.width;' zz_ebook/shared/viewer.js
+          grep -q 'img.height = dimensions.height;' zz_ebook/shared/viewer.js
+          grep -q 'if (shouldRepaginate && size === state.fontSize) return;' zz_ebook/shared/viewer.js
+          grep -q 'imageDimensions.set(src' zz_ebook/shared/viewer.js
+
+      - name: Commit
+        run: |
+          git config user.name "github-actions[bot]"
+          git config user.email "41898282+github-actions[bot]@users.noreply.github.com"
+          git add zz_ebook/shared/viewer.js
+          git commit -m "Stabilize ebook image pagination"
+          git push
