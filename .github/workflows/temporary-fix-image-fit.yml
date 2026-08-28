@@ -1,0 +1,62 @@
+name: Temporary fix ebook image fit
+
+on:
+  push:
+    paths:
+      - .github/workflows/temporary-fix-image-fit.yml
+
+permissions:
+  contents: write
+
+jobs:
+  patch:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+
+      - name: Fix image fit measurement
+        run: |
+          python - <<'PY'
+          from pathlib import Path
+
+          path = Path('zz_ebook/shared/viewer.js')
+          text = path.read_text(encoding='utf-8')
+
+          marker = '''    function fitImageBlockToCurrentPage(figure, minScale = 0.65) {\n'''
+          helper = '''    function fitsImageBlock(figure) {\n        const bodyRect = els.measureBody.getBoundingClientRect();\n        const figureRect = figure.getBoundingClientRect();\n\n        return figureRect.bottom <= bodyRect.bottom + 0.5;\n    }\n\n'''
+          if text.count(marker) != 1:
+              raise SystemExit(f'fitImageBlock marker count: {text.count(marker)}')
+          if 'function fitsImageBlock(figure)' in text:
+              raise SystemExit('fitsImageBlock already exists')
+          text = text.replace(marker, helper + marker, 1)
+
+          old_loop = '''            if (fitsMeasureBody()) return true;\n\n            const overflow = Math.max(\n                0,\n                els.measureBody.scrollHeight - els.measureBody.clientHeight\n            );\n'''
+          new_loop = '''            if (fitsImageBlock(figure)) return true;\n\n            const overflow = Math.max(\n                0,\n                figure.getBoundingClientRect().bottom - bodyRect.bottom\n            );\n'''
+          if text.count(old_loop) != 1:
+              raise SystemExit(f'image fit loop count: {text.count(old_loop)}')
+          text = text.replace(old_loop, new_loop, 1)
+
+          old_paginate = '''    function paginateImageBlock(block, chapterIndex) {\n        const node = createImageBlock(block);\n        els.measureBody.appendChild(node);\n\n        if (fitsMeasureBody()) return;\n        if (fitImageBlockToCurrentPage(node)) return;\n\n        moveBlockToNewPage(node, chapterIndex);\n    }\n'''
+          new_paginate = '''    function paginateImageBlock(block, chapterIndex) {\n        const node = createImageBlock(block);\n        els.measureBody.appendChild(node);\n\n        if (fitsImageBlock(node)) return;\n        if (fitImageBlockToCurrentPage(node)) return;\n\n        moveBlockToNewPage(node, chapterIndex);\n    }\n'''
+          if text.count(old_paginate) != 1:
+              raise SystemExit(f'paginateImageBlock count: {text.count(old_paginate)}')
+          text = text.replace(old_paginate, new_paginate, 1)
+
+          path.write_text(text, encoding='utf-8')
+          PY
+
+      - name: Validate
+        run: |
+          node --check zz_ebook/shared/viewer.js
+          grep -q 'function fitsImageBlock(figure)' zz_ebook/shared/viewer.js
+          grep -q 'if (fitsImageBlock(node)) return;' zz_ebook/shared/viewer.js
+          grep -q 'if (fitsImageBlock(figure)) return true;' zz_ebook/shared/viewer.js
+          ! grep -A20 'function fitImageBlockToCurrentPage' zz_ebook/shared/viewer.js | grep -q 'scrollHeight - els.measureBody.clientHeight'
+
+      - name: Commit
+        run: |
+          git config user.name "github-actions[bot]"
+          git config user.email "41898282+github-actions[bot]@users.noreply.github.com"
+          git add zz_ebook/shared/viewer.js
+          git commit -m "Fix ebook image fit measurement"
+          git push
