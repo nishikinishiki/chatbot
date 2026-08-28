@@ -233,10 +233,6 @@ body.overview {
     text-align: justify;
 }
 
-:where(.page-body, .measure-body) > :first-child {
-    margin-top: 0;
-}
-
 :where(.page-body, .measure-body) h1 {
     margin: 0 0 clamp(1em, calc(0.5em + 2vw), 1.5em);
     font-size: 1.25em;
@@ -320,6 +316,10 @@ body.overview {
     line-height: 1.5;
     text-align: center;
     letter-spacing: 0;
+}
+
+:where(.page-body, .measure-body) > :first-child {
+    margin-top: 0;
 }
 
 /* ---------- Full-page images / Cover ---------- */
