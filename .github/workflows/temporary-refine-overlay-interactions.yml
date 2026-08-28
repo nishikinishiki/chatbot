@@ -1,0 +1,57 @@
+name: Temporary refine ebook overlay interactions
+
+on:
+  push:
+    paths:
+      - .github/workflows/temporary-refine-overlay-interactions.yml
+
+permissions:
+  contents: write
+
+jobs:
+  patch:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+
+      - name: Refine overlay interactions
+        run: |
+          python - <<'PY'
+          from pathlib import Path
+
+          path = Path('zz_ebook/shared/style.css')
+          css = path.read_text(encoding='utf-8')
+
+          replacements = [
+              ('transform: translateY(-7px) scale(0.975);', 'transform: translateY(-7px);', 2),
+              ('    transform-origin: top right;\n', '', 1),
+              ('transform: translateY(0) scale(1);', 'transform: translateY(0);', 1),
+              ('    background: transparent;\n    transition:\n', '    background: transparent;\n    pointer-events: none;\n    transition:\n', 1),
+              ('}.toc-dialog::backdrop {', '}\n\n.toc-dialog:open {\n    pointer-events: auto;\n}\n\n.toc-dialog::backdrop {', 1),
+          ]
+
+          for old, new, expected in replacements:
+              count = css.count(old)
+              if count != expected:
+                  raise SystemExit(f'Expected {expected} matches for {old!r}, found {count}')
+              css = css.replace(old, new)
+
+          path.write_text(css, encoding='utf-8')
+          PY
+
+      - name: Validate
+        run: |
+          node --check zz_ebook/shared/viewer.js
+          ! grep -q 'translateY(-7px) scale(0.975)' zz_ebook/shared/style.css
+          ! grep -q 'translateY(0) scale(1)' zz_ebook/shared/style.css
+          ! grep -q 'transform-origin: top right' zz_ebook/shared/style.css
+          grep -A8 '^\.toc-dialog {' zz_ebook/shared/style.css | grep -q 'pointer-events: none;'
+          grep -A3 '^\.toc-dialog:open {' zz_ebook/shared/style.css | grep -q 'pointer-events: auto;'
+
+      - name: Commit
+        run: |
+          git config user.name "github-actions[bot]"
+          git config user.email "41898282+github-actions[bot]@users.noreply.github.com"
+          git add zz_ebook/shared/style.css
+          git commit -m "Refine overlay interactions"
+          git push
