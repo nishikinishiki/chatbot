@@ -1,0 +1,52 @@
+name: Temporary remove ebook image hint
+
+on:
+  push:
+    paths:
+      - .github/workflows/temporary-remove-image-hint.yml
+
+permissions:
+  contents: write
+
+jobs:
+  patch:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+
+      - name: Remove image hint
+        run: |
+          python - <<'PY'
+          from pathlib import Path
+
+          viewer_path = Path('zz_ebook/shared/viewer.js')
+          style_path = Path('zz_ebook/shared/style.css')
+          viewer = viewer_path.read_text(encoding='utf-8')
+          style = style_path.read_text(encoding='utf-8')
+
+          viewer_old = '      <div class="image-viewer__hint">ピンチで拡大</div>\n'
+          if viewer.count(viewer_old) != 1:
+              raise SystemExit(f'viewer hint count: {viewer.count(viewer_old)}')
+          viewer = viewer.replace(viewer_old, '', 1)
+
+          style_old = '''.image-viewer__hint {\n    position: absolute;\n    z-index: 2;\n    right: 16px;\n    bottom: calc(env(safe-area-inset-bottom, 0px) + 16px);\n    left: 16px;\n    color: rgba(255, 255, 255, 0.7);\n    font-size: 12px;\n    text-align: center;\n    pointer-events: none;\n}\n\n'''
+          if style.count(style_old) != 1:
+              raise SystemExit(f'style hint count: {style.count(style_old)}')
+          style = style.replace(style_old, '', 1)
+
+          viewer_path.write_text(viewer, encoding='utf-8')
+          style_path.write_text(style, encoding='utf-8')
+          PY
+
+      - name: Validate
+        run: |
+          node --check zz_ebook/shared/viewer.js
+          ! grep -R -q 'image-viewer__hint\|ピンチで拡大' zz_ebook/shared/viewer.js zz_ebook/shared/style.css
+
+      - name: Commit
+        run: |
+          git config user.name "github-actions[bot]"
+          git config user.email "41898282+github-actions[bot]@users.noreply.github.com"
+          git add zz_ebook/shared/viewer.js zz_ebook/shared/style.css
+          git commit -m "Remove image viewer pinch hint"
+          git push
