@@ -1,0 +1,39 @@
+name: Temporary refine ebook safe area
+
+on:
+  push:
+    paths:
+      - .github/workflows/temporary-refine-safe-area.yml
+      - .github/scripts/temporary_refine_safe_area.py
+
+permissions:
+  contents: write
+
+jobs:
+  patch:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+
+      - name: Apply safe area cleanup
+        run: python .github/scripts/temporary_refine_safe_area.py
+
+      - name: Validate CSS cleanup
+        shell: bash
+        run: |
+          grep -q -- '--topbar-height:' zz_ebook/shared/style.css
+          grep -q -- '--bottombar-height:' zz_ebook/shared/style.css
+          grep -q 'inset: var(--topbar-height) 0 var(--bottombar-height);' zz_ebook/shared/style.css
+          grep -q ':where(.page-body, .measure-body) > :first-child' zz_ebook/shared/style.css
+          grep -q 'top: var(--topbar-height);' zz_ebook/shared/style.css
+          ! grep -q 'calc(env(safe-area-inset-top, 0px) + var(--page-padding-y))' zz_ebook/shared/style.css
+          ! grep -q 'calc(env(safe-area-inset-bottom, 0px) + var(--page-padding-y))' zz_ebook/shared/style.css
+          node --check zz_ebook/shared/viewer.js
+
+      - name: Commit cleanup
+        run: |
+          git config user.name "github-actions[bot]"
+          git config user.email "41898282+github-actions[bot]@users.noreply.github.com"
+          git add zz_ebook/shared/style.css
+          git commit -m "Refine ebook safe area layout"
+          git push
