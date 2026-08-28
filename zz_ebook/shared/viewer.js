@@ -646,12 +646,6 @@
         if (fitImageBlockToCurrentPage(node)) return;
 
         moveBlockToNewPage(node, chapterIndex);
-
-        if (!fitsMeasureBody() && !fitImageBlockToCurrentPage(node, 0)) {
-            throw new Error(
-                `Image block cannot fit on an empty page: ${block.src}`
-            );
-        }
     }
 
     function appendFullImagePage(block, chapterIndex) {
