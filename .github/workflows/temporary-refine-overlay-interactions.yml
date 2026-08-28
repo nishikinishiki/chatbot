@@ -27,7 +27,7 @@ jobs:
               ('    transform-origin: top right;\n', '', 1),
               ('transform: translateY(0) scale(1);', 'transform: translateY(0);', 1),
               ('    background: transparent;\n    transition:\n', '    background: transparent;\n    pointer-events: none;\n    transition:\n', 1),
-              ('}.toc-dialog::backdrop {', '}\n\n.toc-dialog:open {\n    pointer-events: auto;\n}\n\n.toc-dialog::backdrop {', 1),
+              ('}\n\n.toc-dialog::backdrop {', '}\n\n.toc-dialog:open {\n    pointer-events: auto;\n}\n\n.toc-dialog::backdrop {', 1),
           ]
 
           for old, new, expected in replacements:
