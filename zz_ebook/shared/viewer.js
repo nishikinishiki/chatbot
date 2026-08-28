@@ -367,8 +367,10 @@
     function getReaderImage(target) {
         if (!(target instanceof Element)) return null;
 
-        const image = target.closest(".book-image-block img");
-        return image?.closest(".stage") ? image : null;
+        const block = target.closest(".book-image-block");
+        if (!block?.closest(".stage")) return null;
+
+        return block.querySelector("img");
     }
 
     function imageViewerDistance(a, b) {

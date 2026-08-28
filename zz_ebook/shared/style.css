@@ -699,7 +699,7 @@ body.overview .overview-scroller {
         left: 25vw;
     }
 
-    .stage .page-card--next .book-image-block img {
+    .stage .page-card--next .book-image-block {
         pointer-events: auto;
         cursor: zoom-in;
     }
@@ -730,7 +730,7 @@ body.overview .overview-scroller {
 
 /* ---------- Image viewer ---------- */
 
-.stage .page-card--current .book-image-block img {
+.stage .page-card--current .book-image-block {
     pointer-events: auto;
     cursor: zoom-in;
 }
