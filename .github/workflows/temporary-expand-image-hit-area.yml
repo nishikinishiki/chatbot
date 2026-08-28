@@ -1,0 +1,58 @@
+name: Temporary expand ebook image hit area
+
+on:
+  push:
+    paths:
+      - .github/workflows/temporary-expand-image-hit-area.yml
+
+permissions:
+  contents: write
+
+jobs:
+  patch:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+
+      - name: Expand image hit area
+        run: |
+          python - <<'PY'
+          from pathlib import Path
+
+          viewer = Path('zz_ebook/shared/viewer.js')
+          text = viewer.read_text(encoding='utf-8')
+          old = '''    function getReaderImage(target) {\n        if (!(target instanceof Element)) return null;\n\n        const image = target.closest(".book-image-block img");\n        return image?.closest(".stage") ? image : null;\n    }\n'''
+          new = '''    function getReaderImage(target) {\n        if (!(target instanceof Element)) return null;\n\n        const block = target.closest(".book-image-block");\n        if (!block?.closest(".stage")) return null;\n\n        return block.querySelector("img");\n    }\n'''
+          if text.count(old) != 1:
+              raise SystemExit(f'getReaderImage match count: {text.count(old)}')
+          viewer.write_text(text.replace(old, new, 1), encoding='utf-8')
+
+          style = Path('zz_ebook/shared/style.css')
+          css = style.read_text(encoding='utf-8')
+          replacements = [
+              ('.stage .page-card--next .book-image-block img {', '.stage .page-card--next .book-image-block {'),
+              ('.stage .page-card--current .book-image-block img {', '.stage .page-card--current .book-image-block {'),
+          ]
+          for old_css, new_css in replacements:
+              if css.count(old_css) != 1:
+                  raise SystemExit(f'CSS selector match count for {old_css!r}: {css.count(old_css)}')
+              css = css.replace(old_css, new_css, 1)
+          style.write_text(css, encoding='utf-8')
+          PY
+
+      - name: Validate
+        run: |
+          node --check zz_ebook/shared/viewer.js
+          grep -q 'const block = target.closest(".book-image-block");' zz_ebook/shared/viewer.js
+          grep -q 'return block.querySelector("img");' zz_ebook/shared/viewer.js
+          grep -q '^\.stage \.page-card--current \.book-image-block {' zz_ebook/shared/style.css
+          grep -q '^    \.stage \.page-card--next \.book-image-block {' zz_ebook/shared/style.css
+          ! grep -q 'page-card--current .book-image-block img {' zz_ebook/shared/style.css
+
+      - name: Commit
+        run: |
+          git config user.name "github-actions[bot]"
+          git config user.email "41898282+github-actions[bot]@users.noreply.github.com"
+          git add zz_ebook/shared/viewer.js zz_ebook/shared/style.css
+          git commit -m "Expand ebook image tap area"
+          git push
