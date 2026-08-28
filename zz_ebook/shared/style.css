@@ -261,10 +261,6 @@ body.overview {
     text-indent: 1em;
 }
 
-:where(.page-body, .measure-body) p:last-child {
-    margin-bottom: 0;
-}
-
 /* ---------- Book images ---------- */
 
 .book-image-block {
@@ -320,6 +316,10 @@ body.overview {
 
 :where(.page-body, .measure-body) > :first-child {
     margin-top: 0;
+}
+
+:where(.page-body, .measure-body) > :last-child {
+    margin-bottom: 0;
 }
 
 /* ---------- Full-page images / Cover ---------- */
