@@ -483,8 +483,7 @@ body.overview .overview-scroller {
     box-shadow: 0 8px 20px rgba(0, 0, 0, 0.15);
 
     opacity: 0;
-    transform: translateY(-7px) scale(0.975);
-    transform-origin: top right;
+    transform: translateY(-7px);
     transition:
         opacity 250ms var(--ease-standard),
         transform 250ms var(--ease-standard),
@@ -494,13 +493,13 @@ body.overview .overview-scroller {
 
 .popover:popover-open {
     opacity: 1;
-    transform: translateY(0) scale(1);
+    transform: translateY(0);
 }
 
 @starting-style {
     .popover:popover-open {
         opacity: 0;
-        transform: translateY(-7px) scale(0.975);
+        transform: translateY(-7px);
     }
 }
 
@@ -542,9 +541,14 @@ body.overview .overview-scroller {
 
 .toc-dialog {
     background: transparent;
+    pointer-events: none;
     transition:
         overlay 320ms allow-discrete,
         display 320ms allow-discrete;
+}
+
+.toc-dialog:open {
+    pointer-events: auto;
 }
 
 .toc-dialog::backdrop {
