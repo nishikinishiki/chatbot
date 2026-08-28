@@ -19,6 +19,8 @@
     --page-padding-x: clamp(24px, calc(10px + 3.8vw), 48px);
     --page-padding-y: clamp(40px, calc(34px + 1.6vw), 50px);
     --bar-height: clamp(60px, calc(52px + 2vw), 72px);
+    --topbar-height: calc(var(--bar-height) + env(safe-area-inset-top, 0px));
+    --bottombar-height: calc(var(--bar-height) + env(safe-area-inset-bottom, 0px));
     --reader-page-width: 100vw;
 
     /* Shared control dimensions */
@@ -39,12 +41,7 @@
     --page-turn-duration: 220ms;
 
     --reader-viewport-height:
-        calc(
-            100dvh -
-            var(--bar-height) -
-            var(--bar-height) -
-            env(safe-area-inset-bottom, 0px)
-        );
+        calc(100dvh - var(--topbar-height) - var(--bottombar-height));
 }
 
 * {
@@ -100,7 +97,7 @@ body.overview {
 
 .topbar {
     top: 0;
-    height: var(--bar-height);
+    height: var(--topbar-height);
     display: grid;
     grid-template-columns:
         var(--toc-hit-size) minmax(0, 1fr) auto;
@@ -128,7 +125,7 @@ body.overview {
 
 .bottom-bar {
     bottom: 0;
-    height: calc(var(--bar-height) + env(safe-area-inset-bottom, 0px));
+    height: var(--bottombar-height);
     display: grid;
     grid-template-columns: 1fr auto;
     align-items: center;
@@ -187,9 +184,7 @@ body.overview {
 
 .reader-shell {
     position: fixed;
-    inset:
-        var(--bar-height) 0
-        calc(var(--bar-height) + env(safe-area-inset-bottom, 0px));
+    inset: var(--topbar-height) 0 var(--bottombar-height);
     overflow: hidden;
 }
 
@@ -219,8 +214,7 @@ body.overview {
     display: flex;
     flex-direction: column;
     overflow: hidden;
-    padding:
-        calc(env(safe-area-inset-top, 0px) + var(--page-padding-y)) var(--page-padding-x) calc(env(safe-area-inset-bottom, 0px) + var(--page-padding-y)) var(--page-padding-x);
+    padding: var(--page-padding-y) var(--page-padding-x);
     background: var(--paper);
     line-height: 1.8;
     letter-spacing: 0.02em;
@@ -237,6 +231,10 @@ body.overview {
     min-height: 0;
     overflow: hidden;
     text-align: justify;
+}
+
+:where(.page-body, .measure-body) > :first-child {
+    margin-top: 0;
 }
 
 :where(.page-body, .measure-body) h1 {
@@ -475,7 +473,7 @@ body.overview .overview-scroller {
 .popover {
     position: fixed;
     inset: auto 16px auto auto;
-    top: calc(env(safe-area-inset-top, 0px) + 60px);
+    top: var(--topbar-height);
     width: 250px;
     margin: 0;
     padding: 16px;
