@@ -210,7 +210,6 @@
       <div class="image-viewer__viewport" id="imageViewerViewport">
         <img class="image-viewer__image" id="imageViewerImage" alt="" draggable="false" />
       </div>
-      <div class="image-viewer__hint">ピンチで拡大</div>
     </dialog>
 
     <div class="measure-host" aria-hidden="true">
