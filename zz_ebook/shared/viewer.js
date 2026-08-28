@@ -575,6 +575,13 @@
         image.style.removeProperty("height");
     }
 
+    function fitsImageBlock(figure) {
+        const bodyRect = els.measureBody.getBoundingClientRect();
+        const figureRect = figure.getBoundingClientRect();
+
+        return figureRect.bottom <= bodyRect.bottom + 0.5;
+    }
+
     function fitImageBlockToCurrentPage(figure, minScale = 0.65) {
         const frame = figure.querySelector(".book-image-frame");
         const image = frame?.querySelector("img");
@@ -615,11 +622,11 @@
                 imageRect.height
             );
 
-            if (fitsMeasureBody()) return true;
+            if (fitsImageBlock(figure)) return true;
 
             const overflow = Math.max(
                 0,
-                els.measureBody.scrollHeight - els.measureBody.clientHeight
+                figure.getBoundingClientRect().bottom - bodyRect.bottom
             );
             scale = clamp(
                 scale - (overflow + 1) / imageRect.height,
@@ -642,7 +649,7 @@
         const node = createImageBlock(block);
         els.measureBody.appendChild(node);
 
-        if (fitsMeasureBody()) return;
+        if (fitsImageBlock(node)) return;
         if (fitImageBlockToCurrentPage(node)) return;
 
         moveBlockToNewPage(node, chapterIndex);
