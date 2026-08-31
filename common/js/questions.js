@@ -6,7 +6,7 @@ const UTM_RULES = {
     'BKR_gift_',
     'GMO_gift_',
     'CRS_gift_',
-    'fbtrg_gmo'
+    'fbtrg_'
   ],
   //utm_sourceで指定
   hideOccupationKeywords: [
@@ -14,7 +14,7 @@ const UTM_RULES = {
     'BKR_gift_',
     'GMO_gift_',
     'CRS_gift_',
-    'fbtrg_gmo'
+    'fbtrg_'
   ],
   //utm_sourceで指定
   hideAgeKeywords: [
@@ -22,7 +22,14 @@ const UTM_RULES = {
     'BKR_gift_',
     'GMO_gift_',
     'CRS_gift_',
-    'fbtrg_gmo'
+    'fbtrg_'
+  ],
+  //utm_sourceで指定
+  hideAgeKeywords_af: [
+    'ALA_gift_',
+    'BKR_gift_',
+    'GMO_gift_',
+    'CRS_gift_'
   ],
   //utm_sourceで指定「お申し込みの決め手」
   showApplicationReason: [
@@ -368,7 +375,7 @@ const initialQuestions = [
         label: "60歳～", value: "60～64歳",
         isVisible: (utmParams) => {
           const source = utmParams?.utm_source || '';
-          return !UTM_RULES.hideAgeKeywords.some(keyword => source.includes(keyword));
+          return !UTM_RULES.hideAgeKeywords_af.some(keyword => source.includes(keyword));
         }
       }
     ],
