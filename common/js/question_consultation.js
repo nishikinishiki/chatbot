@@ -25,7 +25,7 @@ const UTM_RULES = {
     ],
       //utm_campaignで指定「進呈条件」
     customGiftTermsKeywords: [
-        'gift_up_campaign'
+        // 'hp_gift_consultation'
     ]
 };
 
@@ -290,7 +290,14 @@ const GIFT_TERMS_CONFIG = {
     link_text_clickable: "こちら",
     get popup_content() {
         const campaign = state?.utmParameters?.utm_campaign || '';
-        const isCustom = UTM_RULES.customGiftTermsKeywords.some(keyword => campaign.includes(keyword));
+        const source = state?.utmParameters?.utm_source || '';
+
+        // customGiftTermsKeywordsの配列順にループを回す
+        // utm_source または utm_campaign にキーワードが含まれていれば即座に true を返す
+        const isCustom = UTM_RULES.customGiftTermsKeywords.some(keyword =>
+            source.includes(keyword) || campaign.includes(keyword)
+        );
+
         return isCustom ? GIFT_TERMS_CAMPAIGN : GIFT_TERMS_DEFAULT;
     }
 };

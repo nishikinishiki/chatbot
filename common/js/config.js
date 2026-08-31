@@ -17,6 +17,7 @@ const BANNER_DEFAULT = [
 const BANNER_CAMPAIGN = {
     //HP
     'hp_gift_consultation': '/common/images/banner_consultation_gift.webp',
+    // 'hp_gift_consultation': '/common/images/banner_ebook_hp.webp',
 
     //アフィリエイト広告
     'BKR_gift_ebook_79799974': '/common/images/banner_ebook_mybest.webp',
