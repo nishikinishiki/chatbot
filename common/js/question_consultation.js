@@ -23,7 +23,7 @@ const UTM_RULES = {
         'ALA_gift_ebook_4362',
         'ALA_gift_ebook_4362PM'
     ],
-      //utm_campaignで指定「進呈条件」
+    //utm_campaignで指定「進呈条件」
     customGiftTermsKeywords: [
         'hp_gift_consultation'
     ]
