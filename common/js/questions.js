@@ -39,6 +39,7 @@ const UTM_RULES = {
   //utm_campaignで指定「進呈条件」
   customGiftTermsKeywords: [
     'gift_up_campaign'
+    // ,'hp_gift_consultation'
   ]
 };
 
@@ -319,7 +320,13 @@ const initialQuestions = [
           return !UTM_RULES.hideOccupationKeywords.some(keyword => source.includes(keyword));
         }
       },
-      { label: "その他", value: "自営業・その他" }
+      {
+        label: "その他", value: "自営業・その他",
+        isVisible: (utmParams) => {
+          const source = utmParams?.utm_source || '';
+          return !UTM_RULES.hideOccupationKeywords.some(keyword => source.includes(keyword));
+        }
+      }
     ],
     key: "occupation", validation: (v) => !!v, errorMessage: "選択してください。"
   },
