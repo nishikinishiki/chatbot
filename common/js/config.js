@@ -15,6 +15,9 @@ const BANNER_DEFAULT = [
     '/common/images/banner_tosin_ekichika.webp',
 ];
 const BANNER_CAMPAIGN = {
+    //HP
+    'hp_gift_consultation': '/common/images/banner_consultation_gift.webp',
+
     //アフィリエイト広告
     'BKR_gift_ebook_79799974': '/common/images/banner_ebook_mybest.webp',
     'gift_up_campaign': '/common/images/banner_ebook_AmaG.jpg',
