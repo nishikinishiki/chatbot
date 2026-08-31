@@ -38,8 +38,8 @@ const UTM_RULES = {
   ],
   //utm_campaignで指定「進呈条件」
   customGiftTermsKeywords: [
-    'gift_up_campaign'
-    // ,'hp_gift_consultation'
+    'gift_up_campaign',
+    'hp_gift_consultation'
   ]
 };
 
