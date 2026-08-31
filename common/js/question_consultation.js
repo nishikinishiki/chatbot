@@ -309,7 +309,7 @@ const initialQuestions = [
         id: 'first_choice_date',
         item: "面談希望日時（第一希望）",
         summaryLabel: "日時 第1希望",
-        pre_message: "面談完了でえらべるデジタルギフト<span style='color: red;'>最大50,000円分</span>プレゼントの対象となります！",
+        pre_message: "面談完了でえらべるデジタルギフトプレゼントの対象となります！",
         question: "【第1希望】<br>ご相談希望日時をお選びください。",
         isHtmlQuestion: true,
         answer_method: "time-table",
