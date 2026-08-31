@@ -5,14 +5,16 @@ const UTM_RULES = {
     'ALA_gift_',
     'BKR_gift_',
     'GMO_gift_',
-    'CRS_gift_'
+    'CRS_gift_',
+    'fbtrg_gmo'
   ],
   //utm_sourceで指定
   hideOccupationKeywords: [
     'ALA_gift_',
     'BKR_gift_',
     'GMO_gift_',
-    'CRS_gift_'
+    'CRS_gift_',
+    'fbtrg_gmo'
   ],
   //utm_sourceで指定
   hideAgeKeywords: [
