@@ -1,7 +1,7 @@
 // --- UTM条件定義 ---
 const UTM_RULES = {
   //utm_sourceで指定
-  hideIncomeKeywords: [
+  hideKeywords: [
     'ALA_gift_',
     'BKR_gift_',
     'GMO_gift_',
@@ -9,23 +9,7 @@ const UTM_RULES = {
     'fbtrg_'
   ],
   //utm_sourceで指定
-  hideOccupationKeywords: [
-    'ALA_gift_',
-    'BKR_gift_',
-    'GMO_gift_',
-    'CRS_gift_',
-    'fbtrg_'
-  ],
-  //utm_sourceで指定
-  hideAgeKeywords: [
-    'ALA_gift_',
-    'BKR_gift_',
-    'GMO_gift_',
-    'CRS_gift_',
-    'fbtrg_'
-  ],
-  //utm_sourceで指定
-  hideAgeKeywords_af: [
+  hideAgeKeywords_60: [
     'ALA_gift_',
     'BKR_gift_',
     'GMO_gift_',
@@ -41,7 +25,9 @@ const UTM_RULES = {
     'gift_up_campaign'
   ],
   customGiftTermsKeywordsHp: [
-    'hp_gift_ebook'
+    'hp_gift_ebook',
+    'wk_gift_ebook',
+    'wk_gift_movie'
   ]
 };
 
@@ -455,14 +441,14 @@ const initialQuestions = [
         label: "自営業", value: "自営業・その他",
         isVisible: (utmParams) => {
           const source = utmParams?.utm_source || '';
-          return !UTM_RULES.hideOccupationKeywords.some(keyword => source.includes(keyword));
+          return !UTM_RULES.hideKeywords.some(keyword => source.includes(keyword));
         }
       },
       {
         label: "その他", value: "自営業・その他",
         isVisible: (utmParams) => {
           const source = utmParams?.utm_source || '';
-          return !UTM_RULES.hideOccupationKeywords.some(keyword => source.includes(keyword));
+          return !UTM_RULES.hideKeywords.some(keyword => source.includes(keyword));
         }
       }
     ],
@@ -475,7 +461,7 @@ const initialQuestions = [
         label: "500万未満", value: "0～399万",
         isVisible: (utmParams) => {
           const source = utmParams?.utm_source || '';
-          return !UTM_RULES.hideIncomeKeywords.some(keyword => source.includes(keyword));
+          return !UTM_RULES.hideKeywords.some(keyword => source.includes(keyword));
         }
       },
       { label: "500万～", value: "500～599万" },
@@ -499,14 +485,14 @@ const initialQuestions = [
         label: "20歳未満", value: "20歳未満",
         isVisible: (utmParams) => {
           const source = utmParams?.utm_source || '';
-          return !UTM_RULES.hideAgeKeywords.some(keyword => source.includes(keyword));
+          return !UTM_RULES.hideKeywords.some(keyword => source.includes(keyword));
         }
       },
       {
         label: "20～24歳", value: "20～24歳",
         isVisible: (utmParams) => {
           const source = utmParams?.utm_source || '';
-          return !UTM_RULES.hideAgeKeywords.some(keyword => source.includes(keyword));
+          return !UTM_RULES.hideKeywords.some(keyword => source.includes(keyword));
         }
       },
       { label: "25～29歳", value: "25～29歳" },
@@ -520,7 +506,7 @@ const initialQuestions = [
         label: "60歳～", value: "60～64歳",
         isVisible: (utmParams) => {
           const source = utmParams?.utm_source || '';
-          return !UTM_RULES.hideAgeKeywords_af.some(keyword => source.includes(keyword));
+          return !UTM_RULES.hideAgeKeywords_60.some(keyword => source.includes(keyword));
         }
       }
     ],

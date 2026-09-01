@@ -16,8 +16,10 @@ const BANNER_DEFAULT = [
 ];
 const BANNER_CAMPAIGN = {
     //HP
-    //'hp_gift_consultation': '/common/images/banner_consultation_gift.webp',
     'hp_gift_consultation': '/common/images/banner_ebook_hp.webp',
+    'wk_gift_consultation': '/common/images/banner_ebook_hp.webp',
+    'wk_gift_ebook': '/common/images/banner_ebook_hp.webp',
+    'wk_gift_movie': '/common/images/banner_ebook_hp.webp',
     'hp_gift_ebook': '/common/images/banner_ebook_propertylist.png',
 
     //アフィリエイト広告
@@ -79,9 +81,9 @@ const BANNER_CAMPAIGN = {
     'fbtrg': '/common/images/banner_ebook_meta.webp',
 
     //その他
-    'wk_gift_ebook': '/common/images/banner_WEK.png',
-    'wk_gift_consultation': '/common/images/banner_WEK.png',
-    'wk_gift_movie': '/common/images/banner_WEK.png'
+    // 'wk_gift_ebook': '/common/images/banner_WEK.png',
+    // 'wk_gift_consultation': '/common/images/banner_WEK.png',
+    // 'wk_gift_movie': '/common/images/banner_WEK.png'
 };
 
 // 5. CSS

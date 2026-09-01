@@ -25,7 +25,8 @@ const UTM_RULES = {
     ],
     //utm_campaignで指定「進呈条件」
     customGiftTermsKeywords: [
-        'hp_gift_consultation'
+        'hp_gift_consultation',
+        'wk_gift_consultation'
     ]
 };
 
