@@ -142,9 +142,27 @@ async function askQuestion() {
     const wasWaiting = state.waitingForInput;
 
     if (!wasWaiting) {
-        if (currentQuestion.pre_message) await addBotMessage(currentQuestion.pre_message, true);
+        // pre_message の処理
+        if (currentQuestion.pre_message) {
+            const preMsgText = typeof currentQuestion.pre_message === 'function'
+                ? currentQuestion.pre_message(state.utmParameters)
+                : currentQuestion.pre_message;
+
+            // isHtmlPreMessageが設定されていればそれを、無ければtrue(既存仕様)を使用
+            const isHtml = currentQuestion.hasOwnProperty('isHtmlPreMessage')
+                ? currentQuestion.isHtmlPreMessage
+                : true;
+
+            await addBotMessage(preMsgText, isHtml);
+        }
+
+        // question の処理
         if (currentQuestion.question && currentQuestion.answer_method !== 'text-pair') {
-            await addBotMessage(currentQuestion.question, currentQuestion.isHtmlQuestion);
+            const questionText = typeof currentQuestion.question === 'function'
+                ? currentQuestion.question(state.utmParameters)
+                : currentQuestion.question;
+
+            await addBotMessage(questionText, currentQuestion.isHtmlQuestion);
         }
     }
 

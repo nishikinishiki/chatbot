@@ -590,7 +590,25 @@ const initialQuestions = [
   {
     id: 'digital_gift_choice',
     item: "希望デジタルギフト",
-    pre_message: "面談完了でえらべるデジタルギフト<span style='color: red;'>最大50,000円分</span>プレゼントの対象となります！", isHtmlPreMessage: true,
+    pre_message: (utmParams) => {
+      const campaign = utmParams?.utm_campaign || '';
+      const source = utmParams?.utm_source || '';
+
+      const isCampaignHp = UTM_RULES.customGiftTermsKeywordsHp.some(keyword =>
+        source.includes(keyword) || campaign.includes(keyword)
+      );
+      const isCampaignAff = UTM_RULES.customGiftTermsKeywordsAff.some(keyword =>
+        source.includes(keyword) || campaign.includes(keyword)
+      );
+
+      if (isCampaignHp) {
+        return "面談完了でえらべるデジタルギフト<span style='color: red;'>最大70,000円分</span>プレゼントの対象となります！";
+      } else if (isCampaignAff) {
+        return "面談完了でえらべるデジタルギフト<span style='color: red;'>最大60,000円分</span>プレゼントの対象となります！";
+      } else {
+        return "面談完了でえらべるデジタルギフト<span style='color: red;'>最大50,000円分</span>プレゼントの対象となります！";
+      }
+    }, isHtmlPreMessage: true,
     question: "最後に、ご希望のデジタルギフトの種類をお選びください。",
     answer_method: "single-choice",
     options: [
@@ -629,7 +647,25 @@ const additionalQuestions = [
     id: 'first_choice_date',
     item: "面談希望日時（第一希望）",
     summaryLabel: "日時 第1希望",
-    pre_message: "面談を受けていただくと<span style='color: red;'>最大50,000円相当</span>のえらべるデジタルギフト、プレゼントの対象となります！",
+    pre_message: (utmParams) => {
+      const campaign = utmParams?.utm_campaign || '';
+      const source = utmParams?.utm_source || '';
+
+      const isCampaignHp = UTM_RULES.customGiftTermsKeywordsHp.some(keyword =>
+        source.includes(keyword) || campaign.includes(keyword)
+      );
+      const isCampaignAff = UTM_RULES.customGiftTermsKeywordsAff.some(keyword =>
+        source.includes(keyword) || campaign.includes(keyword)
+      );
+
+      if (isCampaignHp) {
+        return "面談を受けていただくと<span style='color: red;'>最大70,000円相当</span>のえらべるデジタルギフト、プレゼントの対象となります！";
+      } else if (isCampaignAff) {
+        return "面談を受けていただくと<span style='color: red;'>最大60,000円相当</span>のえらべるデジタルギフト、プレゼントの対象となります！";
+      } else {
+        return "面談を受けていただくと<span style='color: red;'>最大50,000円相当</span>のえらべるデジタルギフト、プレゼントの対象となります！";
+      }
+    },
     question: "【第1希望】<br>ご相談希望日時をお選びください。",
     isHtmlQuestion: true,
     answer_method: "time-table",
