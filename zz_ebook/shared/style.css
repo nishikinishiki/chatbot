@@ -366,8 +366,10 @@ body.overview {
 
 .colophon__title {
     margin-bottom: 0.8em;
+    padding-bottom: 0.4em;
     font-size: 1em;
     font-weight: 600;
+    line-height: 1.5;
     border-bottom: 2px solid var(--text);
 }
 
