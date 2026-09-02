@@ -17,9 +17,7 @@ const BANNER_DEFAULT = [
 const BANNER_CAMPAIGN = {
     //HP
     'hp_gift_consultation': '/common/images/banner_ebook_hp.webp',
-    'wk_gift_consultation': '/common/images/banner_ebook_hp.webp',
-    'wk_gift_ebook': '/common/images/banner_ebook_hp.webp',
-    'wk_gift_movie': '/common/images/banner_ebook_hp.webp',
+    'wk_gift_': '/common/images/banner_ebook_hp.webp',
     'hp_gift_ebook': '/common/images/banner_ebook_propertylist.png',
 
     //アフィリエイト広告
@@ -68,22 +66,9 @@ const BANNER_CAMPAIGN = {
         '/common/images/banner_gift.webp'
     ],
     'ebook_': '/common/images/banner_ebook.webp',
-    'REI_movie': '/common/images/banner_no1_appeal.jpg',
-    'msg_': '/common/images/banner_no1_appeal.jpg',
-    'summer_': '/common/images/banner_no1_appeal.jpg',
-    'JprBN_c_gift': '/common/images/banner_no1_appeal.jpg',
-    'JprBN_d_gift': '/common/images/banner_no1_appeal.jpg',
-    'JprBN_e_gift': '/common/images/banner_no1_appeal.jpg',
-    'JprBN_f_gift': '/common/images/banner_no1_appeal.jpg',
     'JprBN_g_gift': '/common/images/banner_woman_g.webp',
     'JprBN_h_gift': '/common/images/banner_woman_h.webp',
-    'Owner_': '/common/images/banner_no1_appeal.jpg',
-    'fbtrg': '/common/images/banner_ebook_meta.webp',
-
-    //その他
-    // 'wk_gift_ebook': '/common/images/banner_WEK.png',
-    // 'wk_gift_consultation': '/common/images/banner_WEK.png',
-    // 'wk_gift_movie': '/common/images/banner_WEK.png'
+    'fbtrg': '/common/images/banner_no1_appeal.jpg'
 };
 
 // 5. CSS
