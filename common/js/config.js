@@ -65,6 +65,10 @@ const BANNER_CAMPAIGN = {
         '/common/images/banner_no1.mp4',
         '/common/images/banner_gift.webp'
     ],
+    'osaka': [
+        '/common/images/banner_no1.mp4',
+        '/common/images/banner_gift.webp'
+    ],
     'ebook_': '/common/images/banner_ebook.webp',
     'JprBN_g_gift': '/common/images/banner_woman_g.webp',
     'JprBN_h_gift': '/common/images/banner_woman_h.webp',
