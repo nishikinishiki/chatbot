@@ -217,7 +217,7 @@ body.overview {
     padding: var(--page-padding-y) var(--page-padding-x);
     background: var(--paper);
     line-height: 1.8;
-    letter-spacing: 0.02em;
+    letter-spacing: 0.01em;
 }
 
 .page-card {
@@ -238,6 +238,8 @@ body.overview {
     font-size: 1.25em;
     font-weight: 600;
     line-height: 1.5;
+    padding-left: 0.5em;
+    border-left: 5px solid var(--text);
 }
 
 :where(.page-body, .measure-body) h2 {
@@ -362,14 +364,17 @@ body.overview {
     text-indent: 0;
 }
 
+.colophon__title {
+    margin-bottom: 0.8em;
+    font-size: 1em;
+    font-weight: 600;
+    border-bottom: 2px solid var(--text);
+}
+
 .colophon__label {
     margin: 0.8em 0 0;
     font-size: 0.8em;
     font-weight: 600;
-}
-
-.colophon__label:first-child {
-    margin-top: 0;
 }
 
 .colophon__text {

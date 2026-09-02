@@ -763,22 +763,19 @@
 
     function getColophonBlocks() {
         return [
+            { text: book.title, className: "colophon__title" },
             { text: "【発行日】", className: "colophon__label" },
             { text: book.published, className: "colophon__text" },
             { text: "【発行元】", className: "colophon__label" },
-            ...COLOPHON.publisher.map((text) => ({
-                text,
-                className: "colophon__text"
-            })),
-            ...COLOPHON.copyright.map((text) => ({
-                text,
-                className: "colophon__text"
-            })),
+            { text: "J.P.RETURNS 編集部", className: "colophon__text" },
+            { text: "https://jpreturns.com/", className: "colophon__text" },
+            { text: "〒100-6923 東京都千代田区丸の内 2-6-1 丸の内パークビルディング23階", className: "colophon__text" },
+            { text: "© J.P.Returns. All rights reserved", className: "colophon__text" },
+            { text: "本書の全部または一部について、許可なく複製・転載・配信・改変すること、ならびに有償・無償を問わず第三者へ譲渡することを禁止します。", className: "colophon__text" },
             { text: "【注意】", className: "colophon__label" },
-            ...COLOPHON.notice.map((text) => ({
-                text,
-                className: "colophon__text"
-            }))
+            { text: "本書は、情報提供および学習を目的として制作したものであり、特定の投資成果や将来の運用成績を保証するものではありません。", className: "colophon__text" },
+            { text: "本書の内容に基づく投資・運用その他の判断は、ご自身の責任において行ってください。これにより生じた損失その他の結果について、J.P.RETURNS株式会社は責任を負いかねます。", className: "colophon__text" },
+            { text: "なお、本書に記載されている情報・事例は執筆時点のものであり、今後変更される場合があります。", className: "colophon__text" }
         ];
     }
 
