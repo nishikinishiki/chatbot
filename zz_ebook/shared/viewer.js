@@ -1206,36 +1206,34 @@
         }
     }
 
-    function paginateOversizedListItem(block, itemData, start, chapterIndex) {
+    function paginateOversizedInlineItem({
+        itemData,
+        chapterIndex,
+        createNode,
+        protectTrailingHeading = false
+    }) {
         let remaining = itemData.inline;
         let continuation = false;
 
         while (inlineLength(remaining) > 0) {
-            const currentItem = { ...itemData, inline: remaining };
-            const fullNode = createList(
-                block,
-                [currentItem],
-                start,
-                continuation
-            );
+            const fullNode = createNode(remaining, continuation);
             els.measureBody.appendChild(fullNode);
 
             if (fitsMeasureBody()) return;
-
             fullNode.remove();
 
             const fittingLength = findLargestFittingInlinePrefix(
                 remaining,
-                (segments) => createList(
-                    block,
-                    [{ ...itemData, inline: segments }],
-                    start,
-                    continuation
-                )
+                (segments) => createNode(segments, continuation)
             );
 
             if (fittingLength === 0) {
-                if (moveTrailingHeadingToNewPage(chapterIndex)) continue;
+                if (
+                    protectTrailingHeading &&
+                    moveTrailingHeadingToNewPage(chapterIndex)
+                ) {
+                    continue;
+                }
 
                 if (els.measureBody.innerHTML.trim()) {
                     commitMeasuredPage(chapterIndex);
@@ -1244,12 +1242,7 @@
 
                 const fallback = sliceInlineSegments(remaining, 0, 1);
                 els.measureBody.appendChild(
-                    createList(
-                        block,
-                        [{ ...itemData, inline: fallback }],
-                        start,
-                        continuation
-                    )
+                    createNode(fallback, continuation)
                 );
                 commitMeasuredPage(chapterIndex);
                 remaining = dropInlineSegments(remaining, 1);
@@ -1258,17 +1251,8 @@
             }
 
             els.measureBody.appendChild(
-                createList(
-                    block,
-                    [{
-                        ...itemData,
-                        inline: sliceInlineSegments(
-                            remaining,
-                            0,
-                            fittingLength
-                        )
-                    }],
-                    start,
+                createNode(
+                    sliceInlineSegments(remaining, 0, fittingLength),
                     continuation
                 )
             );
@@ -1278,19 +1262,22 @@
         }
     }
 
-    function paginateList(block, chapterIndex) {
+    function paginateItemCollection({
+        items,
+        chapterIndex,
+        createContainer,
+        appendItem,
+        paginateOversized
+    }) {
         let index = 0;
 
-        while (index < block.items.length) {
-            const start = (block.start ?? 1) + index;
-            const list = createList(block, [], start);
-            els.measureBody.appendChild(list);
+        while (index < items.length) {
+            const container = createContainer(index);
+            els.measureBody.appendChild(container);
             let addedItems = 0;
 
-            while (index < block.items.length) {
-                const item = document.createElement("li");
-                appendInlineSegments(item, block.items[index].inline);
-                list.appendChild(item);
+            while (index < items.length) {
+                const item = appendItem(container, items[index], index);
 
                 if (!fitsMeasureBody()) {
                     item.remove();
@@ -1301,135 +1288,97 @@
                 addedItems += 1;
             }
 
-            if (index >= block.items.length) return;
+            if (index >= items.length) return;
 
             if (addedItems > 0) {
                 commitMeasuredPage(chapterIndex);
                 continue;
             }
 
-            list.remove();
+            container.remove();
 
             if (els.measureBody.innerHTML.trim()) {
                 commitMeasuredPage(chapterIndex);
                 continue;
             }
 
-            paginateOversizedListItem(
-                block,
-                block.items[index],
-                start,
-                chapterIndex
-            );
+            paginateOversized(items[index], index);
             index += 1;
         }
     }
 
-    function paginateOversizedFootnote(itemData, chapterIndex) {
-        let remaining = itemData.inline;
-        let continuation = false;
-
-        while (inlineLength(remaining) > 0) {
-            const fullNode = createFootnotes(
-                [{ ...itemData, inline: remaining }],
+    function paginateOversizedListItem(block, itemData, start, chapterIndex) {
+        paginateOversizedInlineItem({
+            itemData,
+            chapterIndex,
+            protectTrailingHeading: true,
+            createNode: (segments, continuation) => createList(
+                block,
+                [{ ...itemData, inline: segments }],
+                start,
                 continuation
-            );
-            els.measureBody.appendChild(fullNode);
+            )
+        });
+    }
 
-            if (fitsMeasureBody()) return;
-            fullNode.remove();
-
-            const fittingLength = findLargestFittingInlinePrefix(
-                remaining,
-                (segments) => createFootnotes(
-                    [{ ...itemData, inline: segments }],
-                    continuation
-                )
-            );
-
-            if (fittingLength === 0) {
-                if (els.measureBody.innerHTML.trim()) {
-                    commitMeasuredPage(chapterIndex);
-                    continue;
-                }
-
-                const fallback = sliceInlineSegments(remaining, 0, 1);
-                els.measureBody.appendChild(
-                    createFootnotes(
-                        [{ ...itemData, inline: fallback }],
-                        continuation
-                    )
+    function paginateList(block, chapterIndex) {
+        paginateItemCollection({
+            items: block.items,
+            chapterIndex,
+            createContainer: (index) => createList(
+                block,
+                [],
+                (block.start ?? 1) + index
+            ),
+            appendItem: (list, itemData) => {
+                const item = document.createElement("li");
+                appendInlineSegments(item, itemData.inline);
+                list.appendChild(item);
+                return item;
+            },
+            paginateOversized: (itemData, index) => {
+                paginateOversizedListItem(
+                    block,
+                    itemData,
+                    (block.start ?? 1) + index,
+                    chapterIndex
                 );
-                commitMeasuredPage(chapterIndex);
-                remaining = dropInlineSegments(remaining, 1);
-                continuation = true;
-                continue;
             }
+        });
+    }
 
-            els.measureBody.appendChild(
-                createFootnotes(
-                    [{
-                        ...itemData,
-                        inline: sliceInlineSegments(
-                            remaining,
-                            0,
-                            fittingLength
-                        )
-                    }],
-                    continuation
-                )
-            );
-            commitMeasuredPage(chapterIndex);
-            remaining = dropInlineSegments(remaining, fittingLength);
-            continuation = true;
-        }
+    function paginateOversizedFootnote(itemData, chapterIndex) {
+        paginateOversizedInlineItem({
+            itemData,
+            chapterIndex,
+            createNode: (segments, continuation) => createFootnotes(
+                [{ ...itemData, inline: segments }],
+                continuation
+            )
+        });
     }
 
     function paginateFootnotes(block, chapterIndex) {
-        let index = 0;
-
-        while (index < block.items.length) {
-            const list = createFootnotes([]);
-            els.measureBody.appendChild(list);
-            let addedItems = 0;
-
-            while (index < block.items.length) {
-                const itemData = block.items[index];
+        paginateItemCollection({
+            items: block.items,
+            chapterIndex,
+            createContainer: () => createFootnotes([]),
+            appendItem: (list, itemData) => {
                 const item = document.createElement("li");
 
                 const label = document.createElement("span");
                 label.className = "book-footnote-label";
                 label.textContent = `${itemData.label}　`;
                 item.appendChild(label);
+
                 appendInlineSegments(item, itemData.inline);
                 list.appendChild(item);
-
-                if (!fitsMeasureBody()) {
-                    item.remove();
-                    break;
-                }
-
-                index += 1;
-                addedItems += 1;
+                return item;
+            },
+            paginateOversized: (itemData) => {
+                paginateOversizedFootnote(itemData, chapterIndex);
             }
-
-            if (index >= block.items.length) return;
-
-            if (addedItems > 0) {
-                commitMeasuredPage(chapterIndex);
-                continue;
-            }
-
-            list.remove();
-
-            if (els.measureBody.innerHTML.trim()) {
-                commitMeasuredPage(chapterIndex);
-                continue;
-            }
-
-            paginateOversizedFootnote(block.items[index], chapterIndex);
-            index += 1;
-        }
+        });
     }
 
     function createColophonSection() {
