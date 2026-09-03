@@ -741,6 +741,10 @@
         return element;
     }
 
+    function createHeading(level, text) {
+        return createInlineTextElement(`h${level}`, text);
+    }
+
     function createParagraph(text, continuation = false) {
         const paragraph = createTextElement(
             "p",
@@ -918,6 +922,18 @@
         els.measureBody.appendChild(node);
     }
 
+    function isTrailingHeading(element) {
+        return element?.tagName === "H2";
+    }
+
+    function moveTrailingHeadingToNewPage(chapterIndex) {
+        const heading = els.measureBody.lastElementChild;
+        if (!isTrailingHeading(heading)) return false;
+
+        moveBlockToNewPage(heading, chapterIndex);
+        return true;
+    }
+
     function paginateImageBlock(block, chapterIndex) {
         const node = createImageBlock(block);
         els.measureBody.appendChild(node);
@@ -999,10 +1015,7 @@
             const fittingLength = findLargestFittingPrefix(remaining, continuation);
 
             if (fittingLength === 0) {
-                const trailingHeading = els.measureBody.lastElementChild;
-
-                if (trailingHeading?.tagName === "H2") {
-                    moveBlockToNewPage(trailingHeading, chapterIndex);
+                if (moveTrailingHeadingToNewPage(chapterIndex)) {
                     continue;
                 }
 
@@ -1141,10 +1154,7 @@
             );
 
             if (fittingLength === 0) {
-                const trailingHeading = els.measureBody.lastElementChild;
-
-                if (trailingHeading?.tagName === "H2") {
-                    moveBlockToNewPage(trailingHeading, chapterIndex);
+                if (moveTrailingHeadingToNewPage(chapterIndex)) {
                     continue;
                 }
 
@@ -1228,20 +1238,20 @@
     }
 
     function getColophonBlocks() {
+        const textBlocks = (lines) => lines.map((text) => ({
+            text,
+            className: "colophon__text"
+        }));
+
         return [
             { text: book.title, className: "colophon__title" },
             { text: "【発行日】", className: "colophon__label" },
             { text: book.published, className: "colophon__text" },
             { text: "【発行元】", className: "colophon__label" },
-            { text: "J.P.RETURNS 編集部", className: "colophon__text" },
-            { text: "https://jpreturns.com/", className: "colophon__text" },
-            { text: "〒100-6923 東京都千代田区丸の内 2-6-1 丸の内パークビルディング23階", className: "colophon__text" },
-            { text: "© J.P.Returns. All rights reserved", className: "colophon__text" },
-            { text: "本書の全部または一部について、許可なく複製・転載・配信・改変すること、ならびに有償・無償を問わず第三者へ譲渡することを禁止します。", className: "colophon__text" },
+            ...textBlocks(COLOPHON.publisher),
+            ...textBlocks(COLOPHON.copyright),
             { text: "【注意】", className: "colophon__label" },
-            { text: "本書は、情報提供および学習を目的として制作したものであり、特定の投資成果や将来の運用成績を保証するものではありません。", className: "colophon__text" },
-            { text: "本書の内容に基づく投資・運用その他の判断は、ご自身の責任において行ってください。これにより生じた損失その他の結果について、J.P.RETURNS株式会社は責任を負いかねます。", className: "colophon__text" },
-            { text: "なお、本書に記載されている情報・事例は執筆時点のものであり、今後変更される場合があります。", className: "colophon__text" }
+            ...textBlocks(COLOPHON.notice)
         ];
     }
 
@@ -1268,6 +1278,37 @@
         });
 
         commitMeasuredPage(chapterIndex, "colophon");
+    }
+
+    function paginateHeading(level, text, chapterIndex) {
+        const node = createHeading(level, text);
+        els.measureBody.appendChild(node);
+
+        if (!fitsMeasureBody()) {
+            moveBlockToNewPage(node, chapterIndex);
+        }
+    }
+
+    function paginateBookBlock(block, chapterIndex) {
+        switch (block.type) {
+            case "image":
+                paginateImageBlock(block, chapterIndex);
+                break;
+            case "h2":
+                paginateHeading(2, block.text, chapterIndex);
+                break;
+            case "paragraph":
+                paginateParagraph(block.text, chapterIndex);
+                break;
+            case "note":
+                paginateNote(block.text, chapterIndex);
+                break;
+            case "list":
+                paginateList(block, chapterIndex);
+                break;
+            default:
+                console.warn(`Unsupported book block type: ${block.type}`);
+        }
     }
 
     function paginateBook() {
@@ -1302,31 +1343,7 @@
 
                 ensureChapterHeading();
 
-                switch (block.type) {
-                    case "image":
-                        paginateImageBlock(block, chapterIndex);
-                        break;
-                    case "h2": {
-                        const node = createInlineTextElement("h2", block.text);
-                        els.measureBody.appendChild(node);
-
-                        if (!fitsMeasureBody()) {
-                            moveBlockToNewPage(node, chapterIndex);
-                        }
-                        break;
-                    }
-                    case "paragraph":
-                        paginateParagraph(block.text, chapterIndex);
-                        break;
-                    case "note":
-                        paginateNote(block.text, chapterIndex);
-                        break;
-                    case "list":
-                        paginateList(block, chapterIndex);
-                        break;
-                    default:
-                        console.warn(`Unsupported book block type: ${block.type}`);
-                }
+                paginateBookBlock(block, chapterIndex);
             });
 
             ensureChapterHeading();
