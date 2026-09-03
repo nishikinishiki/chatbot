@@ -1,0 +1,56 @@
+name: Refactor ebook viewer stage 1
+
+on:
+  push:
+    branches:
+      - main
+    paths:
+      - .github/workflows/refactor-ebook-viewer-stage1.yml
+
+permissions:
+  contents: write
+
+jobs:
+  refactor:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+        with:
+          fetch-depth: 0
+
+      - name: Apply stage 1 refactor
+        run: python .github/scripts/refactor_ebook_viewer_stage1.py
+
+      - name: Validate JavaScript and scope
+        shell: bash
+        run: |
+          node --check zz_ebook/shared/viewer.js
+          git diff --check
+          test "$(git diff --name-only)" = "zz_ebook/shared/viewer.js"
+          grep -q 'function createHeading(level, text)' zz_ebook/shared/viewer.js
+          grep -q 'function moveTrailingHeadingToNewPage(chapterIndex)' zz_ebook/shared/viewer.js
+          grep -q 'function paginateBookBlock(block, chapterIndex)' zz_ebook/shared/viewer.js
+          grep -q '\.\.\.textBlocks(COLOPHON.publisher)' zz_ebook/shared/viewer.js
+          grep -q 'case "note"' zz_ebook/shared/viewer.js
+          grep -q 'type: "list"' zz_ebook/shared/viewer.js
+
+      - name: Verify behavior-sensitive code remains
+        shell: bash
+        run: |
+          grep -q 'currentChapter.blocks.push({' zz_ebook/shared/viewer.js
+          grep -q 'footnotes: true' zz_ebook/shared/viewer.js
+          grep -q '^    function paginateNote' zz_ebook/shared/viewer.js
+          grep -q 'tagName === "H2"' zz_ebook/shared/viewer.js
+          if git diff --name-only | grep -qE '(^|/)data\.js$|style\.css$'; then
+            echo "Stage 1 must not change data.js or style.css"
+            exit 1
+          fi
+
+      - name: Commit stage 1
+        shell: bash
+        run: |
+          git config user.name "github-actions[bot]"
+          git config user.email "41898282+github-actions[bot]@users.noreply.github.com"
+          git add zz_ebook/shared/viewer.js
+          git commit -m "Refactor ebook viewer structure before Markdown extensions"
+          git push origin main
