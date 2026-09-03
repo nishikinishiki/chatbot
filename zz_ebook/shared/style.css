@@ -263,6 +263,24 @@ body.overview {
     text-indent: 1em;
 }
 
+:where(.page-body, .measure-body) .book-list {
+    margin: 0 0 1.25em;
+    padding-left: 1.6em;
+}
+
+:where(.page-body, .measure-body) .book-list li {
+    margin: 0 0 0.35em;
+    overflow-wrap: anywhere;
+}
+
+:where(.page-body, .measure-body) .book-list li:last-child {
+    margin-bottom: 0;
+}
+
+:where(.page-body, .measure-body) .book-list--continuation {
+    list-style: none;
+}
+
 /* ---------- Book images ---------- */
 
 .book-image-block {
