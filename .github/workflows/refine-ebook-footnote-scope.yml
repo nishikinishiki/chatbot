@@ -1,0 +1,82 @@
+name: Refine ebook footnote scope
+
+on:
+  push:
+    branches:
+      - main
+    paths:
+      - .github/workflows/refine-ebook-footnote-scope.yml
+
+permissions:
+  contents: write
+
+jobs:
+  refine:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+        with:
+          fetch-depth: 0
+
+      - name: Apply footnote scope refinement
+        run: python .github/scripts/fix_ebook_footnote_scope.py
+
+      - name: Validate JavaScript and parser behavior
+        shell: bash
+        run: |
+          node --check zz_ebook/shared/viewer.js
+          git diff --check
+          node <<'NODE'
+          const fs = require('fs');
+          const source = fs.readFileSync('zz_ebook/shared/viewer.js', 'utf8');
+          const start = source.indexOf('    const FOOTNOTE_REF_BASE');
+          const end = source.indexOf('\n\n    if (!window.bookMarkdown)', start);
+          if (start < 0 || end < 0) throw new Error('Parser extraction failed');
+          const chunk = source.slice(start, end);
+          const parseBookMarkdown = new Function(`${chunk}\nreturn parseBookMarkdown;`)();
+          const sample = `---
+          title: Test
+          cover: cover.webp
+          published: 2026-09-03
+          ---
+          # Chapter 1
+          用語[^term]の説明です。もう一度[^term]参照します。
+
+          # Chapter 2
+          > [!NOTE]
+          > 文書全体への補足です。
+
+          [^term]: Chapter 1 で使う脚注を文書末尾に定義しています。
+          `;
+          const book = parseBookMarkdown(sample);
+          if (book.chapters.length !== 2) throw new Error('Chapter parse failed');
+          const first = book.chapters[0];
+          const paragraph = first.blocks.find((block) => block.type === 'paragraph');
+          if (!paragraph || paragraph.text.includes('[^term]')) {
+            throw new Error('Cross-chapter footnote reference was not resolved');
+          }
+          const footnotes = first.blocks.find((block) => block.footnotes);
+          if (!footnotes || footnotes.items.length !== 1) {
+            throw new Error('Repeated footnote should produce one chapter-end entry');
+          }
+          if (!footnotes.items[0].includes('文書末尾')) {
+            throw new Error('Document-wide footnote definition was not used');
+          }
+          const note = book.chapters[1].blocks.find((block) => block.type === 'note');
+          if (!note || !note.text.includes('文書全体への補足')) {
+            throw new Error('NOTE block parse failed');
+          }
+          NODE
+          if git diff --name-only | grep -E '/data\.js$'; then
+            echo "Unexpected data.js change"
+            exit 1
+          fi
+
+      - name: Commit refinement
+        shell: bash
+        run: |
+          git config user.name "github-actions[bot]"
+          git config user.email "41898282+github-actions[bot]@users.noreply.github.com"
+          git add zz_ebook/shared/viewer.js
+          git commit -m "Make ebook footnote definitions document-wide"
+          git push origin main
