@@ -474,26 +474,47 @@ function displayFinalConsentScreen(question, userResponses, initialQuestions, on
     
     const summaryAdjacentConsentTextDiv = document.createElement('div');
     summaryAdjacentConsentTextDiv.className = 'summary-adjacent-consent-text';
+    // ① プライバシーポリシーリンクの作成
     const privacyLinkSmall = document.createElement('a');
     privacyLinkSmall.href = question.privacy_policy_url;
     privacyLinkSmall.target = "_blank";
     privacyLinkSmall.rel = "noopener noreferrer";
     privacyLinkSmall.textContent = question.privacy_policy_link_text;
-    const giftTermsLinkSmall = document.createElement('a');
-    giftTermsLinkSmall.href = "#";
-    giftTermsLinkSmall.textContent = question.gift_terms_link_text;
-    giftTermsLinkSmall.onclick = (e) => {
-        e.preventDefault();
-        showModal(question.gift_terms_popup_title, question.gift_terms_popup_content);
-    };
     summaryAdjacentConsentTextDiv.appendChild(privacyLinkSmall);
-    summaryAdjacentConsentTextDiv.appendChild(document.createTextNode("に同意する。"));
-    const brElement1 = document.createElement('br');
-    summaryAdjacentConsentTextDiv.appendChild(brElement1);
-    summaryAdjacentConsentTextDiv.appendChild(document.createTextNode("※お客様に内容を深くご理解頂くために3回程度のご面談の機会を頂戴しております。"));
-    const brElement2 = document.createElement('br');
-    summaryAdjacentConsentTextDiv.appendChild(brElement2);
-    summaryAdjacentConsentTextDiv.appendChild(document.createTextNode("※お客様のご状況や提案状況に応じて面談回数は変動いたします。"));
+
+    // ② （もし設定されていれば）ギフト規約リンク等の作成
+    if (question.gift_terms_link_text) {
+        const giftTermsLinkSmall = document.createElement('a');
+        giftTermsLinkSmall.href = "#";
+        giftTermsLinkSmall.textContent = question.gift_terms_link_text;
+        giftTermsLinkSmall.onclick = (e) => {
+            e.preventDefault();
+            showModal(question.gift_terms_popup_title, question.gift_terms_popup_content);
+        };
+        summaryAdjacentConsentTextDiv.appendChild(giftTermsLinkSmall);
+    }
+
+    // ③ 「に同意する。」のテキスト追加
+    if (question.consent_text) {
+        summaryAdjacentConsentTextDiv.appendChild(document.createTextNode(question.consent_text));
+    }
+
+    // ④ 配列で渡された注意書き（notes）を専用のクラス付きのタグで囲んで追加
+    if (question.notes && Array.isArray(question.notes)) {
+        // notes全体を囲むコンテナを作成
+        const notesWrapper = document.createElement('div');
+        notesWrapper.className = 'consent-notes-wrapper';
+
+        question.notes.forEach(note => {
+            // 各行を <p> タグで作成
+            const noteElement = document.createElement('p');
+            noteElement.className = 'consent-note-item'; // CSS用のクラス名
+            noteElement.textContent = note;
+            notesWrapper.appendChild(noteElement);
+        });
+
+        summaryAdjacentConsentTextDiv.appendChild(notesWrapper);
+    }
     dom.chatMessages.appendChild(summaryAdjacentConsentTextDiv);
 
     const submitButtonAreaWrapper = document.createElement('div');

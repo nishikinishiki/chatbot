@@ -190,6 +190,13 @@ const questions = [
         answer_method: "final-consent",
         privacy_policy_link_text: "個人情報のお取り扱い",
         privacy_policy_url: "https://jpreturns.com/privacypolicy/",
+
+        consent_text: "に同意する。",
+        notes: [
+            "当社ではお客様により内容をご理解頂くために、複数回（3回程度）のご面談の機会を頂戴しております。予めご了承ください。",
+            "※お客様のご状況や提案状況に応じて面談回数は変動いたします。"
+        ],
+
         submit_button_text: "同意して送信",
         key: "final_consent_given"
     }

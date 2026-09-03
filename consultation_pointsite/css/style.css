@@ -652,8 +652,8 @@ body {
   font-size: 0.7em;
   color: var(--text-color-medium);
   text-align: left;
-  padding: 0 0 0 48px;
-  max-width: calc(100% - 48px);
+  padding: 0 0 0 41px;
+  max-width: calc(100% - 25px);
   word-wrap: break-word;
 }
 
@@ -664,6 +664,17 @@ body {
 
 .summary-adjacent-consent-text a:hover {
   color: var(--link-hover-color);
+}
+
+.consent-note-item {
+  color: var(--text-color-dark);
+  padding-top: 5px;
+  font-size: 1.2em;
+  line-height: 1.5;
+}
+
+.consent-note-item:last-child {
+  padding-top: 0;
 }
 
 /* ===============================================================
