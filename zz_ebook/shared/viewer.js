@@ -83,9 +83,13 @@
 
         let currentChapter = null;
         let paragraphBuffer = [];
+        let currentList = null;
 
         function flushParagraph() {
-            if (!paragraphBuffer.length || !currentChapter) return;
+            if (!paragraphBuffer.length || !currentChapter) {
+                paragraphBuffer = [];
+                return;
+            }
 
             currentChapter.blocks.push({
                 type: "paragraph",
@@ -94,16 +98,31 @@
             paragraphBuffer = [];
         }
 
+        function flushList() {
+            if (!currentList || !currentChapter) {
+                currentList = null;
+                return;
+            }
+
+            currentChapter.blocks.push(currentList);
+            currentList = null;
+        }
+
+        function flushTextBlocks() {
+            flushParagraph();
+            flushList();
+        }
+
         body.split("\n").forEach((rawLine) => {
             const line = rawLine.trim();
 
             if (!line) {
-                flushParagraph();
+                flushTextBlocks();
                 return;
             }
 
             if (line.startsWith("# ")) {
-                flushParagraph();
+                flushTextBlocks();
                 currentChapter = {
                     title: line.replace(/^#\s+/, ""),
                     blocks: []
@@ -115,7 +134,7 @@
             if (!currentChapter) return;
 
             if (line.startsWith("## ")) {
-                flushParagraph();
+                flushTextBlocks();
                 currentChapter.blocks.push({
                     type: "h2",
                     text: line.replace(/^##\s+/, "")
@@ -125,7 +144,7 @@
 
             const image = line.match(/^!\[(.*?)\]\((.*?)\)(\{page\})?$/);
             if (image) {
-                flushParagraph();
+                flushTextBlocks();
                 currentChapter.blocks.push({
                     type: image[3] ? "full-image" : "image",
                     alt: image[1],
@@ -134,10 +153,46 @@
                 return;
             }
 
+            const unorderedListItem = line.match(/^[-*+]\s+(.+)$/);
+            if (unorderedListItem) {
+                flushParagraph();
+
+                if (!currentList || currentList.ordered) {
+                    flushList();
+                    currentList = {
+                        type: "list",
+                        ordered: false,
+                        items: []
+                    };
+                }
+
+                currentList.items.push(unorderedListItem[1]);
+                return;
+            }
+
+            const orderedListItem = line.match(/^(\d+)\.\s+(.+)$/);
+            if (orderedListItem) {
+                flushParagraph();
+
+                if (!currentList || !currentList.ordered) {
+                    flushList();
+                    currentList = {
+                        type: "list",
+                        ordered: true,
+                        start: Number(orderedListItem[1]),
+                        items: []
+                    };
+                }
+
+                currentList.items.push(orderedListItem[2]);
+                return;
+            }
+
+            flushList();
             paragraphBuffer.push(line);
         });
 
-        flushParagraph();
+        flushTextBlocks();
         return book;
     }
 
@@ -523,6 +578,23 @@
         return paragraph;
     }
 
+    function createList(block, items = block.items, start = block.start ?? 1, continuation = false) {
+        const list = document.createElement(block.ordered ? "ol" : "ul");
+        list.className = continuation
+            ? "book-list book-list--continuation"
+            : "book-list";
+
+        if (block.ordered && start !== 1) {
+            list.start = start;
+        }
+
+        items.forEach((text) => {
+            list.appendChild(createTextElement("li", text));
+        });
+
+        return list;
+    }
+
     function createImageBlock(block) {
         const figure = document.createElement("figure");
         figure.className = "book-image-block";
@@ -755,6 +827,134 @@
         }
     }
 
+    function findLargestFittingListItemPrefix(block, itemText, start, continuation) {
+        let low = 1;
+        let high = itemText.length;
+        let best = 0;
+
+        while (low <= high) {
+            const mid = Math.floor((low + high) / 2);
+            const node = createList(
+                block,
+                [itemText.slice(0, mid)],
+                start,
+                continuation
+            );
+            els.measureBody.appendChild(node);
+
+            const fits = fitsMeasureBody();
+            node.remove();
+
+            if (fits) {
+                best = mid;
+                low = mid + 1;
+            } else {
+                high = mid - 1;
+            }
+        }
+
+        return best;
+    }
+
+    function paginateOversizedListItem(block, itemText, start, chapterIndex) {
+        let remaining = itemText;
+        let continuation = false;
+
+        while (remaining.length > 0) {
+            const fullNode = createList(block, [remaining], start, continuation);
+            els.measureBody.appendChild(fullNode);
+
+            if (fitsMeasureBody()) return;
+
+            fullNode.remove();
+
+            const fittingLength = findLargestFittingListItemPrefix(
+                block,
+                remaining,
+                start,
+                continuation
+            );
+
+            if (fittingLength === 0) {
+                const trailingHeading = els.measureBody.lastElementChild;
+
+                if (trailingHeading?.tagName === "H2") {
+                    moveBlockToNewPage(trailingHeading, chapterIndex);
+                    continue;
+                }
+
+                if (els.measureBody.innerHTML.trim()) {
+                    commitMeasuredPage(chapterIndex);
+                    continue;
+                }
+
+                const fallbackText = remaining.slice(0, 1);
+                els.measureBody.appendChild(
+                    createList(block, [fallbackText], start, continuation)
+                );
+                commitMeasuredPage(chapterIndex);
+                remaining = remaining.slice(1);
+                continuation = true;
+                continue;
+            }
+
+            const fittingText = remaining.slice(0, fittingLength);
+            els.measureBody.appendChild(
+                createList(block, [fittingText], start, continuation)
+            );
+            commitMeasuredPage(chapterIndex);
+
+            remaining = remaining.slice(fittingLength);
+            continuation = true;
+        }
+    }
+
+    function paginateList(block, chapterIndex) {
+        let index = 0;
+
+        while (index < block.items.length) {
+            const start = (block.start ?? 1) + index;
+            const list = createList(block, [], start);
+            els.measureBody.appendChild(list);
+            let addedItems = 0;
+
+            while (index < block.items.length) {
+                const item = createTextElement("li", block.items[index]);
+                list.appendChild(item);
+
+                if (!fitsMeasureBody()) {
+                    item.remove();
+                    break;
+                }
+
+                index += 1;
+                addedItems += 1;
+            }
+
+            if (index >= block.items.length) return;
+
+            if (addedItems > 0) {
+                commitMeasuredPage(chapterIndex);
+                continue;
+            }
+
+            list.remove();
+
+            if (els.measureBody.innerHTML.trim()) {
+                commitMeasuredPage(chapterIndex);
+                continue;
+            }
+
+            paginateOversizedListItem(
+                block,
+                block.items[index],
+                start,
+                chapterIndex
+            );
+            index += 1;
+        }
+    }
+
     function createColophonSection() {
         const section = document.createElement("section");
         section.className = "colophon";
@@ -851,6 +1051,9 @@
                     }
                     case "paragraph":
                         paginateParagraph(block.text, chapterIndex);
+                        break;
+                    case "list":
+                        paginateList(block, chapterIndex);
                         break;
                     default:
                         console.warn(`Unsupported book block type: ${block.type}`);
