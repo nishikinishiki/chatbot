@@ -108,6 +108,7 @@
         let currentList = null;
         let currentNote = null;
         let currentFootnote = null;
+        const footnoteDefinitions = new Map();
 
         function flushParagraph() {
             if (!paragraphBuffer.length || !currentChapter) {
@@ -146,12 +147,9 @@
         }
 
         function flushFootnote() {
-            if (!currentFootnote || !currentChapter) {
-                currentFootnote = null;
-                return;
-            }
+            if (!currentFootnote) return;
 
-            currentChapter.footnotes.set(
+            footnoteDefinitions.set(
                 currentFootnote.id,
                 currentFootnote.lines.join("\n").trim()
             );
@@ -163,10 +161,10 @@
             flushList();
         }
 
-        function replaceFootnoteReferences(text, chapter, order, numbers) {
+        function replaceFootnoteReferences(text, order, numbers) {
             return text.replace(/\[\^([^\]]+)\]/g, (match, rawId) => {
                 const id = rawId.trim();
-                if (!chapter.footnotes.has(id)) return match;
+                if (!footnoteDefinitions.has(id)) return match;
 
                 if (!numbers.has(id)) {
                     const number = numbers.size + 1;
@@ -179,10 +177,7 @@
         }
 
         function finalizeChapterFootnotes(chapter) {
-            if (!chapter.footnotes?.size) {
-                delete chapter.footnotes;
-                return;
-            }
+            if (!footnoteDefinitions.size) return;
 
             const order = [];
             const numbers = new Map();
@@ -195,7 +190,6 @@
                 ) {
                     block.text = replaceFootnoteReferences(
                         block.text,
-                        chapter,
                         order,
                         numbers
                     );
@@ -206,7 +200,6 @@
                     block.items = block.items.map((item) =>
                         replaceFootnoteReferences(
                             item,
-                            chapter,
                             order,
                             numbers
                         )
@@ -220,11 +213,9 @@
                     ordered: true,
                     start: 1,
                     footnotes: true,
-                    items: order.map((id) => chapter.footnotes.get(id))
+                    items: order.map((id) => footnoteDefinitions.get(id))
                 });
             }
-
-            delete chapter.footnotes;
         }
 
         body.split("\n").forEach((rawLine) => {
@@ -259,10 +250,19 @@
                 flushTextBlocks();
                 currentChapter = {
                     title: line.replace(/^#\s+/, ""),
-                    blocks: [],
-                    footnotes: new Map()
+                    blocks: []
                 };
                 book.chapters.push(currentChapter);
+                return;
+            }
+
+            const footnoteDefinition = line.match(/^\[\^([^\]]+)\]:\s*(.*)$/);
+            if (footnoteDefinition) {
+                flushTextBlocks();
+                currentFootnote = {
+                    id: footnoteDefinition[1].trim(),
+                    lines: [footnoteDefinition[2]]
+                };
                 return;
             }
 
@@ -274,16 +274,6 @@
                     type: "h2",
                     text: line.replace(/^##\s+/, "")
                 });
-                return;
-            }
-
-            const footnoteDefinition = line.match(/^\[\^([^\]]+)\]:\s*(.*)$/);
-            if (footnoteDefinition) {
-                flushTextBlocks();
-                currentFootnote = {
-                    id: footnoteDefinition[1].trim(),
-                    lines: [footnoteDefinition[2]]
-                };
                 return;
             }
 
