@@ -765,12 +765,6 @@
             ? "book-note book-note--continuation"
             : "book-note";
 
-        if (!continuation) {
-            note.appendChild(
-                createTextElement("div", "注記", "book-note__label")
-            );
-        }
-
         const body = document.createElement("div");
         body.className = "book-note__text";
         appendMultilineInlineText(body, text);
