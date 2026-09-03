@@ -1,0 +1,222 @@
+from pathlib import Path
+
+viewer_path = Path("zz_ebook/shared/viewer.js")
+style_path = Path("zz_ebook/shared/style.css")
+viewer = viewer_path.read_text(encoding="utf-8")
+style = style_path.read_text(encoding="utf-8")
+
+old_helpers = '''    const FOOTNOTE_REF_BASE = 0xE000;
+    const FOOTNOTE_REF_LIMIT = 255;
+
+    function encodeFootnoteReference(number) {
+        if (number < 1 || number > FOOTNOTE_REF_LIMIT) {
+            return `[${number}]`;
+        }
+
+        return String.fromCharCode(FOOTNOTE_REF_BASE + number);
+    }
+
+    function getFootnoteReferenceNumber(char) {
+        if (!char) return null;
+
+        const code = char.charCodeAt(0);
+        const number = code - FOOTNOTE_REF_BASE;
+
+        return number >= 1 && number <= FOOTNOTE_REF_LIMIT
+            ? number
+            : null;
+    }
+'''
+new_helpers = '''    const FOOTNOTE_REF_BASE = 0xE000;
+    const FOOTNOTE_REF_LIMIT = 255;
+    const footnoteReferenceLabels = [];
+
+    function encodeFootnoteReference(label) {
+        const index = footnoteReferenceLabels.length + 1;
+
+        if (index > FOOTNOTE_REF_LIMIT) {
+            return label;
+        }
+
+        footnoteReferenceLabels.push(label);
+        return String.fromCharCode(FOOTNOTE_REF_BASE + index);
+    }
+
+    function getFootnoteReferenceLabel(char) {
+        if (!char) return null;
+
+        const code = char.charCodeAt(0);
+        const index = code - FOOTNOTE_REF_BASE;
+
+        if (index < 1 || index > FOOTNOTE_REF_LIMIT) return null;
+        return footnoteReferenceLabels[index - 1] ?? null;
+    }
+'''
+if old_helpers not in viewer:
+    raise SystemExit("footnote helper block not found")
+viewer = viewer.replace(old_helpers, new_helpers, 1)
+
+old_replace = '''        function replaceFootnoteReferences(text, order, numbers) {
+            return text.replace(/\\[\\^([^\\]]+)\\]/g, (match, rawId) => {
+                const id = rawId.trim();
+                if (!footnoteDefinitions.has(id)) return match;
+
+                if (!numbers.has(id)) {
+                    const number = numbers.size + 1;
+                    numbers.set(id, number);
+                    order.push(id);
+                }
+
+                return encodeFootnoteReference(numbers.get(id));
+            });
+        }
+'''
+new_replace = '''        function replaceFootnoteReferences(text, order, references) {
+            return text.replace(/\\[\\^([^\\]]+)\\]/g, (match, rawId) => {
+                const id = rawId.trim();
+                if (!footnoteDefinitions.has(id)) return match;
+
+                if (!references.has(id)) {
+                    references.set(id, encodeFootnoteReference(id));
+                    order.push(id);
+                }
+
+                return references.get(id);
+            });
+        }
+'''
+if old_replace not in viewer:
+    raise SystemExit("replaceFootnoteReferences block not found")
+viewer = viewer.replace(old_replace, new_replace, 1)
+
+old_finalize = '''            const order = [];
+            const numbers = new Map();
+
+            chapter.blocks.forEach((block) => {
+                if (
+                    block.type === "paragraph" ||
+                    block.type === "h2" ||
+                    block.type === "note"
+                ) {
+                    block.text = replaceFootnoteReferences(
+                        block.text,
+                        order,
+                        numbers
+                    );
+                    return;
+                }
+
+                if (block.type === "list") {
+                    block.items = block.items.map((item) =>
+                        replaceFootnoteReferences(
+                            item,
+                            order,
+                            numbers
+                        )
+                    );
+                }
+            });
+
+            if (order.length) {
+                chapter.blocks.push({
+                    type: "list",
+                    ordered: true,
+                    start: 1,
+                    footnotes: true,
+                    items: order.map((id) => footnoteDefinitions.get(id))
+                });
+            }
+'''
+new_finalize = '''            const order = [];
+            const references = new Map();
+
+            chapter.blocks.forEach((block) => {
+                if (
+                    block.type === "paragraph" ||
+                    block.type === "h2" ||
+                    block.type === "note"
+                ) {
+                    block.text = replaceFootnoteReferences(
+                        block.text,
+                        order,
+                        references
+                    );
+                    return;
+                }
+
+                if (block.type === "list") {
+                    block.items = block.items.map((item) =>
+                        replaceFootnoteReferences(
+                            item,
+                            order,
+                            references
+                        )
+                    );
+                }
+            });
+
+            if (order.length) {
+                chapter.blocks.push({
+                    type: "list",
+                    ordered: false,
+                    footnotes: true,
+                    items: order.map(
+                        (id) => `${id}　${footnoteDefinitions.get(id)}`
+                    )
+                });
+            }
+'''
+if old_finalize not in viewer:
+    raise SystemExit("finalizeChapterFootnotes block not found")
+viewer = viewer.replace(old_finalize, new_finalize, 1)
+
+old_inline = '''        for (const char of text) {
+            const number = getFootnoteReferenceNumber(char);
+            if (number == null) {
+                plainText += char;
+                continue;
+            }
+
+            flushPlainText();
+            const reference = document.createElement("sup");
+            reference.className = "footnote-ref";
+            reference.textContent = String(number);
+            reference.setAttribute("aria-label", `注釈 ${number}`);
+            parent.appendChild(reference);
+        }
+'''
+new_inline = '''        for (const char of text) {
+            const label = getFootnoteReferenceLabel(char);
+            if (label == null) {
+                plainText += char;
+                continue;
+            }
+
+            flushPlainText();
+            const reference = document.createElement("sup");
+            reference.className = "footnote-ref";
+            reference.textContent = label;
+            reference.setAttribute("aria-label", `注釈 ${label}`);
+            parent.appendChild(reference);
+        }
+'''
+if old_inline not in viewer:
+    raise SystemExit("appendInlineText footnote block not found")
+viewer = viewer.replace(old_inline, new_inline, 1)
+
+old_css = ''':where(.page-body, .measure-body) .book-footnotes {
+    margin-top: 1.5em;
+    padding-top: 0.8em;
+'''
+new_css = ''':where(.page-body, .measure-body) .book-footnotes {
+    margin-top: 1.5em;
+    padding-top: 0.8em;
+    padding-left: 0;
+    list-style: none;
+'''
+if old_css not in style:
+    raise SystemExit("book-footnotes CSS block not found")
+style = style.replace(old_css, new_css, 1)
+
+viewer_path.write_text(viewer, encoding="utf-8")
+style_path.write_text(style, encoding="utf-8")
