@@ -57,24 +57,27 @@
 
     const FOOTNOTE_REF_BASE = 0xE000;
     const FOOTNOTE_REF_LIMIT = 255;
+    const footnoteReferenceLabels = [];
 
-    function encodeFootnoteReference(number) {
-        if (number < 1 || number > FOOTNOTE_REF_LIMIT) {
-            return `[${number}]`;
+    function encodeFootnoteReference(label) {
+        const index = footnoteReferenceLabels.length + 1;
+
+        if (index > FOOTNOTE_REF_LIMIT) {
+            return label;
         }
 
-        return String.fromCharCode(FOOTNOTE_REF_BASE + number);
+        footnoteReferenceLabels.push(label);
+        return String.fromCharCode(FOOTNOTE_REF_BASE + index);
     }
 
-    function getFootnoteReferenceNumber(char) {
+    function getFootnoteReferenceLabel(char) {
         if (!char) return null;
 
         const code = char.charCodeAt(0);
-        const number = code - FOOTNOTE_REF_BASE;
+        const index = code - FOOTNOTE_REF_BASE;
 
-        return number >= 1 && number <= FOOTNOTE_REF_LIMIT
-            ? number
-            : null;
+        if (index < 1 || index > FOOTNOTE_REF_LIMIT) return null;
+        return footnoteReferenceLabels[index - 1] ?? null;
     }
 
     function parseBookMarkdown(md) {
@@ -161,18 +164,17 @@
             flushList();
         }
 
-        function replaceFootnoteReferences(text, order, numbers) {
+        function replaceFootnoteReferences(text, order, references) {
             return text.replace(/\[\^([^\]]+)\]/g, (match, rawId) => {
                 const id = rawId.trim();
                 if (!footnoteDefinitions.has(id)) return match;
 
-                if (!numbers.has(id)) {
-                    const number = numbers.size + 1;
-                    numbers.set(id, number);
+                if (!references.has(id)) {
+                    references.set(id, encodeFootnoteReference(id));
                     order.push(id);
                 }
 
-                return encodeFootnoteReference(numbers.get(id));
+                return references.get(id);
             });
         }
 
@@ -180,7 +182,7 @@
             if (!footnoteDefinitions.size) return;
 
             const order = [];
-            const numbers = new Map();
+            const references = new Map();
 
             chapter.blocks.forEach((block) => {
                 if (
@@ -191,7 +193,7 @@
                     block.text = replaceFootnoteReferences(
                         block.text,
                         order,
-                        numbers
+                        references
                     );
                     return;
                 }
@@ -201,7 +203,7 @@
                         replaceFootnoteReferences(
                             item,
                             order,
-                            numbers
+                            references
                         )
                     );
                 }
@@ -210,10 +212,11 @@
             if (order.length) {
                 chapter.blocks.push({
                     type: "list",
-                    ordered: true,
-                    start: 1,
+                    ordered: false,
                     footnotes: true,
-                    items: order.map((id) => footnoteDefinitions.get(id))
+                    items: order.map(
+                        (id) => `${id}　${footnoteDefinitions.get(id)}`
+                    )
                 });
             }
         }
@@ -715,8 +718,8 @@
         };
 
         for (const char of text) {
-            const number = getFootnoteReferenceNumber(char);
-            if (number == null) {
+            const label = getFootnoteReferenceLabel(char);
+            if (label == null) {
                 plainText += char;
                 continue;
             }
@@ -724,8 +727,8 @@
             flushPlainText();
             const reference = document.createElement("sup");
             reference.className = "footnote-ref";
-            reference.textContent = String(number);
-            reference.setAttribute("aria-label", `注釈 ${number}`);
+            reference.textContent = label;
+            reference.setAttribute("aria-label", `注釈 ${label}`);
             parent.appendChild(reference);
         }
 
