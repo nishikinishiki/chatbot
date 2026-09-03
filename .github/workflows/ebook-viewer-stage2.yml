@@ -57,6 +57,7 @@ jobs:
 
           const context = {
             console,
+            document: { documentElement: {} },
             getComputedStyle() {
               return { getPropertyValue() { return ''; } };
             }
@@ -118,7 +119,7 @@ jobs:
           const allFootnoteItems = [...first.blocks, ...second.blocks]
             .filter((b) => b.type === 'footnotes')
             .flatMap((b) => b.items.map((item) => item.label));
-          assert.deepEqual(allFootnoteItems, ['※1', '※2']);
+          assert.equal(allFootnoteItems.join(','), '※1,※2');
 
           const sectionB = first.blocks.slice(h2Indexes[1]);
           const reusedRef = sectionB.some((b) =>
