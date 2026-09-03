@@ -1,0 +1,43 @@
+name: Apply ebook annotation support v2
+
+on:
+  push:
+    branches:
+      - main
+    paths:
+      - .github/workflows/apply-ebook-annotations-v2.yml
+
+permissions:
+  contents: write
+
+jobs:
+  apply:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+        with:
+          fetch-depth: 0
+
+      - name: Apply shared viewer patch
+        run: python .github/scripts/apply_ebook_annotations.py
+
+      - name: Validate implementation
+        shell: bash
+        run: |
+          node --check zz_ebook/shared/viewer.js
+          git diff --check
+          grep -q 'case "note"' zz_ebook/shared/viewer.js
+          grep -q 'book-footnotes' zz_ebook/shared/style.css
+          if git diff --name-only | grep -E '/data\.js$'; then
+            echo "Unexpected data.js change"
+            exit 1
+          fi
+
+      - name: Commit implementation
+        shell: bash
+        run: |
+          git config user.name "github-actions[bot]"
+          git config user.email "41898282+github-actions[bot]@users.noreply.github.com"
+          git add zz_ebook/shared/viewer.js zz_ebook/shared/style.css
+          git commit -m "Add Markdown notes and footnotes to ebook viewer"
+          git push origin main
