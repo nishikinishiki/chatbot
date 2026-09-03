@@ -528,24 +528,18 @@ jobs:
           viewer = viewer.replace(old_h2, new_h2, 1)
 
           # NOTE joins the same block switch as paragraph/list/image.
-          old_switch = '''                    case "paragraph":
-                          paginateParagraph(block.text, chapterIndex);
-                          break;
-                      case "list":
+          list_case = '''                    case "list":
                           paginateList(block, chapterIndex);
                           break;'''
-          new_switch = '''                    case "paragraph":
-                          paginateParagraph(block.text, chapterIndex);
-                          break;
-                      case "note":
+          note_and_list_case = '''                    case "note":
                           paginateNote(block.text, chapterIndex);
                           break;
                       case "list":
                           paginateList(block, chapterIndex);
                           break;'''
-          if old_switch not in viewer:
-              raise SystemExit("paginateBook switch marker not found")
-          viewer = viewer.replace(old_switch, new_switch, 1)
+          if list_case not in viewer:
+              raise SystemExit("paginateBook list case marker not found")
+          viewer = viewer.replace(list_case, note_and_list_case, 1)
 
           # ---------- CSS ----------
           css_marker = ''':where(.page-body, .measure-body) .book-list--continuation {
