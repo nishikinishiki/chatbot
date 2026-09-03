@@ -55,6 +55,28 @@
         ]
     };
 
+    const FOOTNOTE_REF_BASE = 0xE000;
+    const FOOTNOTE_REF_LIMIT = 255;
+
+    function encodeFootnoteReference(number) {
+        if (number < 1 || number > FOOTNOTE_REF_LIMIT) {
+            return `[${number}]`;
+        }
+
+        return String.fromCharCode(FOOTNOTE_REF_BASE + number);
+    }
+
+    function getFootnoteReferenceNumber(char) {
+        if (!char) return null;
+
+        const code = char.charCodeAt(0);
+        const number = code - FOOTNOTE_REF_BASE;
+
+        return number >= 1 && number <= FOOTNOTE_REF_LIMIT
+            ? number
+            : null;
+    }
+
     function parseBookMarkdown(md) {
         const book = {
             title: "無題",
@@ -84,6 +106,8 @@
         let currentChapter = null;
         let paragraphBuffer = [];
         let currentList = null;
+        let currentNote = null;
+        let currentFootnote = null;
 
         function flushParagraph() {
             if (!paragraphBuffer.length || !currentChapter) {
@@ -108,13 +132,123 @@
             currentList = null;
         }
 
+        function flushNote() {
+            if (!currentNote || !currentChapter) {
+                currentNote = null;
+                return;
+            }
+
+            currentChapter.blocks.push({
+                type: "note",
+                text: currentNote.join("\n")
+            });
+            currentNote = null;
+        }
+
+        function flushFootnote() {
+            if (!currentFootnote || !currentChapter) {
+                currentFootnote = null;
+                return;
+            }
+
+            currentChapter.footnotes.set(
+                currentFootnote.id,
+                currentFootnote.lines.join("\n").trim()
+            );
+            currentFootnote = null;
+        }
+
         function flushTextBlocks() {
             flushParagraph();
             flushList();
         }
 
+        function replaceFootnoteReferences(text, chapter, order, numbers) {
+            return text.replace(/\[\^([^\]]+)\]/g, (match, rawId) => {
+                const id = rawId.trim();
+                if (!chapter.footnotes.has(id)) return match;
+
+                if (!numbers.has(id)) {
+                    const number = numbers.size + 1;
+                    numbers.set(id, number);
+                    order.push(id);
+                }
+
+                return encodeFootnoteReference(numbers.get(id));
+            });
+        }
+
+        function finalizeChapterFootnotes(chapter) {
+            if (!chapter.footnotes?.size) {
+                delete chapter.footnotes;
+                return;
+            }
+
+            const order = [];
+            const numbers = new Map();
+
+            chapter.blocks.forEach((block) => {
+                if (
+                    block.type === "paragraph" ||
+                    block.type === "h2" ||
+                    block.type === "note"
+                ) {
+                    block.text = replaceFootnoteReferences(
+                        block.text,
+                        chapter,
+                        order,
+                        numbers
+                    );
+                    return;
+                }
+
+                if (block.type === "list") {
+                    block.items = block.items.map((item) =>
+                        replaceFootnoteReferences(
+                            item,
+                            chapter,
+                            order,
+                            numbers
+                        )
+                    );
+                }
+            });
+
+            if (order.length) {
+                chapter.blocks.push({
+                    type: "list",
+                    ordered: true,
+                    start: 1,
+                    footnotes: true,
+                    items: order.map((id) => chapter.footnotes.get(id))
+                });
+            }
+
+            delete chapter.footnotes;
+        }
+
         body.split("\n").forEach((rawLine) => {
             const line = rawLine.trim();
+
+            if (currentFootnote) {
+                const continuation = rawLine.match(/^(?: {4}|\t)(.*)$/);
+                if (continuation) {
+                    currentFootnote.lines.push(continuation[1]);
+                    return;
+                }
+
+                flushFootnote();
+            }
+
+            if (currentNote) {
+                const noteLine = rawLine.match(/^\s*>\s?(.*)$/);
+                if (noteLine) {
+                    currentNote.push(noteLine[1]);
+                    return;
+                }
+
+                flushNote();
+            }
 
             if (!line) {
                 flushTextBlocks();
@@ -125,7 +259,8 @@
                 flushTextBlocks();
                 currentChapter = {
                     title: line.replace(/^#\s+/, ""),
-                    blocks: []
+                    blocks: [],
+                    footnotes: new Map()
                 };
                 book.chapters.push(currentChapter);
                 return;
@@ -139,6 +274,22 @@
                     type: "h2",
                     text: line.replace(/^##\s+/, "")
                 });
+                return;
+            }
+
+            const footnoteDefinition = line.match(/^\[\^([^\]]+)\]:\s*(.*)$/);
+            if (footnoteDefinition) {
+                flushTextBlocks();
+                currentFootnote = {
+                    id: footnoteDefinition[1].trim(),
+                    lines: [footnoteDefinition[2]]
+                };
+                return;
+            }
+
+            if (/^>\s*\[!NOTE\]\s*$/i.test(line)) {
+                flushTextBlocks();
+                currentNote = [];
                 return;
             }
 
@@ -192,7 +343,10 @@
             paragraphBuffer.push(line);
         });
 
+        flushFootnote();
+        flushNote();
         flushTextBlocks();
+        book.chapters.forEach(finalizeChapterFootnotes);
         return book;
     }
 
@@ -561,6 +715,49 @@
         return element;
     }
 
+    function appendInlineText(parent, text) {
+        let plainText = "";
+
+        const flushPlainText = () => {
+            if (!plainText) return;
+            parent.appendChild(document.createTextNode(plainText));
+            plainText = "";
+        };
+
+        for (const char of text) {
+            const number = getFootnoteReferenceNumber(char);
+            if (number == null) {
+                plainText += char;
+                continue;
+            }
+
+            flushPlainText();
+            const reference = document.createElement("sup");
+            reference.className = "footnote-ref";
+            reference.textContent = String(number);
+            reference.setAttribute("aria-label", `注釈 ${number}`);
+            parent.appendChild(reference);
+        }
+
+        flushPlainText();
+    }
+
+    function appendMultilineInlineText(parent, text) {
+        text.split("\n").forEach((line, index) => {
+            if (index > 0) {
+                parent.appendChild(document.createElement("br"));
+            }
+            appendInlineText(parent, line);
+        });
+    }
+
+    function createInlineTextElement(tag, text, className = "") {
+        const element = document.createElement(tag);
+        if (className) element.className = className;
+        appendInlineText(element, text);
+        return element;
+    }
+
     function createParagraph(text, continuation = false) {
         const paragraph = createTextElement(
             "p",
@@ -568,28 +765,46 @@
             continuation ? "continuation" : ""
         );
 
-        text.split("\n").forEach((line, index) => {
-            if (index > 0) {
-                paragraph.appendChild(document.createElement("br"));
-            }
-            paragraph.appendChild(document.createTextNode(line));
-        });
-
+        appendMultilineInlineText(paragraph, text);
         return paragraph;
+    }
+
+    function createNote(text, continuation = false) {
+        const note = document.createElement("aside");
+        note.className = continuation
+            ? "book-note book-note--continuation"
+            : "book-note";
+
+        if (!continuation) {
+            note.appendChild(
+                createTextElement("div", "注記", "book-note__label")
+            );
+        }
+
+        const body = document.createElement("div");
+        body.className = "book-note__text";
+        appendMultilineInlineText(body, text);
+        note.appendChild(body);
+
+        return note;
     }
 
     function createList(block, items = block.items, start = block.start ?? 1, continuation = false) {
         const list = document.createElement(block.ordered ? "ol" : "ul");
-        list.className = continuation
-            ? "book-list book-list--continuation"
-            : "book-list";
+        const classNames = ["book-list"];
+
+        if (block.footnotes) classNames.push("book-footnotes");
+        if (continuation) classNames.push("book-list--continuation");
+        list.className = classNames.join(" ");
 
         if (block.ordered && start !== 1) {
             list.start = start;
         }
 
         items.forEach((text) => {
-            list.appendChild(createTextElement("li", text));
+            const item = document.createElement("li");
+            appendMultilineInlineText(item, text);
+            list.appendChild(item);
         });
 
         return list;
@@ -827,6 +1042,79 @@
         }
     }
 
+    function findLargestFittingNotePrefix(noteText, continuation) {
+        let low = 1;
+        let high = noteText.length;
+        let best = 0;
+
+        while (low <= high) {
+            const mid = Math.floor((low + high) / 2);
+            const node = createNote(noteText.slice(0, mid), continuation);
+            els.measureBody.appendChild(node);
+
+            const fits = fitsMeasureBody();
+            node.remove();
+
+            if (fits) {
+                best = mid;
+                low = mid + 1;
+            } else {
+                high = mid - 1;
+            }
+        }
+
+        return best;
+    }
+
+    function paginateNote(text, chapterIndex) {
+        let remaining = text;
+        let continuation = false;
+
+        while (remaining.length > 0) {
+            const fullNode = createNote(remaining, continuation);
+            els.measureBody.appendChild(fullNode);
+
+            if (fitsMeasureBody()) return;
+
+            fullNode.remove();
+
+            if (!continuation && els.measureBody.innerHTML.trim()) {
+                commitMeasuredPage(chapterIndex);
+                continue;
+            }
+
+            const fittingLength = findLargestFittingNotePrefix(
+                remaining,
+                continuation
+            );
+
+            if (fittingLength === 0) {
+                if (els.measureBody.innerHTML.trim()) {
+                    commitMeasuredPage(chapterIndex);
+                    continue;
+                }
+
+                const fallbackText = remaining.slice(0, 1);
+                els.measureBody.appendChild(
+                    createNote(fallbackText, continuation)
+                );
+                commitMeasuredPage(chapterIndex);
+                remaining = remaining.slice(1);
+                continuation = true;
+                continue;
+            }
+
+            const fittingText = remaining.slice(0, fittingLength);
+            els.measureBody.appendChild(
+                createNote(fittingText, continuation)
+            );
+            commitMeasuredPage(chapterIndex);
+
+            remaining = remaining.slice(fittingLength);
+            continuation = true;
+        }
+    }
+
     function findLargestFittingListItemPrefix(block, itemText, start, continuation) {
         let low = 1;
         let high = itemText.length;
@@ -919,7 +1207,8 @@
             let addedItems = 0;
 
             while (index < block.items.length) {
-                const item = createTextElement("li", block.items[index]);
+                const item = document.createElement("li");
+                appendMultilineInlineText(item, block.items[index]);
                 list.appendChild(item);
 
                 if (!fitsMeasureBody()) {
@@ -1041,7 +1330,7 @@
                         paginateImageBlock(block, chapterIndex);
                         break;
                     case "h2": {
-                        const node = createTextElement("h2", block.text);
+                        const node = createInlineTextElement("h2", block.text);
                         els.measureBody.appendChild(node);
 
                         if (!fitsMeasureBody()) {
@@ -1051,6 +1340,9 @@
                     }
                     case "paragraph":
                         paginateParagraph(block.text, chapterIndex);
+                        break;
+                    case "note":
+                        paginateNote(block.text, chapterIndex);
                         break;
                     case "list":
                         paginateList(block, chapterIndex);

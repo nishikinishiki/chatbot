@@ -281,6 +281,69 @@ body.overview {
     list-style: none;
 }
 
+:where(.page-body, .measure-body) .footnote-ref {
+    margin-left: 0.08em;
+    font-size: 0.68em;
+    font-weight: 600;
+    line-height: 1;
+    vertical-align: super;
+    pointer-events: none;
+}
+
+:where(.page-body, .measure-body) .book-note {
+    margin: 1em 0 1.25em;
+    padding: 0.8em 1em;
+    border-left: 3px solid var(--line);
+    background: var(--chrome-bg);
+    font-size: 0.85em;
+    line-height: 1.65;
+    text-align: left;
+}
+
+:where(.page-body, .measure-body) .book-note__label {
+    margin-bottom: 0.35em;
+    color: var(--text);
+    font-size: 0.9em;
+    font-weight: 600;
+}
+
+:where(.page-body, .measure-body) .book-note__text {
+    color: var(--text-secondary);
+    overflow-wrap: anywhere;
+}
+
+:where(.page-body, .measure-body) .book-note--continuation {
+    margin-top: 0;
+}
+
+:where(.page-body, .measure-body) .book-footnotes {
+    margin-top: 1.5em;
+    padding-top: 0.8em;
+    border-top: 1px solid var(--line);
+    color: var(--text-secondary);
+    font-size: 0.78em;
+    font-weight: 400;
+    line-height: 1.6;
+    text-align: left;
+}
+
+:where(.page-body, .measure-body) .book-footnotes::before {
+    content: "注釈";
+    display: block;
+    margin: 0 0 0.5em -1.75em;
+    color: var(--text);
+    font-weight: 600;
+}
+
+:where(.page-body, .measure-body) .book-footnotes li {
+    margin-bottom: 0.4em;
+}
+
+:where(.page-body, .measure-body) .book-footnotes li:last-child {
+    margin-bottom: 0;
+}
+
+
 /* ---------- Book images ---------- */
 
 .book-image-block {
