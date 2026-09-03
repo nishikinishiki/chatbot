@@ -152,10 +152,18 @@
         function flushFootnote() {
             if (!currentFootnote) return;
 
-            footnoteDefinitions.set(
-                currentFootnote.id,
-                currentFootnote.lines.join("\n").trim()
-            );
+            const text = currentFootnote.lines.join("\n").trim();
+            footnoteDefinitions.set(currentFootnote.id, text);
+
+            if (currentChapter) {
+                currentChapter.blocks.push({
+                    type: "list",
+                    ordered: false,
+                    footnotes: true,
+                    items: [`${currentFootnote.id}　${text}`]
+                });
+            }
+
             currentFootnote = null;
         }
 
@@ -164,14 +172,13 @@
             flushList();
         }
 
-        function replaceFootnoteReferences(text, order, references) {
+        function replaceFootnoteReferences(text, references) {
             return text.replace(/\[\^([^\]]+)\]/g, (match, rawId) => {
                 const id = rawId.trim();
                 if (!footnoteDefinitions.has(id)) return match;
 
                 if (!references.has(id)) {
                     references.set(id, encodeFootnoteReference(id));
-                    order.push(id);
                 }
 
                 return references.get(id);
@@ -181,7 +188,6 @@
         function finalizeChapterFootnotes(chapter) {
             if (!footnoteDefinitions.size) return;
 
-            const order = [];
             const references = new Map();
 
             chapter.blocks.forEach((block) => {
@@ -192,33 +198,17 @@
                 ) {
                     block.text = replaceFootnoteReferences(
                         block.text,
-                        order,
                         references
                     );
                     return;
                 }
 
-                if (block.type === "list") {
+                if (block.type === "list" && !block.footnotes) {
                     block.items = block.items.map((item) =>
-                        replaceFootnoteReferences(
-                            item,
-                            order,
-                            references
-                        )
+                        replaceFootnoteReferences(item, references)
                     );
                 }
             });
-
-            if (order.length) {
-                chapter.blocks.push({
-                    type: "list",
-                    ordered: false,
-                    footnotes: true,
-                    items: order.map(
-                        (id) => `${id}　${footnoteDefinitions.get(id)}`
-                    )
-                });
-            }
         }
 
         body.split("\n").forEach((rawLine) => {
