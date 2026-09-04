@@ -281,7 +281,7 @@ body.overview {
 
 :where(.page-body, .measure-body) p.small-text {
     font-size: 0.8em;
-    line-height: 1.35;
+    line-height: 1.8;
 }
 
 :where(.page-body, .measure-body) strong {
