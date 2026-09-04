@@ -239,7 +239,7 @@ body.overview {
     font-weight: 700;
     line-height: 1.5;
     padding-left: 0.5em;
-    border-left: 5px solid var(--text);
+    border-left: 4px solid var(--text);
 }
 
 :where(.page-body, .measure-body) h2 {
