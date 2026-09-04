@@ -279,6 +279,11 @@ body.overview {
     text-indent: 0;
 }
 
+:where(.page-body, .measure-body) p.small-text {
+    font-size: 0.8em;
+    line-height: 1.35;
+}
+
 :where(.page-body, .measure-body) strong {
     font-weight: 600;
 }
