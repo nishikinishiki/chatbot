@@ -242,7 +242,7 @@
         let paragraphBuffer = [];
         let currentList = null;
         let currentFootnote = null;
-        let pendingNoIndent = false;
+        let pendingParagraphClasses = [];
         const footnoteDefinitions = new Map();
 
         function flushParagraph() {
@@ -254,10 +254,10 @@
             currentChapter.blocks.push({
                 type: "paragraph",
                 text: paragraphBuffer.join("\n"),
-                noIndent: pendingNoIndent
+                classes: [...pendingParagraphClasses]
             });
             paragraphBuffer = [];
-            pendingNoIndent = false;
+            pendingParagraphClasses = [];
         }
 
         function flushList() {
@@ -286,7 +286,7 @@
         }
 
         function resetPendingParagraphStyle() {
-            pendingNoIndent = false;
+            pendingParagraphClasses = [];
         }
 
         body.split("\n").forEach((rawLine) => {
@@ -306,10 +306,18 @@
                 return;
             }
 
-            if (line === "{.no-indent}") {
-                flushTextBlocks();
-                pendingNoIndent = true;
-                return;
+            const paragraphStyle = line.match(/^\{(.+)\}$/);
+            if (paragraphStyle) {
+                const classes = paragraphStyle[1].trim().split(/\s+/);
+                const allowedClasses = new Set([".no-indent", ".small-text"]);
+
+                if (classes.every((className) => allowedClasses.has(className))) {
+                    flushTextBlocks();
+                    pendingParagraphClasses = classes.map((className) =>
+                        className.slice(1)
+                    );
+                    return;
+                }
             }
 
             if (line.startsWith("# ")) {
@@ -900,12 +908,12 @@
         return createInlineElement(`h${level}`, segments);
     }
 
-    function createParagraph(segments, continuation = false, noIndent = false) {
+    function createParagraph(segments, continuation = false, classes = []) {
         const paragraph = document.createElement("p");
-        const classNames = [];
-        if (continuation) classNames.push("continuation");
-        if (noIndent) classNames.push("no-indent");
-        paragraph.className = classNames.join(" ");
+        paragraph.className = [
+            continuation ? "continuation" : "",
+            ...classes
+        ].filter(Boolean).join(" ");
         appendInlineSegments(paragraph, segments);
         return paragraph;
     }
@@ -1169,7 +1177,7 @@
             const fullNode = createParagraph(
                 remaining,
                 continuation,
-                block.noIndent
+                block.classes
             );
             els.measureBody.appendChild(fullNode);
 
@@ -1182,7 +1190,7 @@
                 (segments) => createParagraph(
                     segments,
                     continuation,
-                    block.noIndent
+                    block.classes
                 )
             );
 
@@ -1196,7 +1204,7 @@
                 createParagraph(
                     sliceInlineSegments(remaining, 0, fittingLength),
                     continuation,
-                    block.noIndent
+                    block.classes
                 )
             );
             commitMeasuredPage(chapterIndex);
