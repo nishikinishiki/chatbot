@@ -330,6 +330,14 @@ async function submitDataToGAS(dataToSend, isAdditional) {
         });
         hideLoadingMessage();
         if (!isAdditional) {
+            if (!state.isTestMode && window.LeadAnalytics) {
+                window.LeadAnalytics.pushLeadAttributes({
+                    userResponses: state.userResponses,
+                    utmParameters: state.utmParameters,
+                    formVariant: window.location.pathname
+                });
+            }
+
             if (window.dataLayer && !state.isTestMode) {
                 const email = state.userResponses.email_address;
                 const phoneNumber = state.userResponses.phone_number;
