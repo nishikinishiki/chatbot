@@ -21,7 +21,6 @@ const BANNER_CAMPAIGN = {
     'hp_gift_ebook': '/common/images/banner_ebook_propertylist.png',
 
     //アフィリエイト広告
-    'BKR_gift_ebook_79799974': '/common/images/banner_ebook_mybest.webp',
     'gift_up_campaign': '/common/images/banner_ebook_AmaG.jpg',
     'ALA_gift_ebook_4362': '/common/images/banner_buzz_260512.webp',
     'ALA_gift_ebook_2529': '/common/images/banner_chotoshin_260625.webp',
