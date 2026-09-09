@@ -271,6 +271,14 @@ async function submitDataToGAS(dataToSend) {
 
         hideLoadingMessage();
 
+        if (window.LeadAnalytics) {
+            window.LeadAnalytics.pushLeadAttributes({
+                userResponses: state.userResponses,
+                utmParameters: state.utmParameters,
+                formVariant: window.location.pathname
+            });
+        }
+
         if (window.dataLayer) {
             const email = state.userResponses.email_address;
             const phoneNumber = state.userResponses.phone_number;
