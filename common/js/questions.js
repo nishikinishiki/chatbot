@@ -6,7 +6,9 @@ const UTM_RULES = {
     'BKR_gift_',
     'GMO_gift_',
     'CRS_gift_',
-    'fbtrg_'
+    'fbtrg_',
+    'google',
+    'yahoo'
   ],
   //utm_sourceで指定
   hideAgeKeywords_60: [
