@@ -77,8 +77,7 @@ const questions = [
             { label: "会社員 (その他)", value: "会社員（その他）" },
             { label: "公務員", value: "公務員" },
             { label: "経営者", value: "経営者" },
-            { label: "士業<br>(医師、弁護士等)", value: "士業（医師、看護師、弁護士、税護士など）" },
-            { label: "自営業・その他", value: "自営業・その他" }
+            { label: "士業<br>(医師、弁護士等)", value: "士業（医師、看護師、弁護士、税護士など）" }
         ], 
         key: "occupation", 
         validation: (v) => !!v, 
@@ -91,9 +90,6 @@ const questions = [
         question: "現在の年収を教えてください。", 
         answer_method: "single-choice", 
         options: [
-            { label: "500万未満",   value: "0～399万" },
-            { label: "500万～",   value: "500～599万" },
-            { label: "600万～",   value: "600～699万" },
             { label: "700万～",   value: "700～799万" },
             { label: "800万～",   value: "800～899万" },
             { label: "900万～",   value: "900～999万" },
@@ -114,7 +110,7 @@ const questions = [
         summaryLabel: "年齢",
         question: "ご年齢はおいくつでしょうか？", 
         answer_method: "single-choice", 
-        options: ["20歳未満", "20～24歳", "25～29歳", "30～34歳", "35～39歳", "40～44歳", "45～49歳", "50～54歳", "55～59歳", "60～64歳", "65～69歳", "70歳以上"], 
+        options: ["25～29歳", "30～34歳", "35～39歳", "40～44歳", "45～49歳", "50～54歳", "55～59歳"], 
         key: "age_group", 
         validation: (v) => !!v, 
         errorMessage: "選択してください。" 
