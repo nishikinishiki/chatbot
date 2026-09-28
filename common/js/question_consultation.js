@@ -15,6 +15,15 @@ const UTM_RULES = {
         'ALA_gift_ebook_4362',
         'ALA_gift_ebook_4362PM'
     ],
+    //第２希望を表示する対象UTM
+    show2nd: [
+        'ALA_gift_ebook_4362',
+        'ALA_gift_ebook_4362PM',
+        'ALA_gift_',
+        'BKR_gift_',
+        'GMO_gift_',
+        'CRS_gift_'
+    ],
     //utm_campaignで指定「進呈条件」
     customGiftTermsKeywords: [
         'hp_gift_consultation',
@@ -302,10 +311,10 @@ const katakanaRegex = /^[ァ-ヶー　]+$/;
 const initialQuestions = [
     {
         id: 'first_choice_date',
-        item: "面談希望日時（第一希望）",
+        item: "面談希望日時",
         summaryLabel: "日時 第1希望",
         pre_message: "面談完了でえらべるデジタルギフトプレゼントの対象となります！",
-        question: "【第1希望】<br>ご相談希望日時をお選びください。",
+        question: "ご相談希望日時をお選びください。",
         isHtmlQuestion: true,
         answer_method: "time-table",
         keys: { date: 'first_choice_date', time: 'first_choice_time' },
@@ -315,9 +324,9 @@ const initialQuestions = [
     },
     {
         id: 'first_choice_time_other',
-        item: "面談希望時間（第一希望その他）",
+        item: "面談希望時間（その他）",
         summaryLabel: "その他時間",
-        question: "【第1希望】<br>ご相談希望時間を入力ください。",
+        question: "ご相談希望時間を入力ください。",
         isHtmlQuestion: true,
         answer_method: "text",
         type: "text",
@@ -336,7 +345,9 @@ const initialQuestions = [
         keys: { date: 'second_choice_date', time: 'second_choice_time' },
         timeSlots: TIME_SLOTS,
         validation: (v) => !!v,
-        errorMessage: "ご希望の日時を選択してください。"
+        errorMessage: "ご希望の日時を選択してください。",
+        
+        shouldSkip: (utmParams) => !UTM_RULES.show2nd.includes(utmParams?.utm_source)
     },
     {
         id: 'second_choice_time_other',
