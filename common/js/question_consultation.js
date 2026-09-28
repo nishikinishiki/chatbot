@@ -1,22 +1,14 @@
 // --- UTM条件定義 ---
 const UTM_RULES = {
-    hideIncomeKeywords: [
+    hideKeywords: [
         'ALA_gift_',
         'BKR_gift_',
         'GMO_gift_',
-        'CRS_gift_'
+        'CRS_gift_',
+        'mail_ohya202609'
     ],
-    hideOccupationKeywords: [
-        'ALA_gift_',
-        'BKR_gift_',
-        'GMO_gift_',
-        'CRS_gift_'
-    ],
-    hideAgeKeywords: [
-        'ALA_gift_',
-        'BKR_gift_',
-        'GMO_gift_',
-        'CRS_gift_'
+    hideKeywords_mail: [
+        'mail_ohya202609'
     ],
     //「お申し込みの決め手」を表示する対象UTM
     showApplicationReason: [
@@ -369,13 +361,12 @@ const initialQuestions = [
             { label: "医師,看護師", value: "士業（医師、看護師、弁護士、税護士など）" },
             { label: "士業 (弁護士,税理士等)", value: "士業（医師、看護師、弁護士、税護士など）" },
             {
-                label: "自営業", value: "自営業・その他",
+                label: "その他", value: "自営業・その他",
                 isVisible: (utmParams) => {
                     const source = utmParams?.utm_source || '';
-                    return !UTM_RULES.hideOccupationKeywords.some(keyword => source.includes(keyword));
+                    return !UTM_RULES.hideKeywords.some(keyword => source.includes(keyword));
                 }
-            },
-            { label: "その他", value: "自営業・その他" }
+            }
         ],
         key: "occupation", validation: (v) => !!v, errorMessage: "選択してください。"
     },
@@ -386,11 +377,23 @@ const initialQuestions = [
                 label: "500万未満", value: "0～399万",
                 isVisible: (utmParams) => {
                     const source = utmParams?.utm_source || '';
-                    return !UTM_RULES.hideIncomeKeywords.some(keyword => source.includes(keyword));
+                    return !UTM_RULES.hideKeywords.some(keyword => source.includes(keyword));
                 }
             },
-            { label: "500万～", value: "500～599万" },
-            { label: "600万～", value: "600～699万" },
+            {
+                label: "500万～", value: "500～599万",
+                isVisible: (utmParams) => {
+                    const source = utmParams?.utm_source || '';
+                    return !UTM_RULES.hideKeywords_mail.some(keyword => source.includes(keyword));
+                }
+            },
+            {
+                label: "600万～", value: "600～699万",
+                isVisible: (utmParams) => {
+                    const source = utmParams?.utm_source || '';
+                    return !UTM_RULES.hideKeywords_mail.some(keyword => source.includes(keyword));
+                }
+            },
             { label: "700万～", value: "700～799万" },
             { label: "800万～", value: "800～899万" },
             { label: "900万～", value: "900～999万" },
@@ -410,14 +413,14 @@ const initialQuestions = [
                 label: "20歳未満", value: "20歳未満",
                 isVisible: (utmParams) => {
                     const source = utmParams?.utm_source || '';
-                    return !UTM_RULES.hideAgeKeywords.some(keyword => source.includes(keyword));
+                    return !UTM_RULES.hideKeywords.some(keyword => source.includes(keyword));
                 }
             },
             {
                 label: "20～24歳", value: "20～24歳",
                 isVisible: (utmParams) => {
                     const source = utmParams?.utm_source || '';
-                    return !UTM_RULES.hideAgeKeywords.some(keyword => source.includes(keyword));
+                    return !UTM_RULES.hideKeywords.some(keyword => source.includes(keyword));
                 }
             },
             { label: "25～29歳", value: "25～29歳" },
@@ -431,7 +434,7 @@ const initialQuestions = [
                 label: "60歳～", value: "60～64歳",
                 isVisible: (utmParams) => {
                     const source = utmParams?.utm_source || '';
-                    return !UTM_RULES.hideAgeKeywords.some(keyword => source.includes(keyword));
+                    return !UTM_RULES.hideKeywords.some(keyword => source.includes(keyword));
                 }
             }
         ],
