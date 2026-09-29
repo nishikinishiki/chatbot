@@ -116,7 +116,7 @@ function createEbookButtonMessage(text) {
 
     // 現在のURLパラメータ（?utm_source=...など）を取得して末尾に結合
     const currentParams = window.location.search;
-    link.href = "https://jpreturns.com/ebook/" + currentParams;
+    link.href = "https://library.jpreturns.com/" + currentParams;
 
     link.target = "_blank";
     link.className = "ebook-button-link";

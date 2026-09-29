@@ -675,7 +675,7 @@ function createEbookButtonMessage(text) {
     if(messageContainer){
         messageContainer.classList.add('ebook-button-message-content');
         const buttonLink = document.createElement('a');
-        buttonLink.href = "https://jpreturns.com/ebook/";
+        buttonLink.href = "https://library.jpreturns.com/";
         buttonLink.target = "_blank";
         buttonLink.rel = "noopener noreferrer";
         buttonLink.className = "ebook-button-link";
