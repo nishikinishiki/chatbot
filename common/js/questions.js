@@ -15,7 +15,9 @@ const UTM_RULES = {
     'ALA_gift_',
     'BKR_gift_',
     'GMO_gift_',
-    'CRS_gift_'
+    'CRS_gift_',
+    'google',
+    'yahoo'
   ],
   //utm_sourceで指定「お申し込みの決め手」
   showApplicationReason: [
