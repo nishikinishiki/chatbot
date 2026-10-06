@@ -4,6 +4,9 @@
 // --- アプリケーションの状態管理 ---
 const state = {
     currentSessionId: '',
+    isTestMode: true,
+    submitting: false,
+    submitted: { initial: false, additional: false },
     currentFlow: 'initial',
     currentStep: 0,
     subStep: 0,
@@ -37,7 +40,7 @@ document.getElementById('main-stylesheet').href = styleUrl;
 
 // --- GAイベント送信 ---
 function sendGaEvent(question, answerValue) {
-    if (!window.dataLayer) return;
+    if (state.isTestMode || !window.dataLayer) return;
     state.gaStepCounter++;
     window.dataLayer.push({
         'event': 'question_answered',
@@ -318,70 +321,40 @@ function generateSessionId() {
     return Date.now().toString(36) + Math.random().toString(36).substring(2, 15);
 }
 
+// 既存の呼び出し名を維持。送信先はテスト用Pardotのみ。
 async function submitDataToGAS(dataToSend, isAdditional) {
+    const step = isAdditional ? 'additional' : 'initial';
+    if (state.submitting || state.submitted[step]) return;
+    state.submitting = true;
     showLoadingMessage();
-    const payload = { ...dataToSend, "Session ID": state.currentSessionId };
-    if (isAdditional) payload.isAdditionalData = true;
     try {
-        await fetch(GAS_WEB_APP_URL, {
-            method: 'POST', mode: 'no-cors', cache: 'no-cache',
-            headers: { 'Content-Type': 'text/plain;charset=utf-8' },
-            body: JSON.stringify(payload)
-        });
+        const result = await window.PardotTest.submit({
+            ...dataToSend,
+            email_address: state.userResponses.email_address,
+            submission_id: state.currentSessionId,
+            form_variant: 'ebook_test',
+            meeting_date_answered: isAdditional && dataToSend.first_choice_date ? 'YES' : 'NO'
+        }, isAdditional);
+        state.submitted[step] = true;
         hideLoadingMessage();
-        if (!isAdditional) {
-            if (!state.isTestMode && window.LeadAnalytics) {
-                window.LeadAnalytics.pushLeadAttributes({
-                    userResponses: state.userResponses,
-                    utmParameters: state.utmParameters,
-                    formVariant: window.location.pathname
-                });
-            }
-
-            if (window.dataLayer && !state.isTestMode) {
-                const email = state.userResponses.email_address;
-                const phoneNumber = state.userResponses.phone_number;
-                const lastName = state.userResponses.last_name;
-                const firstName = state.userResponses.first_name;
-
-                let modifiedPhoneNumber = '';
-                if (phoneNumber && typeof phoneNumber === 'string') {
-                    modifiedPhoneNumber = phoneNumber.substring(3);
-                }
-
-                let formattedPhoneNumber = '';
-                if (phoneNumber && typeof phoneNumber === 'string') {
-                    formattedPhoneNumber = phoneNumber.startsWith('0')
-                        ? '+81' + phoneNumber.substring(1)
-                        : '+81' + phoneNumber;
-                }
-                console.log('event: chat_form_submission_success');
-
-                window.dataLayer.push({
-                    'event': 'chat_form_submission_success',
-                    'user_data': {
-                        'email': email,
-                        'phone_number': formattedPhoneNumber,
-                        'address': {
-                            'last_name': lastName,
-                            'first_name': firstName
-                        }
-                    },
-                    'modified_phone': modifiedPhoneNumber
-                });
-            }
-            clearChatMessages();
-
-            await showSystemMessages(SYSTEM_MESSAGES.initial_complete);
-            startAdditionalQuestionsFlow();
-        } else {
-            await showSystemMessages(SYSTEM_MESSAGES.final_complete);
-
-        }
+        await addBotMessage(result.dryRun
+            ? '送信予定内容を確認しました。Pardotへの実送信・メール送信はしていません。'
+            : 'Pardotへの送信が完了しました。');
+        if (!isAdditional) startAdditionalQuestionsFlow();
+        else await addBotMessage('第2ステップのテストが完了しました。');
     } catch (error) {
         hideLoadingMessage();
-        console.error('Error:', error);
-        await showSystemMessages(SYSTEM_MESSAGES.error);
+        await addBotMessage(error.message, false, true);
+        const retry = document.createElement('button');
+        retry.type = 'button';
+        retry.textContent = '同じ内容で再試行';
+        retry.addEventListener('click', () => {
+            retry.remove();
+            submitDataToGAS(dataToSend, isAdditional);
+        }, { once: true });
+        document.getElementById('chatMessages').appendChild(retry);
+    } finally {
+        state.submitting = false;
     }
 }
 
