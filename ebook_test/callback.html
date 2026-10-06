@@ -1,0 +1,10 @@
+<!doctype html>
+<html lang="ja"><head><meta charset="utf-8"><meta name="robots" content="noindex,nofollow"><title>テスト送信結果</title></head>
+<body><script>
+const params = new URLSearchParams(location.search);
+if (parent !== window) parent.postMessage({
+    type: 'pardot-test-result',
+    token: params.get('token'),
+    status: params.get('status')
+}, location.origin);
+</script></body></html>

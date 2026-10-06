@@ -1,5 +1,5 @@
 // 1. GAS
-const GAS_WEB_APP_URL = 'https://script.google.com/macros/s/AKfycbw34NMk9KeS7ZF6LGJqXXl1by6fgUeZV6CKPuMWv1Bvlm5TYp3sbIK-I5TV-V567LeTzg/exec';
+const GAS_WEB_APP_URL = ''; // テストではGASへ送信しません
 
 // 2. ファビコン
 const FAVICON_URL = '/common/images/favicon.png';
@@ -82,3 +82,4 @@ const STYLE_CAMPAIGN = {
     'wk_gift_consultation': '/common/css/style-2.css',
     'wk_gift_movie': '/common/css/style-2.css',
 };
+
