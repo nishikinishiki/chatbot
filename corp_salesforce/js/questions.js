@@ -63,6 +63,31 @@ const katakanaRegex = /^[ァ-ヶー　]+$/;
 
 const initialQuestions = [
   {
+    id: 'annual_income', item: "年収", question: "資産形成に関する現在の課題に最も近いものを教えてください。", answer_method: "single-choice",
+    options: [
+      { label: "自分に最適な節税方法を把握したい", value: "700～799万" },
+      { label: "節税の仕組みが分からないので学びたい", value: "800～899万" },
+      { label: "不動産投資を", value: "900～999万" },
+      { label: "1000万～", value: "1000～1099万" },
+      { label: "1500万～", value: "1500～1999万" },
+      { label: "2000万～", value: "2000～2499万" },
+      { label: "3000万～", value: "3000～3999万" },
+      { label: "5000万～", value: "5000万～1億未満" }
+    ],
+    key: "annual_income", validation: (v) => !!v, errorMessage: "選択してください。"
+  },
+  {
+    id: 'annual_income', item: "年収", question: "まずはじめに、現在のご年収を教えてください。", answer_method: "single-choice",
+    options: [
+      { label: "株", value: "株" },
+      { label: "不動産投資", value: "不動産投資" },
+      { label: "投資信託", value: "投資信託" },
+      { label: "金", value: "金" },
+      { label: "その他", value: "その他" }
+    ],
+    key: "annual_income", validation: (v) => !!v, errorMessage: "選択してください。"
+  },
+  {
     id: 'annual_income', item: "年収", question: "まずはじめに、現在のご年収を教えてください。", answer_method: "single-choice",
     options: [
       { label: "700万～", value: "700～799万" },
