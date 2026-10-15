@@ -1,39 +1,3 @@
-// --- UTM条件定義 ---
-const UTM_RULES = {
-  //utm_sourceで指定
-  hideKeywords: [
-    'ALA_gift_',
-    'BKR_gift_',
-    'GMO_gift_',
-    'CRS_gift_',
-    'fbtrg_',
-    'google',
-    'yahoo'
-  ],
-  //utm_sourceで指定
-  hideAgeKeywords_60: [
-    'ALA_gift_',
-    'BKR_gift_',
-    'GMO_gift_',
-    'CRS_gift_',
-    'google',
-    'yahoo'
-  ],
-  //utm_sourceで指定「お申し込みの決め手」
-  showApplicationReason: [
-    'ALA_gift_ebook_4362',
-    'ALA_gift_ebook_4362PM'
-  ],
-  //utm_campaignで指定「進呈条件」
-  customGiftTermsKeywordsAff: [
-    'gift_up_campaign'
-  ],
-  customGiftTermsKeywordsHp: [
-    'hp_gift_ebook',
-    'wk_gift_ebook',
-    'wk_gift_movie'
-  ]
-};
 
 // --- システムメッセージ定義 ---
 const SYSTEM_MESSAGES = {
@@ -43,9 +7,10 @@ const SYSTEM_MESSAGES = {
   ],
   // 前半フロー完了メッセージ
   initial_complete: [
-    { text: "送信が完了しました。<br>お問い合わせいただきありがとうございました！", isHtml: true },
-    { text: "デジタル書籍は下記から閲覧できます！" },
-    { text: "デジタル書籍を閲覧する", isHtml: false, isEbookBtn: true }
+    { text: "送信が完了しました。<br>DMM.com様限定キャンペーンのお問い合わせいただきありがとうございました！", isHtml: true },
+    { text: "ご登録いただいた皆様限定で、不動産投資を始めとした資産形成の方法や節税についてをまとめたeBookを無料で閲覧いただけます！" },
+    { text: "よろしければ是非ご覧ください。" },
+    { text: "eBookを閲覧する", isHtml: false, isEbookBtn: true }
   ],
   // 全フロー完了メッセージ
   final_complete: [
@@ -63,32 +28,30 @@ const katakanaRegex = /^[ァ-ヶー　]+$/;
 
 const initialQuestions = [
   {
-    id: 'annual_income', item: "年収", question: "資産形成に関する現在の課題に最も近いものを教えてください。", answer_method: "single-choice",
+    id: 'theme', item: "関心", question: "資産形成や税金対策において、現在最も関心のあるテーマを教えてください。", answer_method: "single-choice",
     options: [
-      { label: "自分に最適な節税方法を把握したい", value: "700～799万" },
-      { label: "節税の仕組みが分からないので学びたい", value: "800～899万" },
-      { label: "不動産投資を", value: "900～999万" },
-      { label: "1000万～", value: "1000～1099万" },
-      { label: "1500万～", value: "1500～1999万" },
-      { label: "2000万～", value: "2000～2499万" },
-      { label: "3000万～", value: "3000～3999万" },
-      { label: "5000万～", value: "5000万～1億未満" }
+      { label: "所得税・住民税の節税対策", value: "所得税・住民税などの節税対策" },
+      { label: "インフレ時代の資産防衛術", value: "インフレ時代の資産防衛術" },
+      { label: "老後資金の確保", value: "老後資金の確保" },
+      { label: "家計・生命保険の見直し", value: "家計・生命保険の見直し" }
     ],
-    key: "annual_income", validation: (v) => !!v, errorMessage: "選択してください。"
+    key: "theme", validation: (v) => !!v, errorMessage: "選択してください。"
   },
   {
-    id: 'annual_income', item: "年収", question: "まずはじめに、現在のご年収を教えてください。", answer_method: "single-choice",
+    id: 'investment', item: "投資経験", question: "現在実践している、または過去経験のある投資をお聞かせください（複数選択可）", answer_method: "multi-choice",
     options: [
-      { label: "株", value: "株" },
+      { label: "株式・投資信託", value: "株式・投資信託" },
+      { label: "新NISA", value: "新NISA" },
+      { label: "iDECO・企業型DC", value: "iDECO・企業型DC" },
+      { label: "外貨預金", value: "外貨預金" },
       { label: "不動産投資", value: "不動産投資" },
-      { label: "投資信託", value: "投資信託" },
-      { label: "金", value: "金" },
-      { label: "その他", value: "その他" }
+      { label: "その他", value: "その他" },
+      { label: "特になし", value: "特になし" }
     ],
-    key: "annual_income", validation: (v) => !!v, errorMessage: "選択してください。"
+    key: "investment", validation: (v) => !!v, errorMessage: "選択してください。"
   },
   {
-    id: 'annual_income', item: "年収", question: "まずはじめに、現在のご年収を教えてください。", answer_method: "single-choice",
+    id: 'annual_income', item: "年収", question: "現在のご年収を教えてください。", answer_method: "single-choice",
     options: [
       { label: "700万～", value: "700～799万" },
       { label: "800万～", value: "800～899万" },
@@ -104,13 +67,7 @@ const initialQuestions = [
   {
     id: 'age_group', item: "年齢", question: "ご年齢はおいくつでしょうか？", answer_method: "single-choice",
     options: [
-      {
-        label: "20～24歳", value: "20～24歳",
-        isVisible: (utmParams) => {
-          const source = utmParams?.utm_source || '';
-          return !UTM_RULES.hideKeywords.some(keyword => source.includes(keyword));
-        }
-      },
+      { label: "22～24歳", value: "20～24歳" },
       { label: "25～29歳", value: "25～29歳" },
       { label: "30～34歳", value: "30～34歳" },
       { label: "35～39歳", value: "35～39歳" },
@@ -118,13 +75,7 @@ const initialQuestions = [
       { label: "45～49歳", value: "45～49歳" },
       { label: "50～54歳", value: "50～54歳" },
       { label: "55～59歳", value: "55～59歳" },
-      {
-        label: "60歳～", value: "60～64歳",
-        isVisible: (utmParams) => {
-          const source = utmParams?.utm_source || '';
-          return !UTM_RULES.hideAgeKeywords_60.some(keyword => source.includes(keyword));
-        }
-      }
+      { label: "60歳～", 　value: "60～64歳" }
     ],
     key: "age_group", validation: (v) => !!v, errorMessage: "選択してください。"
   },
@@ -221,7 +172,7 @@ const additionalQuestions = [
       } else if (isCampaignAff) {
         return "面談を受けていただくと<span style='color: red;'>最大60,000円相当</span>のえらべるデジタルギフト、プレゼントの対象となります！";
       } else {
-        return "面談を受けていただくと<span style='color: red;'>最大50,000円相当</span>のえらべるデジタルギフト、プレゼントの対象となります！";
+        return "面談を受けていただくと<span style='color: red;'>10,000円相当</span>のえらべるデジタルギフト、プレゼントの対象となります！";
       }
     },
     question: "【第1希望】<br>ご相談希望日時をお選びください。",
@@ -237,6 +188,31 @@ const additionalQuestions = [
     item: "面談希望時間（第一希望その他）",
     summaryLabel: "その他時間",
     question: "【第1希望】<br>ご相談希望時間を入力ください。",
+    isHtmlQuestion: true,
+    answer_method: "text",
+    type: "text",
+    key: "first_choice_time_other",
+    condition: { key: "first_choice_time", value: "その他の時間" },
+    validation: (v) => v && v.trim().length > 0,
+    errorMessage: "希望時間を入力してください。"
+  },
+  {
+    id: 'first_choice_date',
+    item: "面談希望日時（第二希望）",
+    summaryLabel: "日時 第2希望",
+    question: "【第2希望】<br>ご相談希望日時をお選びください。",
+    isHtmlQuestion: true,
+    answer_method: "time-table",
+    keys: { date: 'first_choice_date', time: 'first_choice_time' },
+    timeSlots: TIME_SLOTS,
+    validation: (v) => !!v,
+    errorMessage: "ご希望の日時を選択してください。"
+  },
+  {
+    id: 'first_choice_time_other',
+    item: "面談希望時間（第二希望その他）",
+    summaryLabel: "その他時間",
+    question: "【第2希望】<br>ご相談希望時間を入力ください。",
     isHtmlQuestion: true,
     answer_method: "text",
     type: "text",
