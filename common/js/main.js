@@ -63,18 +63,23 @@ async function showSystemMessages(messageArray) {
 function getDynamicAssetUrl(defaultUrl, assetMap) {
     if (!assetMap) return defaultUrl || null;
 
-    // 検索対象のUTMパラメータ
-    const targetParams = ['utm_campaign', 'utm_source'];
+    const source = state.utmParameters['utm_source'] || '';
+    const campaign = state.utmParameters['utm_campaign'] || '';
 
-    // 1. config.jsで定義された順番（上から順）でループを回す
     for (const key in assetMap) {
-        // 2. そのキーワードが、utm_campaign または utm_source に含まれているか判定
-        for (const param of targetParams) {
-            const paramValue = state.utmParameters[param];
-
-            // 含まれていれば、その時点で最優先としてURLを返して終了
-            if (paramValue && paramValue.includes(key)) {
+        if (key.includes('&&')) {
+            const [sourceKey, campaignKey] = key.split('&&').map(s => s.trim());
+            if (source.includes(sourceKey) && campaign.includes(campaignKey)) {
                 return assetMap[key];
+            }
+        }
+        else {
+            const targetParams = ['utm_campaign', 'utm_source'];
+            for (const param of targetParams) {
+                const paramValue = state.utmParameters[param];
+                if (paramValue && paramValue.includes(key)) {
+                    return assetMap[key];
+                }
             }
         }
     }

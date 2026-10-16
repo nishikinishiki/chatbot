@@ -33,12 +33,14 @@ const BANNER_CAMPAIGN = {
     'like_dining_b': '/common/images/banner_ebook_like-dining_b.jpg',
     'like_dining_c': '/common/images/banner_ebook_like-dining_c.jpg',
     'like_dining': '/common/images/banner_ebook_like-dining.jpg',
+    'fbtrg_anax&&like_suv': '/common/images/banner_ebook_like-suv_anax.webp',
     'like_suv_b': '/common/images/banner_ebook_like-suv_b.jpg',
     'like_suv_c': [
         '/common/images/banner_no1.mp4',
         '/common/images/banner_gift.webp'
     ],
     'like_suv': '/common/images/banner_ebook_like-suv.jpg',
+    'fbtrg_anax&&like_watch': '/common/images/banner_ebook_like-watch_anax.webp',
     'like_watch_b': [
         '/common/images/banner_no1.mp4',
         '/common/images/banner_gift.webp'
