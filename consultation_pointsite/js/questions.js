@@ -185,7 +185,7 @@ const questions = [
         question: "入力内容・利用規約をご確認の上、「同意して送信」を押してください。",
         answer_method: "final-consent",
         privacy_policy_link_text: "個人情報のお取り扱い",
-        privacy_policy_url: "https://jpreturns.com/privacypolicy/",
+        privacy_policy_url: "https://chatbot.jpreturns.com/privacypolicy",
 
         consent_text: "に同意する。",
         notes: [
