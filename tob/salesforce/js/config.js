@@ -1,5 +1,5 @@
 // 1. GAS
-const GAS_WEB_APP_URL = 'https://script.google.com/macros/s/AKfycbw34NMk9KeS7ZF6LGJqXXl1by6fgUeZV6CKPuMWv1Bvlm5TYp3sbIK-I5TV-V567LeTzg/exec';
+const GAS_WEB_APP_URL = 'https://script.google.com/macros/s/AKfycbxFiCz5dYlDo2c-JXyB6oogZfy6x7qiVYaiBF2-hnHdW_rCFAD4XFyeQ4xP28CRxm2F/exec';
 
 // 2. ファビコン
 const FAVICON_URL = '/common/images/favicon.png';

@@ -524,7 +524,6 @@ function displaySummaryArea(responses, questions) {
         if (q.key_group === "name_details") {
             if (!nameDone) {
                 list.innerHTML += `<li><span class="summary-item-label">お名前 </span><span class="summary-item-value">${responses.last_name || ''} ${responses.first_name || ''}</span></li>`;
-                list.innerHTML += `<li><span class="summary-item-label">フリガナ </span><span class="summary-item-value">${responses.last_name_kana || ''} ${responses.first_name_kana || ''}</span></li>`;
                 nameDone = true;
             }
         }

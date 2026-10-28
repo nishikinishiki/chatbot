@@ -7,15 +7,14 @@ const SYSTEM_MESSAGES = {
   ],
   // 前半フロー完了メッセージ
   initial_complete: [
-    { text: "送信が完了しました。<br>Salesforce様限定キャンペーンのお問い合わせいただきありがとうございました！", isHtml: true },
-    { text: "ご登録いただいた皆様限定で、不動産投資を始めとした資産形成の方法や節税についてをまとめたeBookを無料で閲覧いただけます！" },
-    { text: "よろしければ是非ご覧ください。" },
+    { text: "送信が完了しました。<br>Salesforce様限定キャンペーンにお問い合わせいただきありがとうございました。", isHtml: true },
+    { text: "お問い合わせいただきました皆様限定で、不動産投資を始めとした、資産形成の方法や節税についてまとめたeBookを無料で閲覧いただけます！<br>よろしければ是非ご利用ください。", isHtml: true },
     { text: "eBookを閲覧する", isHtml: false, isEbookBtn: true }
   ],
   // 全フロー完了メッセージ
   final_complete: [
-    { text: "全ての情報を承りました。ご回答ありがとうございました！<br>後ほど担当よりご連絡いたします。", isHtml: true },
-    { text: "お問い合わせはお電話でも受け付けております。<br>電話番号：<a href='tel:0120147104'>0120-147-104</a><br>営業時間：10:00～22:00（お盆・年末年始除く）", isHtml: true }
+    { text: "全ての情報を承りました。ご回答いただきありがとうございました！<br>後ほど弊社担当よりご連絡いたします。", isHtml: true },
+    { text: "お問い合わせはお電話でも受け付けております。<br>電話番号：<a href='tel:0120147104'>0120-147-104</a><br>営業時間：10:00～19:00（お盆・年末年始除く）", isHtml: true }
   ],
   // エラーメッセージ
   error: [
@@ -155,26 +154,8 @@ const additionalQuestions = [
   {
     id: 'first_choice_date',
     item: "面談希望日時（第一希望）",
+    pre_message: "ご面談を受けていただくと、10,000円相当のえらべるデジタルギフトプレゼントの対象となります！",
     summaryLabel: "日時 第1希望",
-    pre_message: (utmParams) => {
-      const campaign = utmParams?.utm_campaign || '';
-      const source = utmParams?.utm_source || '';
-
-      const isCampaignHp = UTM_RULES.customGiftTermsKeywordsHp.some(keyword =>
-        source.includes(keyword) || campaign.includes(keyword)
-      );
-      const isCampaignAff = UTM_RULES.customGiftTermsKeywordsAff.some(keyword =>
-        source.includes(keyword) || campaign.includes(keyword)
-      );
-
-      if (isCampaignHp) {
-        return "面談を受けていただくと<span style='color: red;'>最大70,000円相当</span>のえらべるデジタルギフト、プレゼントの対象となります！";
-      } else if (isCampaignAff) {
-        return "面談を受けていただくと<span style='color: red;'>最大60,000円相当</span>のえらべるデジタルギフト、プレゼントの対象となります！";
-      } else {
-        return "面談を受けていただくと<span style='color: red;'>10,000円相当</span>のえらべるデジタルギフト、プレゼントの対象となります！";
-      }
-    },
     question: "【第1希望】<br>ご相談希望日時をお選びください。",
     isHtmlQuestion: true,
     answer_method: "time-table",
@@ -197,27 +178,27 @@ const additionalQuestions = [
     errorMessage: "希望時間を入力してください。"
   },
   {
-    id: 'first_choice_date',
+    id: 'second_choice_date',
     item: "面談希望日時（第二希望）",
     summaryLabel: "日時 第2希望",
     question: "【第2希望】<br>ご相談希望日時をお選びください。",
     isHtmlQuestion: true,
     answer_method: "time-table",
-    keys: { date: 'first_choice_date', time: 'first_choice_time' },
+    keys: { date: 'second_choice_date', time: 'second_choice_time' },
     timeSlots: TIME_SLOTS,
     validation: (v) => !!v,
     errorMessage: "ご希望の日時を選択してください。"
   },
   {
-    id: 'first_choice_time_other',
+    id: 'second_choice_time_other',
     item: "面談希望時間（第二希望その他）",
     summaryLabel: "その他時間",
     question: "【第2希望】<br>ご相談希望時間を入力ください。",
     isHtmlQuestion: true,
     answer_method: "text",
     type: "text",
-    key: "first_choice_time_other",
-    condition: { key: "first_choice_time", value: "その他の時間" },
+    key: "second_choice_time_other",
+    condition: { key: "second_choice_time", value: "その他の時間" },
     validation: (v) => v && v.trim().length > 0,
     errorMessage: "希望時間を入力してください。"
   }
