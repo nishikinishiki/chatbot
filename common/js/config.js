@@ -24,6 +24,7 @@ const BANNER_CAMPAIGN = {
     'gift_up_campaign': '/common/images/banner_ebook_AmaG.jpg',
     'ALA_gift_ebook_4362': '/common/images/banner_buzz_260512.webp',
     'ALA_gift_ebook_2529': '/common/images/banner_chotoshin_260625.webp',
+    'ALA_gift_ebook_87234174': '/common/images/banner_700.jpg',
     'ALA_gift_': '/common/images/banner_no1_appeal.jpg',
     'BKR_gift_': '/common/images/banner_no1_appeal.jpg',
     'GMO_gift_': '/common/images/banner_no1_appeal.jpg',
