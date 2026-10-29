@@ -98,6 +98,7 @@ const initialQuestions = [
     placeholder: "09012345678",
     answer_method: "text",
     type: "tel",
+    autocomplete: "tel",
     key: "phone_number",
     validation: (v) => {
       const digits = v.replace(/[ー－‐-]/g, "").trim();
@@ -117,6 +118,7 @@ const initialQuestions = [
     placeholder: "user@example.com",
     answer_method: "text",
     type: "email",
+    autocomplete: "email",
     key: "email_address",
     validation: (v) => {
       const email = v.trim();

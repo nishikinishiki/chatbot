@@ -227,6 +227,11 @@ function setupInputEvents({ inputs, btn, errorMsg, validationFn, formatConfigs, 
             }
         });
 
+        input.addEventListener('change', () => {
+            input.value = formatInputValue(input.value, conf.type, conf.key);
+            checkValidation();
+        });
+
         input.addEventListener('blur', () => {
             if (idx === inputs.length - 1) hasInteractedLast = true;
             input.value = formatInputValue(input.value, conf.type, conf.key);
@@ -255,10 +260,17 @@ function setupInputEvents({ inputs, btn, errorMsg, validationFn, formatConfigs, 
 function displayNormalInput(question, callbacks) {
     const wrapper = createInputWrapper('column-layout');
 
+    // autocomplete の判定（questionの設定値、または type から判定）
+    const autocompleteAttr = question.autocomplete || (question.type === 'tel' ? 'tel' : (question.type === 'email' ? 'email' : 'on'));
+
     wrapper.innerHTML = `
         <div class="input-area">
           <span class="input-icon-container"></span>
-          <input type="text" class="user-input-field" placeholder="${question.placeholder || 'ここに入力'}">
+          <input type="${question.type || 'text'}" 
+                 name="${question.key || ''}" 
+                 autocomplete="${autocompleteAttr}" 
+                 class="user-input-field" 
+                 placeholder="${question.placeholder || 'ここに入力'}">
           <button class="circular-submit-btn" disabled>${ICONS.ARROW_RIGHT}</button>
         </div>
         <div class="input-error-message">${question.errorMessage || '入力内容を確認してください。'}</div>`;
@@ -273,31 +285,41 @@ function displayNormalInput(question, callbacks) {
     if (question.type === 'tel') iconBox.innerHTML = ICONS.PHONE;
     if (question.type === 'email') iconBox.innerHTML = ICONS.MAIL;
 
-    input.type = question.type || "text";
     input.focus();
 
-    // 共通関数を呼び出すだけ
     setupInputEvents({
         inputs: [input],
         btn: btn,
         errorMsg: errorMsg,
         validationFn: question.validation,
         formatConfigs: { type: question.type, key: question.key },
-        onValidSubmit: (vals) => callbacks.onSend(vals[0], wrapper) // 通常入力は値が1つなので vals[0] を渡す
+        onValidSubmit: (vals) => callbacks.onSend(vals[0], wrapper)
     });
 }
 
-// ペア入力 (名前・フリガナ)
+// ペア入力 (名前)
 function displayPairedInputs(question, onSubmit) {
     const wrapper = createInputWrapper('column-layout');
 
     let html = `<div class="paired-input-container">`;
     question.inputs.forEach((conf, idx) => {
         const isLast = idx === question.inputs.length - 1;
+
+        // 姓・名の autocomplete 自動判定
+        let autoVal = conf.autocomplete || 'on';
+        if (!conf.autocomplete) {
+            if (conf.key.includes('last_name')) autoVal = 'family-name';
+            else if (conf.key.includes('first_name')) autoVal = 'given-name';
+        }
+
         html += `
             <div class="paired-input-row">
                 <label>${conf.label}</label>
-                <input type="${conf.type || 'text'}" placeholder="${conf.placeholder || ''}" data-idx="${idx}">
+                <input type="${conf.type || 'text'}" 
+                       name="${conf.key}" 
+                       autocomplete="${autoVal}" 
+                       placeholder="${conf.placeholder || ''}" 
+                       data-idx="${idx}">
                 ${isLast
                 ? `<button class="circular-submit-btn" disabled>${ICONS.ARROW_RIGHT}</button>`
                 : `<div class="circular-submit-btn placeholder"></div>`
@@ -314,13 +336,12 @@ function displayPairedInputs(question, onSubmit) {
     const btn = wrapper.querySelector('button.circular-submit-btn');
     const errorMsg = wrapper.querySelector('.input-error-message');
 
-    // 共通関数を呼び出すだけ
     setupInputEvents({
         inputs: inputs,
         btn: btn,
         errorMsg: errorMsg,
         validationFn: question.combinedValidation,
-        formatConfigs: question.inputs, // 複数の設定配列をそのまま渡す
+        formatConfigs: question.inputs,
         onValidSubmit: (vals) => onSubmit(vals, wrapper)
     });
 
