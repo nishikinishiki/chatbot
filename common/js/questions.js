@@ -526,8 +526,8 @@ const initialQuestions = [
     id: 'name_kanji', item: "お名前（漢字）", pre_message: "ありがとうございます！", answer_method: "text-pair",
     prompt: "お名前を入力してください。",
     inputs: [
-      { label: "姓", key: "last_name", placeholder: "山田", type: "text" },
-      { label: "名", key: "first_name", placeholder: "太郎", type: "text" }
+      { label: "姓", key: "last_name", placeholder: "山田", type: "text", autocomplete: "family-name" },
+      { label: "名", key: "first_name", placeholder: "太郎", type: "text", autocomplete: "given-name" }
     ],
     combinedValidation: (v1, v2) => (v1 && v1.trim().length > 0) && (v2 && v2.trim().length > 0),
     combinedErrorMessage: "姓と名の両方を入力してください。",
@@ -537,8 +537,8 @@ const initialQuestions = [
     id: 'name_kana', item: "お名前（フリガナ）", answer_method: "text-pair",
     prompt: "続いて、フリガナを入力してください。（全角カタカナ）",
     inputs: [
-      { label: "セイ", key: "last_name_kana", placeholder: "ヤマダ", type: "text" },
-      { label: "メイ", key: "first_name_kana", placeholder: "タロウ", type: "text" }
+      { label: "セイ", key: "last_name_kana", placeholder: "ヤマダ", type: "text", autocomplete: "off" },
+      { label: "メイ", key: "first_name_kana", placeholder: "タロウ", type: "text", autocomplete: "off" }
     ],
     combinedValidation: (v1, v2) => (v1 && katakanaRegex.test(v1.trim())) && (v2 && katakanaRegex.test(v2.trim())),
     combinedErrorMessage: "セイとメイの両方を全角カタカナで入力してください。",
@@ -552,9 +552,15 @@ const initialQuestions = [
     placeholder: "09012345678",
     answer_method: "text",
     type: "tel",
+    autocomplete: "tel",
     key: "phone_number",
     validation: (v) => {
-      const digits = v.replace(/[ー－‐-]/g, "").trim();
+      let digits = v.replace(/[ー－‐\-\s]/g, "").trim();
+      if (digits.startsWith('+81')) {
+        digits = '0' + digits.slice(3);
+      } else if (digits.startsWith('81') && digits.length >= 12) {
+        digits = '0' + digits.slice(2);
+      }
       // 1. 先頭が0で始まる10〜11桁の数字
       const isValidLength = /^0\d{9,10}$/.test(digits);
       // 2. 全て同じ数字の繰り返しを禁止
@@ -571,6 +577,7 @@ const initialQuestions = [
     placeholder: "user@example.com",
     answer_method: "text",
     type: "email",
+    autocomplete: "email",
     key: "email_address",
     validation: (v) => {
       const email = v.trim();

@@ -101,7 +101,15 @@ const initialQuestions = [
     autocomplete: "tel",
     key: "phone_number",
     validation: (v) => {
-      const digits = v.replace(/[ー－‐-]/g, "").trim();
+      let digits = v.replace(/[ー－‐\-\s]/g, "").trim();
+
+      // +81 を 0 に変換してから判定
+      if (digits.startsWith('+81')) {
+        digits = '0' + digits.slice(3);
+      } else if (digits.startsWith('81') && digits.length >= 12) {
+        digits = '0' + digits.slice(2);
+      }
+
       // 1. 先頭が0で始まる10〜11桁の数字
       const isValidLength = /^0\d{9,10}$/.test(digits);
       // 2. 全て同じ数字の繰り返しを禁止

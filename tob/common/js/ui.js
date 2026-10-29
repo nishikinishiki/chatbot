@@ -152,9 +152,18 @@ function formatInputValue(value, type, key) {
         val = val.replace(/[Ａ-Ｚａ-ｚ０-９]/g, s => String.fromCharCode(s.charCodeAt(0) - 0xFEE0));
     }
 
-    // 2. ハイフン等を除去 (電話番号)
+    // 2. ハイフンやスペースを除去 & +81 を 0 に自動変換 (電話番号)
     if (type === 'tel') {
-        val = val.replace(/[ー－‐-]/g, '');
+        // ハイフンや各種スペースを除去
+        val = val.replace(/[ー－‐\-\s]/g, '');
+
+        // +81 始まりを 0 に置換（例: +819017058083 -> 09017058083）
+        if (val.startsWith('+81')) {
+            val = '0' + val.slice(3);
+        } else if (val.startsWith('81') && val.length >= 12) {
+            // プラス記号が欠落して「8190...」となった場合へのケア
+            val = '0' + val.slice(2);
+        }
     }
 
     // 3. ひらがなを全角カタカナに変換 (フリガナ)
