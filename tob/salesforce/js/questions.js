@@ -155,7 +155,7 @@ const additionalQuestions = [
   {
     id: 'first_choice_date',
     item: "面談希望日時（第一希望）",
-    pre_message: "ご面談を受けていただくと、10,000円相当のえらべるデジタルギフトプレゼントの対象となります！",
+    pre_message: "ご面談を受けていただくと、10,000円相当のアマゾンギフトプレゼントの対象となります！",
     summaryLabel: "日時 第1希望",
     question: "【第1希望】<br>ご面談希望日時をお選びください。<br>※ご予約は仮となっております。お電話での事前確認をもって、面談予約の確定とさせていただきます。",
     isHtmlQuestion: true,
@@ -182,7 +182,7 @@ const additionalQuestions = [
     id: 'second_choice_date',
     item: "面談希望日時（第二希望）",
     summaryLabel: "日時 第2希望",
-    question: "【第2希望】<br>ご面談希望日時をお選びください。",
+    question: "【第2希望】<br>ご面談希望日時をお選びください。<br>※ご予約は仮となっております。お電話での事前確認をもって、面談予約の確定とさせていただきます。",
     isHtmlQuestion: true,
     answer_method: "time-table",
     keys: { date: 'second_choice_date', time: 'second_choice_time' },

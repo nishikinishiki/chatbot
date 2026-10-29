@@ -40,7 +40,7 @@ function initializeUI() {
 }
 
 function adjustChatHeight() {
-    if (dom.chatContainer) dom.chatContainer.style.height = window.innerHeight + 'px';
+    if (dom.chatContainer) dom.chatContainer.style.height = window.innerWidth <= 560 ? window.innerHeight + 'px' : '95%';
 }
 
 function updateProgressBar(progress) {
