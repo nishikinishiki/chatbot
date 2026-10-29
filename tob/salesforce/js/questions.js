@@ -13,7 +13,8 @@ const SYSTEM_MESSAGES = {
   ],
   // 全フロー完了メッセージ
   final_complete: [
-    { text: "全ての情報を承りました。ご回答いただきありがとうございました！<br>後ほど弊社担当よりご連絡いたします。", isHtml: true },
+    { text: "全ての情報を承りました。ご回答いただきありがとうございました！<br>お申し込みいただいた面談日程は、現時点では仮予約となっております。お電話での事前確認をもって、面談予約の確定とさせていただきます。", isHtml: true },
+    { text: "後ほど弊社担当コンサルタントより事前確認のお電話を差し上げますので、ご対応のほどよろしくお願いいたします。", isHtml: true },
     { text: "お問い合わせはお電話でも受け付けております。<br>電話番号：<a href='tel:0120147104'>0120-147-104</a><br>営業時間：10:00～19:00（お盆・年末年始除く）", isHtml: true }
   ],
   // エラーメッセージ
@@ -156,7 +157,7 @@ const additionalQuestions = [
     item: "面談希望日時（第一希望）",
     pre_message: "ご面談を受けていただくと、10,000円相当のえらべるデジタルギフトプレゼントの対象となります！",
     summaryLabel: "日時 第1希望",
-    question: "【第1希望】<br>ご相談希望日時をお選びください。",
+    question: "【第1希望】<br>ご面談希望日時をお選びください。<br>※ご予約は仮となっております。お電話での事前確認をもって、面談予約の確定とさせていただきます。",
     isHtmlQuestion: true,
     answer_method: "time-table",
     keys: { date: 'first_choice_date', time: 'first_choice_time' },
@@ -168,7 +169,7 @@ const additionalQuestions = [
     id: 'first_choice_time_other',
     item: "面談希望時間（第一希望その他）",
     summaryLabel: "その他時間",
-    question: "【第1希望】<br>ご相談希望時間を入力ください。",
+    question: "【第1希望】<br>ご面談希望時間を入力ください。",
     isHtmlQuestion: true,
     answer_method: "text",
     type: "text",
@@ -181,7 +182,7 @@ const additionalQuestions = [
     id: 'second_choice_date',
     item: "面談希望日時（第二希望）",
     summaryLabel: "日時 第2希望",
-    question: "【第2希望】<br>ご相談希望日時をお選びください。",
+    question: "【第2希望】<br>ご面談希望日時をお選びください。",
     isHtmlQuestion: true,
     answer_method: "time-table",
     keys: { date: 'second_choice_date', time: 'second_choice_time' },
@@ -193,7 +194,7 @@ const additionalQuestions = [
     id: 'second_choice_time_other',
     item: "面談希望時間（第二希望その他）",
     summaryLabel: "その他時間",
-    question: "【第2希望】<br>ご相談希望時間を入力ください。",
+    question: "【第2希望】<br>ご面談希望時間を入力ください。",
     isHtmlQuestion: true,
     answer_method: "text",
     type: "text",
