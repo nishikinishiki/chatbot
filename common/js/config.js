@@ -16,8 +16,8 @@ const BANNER_DEFAULT = [
 ];
 const BANNER_CAMPAIGN = {
     //HP
-    'hp_gift_consultation': '/common/images/banner_ebook_hp.webp',
-    'wk_gift_': '/common/images/banner_ebook_hp.webp',
+    'hp_gift_consultation': '/common/images/banner_consultation_gift.webp',
+    'wk_gift_': '/common/images/banner_consultation_gift.webp',
     'hp_gift_ebook': '/common/images/banner_ebook_propertylist.png',
 
     //アフィリエイト広告

@@ -10,11 +10,6 @@ const UTM_RULES = {
     hideKeywords_mail: [
         'mail_ohya202609'
     ],
-    //「お申し込みの決め手」を表示する対象UTM
-    showApplicationReason: [
-        'ALA_gift_ebook_4362',
-        'ALA_gift_ebook_4362PM'
-    ],
     //第２希望を表示する対象UTM
     show2nd: [
         'ALA_gift_ebook_4362',
@@ -25,10 +20,7 @@ const UTM_RULES = {
         'CRS_gift_'
     ],
     //utm_campaignで指定「進呈条件」
-    customGiftTermsKeywords: [
-        'hp_gift_consultation',
-        'wk_gift_consultation'
-    ]
+    customGiftTermsKeywords: []
 };
 
 const TIME_SLOTS = [
@@ -505,24 +497,6 @@ const initialQuestions = [
 ];
 
 const additionalQuestions = [
-    {
-        id: 'application_reason',
-        item: "お申し込みの決め手",
-        question: "お申し込みの決め手を教えてください。（複数選択可）",
-        answer_method: "multi-choice",
-        options: [
-            { label: "特別レポートの配布", value: "特別レポートの配布" },
-            { label: "デジタルギフトの付与", value: "デジタルギフトの付与" },
-            { label: "ランキング1位掲載", value: "ランキング1位掲載" },
-            { label: "その他", value: "その他" }
-        ],
-        key: "application_reason",
-        validation: (v) => Array.isArray(v) && v.length > 0,
-        errorMessage: "少なくとも1つ選択してください。",
-
-        // ★該当のutm_sourceに含まれていない場合はスキップする
-        shouldSkip: (utmParams) => !UTM_RULES.showApplicationReason.includes(utmParams?.utm_source)
-    },
     {
         id: 'referral_source',
         item: "弊社を知ったきっかけ",
