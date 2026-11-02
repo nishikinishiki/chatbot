@@ -36,26 +36,6 @@ window.FORM_QUESTIONS = Object.freeze({
           {label:"60歳～",value:"60～64歳"}
         ]}
       ]
-    },
-    {
-      step: 3, title:"関心・投資経験について",
-      fields: [
-        {id:"theme",containerId:"theme",label:"関心のあるテーマ",type:"choice",multiple:false,required:true,options:[
-          {label:"所得税・住民税の節税対策",value:"所得税・住民税などの節税対策"},
-          {label:"インフレ時代の資産防衛術",value:"インフレ時代の資産防衛術"},
-          {label:"老後資金の確保",value:"老後資金の確保"},
-          {label:"家計・生命保険の見直し",value:"家計・生命保険の見直し"}
-        ]},
-        {id:"investment",containerId:"investment",label:"ご経験のある投資",type:"choice",multiple:true,required:true,options:[
-          {label:"株式・投資信託",value:"株式・投資信託"},
-          {label:"新NISA",value:"新NISA"},
-          {label:"iDECO・企業型DC",value:"iDECO・企業型DC"},
-          {label:"外貨預金",value:"外貨預金"},
-          {label:"不動産投資",value:"不動産投資"},
-          {label:"その他",value:"その他"},
-          {label:"特になし",value:"特になし"}
-        ]}
-      ]
     }
   ],
   appointments: [
