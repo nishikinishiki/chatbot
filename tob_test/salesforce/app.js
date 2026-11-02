@@ -356,7 +356,14 @@ function collectAppointment(){
     throw new Error("第1希望・第2希望は異なる日時を選択してください。");
   return data;
 }
+function applyPartnerBranding(){
+  const name=typeof QUESTIONS.partnerName==="string" ? QUESTIONS.partnerName.trim() : "";
+  const target=document.getElementById("partnerCompanyName");
+  if(target)target.textContent=name||"Salesforce";
+  if(name)document.title="【"+name+"様限定】無料個別相談｜J.P.RETURNS";
+}
 function init(){
+  applyPartnerBranding();
   renderQuestions();
   for(const q of QUESTIONS.appointments)renderTimeTable(q.id);
   updateProgress();trackStepView(1);
