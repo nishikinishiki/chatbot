@@ -133,3 +133,62 @@ a{color:#098d7f}
  *,*::before,*::after{scroll-behavior:auto!important;transition:none!important}
  .form-panel.is-leaving,.form-panel.is-leaving-back,.form-panel.is-entering-right,.form-panel.is-entering-left{transform:none}
 }
+
+
+/* 個人情報取扱いの案内文は表示し、同意用チェックボックスのみ設置しない */
+.consent-notice{font-size:11px;color:var(--muted);line-height:1.9;margin:23px 0 15px}
+.consent-notice a{color:#098d7f;text-decoration:underline;text-underline-offset:3px}
+
+/* 既存フォームに合わせた7日×時間帯の選択表 */
+.appointment-section{margin:0 0 27px}
+.appointment-note{font-size:11px;color:var(--muted);margin:-7px 0 12px;line-height:1.7}
+.time-table-container{min-width:0;width:100%;margin-bottom:16px}
+.time-table-header{display:flex;align-items:center;justify-content:space-between;gap:10px;margin-bottom:10px}
+.time-table-month{font-size:12px;font-weight:700;color:var(--dark);text-align:center}
+.time-table-nav{
+ display:grid;place-items:center;width:34px;height:34px;flex-shrink:0;
+ background:#fff;border:1px solid var(--border);border-radius:8px;
+ font-size:23px;line-height:1;color:var(--dark);
+}
+.time-table-nav:hover:not(:disabled){border-color:var(--teal);background:var(--mint)}
+.time-table-nav:disabled{opacity:.35;cursor:not-allowed}
+.time-table-nav:focus-visible,.time-slot-button:focus-visible{outline:3px solid #82d8cf;outline-offset:2px}
+.time-table-scroll{
+ overflow-x:auto;overscroll-behavior-x:contain;
+ max-width:100%;border:1px solid var(--border);border-radius:9px;
+ scrollbar-color:#c4ded9 #f4f8f7;
+}
+.time-table{width:100%;min-width:416px;border-collapse:separate;border-spacing:0;table-layout:fixed;background:#fff}
+.time-table th,.time-table td{
+ border-right:1px solid #e5edeb;border-bottom:1px solid #e5edeb;
+ padding:4px 2px;text-align:center;vertical-align:middle;
+}
+.time-table tr>*:last-child{border-right:0}
+.time-table tbody tr:last-child>*{border-bottom:0}
+.time-table thead th{
+ background:#f0f8f6;color:#49625e;font-weight:700;font-size:12px;
+ padding-top:9px;padding-bottom:9px;
+}
+.time-table thead th:first-child{width:76px;font-size:10px}
+.time-table thead th span{display:block;font-size:10px;margin-top:3px}
+.time-table thead th.saturday{color:#3464bb}
+.time-table thead th.sunday{color:#cc5149}
+.time-table .time-label{
+ width:76px;white-space:nowrap;background:#f8fbfa;
+ font-size:10px;font-weight:600;color:#485e5a;
+}
+.time-slot-button{
+ width:100%;min-height:34px;display:grid;place-items:center;border:1px solid transparent;
+ border-radius:6px;background:transparent;color:#23a693;font-size:20px;font-weight:700;
+ padding:2px;transition:background .15s,border-color .15s;
+}
+.time-slot-button:hover:not(:disabled){background:#ecf9f5;border-color:var(--teal)}
+.time-slot-button.selected,
+.time-slot-button[aria-pressed="true"]{background:var(--teal);color:#fff;border-color:var(--teal)}
+.time-slot-button:disabled{color:#cad5d2;cursor:not-allowed;font-weight:500;font-size:15px}
+.time-table-picked{margin:9px 0 0;font-size:11px;color:#10897d;font-weight:700}
+.other-time{margin-top:12px}
+@media(max-width:520px){
+ .time-table{min-width:400px}
+ .time-table-scroll{margin-right:0}
+}
