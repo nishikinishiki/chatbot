@@ -1,9 +1,87 @@
 "use strict";
-// テストページのため、本番へのGAS送信/GTM送信を行わない。
-// 本番切替時は別途レビュー・検証が必要です。
-const PREVIEW_ONLY = true;
-const GAS_WEB_APP_URL = ""; // 意図的に未設定。公開テストから本番GASを呼ばない。
+// GTMはページ表示およびステップ遷移の計測に利用。
+// GASへの個人情報送信とCVイベントは、有効な送信処理が整うまで実行しません。
 const FORM_VARIANT = location.pathname;
+window.dataLayer = window.dataLayer || [];
+function trackEvent(event, properties = {}) {
+  window.dataLayer.push({event, form_variant: FORM_VARIANT, ...properties});
+}
+const STEP_LABELS = {1:"basic_info",2:"income_age",3:"interest_investment"};
+let activeStep = 1;
+let stepTransitioning = false;
+function trackStepView(step) {
+  trackEvent("form_step_view", {step_number:step, step_name: STEP_LABELS[step]});
+}
+function trackStepComplete(step) {
+  trackEvent("form_step_complete", {step_number:step, step_name: STEP_LABELS[step]});
+}
+function scrollToFormTop() {
+  const pane = document.querySelector(".form-pane");
+  if (window.matchMedia("(max-width: 900px)").matches) {
+    pane.scrollIntoView({behavior:"smooth",block:"start"});
+  } else {
+    pane.scrollTo({top:0,behavior:"smooth"});
+  }
+}
+function updateProgress() {
+  document.getElementById("progressFill").style.width = ((activeStep - 1) / 2 * 100) + "%";
+  document.querySelectorAll("[data-progress-step]").forEach(node => {
+    const n=Number(node.dataset.progressStep);
+    node.classList.toggle("is-done",n<activeStep);
+    if(n===activeStep)node.setAttribute("aria-current","step");
+    else node.removeAttribute("aria-current");
+  });
+}
+function showFormStep(n) {
+  if(n===activeStep || stepTransitioning || n<1 || n>3)return;
+  stepTransitioning=true;
+  const old=document.querySelector('[data-form-step="'+activeStep+'"]');
+  const next=document.querySelector('[data-form-step="'+n+'"]');
+  const backwards=n<activeStep;
+  const leavingClass=backwards?"is-leaving-back":"is-leaving";
+  const enteringClass=backwards?"is-entering-left":"is-entering-right";
+  old.classList.add(leavingClass);
+  next.classList.add(enteringClass);
+  next.hidden=false;
+  activeStep=n;updateProgress();trackStepView(n);
+  scrollToFormTop();
+  requestAnimationFrame(()=>requestAnimationFrame(()=>next.classList.remove(enteringClass)));
+  window.setTimeout(()=>{
+    old.hidden=true;old.classList.remove(leavingClass);
+    stepTransitioning=false;
+    const title=document.getElementById("stepTitle"+n);
+    if(title)title.focus({preventScroll:true});
+  },320);
+}
+function setStepError(step,message) {
+  document.getElementById("stepError"+step).textContent=message;
+  if(message)trackEvent("form_step_validation_error",{step_number:step,step_name:STEP_LABELS[step]});
+}
+function validateFormStep(step) {
+  if(step===1) {
+    const last=document.getElementById("familyName").value.trim();
+    const first=document.getElementById("givenName").value.trim();
+    const phone=normalizePhone(document.getElementById("phone").value);
+    const email=document.getElementById("email").value.trim();
+    if(!last || !first)throw new Error("姓・名の両方を入力してください。");
+    if(!validatePhone(phone))throw new Error("電話番号を正しく入力してください。");
+    if(!validateEmail(email))throw new Error("メールアドレスを正しく入力してください。");
+  }else if(step===2){
+    if(!selections.annual_income.size)throw new Error("ご年収を選択してください。");
+    if(!selections.age_group.size)throw new Error("ご年齢を選択してください。");
+  }else if(step===3){
+    if(!selections.theme.size)throw new Error("関心のあるテーマを選択してください。");
+    if(!selections.investment.size)throw new Error("ご経験のある投資を選択してください。");
+    if(!document.getElementById("consent").checked)throw new Error("個人情報のお取り扱いへの同意をお願いします。");
+  }
+}
+function advanceStep(from,to) {
+  if(stepTransitioning)return;
+  setStepError(from,"");
+  try {validateFormStep(from);trackStepComplete(from);showFormStep(to);}
+  catch(err){setStepError(from,err.message);}
+}
+
 const params = new URLSearchParams(location.search);
 const utmKeys = ["utm_source","utm_medium","utm_campaign","utm_term","utm_content","gclid","yclid","fbclid"];
 const utmParameters = Object.fromEntries(utmKeys.filter(k=>params.has(k)).map(k=>[k,params.get(k)]));
@@ -52,14 +130,19 @@ function addOptionButtons(){
    button.addEventListener("click",()=>{
     const selected=selections[key];
     if(key==="investment"){
-     if(value==="特になし") selected.clear();
-     else selected.delete("特になし");
-     if(selected.has(value))selected.delete(value);else selected.add(value);
+     if(value==="特になし"){
+       const wasSelected=selected.has(value);
+       selected.clear();
+       if(!wasSelected)selected.add(value);
+     }else{
+       selected.delete("特になし");
+       if(selected.has(value))selected.delete(value);else selected.add(value);
+     }
     }else{
      selected.clear();selected.add(value);
     }
     for(const b of group.querySelectorAll("button"))b.setAttribute("aria-pressed",String(selected.has(b.dataset.value)));
-    document.getElementById("leadError").textContent="";
+    setStepError(activeStep,"");
    });
    group.append(button);
   });
@@ -93,10 +176,11 @@ function collectLead(){
   annual_income:[...selections.annual_income][0],theme:[...selections.theme][0],
   investment:[...selections.investment].join(";"),age_group:[...selections.age_group][0]};
 }
-function setStep(id){
- for(const el of document.querySelectorAll(".step"))el.hidden=el.id!==id;
- document.querySelector(".form-pane").scrollTo({top:0,behavior:"instant"});
- if(window.innerWidth<=920)document.querySelector(".form-pane").scrollIntoView({behavior:"smooth",block:"start"});
+function setPage(id) {
+ for(const el of document.querySelectorAll(".page-view"))el.hidden=el.id!==id;
+ scrollToFormTop();
+ if(id==="appointmentStep")trackEvent("form_appointment_view");
+ if(id==="completeStep")trackEvent("form_details_review_complete");
 }
 function installTimeSlots(){
  for(const id of ["time1","time2"]){
@@ -134,26 +218,37 @@ function appointmentPayload(){
   second_choice_date:d2.replaceAll("-","/"),second_choice_time:t2,
   ...(t2==="その他の時間"?{second_choice_time_other:extra2}:{})};
 }
+document.getElementById("nextTo2").addEventListener("click",()=>advanceStep(1,2));
+document.getElementById("nextTo3").addEventListener("click",()=>advanceStep(2,3));
+document.querySelectorAll("[data-back-step]").forEach(button=>{
+ button.addEventListener("click",()=>{
+  const target=Number(button.dataset.backStep);
+  setStepError(activeStep,"");
+  showFormStep(target);
+ });
+});
 document.getElementById("leadForm").addEventListener("submit",(event)=>{
  event.preventDefault();
- const error=document.getElementById("leadError");error.textContent="";
+ if(activeStep!==3 || stepTransitioning)return;
+ setStepError(3,"");
  try{
+  validateFormStep(3);
   leadData=collectLead();
-  // GASとGTMは一切呼ばない。個人情報はブラウザ内のみで保持。
-  setStep("appointmentStep");
- }catch(err){error.textContent=err.message;}
+  trackStepComplete(3);
+  // 個人情報はブラウザ内のみで扱い、GASやdataLayerへ送信しない。
+  setPage("appointmentStep");
+ }catch(err){setStepError(3,err.message);}
 });
 document.getElementById("appointmentForm").addEventListener("submit",(event)=>{
  event.preventDefault();
  const error=document.getElementById("appointmentError");error.textContent="";
  try{
   const dateData=appointmentPayload();
-  // GASへの追加送信の形式は既存実装と同じフィールド名を維持。
-  // 現在は画面フローの検証のみ。データは外部へ送信しない。
+  // 設定済みのGTMへはステップイベントのみ送信。GASリード送信は行わない。
   void {...leadData,...dateData,"Session ID":sessionId};
-  setStep("completeStep");
+  setPage("completeStep");
  }catch(err){error.textContent=err.message;}
 });
-document.getElementById("backButton").addEventListener("click",()=>setStep("initialStep"));
+document.getElementById("backButton").addEventListener("click",()=>setPage("initialStep"));
 document.getElementById("restartButton").addEventListener("click",()=>location.reload());
-addOptionButtons();installTimeSlots();
+addOptionButtons();installTimeSlots();updateProgress();trackStepView(1);
