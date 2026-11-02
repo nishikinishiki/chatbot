@@ -84,6 +84,7 @@
             <div class="field">
               <label class="field-label" for="time1">第1希望時間 <span class="required">必須</span></label>
               <select id="time1" required></select>
+              <input id="timeOther1" class="other-time" type="text" placeholder="希望時間をご入力ください" aria-label="第1希望 その他の時間" hidden>
             </div>
             <div class="field">
               <label class="field-label" for="date2">第2希望日 <span class="required">必須</span></label>
@@ -92,6 +93,7 @@
             <div class="field">
               <label class="field-label" for="time2">第2希望時間 <span class="required">必須</span></label>
               <select id="time2" required></select>
+              <input id="timeOther2" class="other-time" type="text" placeholder="希望時間をご入力ください" aria-label="第2希望 その他の時間" hidden>
             </div>
             <p id="appointmentError" class="error-message" role="alert" aria-live="polite"></p>
             <button type="submit" class="primary-button">テストを完了する <span aria-hidden="true">→</span></button>
