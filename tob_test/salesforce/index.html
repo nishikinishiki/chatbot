@@ -1,0 +1,116 @@
+<!doctype html>
+<html lang="ja">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width,initial-scale=1,viewport-fit=cover">
+  <meta name="robots" content="noindex,nofollow">
+  <meta name="theme-color" content="#33b5a7">
+  <title>【テスト版】無料個別相談｜J.P.RETURNS</title>
+  <meta name="description" content="J.P.RETURNS 無料個別相談フォーム テスト版">
+  <link rel="icon" href="/common/images/favicon.png">
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+  <link href="https://fonts.googleapis.com/css2?family=Noto+Sans+JP:wght@400;500;600;700;800&display=swap" rel="stylesheet">
+  <link rel="stylesheet" href="./style.css">
+</head>
+<body>
+  <main class="layout">
+    <aside class="visual-pane" aria-label="ご案内">
+      <!-- 仮画像。差替え対象はこのsrcだけです。画像はトリミングせず全体を表示します。 -->
+      <img class="visual-image" src="/common/images/Salesforce_BN.jpg" alt="J.P.RETURNS マンション投資のご案内" loading="eager">
+    </aside>
+
+    <section class="form-pane" aria-label="無料個別相談フォーム">
+      <div class="form-shell">
+        <div class="brand"><span class="brand-mark">▰</span> J.P.RETURNS <span class="brand-caption">無料個別相談</span></div>
+        <div class="test-note" role="status">デザイン確認用テスト版：GAS送信・GTM送信は無効です</div>
+
+        <section id="initialStep" class="step">
+          <div class="eyebrow">FREE CONSULTATION</div>
+          <h1>無料個別相談のお申し込み</h1>
+          <p class="intro">必要事項をご入力のうえ、お進みください。<br>ご相談は無料です。</p>
+          <form id="leadForm" novalidate>
+            <div class="section-label"><span>01</span> お客様情報</div>
+            <div class="field">
+              <label class="field-label" for="familyName">お名前 <span class="required">必須</span></label>
+              <div class="two-fields">
+                <input id="familyName" name="family-name" type="text" autocomplete="family-name" placeholder="姓　山田" required maxlength="100">
+                <input id="givenName" name="given-name" type="text" autocomplete="given-name" placeholder="名　太郎" required maxlength="100">
+              </div>
+            </div>
+            <div class="field">
+              <label class="field-label" for="phone">電話番号 <span class="required">必須</span></label>
+              <input id="phone" name="tel" type="tel" inputmode="tel" autocomplete="tel" placeholder="09012345678" required>
+            </div>
+            <div class="field">
+              <label class="field-label" for="email">メールアドレス <span class="required">必須</span></label>
+              <input id="email" name="email" type="email" inputmode="email" autocomplete="email" placeholder="example@email.com" required>
+            </div>
+
+            <div class="section-label second-section"><span>02</span> ご相談に関する情報</div>
+            <div id="annualIncome" class="choice-field" data-group="annual_income">
+              <div class="field-label" id="incomeLabel">ご年収 <span class="required">必須</span></div>
+              <div class="choices income-choices" role="group" aria-labelledby="incomeLabel"></div>
+            </div>
+            <div id="theme" class="choice-field" data-group="theme">
+              <div class="field-label" id="themeLabel">関心のあるテーマ <span class="required">必須</span></div>
+              <div class="choices" role="group" aria-labelledby="themeLabel"></div>
+            </div>
+            <div id="investment" class="choice-field" data-group="investment">
+              <div class="field-label" id="investmentLabel">ご経験のある投資 <span class="required">必須</span><small>複数選択可</small></div>
+              <div class="choices" role="group" aria-labelledby="investmentLabel"></div>
+            </div>
+            <div id="ageGroup" class="choice-field" data-group="age_group">
+              <div class="field-label" id="ageLabel">ご年齢 <span class="required">必須</span></div>
+              <div class="choices age-choices" role="group" aria-labelledby="ageLabel"></div>
+            </div>
+
+            <label class="consent"><input type="checkbox" id="consent" required><span><a href="/privacypolicy" target="_blank" rel="noopener noreferrer">個人情報のお取り扱い</a>を確認し、同意します。</span></label>
+            <p id="leadError" class="error-message" role="alert" aria-live="polite"></p>
+            <button id="leadSubmit" class="primary-button" type="submit">入力内容を確認する <span aria-hidden="true">→</span></button>
+            <p class="footnote">※ デザイン確認用ページのため、お客様情報は送信されません。</p>
+          </form>
+        </section>
+
+        <section id="appointmentStep" class="step" hidden>
+          <div class="eyebrow">NEXT STEP</div>
+          <h1>ご面談の希望日時</h1>
+          <p class="intro">入力内容はテスト用に保持しています。続けて第1希望・第2希望を選択できます。<br>実際の予約はお電話での事前確認後に確定します。</p>
+          <form id="appointmentForm" novalidate>
+            <div class="field">
+              <label class="field-label" for="date1">第1希望日 <span class="required">必須</span></label>
+              <input type="date" id="date1" required>
+            </div>
+            <div class="field">
+              <label class="field-label" for="time1">第1希望時間 <span class="required">必須</span></label>
+              <select id="time1" required></select>
+            </div>
+            <div class="field">
+              <label class="field-label" for="date2">第2希望日 <span class="required">必須</span></label>
+              <input type="date" id="date2" required>
+            </div>
+            <div class="field">
+              <label class="field-label" for="time2">第2希望時間 <span class="required">必須</span></label>
+              <select id="time2" required></select>
+            </div>
+            <p id="appointmentError" class="error-message" role="alert" aria-live="polite"></p>
+            <button type="submit" class="primary-button">テストを完了する <span aria-hidden="true">→</span></button>
+            <button type="button" id="backButton" class="secondary-button">入力内容に戻る</button>
+          </form>
+        </section>
+
+        <section id="completeStep" class="step" hidden>
+          <div class="complete-icon" aria-hidden="true">✓</div>
+          <h1>テスト入力が完了しました</h1>
+          <p class="intro">画面遷移・入力操作の確認が完了しました。<strong>本番の送信・予約は行われていません。</strong></p>
+          <a class="primary-button as-link" href="https://library.jpreturns.com/" target="_blank" rel="noopener noreferrer">資産形成のeBookを見る <span aria-hidden="true">↗</span></a>
+          <button type="button" id="restartButton" class="secondary-button">最初からテストする</button>
+        </section>
+
+        <footer class="footer">© J.P.RETURNS <span>お問い合わせ 0120-147-104</span></footer>
+      </div>
+    </section>
+  </main>
+  <script src="./app.js" defer></script>
+</body>
+</html>
