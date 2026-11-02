@@ -27,6 +27,7 @@ h1{font-size:clamp(22px,2.2vw,29px);line-height:1.5;letter-spacing:-.015em;margi
 input[type=text],input[type=tel],input[type=email],input[type=date],select{width:100%;min-height:48px;border:1px solid #cbd9d6;border-radius:8px;background:#fff;padding:10px 13px;outline:none;transition:border-color .18s,box-shadow .18s;font-size:14px;color:var(--text)}
 input::placeholder{color:#9aa9a6}
 input:focus,select:focus{border-color:var(--teal);box-shadow:0 0 0 3px rgba(51,181,167,.13)}
+ .other-time{margin-top:9px}
 .two-fields{display:grid;grid-template-columns:1fr 1fr;gap:10px}
 .choices{display:grid;grid-template-columns:1fr 1fr;gap:8px}
 .choice-button{border:1px solid #d4e2df;border-radius:8px;background:#fff;color:#314443;text-align:center;font-size:12px;font-weight:600;min-height:43px;padding:11px 8px;line-height:1.5;transition:background .14s,border-color .14s,box-shadow .14s}
