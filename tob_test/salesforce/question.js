@@ -3,8 +3,6 @@
 // 質問・選択肢はこのファイルのみで管理する。
 // valueは既存 tob/salesforce/js/questions.js およびGASの受け取り値を踏襲。
 window.FORM_QUESTIONS = Object.freeze({
-  // 取引先名を変更する場合はこの1か所を書き換える。
-  partnerName: "Salesforce",
   steps: [
     {
       step: 1, title: "お客様情報",
