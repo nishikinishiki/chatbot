@@ -98,6 +98,7 @@ window.FORM_QUESTIONS = Object.freeze({
       phone: "電話番号を正しく入力してください。",
       email: "メールアドレスを正しく入力してください。",
       choice: "{label}を選択してください。",
+      required: "{label}を入力してください。",
       appointmentRequired: "{label}の日時を選択してください。",
       otherTimeRequired: "{label}の希望時間を入力してください。",
       duplicateAppointment: "第1希望・第2希望は異なる日時を選択してください。",
