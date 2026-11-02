@@ -36,9 +36,9 @@ window.FORM_QUESTIONS = Object.freeze({
       caption: "無料個別相談"
     },
     lead: {
-      eyebrow: "FREE CONSULTATION",
-      heading: "無料個別相談のお申し込み",
-      intro: "以下の項目をご入力ください。"
+      eyebrow: "Salesforce Campaign",
+      heading: "Salesforce様限定キャンペーン",
+      intro: "無料個別相談のお申し込み"
     },
     privacy: {
       before: "",
@@ -111,7 +111,7 @@ window.FORM_QUESTIONS = Object.freeze({
       step: 1,
       progressLabel: "基本情報",
       trackingName: "basic_info",
-      title: "お客様情報",
+      title: "基本情報",
       nextButton: "次へ進む",
       fields: [
         {
@@ -127,11 +127,22 @@ window.FORM_QUESTIONS = Object.freeze({
     },
     {
       step: 2,
-      progressLabel: "年収・年齢",
+      progressLabel: "年齢・年収",
       trackingName: "income_age",
-      title: "年収・年齢について",
+      title: "年齢・年収",
       nextButton: "同意して送信",
       fields: [
+        {id: "age_group", containerId: "ageGroup", label: "ご年齢", type: "choice", multiple: false, required: true, options: [
+            { label: "22～24歳", value: "20～24歳" },
+            { label: "25～29歳", value: "25～29歳" },
+            { label: "30～34歳", value: "30～34歳" },
+            { label: "35～39歳", value: "35～39歳" },
+            { label: "40～44歳", value: "40～44歳" },
+            { label: "45～49歳", value: "45～49歳" },
+            { label: "50～54歳", value: "50～54歳" },
+            { label: "55～59歳", value: "55～59歳" },
+            { label: "60歳～", value: "60～64歳" }
+        ]},
         {id:"annual_income",containerId:"annualIncome",label:"ご年収",type:"choice",multiple:false,required:true,options:[
           {label:"700万～",value:"700～799万"},
           {label:"800万～",value:"800～899万"},
@@ -141,17 +152,6 @@ window.FORM_QUESTIONS = Object.freeze({
           {label:"2000万～",value:"2000～2499万"},
           {label:"3000万～",value:"3000～3999万"},
           {label:"5000万～",value:"5000万～1億未満"}
-        ]},
-        {id:"age_group",containerId:"ageGroup",label:"ご年齢",type:"choice",multiple:false,required:true,options:[
-          {label:"22～24歳",value:"20～24歳"},
-          {label:"25～29歳",value:"25～29歳"},
-          {label:"30～34歳",value:"30～34歳"},
-          {label:"35～39歳",value:"35～39歳"},
-          {label:"40～44歳",value:"40～44歳"},
-          {label:"45～49歳",value:"45～49歳"},
-          {label:"50～54歳",value:"50～54歳"},
-          {label:"55～59歳",value:"55～59歳"},
-          {label:"60歳～",value:"60～64歳"}
         ]}
       ]
     }
