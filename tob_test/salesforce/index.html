@@ -40,7 +40,6 @@
             <ol class="stepper-list">
               <li data-progress-step="1" aria-current="step"><span class="stepper-number">01</span><span class="stepper-name">基本情報</span></li>
               <li data-progress-step="2"><span class="stepper-number">02</span><span class="stepper-name">年収・年齢</span></li>
-              <li data-progress-step="3"><span class="stepper-number">03</span><span class="stepper-name">関心・経験</span></li>
             </ol>
           </nav>
 
@@ -56,19 +55,13 @@
               <section class="form-panel" data-form-step="2" aria-labelledby="stepTitle2" hidden>
                 <div class="section-label"><span>02</span><h2 id="stepTitle2" tabindex="-1">年収・年齢について</h2></div>
                 <div id="stepFields2"></div>
+                <p class="consent-notice"><a href="/privacypolicy" target="_blank" rel="noopener noreferrer">個人情報のお取り扱い</a>を確認し、同意します。</p>
                 <p id="stepError2" class="error-message" role="alert" aria-live="polite"></p>
-                <button type="button" id="nextTo3" class="primary-button">次へ進む <span aria-hidden="true">→</span></button>
+                <button type="submit" class="primary-button">次へ進む <span aria-hidden="true">→</span></button>
                 <button type="button" class="secondary-button" data-back-step="1">前の画面に戻る</button>
               </section>
 
-              <section class="form-panel" data-form-step="3" aria-labelledby="stepTitle3" hidden>
-                <div class="section-label"><span>03</span><h2 id="stepTitle3" tabindex="-1">関心・投資経験について</h2></div>
-                <div id="stepFields3"></div>
-                <p class="consent-notice"><a href="/privacypolicy" target="_blank" rel="noopener noreferrer">個人情報のお取り扱い</a>を確認し、同意します。</p>
-                <p id="stepError3" class="error-message" role="alert" aria-live="polite"></p>
-                <button type="submit" class="primary-button">次へ進む <span aria-hidden="true">→</span></button>
-                <button type="button" class="secondary-button" data-back-step="2">前の画面に戻る</button>
-              </section>
+
             </div>
           </form>
         </section>
