@@ -233,20 +233,31 @@ function validateFormStep(stepNumber){
         throw new Error(COPY.errors.email);
     }else if(field.type==="choice" && field.required && !selections[field.id].size){
       throw new Error(phrase(COPY.errors.choice,{label:field.label}));
+    }else if(field.type!=="choice" && field.required && !document.getElementById(field.id).value.trim()){
+      throw new Error(phrase(COPY.errors.required,{label:field.label}));
     }
   }
 }
 function collectLead(){
   for(const step of QUESTIONS.steps)validateFormStep(step.step);
-  return {
-    ...utmParameters,
-    last_name:document.getElementById("familyName").value.trim(),
-    first_name:document.getElementById("givenName").value.trim(),
-    phone_number:normalizePhone(document.getElementById("phone").value),
-    email_address:document.getElementById("email").value.trim(),
-    annual_income:[...selections.annual_income][0],
-    age_group:[...selections.age_group][0]
-  };
+  const result={...utmParameters};
+  // GASへの送信キーはquestion.jsに記載した各フィールドのkey/idを使用する。
+  for(const step of QUESTIONS.steps){
+    for(const field of step.fields){
+      if(field.type==="name"){
+        for(const input of field.inputs){
+          result[input.key]=document.getElementById(input.id).value.trim();
+        }
+      }else if(field.type==="choice"){
+        const selected=[...selections[field.id]];
+        result[field.key||field.id]=field.multiple?selected.join(";"):selected[0];
+      }else{
+        const value=document.getElementById(field.id).value.trim();
+        result[field.key||field.id]=field.type==="tel"?normalizePhone(value):value;
+      }
+    }
+  }
+  return result;
 }
 function scrollToFormTop(){
   const pane=document.querySelector(".form-pane");
@@ -255,7 +266,7 @@ function scrollToFormTop(){
   else pane.scrollTo({top:0,behavior:"smooth"});
 }
 function updateProgress(){
-  document.getElementById("progressFill").style.width=(((activeStep-1)/(QUESTIONS.steps.length-1))*100)+"%";
+  document.getElementById("progressFill").style.width=((QUESTIONS.steps.length>1?(activeStep-1)/(QUESTIONS.steps.length-1):1)*100)+"%";
   document.querySelectorAll("[data-progress-step]").forEach(node=>{
     const n=Number(node.dataset.progressStep);
     node.classList.toggle("is-done",n<activeStep);
@@ -454,7 +465,8 @@ function init(){
     event.preventDefault();
     if(stepTransitioning||leadSending)return;
     if(activeStep!==QUESTIONS.steps.length)return;
-    setStepError(2,"");
+    const finalStep=QUESTIONS.steps[QUESTIONS.steps.length-1].step;
+    setStepError(finalStep,"");
     try{
       leadData=collectLead();
       if(leadSubmitted){setPage("appointmentStep");return;}
@@ -464,16 +476,16 @@ function init(){
       try{
         await sendToGas(leadData,false);
         leadSubmitted=true;
-        trackStepComplete(2);
+        trackStepComplete(finalStep);
         publishLeadTracking(leadData);
         setPage("appointmentStep");
       }catch(err){
         console.error("Lead submission failed",err);
-        setStepError(2,COPY.errors.network);
+        setStepError(finalStep,COPY.errors.network);
       }finally{
         leadSending=false;setBusy(button,false);
       }
-    }catch(err){setStepError(2,err.message);}
+    }catch(err){setStepError(finalStep,err.message);}
   });
   document.getElementById("appointmentForm").addEventListener("submit",async event=>{
     event.preventDefault();
