@@ -1,254 +1,418 @@
 "use strict";
-// GTMはページ表示およびステップ遷移の計測に利用。
-// GASへの個人情報送信とCVイベントは、有効な送信処理が整うまで実行しません。
+
+/* 入力設問・選択肢：question.js / GAS：既存 tob/salesforce と同じ送信仕様 */
+const QUESTIONS = window.FORM_QUESTIONS;
+if (!QUESTIONS) throw new Error("question.js を読み込めませんでした。");
+const GAS_WEB_APP_URL = "https://script.google.com/macros/s/AKfycbxFiCz5dYlDo2c-JXyB6oogZfy6x7qiVYaiBF2-hnHdW_rCFAD4XFyeQ4xP28CRxm2F/exec";
 const FORM_VARIANT = location.pathname;
-window.dataLayer = window.dataLayer || [];
-function trackEvent(event, properties = {}) {
-  window.dataLayer.push({event, form_variant: FORM_VARIANT, ...properties});
-}
 const STEP_LABELS = {1:"basic_info",2:"income_age",3:"interest_investment"};
-let activeStep = 1;
-let stepTransitioning = false;
-function trackStepView(step) {
-  trackEvent("form_step_view", {step_number:step, step_name: STEP_LABELS[step]});
-}
-function trackStepComplete(step) {
-  trackEvent("form_step_complete", {step_number:step, step_name: STEP_LABELS[step]});
-}
-function scrollToFormTop() {
-  const pane = document.querySelector(".form-pane");
-  if (window.matchMedia("(max-width: 900px)").matches) {
-    pane.scrollIntoView({behavior:"smooth",block:"start"});
-  } else {
-    pane.scrollTo({top:0,behavior:"smooth"});
+const URL_PARAMS = new URLSearchParams(location.search);
+const UTM_KEYS = ["utm_source","utm_medium","utm_campaign","utm_term","utm_content","gclid","yclid","fbclid"];
+const utmParameters = Object.fromEntries(UTM_KEYS.filter(k=>URL_PARAMS.has(k)).map(k=>[k,URL_PARAMS.get(k)]));
+const sessionId = Date.now().toString(36) + Math.random().toString(36).slice(2,15);
+
+window.dataLayer = window.dataLayer || [];
+const selections = Object.create(null);
+for(const step of QUESTIONS.steps) {
+  for(const field of step.fields) {
+    if(field.type==="choice")selections[field.id]=new Set();
   }
 }
-function updateProgress() {
-  document.getElementById("progressFill").style.width = ((activeStep - 1) / 2 * 100) + "%";
-  document.querySelectorAll("[data-progress-step]").forEach(node => {
+const appointmentSelections = {first:null,second:null};
+const appointmentStart = {first:todayMidnight(),second:todayMidnight()};
+let activeStep=1, stepTransitioning=false;
+let leadData=null,leadSubmitted=false,appointmentSubmitted=false;
+let leadSending=false,appointmentSending=false;
+
+function trackEvent(event,detail={}) {
+  window.dataLayer.push({event,form_variant:FORM_VARIANT,...detail});
+}
+function trackStepView(step) {
+  trackEvent("form_step_view",{step_number:step,step_name:STEP_LABELS[step]});
+}
+function trackStepComplete(step) {
+  trackEvent("form_step_complete",{step_number:step,step_name:STEP_LABELS[step]});
+}
+function requiredMark(){
+  const el=document.createElement("span");el.className="required";el.textContent="必須";return el;
+}
+function fieldLabel(field,targetId){
+  const label=document.createElement("label");
+  label.className="field-label";
+  label.htmlFor=targetId;
+  label.append(document.createTextNode(field.label+" "));
+  if(field.required)label.append(requiredMark());
+  return label;
+}
+function renderNameField(field,parent){
+  const outer=document.createElement("div");outer.className="field";
+  outer.append(fieldLabel(field,field.inputs[0].id));
+  const pair=document.createElement("div");pair.className="two-fields";
+  for(const item of field.inputs) {
+    const input=document.createElement("input");input.type="text";
+    input.id=item.id;input.name=item.name;input.placeholder=item.placeholder;
+    input.autocomplete=item.autocomplete;input.maxLength=100;input.required=true;
+    input.setAttribute("aria-label",item.id==="familyName"?"姓":"名");
+    pair.append(input);
+  }
+  outer.append(pair);parent.append(outer);
+}
+function renderTextField(field,parent){
+  const outer=document.createElement("div");outer.className="field";
+  outer.append(fieldLabel(field,field.id));
+  const input=document.createElement("input");input.id=field.id;input.type=field.type;
+  input.name=field.name;input.placeholder=field.placeholder;
+  input.autocomplete=field.autocomplete;
+  input.required=!!field.required;
+  input.inputMode=field.type==="tel"?"tel":(field.type==="email"?"email":"text");
+  outer.append(input);parent.append(outer);
+}
+function renderChoiceField(field,parent){
+  const outer=document.createElement("div");outer.className="choice-field";outer.id=field.containerId;
+  outer.dataset.group=field.id;
+  const label=document.createElement("div");
+  label.className="field-label";label.id=field.id+"Label";
+  label.append(document.createTextNode(field.label+" "));
+  if(field.required)label.append(requiredMark());
+  if(field.multiple){
+    const small=document.createElement("small");small.textContent="複数選択可";label.append(small);
+  }
+  const group=document.createElement("div");group.className="choices";
+  group.setAttribute("role","group");group.setAttribute("aria-labelledby",label.id);
+  for(const option of field.options){
+    const button=document.createElement("button");
+    button.type="button";button.className="choice-button";button.textContent=option.label;
+    button.dataset.value=option.value;
+    button.setAttribute("aria-pressed","false");
+    button.addEventListener("click",()=>{
+      const values=selections[field.id];
+      if(field.multiple){
+        if(option.value==="特になし"){
+          const alreadySelected=values.has(option.value);
+          values.clear();if(!alreadySelected)values.add(option.value);
+        }else{
+          values.delete("特になし");
+          if(values.has(option.value))values.delete(option.value);
+          else values.add(option.value);
+        }
+      }else{
+        values.clear();values.add(option.value);
+      }
+      for(const b of group.querySelectorAll("button")){
+        b.setAttribute("aria-pressed",String(values.has(b.dataset.value)));
+      }
+      setStepError(activeStep,"");
+    });
+    group.append(button);
+  }
+  outer.append(label,group);parent.append(outer);
+}
+function renderQuestions(){
+  for(const step of QUESTIONS.steps){
+    const root=document.getElementById("stepFields"+step.step);
+    if(!root)throw new Error("質問フォームの配置先がありません: "+step.step);
+    for(const field of step.fields){
+      if(field.type==="name")renderNameField(field,root);
+      else if(field.type==="choice")renderChoiceField(field,root);
+      else renderTextField(field,root);
+    }
+  }
+}
+function normalizePhone(value){
+  let digits=value.trim().replace(/[ー－‐\-\s]/g,"");
+  if(digits.startsWith("+81"))digits="0"+digits.slice(3);
+  else if(digits.startsWith("81")&&digits.length>=12)digits="0"+digits.slice(2);
+  return digits;
+}
+function validatePhone(value){return /^0\d{9,10}$/.test(value)&&!(/^(.)\1+$/.test(value));}
+function validateEmail(value){
+  return /^[a-zA-Z0-9._%+-]+@[a-zA-Z0-9]+(?:-[a-zA-Z0-9]+)*(?:\.[a-zA-Z0-9]+(?:-[a-zA-Z0-9]+)*)*\.[a-zA-Z]{2,}$/.test(value)&&!value.includes("..");
+}
+function setStepError(step,message){
+  document.getElementById("stepError"+step).textContent=message;
+  if(message)trackEvent("form_step_validation_error",{step_number:step,step_name:STEP_LABELS[step]});
+}
+function validateFormStep(stepNumber){
+  const step=QUESTIONS.steps.find(s=>s.step===stepNumber);
+  for(const field of step.fields){
+    if(field.type==="name"){
+      if(field.inputs.some(item=>!document.getElementById(item.id).value.trim()))
+        throw new Error("姓・名の両方を入力してください。");
+    }else if(field.type==="tel"){
+      if(!validatePhone(normalizePhone(document.getElementById(field.id).value)))
+        throw new Error("電話番号を正しく入力してください。");
+    }else if(field.type==="email"){
+      if(!validateEmail(document.getElementById(field.id).value.trim()))
+        throw new Error("メールアドレスを正しく入力してください。");
+    }else if(field.type==="choice" && field.required && !selections[field.id].size){
+      throw new Error(field.label+"を選択してください。");
+    }
+  }
+}
+function collectLead(){
+  for(const step of QUESTIONS.steps)validateFormStep(step.step);
+  return {
+    ...utmParameters,
+    last_name:document.getElementById("familyName").value.trim(),
+    first_name:document.getElementById("givenName").value.trim(),
+    phone_number:normalizePhone(document.getElementById("phone").value),
+    email_address:document.getElementById("email").value.trim(),
+    annual_income:[...selections.annual_income][0],
+    age_group:[...selections.age_group][0],
+    theme:[...selections.theme][0],
+    investment:[...selections.investment].join(";")
+  };
+}
+function scrollToFormTop(){
+  const pane=document.querySelector(".form-pane");
+  if(window.matchMedia("(max-width: 900px)").matches)
+    pane.scrollIntoView({behavior:"smooth",block:"start"});
+  else pane.scrollTo({top:0,behavior:"smooth"});
+}
+function updateProgress(){
+  document.getElementById("progressFill").style.width=(((activeStep-1)/2)*100)+"%";
+  document.querySelectorAll("[data-progress-step]").forEach(node=>{
     const n=Number(node.dataset.progressStep);
     node.classList.toggle("is-done",n<activeStep);
     if(n===activeStep)node.setAttribute("aria-current","step");
     else node.removeAttribute("aria-current");
   });
 }
-function showFormStep(n) {
-  if(n===activeStep || stepTransitioning || n<1 || n>3)return;
+function showFormStep(nextNumber){
+  if(stepTransitioning||nextNumber===activeStep||nextNumber<1||nextNumber>3)return;
   stepTransitioning=true;
   const old=document.querySelector('[data-form-step="'+activeStep+'"]');
-  const next=document.querySelector('[data-form-step="'+n+'"]');
-  const backwards=n<activeStep;
+  const next=document.querySelector('[data-form-step="'+nextNumber+'"]');
+  const backwards=nextNumber<activeStep;
   const leavingClass=backwards?"is-leaving-back":"is-leaving";
   const enteringClass=backwards?"is-entering-left":"is-entering-right";
-  old.classList.add(leavingClass);
-  next.classList.add(enteringClass);
-  next.hidden=false;
-  activeStep=n;updateProgress();trackStepView(n);
-  scrollToFormTop();
+  old.classList.add(leavingClass);next.classList.add(enteringClass);next.hidden=false;
+  activeStep=nextNumber;updateProgress();trackStepView(nextNumber);scrollToFormTop();
   requestAnimationFrame(()=>requestAnimationFrame(()=>next.classList.remove(enteringClass)));
   window.setTimeout(()=>{
     old.hidden=true;old.classList.remove(leavingClass);
     stepTransitioning=false;
-    const title=document.getElementById("stepTitle"+n);
+    const title=document.getElementById("stepTitle"+nextNumber);
     if(title)title.focus({preventScroll:true});
   },320);
 }
-function setStepError(step,message) {
-  document.getElementById("stepError"+step).textContent=message;
-  if(message)trackEvent("form_step_validation_error",{step_number:step,step_name:STEP_LABELS[step]});
-}
-function validateFormStep(step) {
-  if(step===1) {
-    const last=document.getElementById("familyName").value.trim();
-    const first=document.getElementById("givenName").value.trim();
-    const phone=normalizePhone(document.getElementById("phone").value);
-    const email=document.getElementById("email").value.trim();
-    if(!last || !first)throw new Error("姓・名の両方を入力してください。");
-    if(!validatePhone(phone))throw new Error("電話番号を正しく入力してください。");
-    if(!validateEmail(email))throw new Error("メールアドレスを正しく入力してください。");
-  }else if(step===2){
-    if(!selections.annual_income.size)throw new Error("ご年収を選択してください。");
-    if(!selections.age_group.size)throw new Error("ご年齢を選択してください。");
-  }else if(step===3){
-    if(!selections.theme.size)throw new Error("関心のあるテーマを選択してください。");
-    if(!selections.investment.size)throw new Error("ご経験のある投資を選択してください。");
-    if(!document.getElementById("consent").checked)throw new Error("個人情報のお取り扱いへの同意をお願いします。");
-  }
-}
-function advanceStep(from,to) {
-  if(stepTransitioning)return;
+function advanceStep(from,to){
+  if(stepTransitioning||leadSending)return;
   setStepError(from,"");
-  try {validateFormStep(from);trackStepComplete(from);showFormStep(to);}
-  catch(err){setStepError(from,err.message);}
+  try{validateFormStep(from);trackStepComplete(from);showFormStep(to);}
+  catch(error){setStepError(from,error.message);}
+}
+function setPage(id){
+  for(const el of document.querySelectorAll(".page-view"))el.hidden=el.id!==id;
+  scrollToFormTop();
+  if(id==="appointmentStep")trackEvent("form_appointment_view");
+  if(id==="completeStep")trackEvent("form_appointment_complete");
 }
 
-const params = new URLSearchParams(location.search);
-const utmKeys = ["utm_source","utm_medium","utm_campaign","utm_term","utm_content","gclid","yclid","fbclid"];
-const utmParameters = Object.fromEntries(utmKeys.filter(k=>params.has(k)).map(k=>[k,params.get(k)]));
-const sessionId = Date.now().toString(36) + Math.random().toString(36).slice(2,15);
-
-const OPTIONS = {
- annual_income: [
-  ["700万～","700～799万"],["800万～","800～899万"],["900万～","900～999万"],
-  ["1000万～","1000～1099万"],["1500万～","1500～1999万"],["2000万～","2000～2499万"],
-  ["3000万～","3000～3999万"],["5000万～","5000万～1億未満"]
- ],
- theme: [
-  ["所得税・住民税の節税対策","所得税・住民税などの節税対策"],
-  ["インフレ時代の資産防衛術","インフレ時代の資産防衛術"],
-  ["老後資金の確保","老後資金の確保"],["家計・生命保険の見直し","家計・生命保険の見直し"]
- ],
- investment: [
-  ["株式・投資信託","株式・投資信託"],["新NISA","新NISA"],["iDECO・企業型DC","iDECO・企業型DC"],
-  ["外貨預金","外貨預金"],["不動産投資","不動産投資"],["その他","その他"],["特になし","特になし"]
- ],
- age_group: [
-  ["22～24歳","20～24歳"],["25～29歳","25～29歳"],["30～34歳","30～34歳"],
-  ["35～39歳","35～39歳"],["40～44歳","40～44歳"],["45～49歳","45～49歳"],
-  ["50～54歳","50～54歳"],["55～59歳","55～59歳"],["60歳～","60～64歳"]
- ]
-};
-const TIME_SLOTS=[
- ["10:00～","10：00～12：00"],["12:00～","12：00～14：00"],
- ["14:00～","14：00～16：00"],["16:00～","16：00～18：00"],
- ["18:00～","18：00～20：00"],["20:00～","20：00 以降"],
- ["その他","その他の時間"]
-];
-const selections={annual_income:new Set(),theme:new Set(),investment:new Set(),age_group:new Set()};
-const groups={
- annual_income:document.querySelector("#annualIncome .choices"),
- theme:document.querySelector("#theme .choices"),
- investment:document.querySelector("#investment .choices"),
- age_group:document.querySelector("#ageGroup .choices")
-};
-function addOptionButtons(){
- Object.entries(groups).forEach(([key,group])=>{
-  OPTIONS[key].forEach(([label,value])=>{
-   const button=document.createElement("button");
-   button.type="button";button.className="choice-button";button.textContent=label;button.dataset.value=value;
-   button.setAttribute("aria-pressed","false");
-   button.addEventListener("click",()=>{
-    const selected=selections[key];
-    if(key==="investment"){
-     if(value==="特になし"){
-       const wasSelected=selected.has(value);
-       selected.clear();
-       if(!wasSelected)selected.add(value);
-     }else{
-       selected.delete("特になし");
-       if(selected.has(value))selected.delete(value);else selected.add(value);
-     }
-    }else{
-     selected.clear();selected.add(value);
-    }
-    for(const b of group.querySelectorAll("button"))b.setAttribute("aria-pressed",String(selected.has(b.dataset.value)));
-    setStepError(activeStep,"");
-   });
-   group.append(button);
+/* GAS：本番と同じSession ID/追送信フラグ/ヘッダーを使用。
+ * Google Apps Scriptのno-cors応答はopaqueでサーバー処理結果を確認できません。
+ * fetchのrejectは検知できますが、resolveはDB書込成功の保証ではありません。 */
+async function sendToGas(data,isAdditional){
+  const payload={...data,"Session ID":sessionId};
+  if(isAdditional)payload.isAdditionalData=true;
+  await fetch(GAS_WEB_APP_URL,{
+    method:"POST",mode:"no-cors",cache:"no-cache",
+    headers:{"Content-Type":"text/plain;charset=utf-8"},
+    body:JSON.stringify(payload)
   });
- });
 }
-function normalizePhone(value){
- let digits=value.trim().replace(/[ー－‐\-\s]/g,"");
- if(digits.startsWith("+81"))digits="0"+digits.slice(3);
- else if(digits.startsWith("81")&&digits.length>=12)digits="0"+digits.slice(2);
- return digits;
+function publishLeadTracking(data){
+  trackEvent("lead_attributes_ready",{
+    lead_annual_income:data.annual_income,
+    lead_age_group:data.age_group,
+    lead_utm_source:utmParameters.utm_source,
+    lead_utm_medium:utmParameters.utm_medium,
+    lead_utm_campaign:utmParameters.utm_campaign,
+    lead_form_variant:FORM_VARIANT
+  });
+  const phone=data.phone_number;
+  const formatted=phone.startsWith("0")?"+81"+phone.substring(1):"+81"+phone;
+  trackEvent("chat_form_submission_success",{
+    user_data:{
+      email:data.email_address,
+      phone_number:formatted,
+      address:{last_name:data.last_name,first_name:data.first_name}
+    },
+    modified_phone:phone.substring(3)
+  });
 }
-function validatePhone(value){return /^0\d{9,10}$/.test(value)&&!(/^(.)\1+$/.test(value));}
-function validateEmail(value){return /^[a-zA-Z0-9._%+-]+@[a-zA-Z0-9]+(?:-[a-zA-Z0-9]+)*(?:\.[a-zA-Z0-9]+(?:-[a-zA-Z0-9]+)*)*\.[a-zA-Z]{2,}$/.test(value)&&!value.includes("..");}
-let leadData=null;
-function collectLead(){
- const lastName=document.getElementById("familyName").value.trim();
- const firstName=document.getElementById("givenName").value.trim();
- const phone=normalizePhone(document.getElementById("phone").value);
- const email=document.getElementById("email").value.trim();
- if(!lastName||!firstName)throw new Error("姓・名の両方を入力してください。");
- if(!validatePhone(phone))throw new Error("電話番号を正しく入力してください。");
- if(!validateEmail(email))throw new Error("メールアドレスを正しく入力してください。");
- for(const key of Object.keys(selections)){
-  if(selections[key].size===0){
-   const labels={annual_income:"ご年収",theme:"関心のあるテーマ",investment:"ご経験のある投資",age_group:"ご年齢"};
-   throw new Error(labels[key]+"を選択してください。");
+function setBusy(button,busy,textWhenBusy){
+  if(!button)return;
+  if(!button.dataset.label)button.dataset.label=button.textContent;
+  button.disabled=busy;
+  button.textContent=busy?textWhenBusy:button.dataset.label;
+}
+
+/* 日付×時間帯の選択表：既存版と同じ7日×7時間帯 */
+const WEEKDAYS=["日","月","火","水","木","金","土"];
+function todayMidnight(){const d=new Date();d.setHours(0,0,0,0);return d;}
+function dateKey(date){
+  return date.getFullYear()+"/"+String(date.getMonth()+1).padStart(2,"0")+"/"+String(date.getDate()).padStart(2,"0");
+}
+function changeStartDate(choice,days){
+  const next=new Date(appointmentStart[choice]);
+  next.setDate(next.getDate()+days);
+  if(next<todayMidnight())return;
+  appointmentStart[choice]=next;renderTimeTable(choice);
+}
+function isUnavailable(date,slot){
+  const today=todayMidnight();
+  if(date<today)return true;
+  if(date.getTime()===today.getTime() && slot.hour!==null) {
+    return new Date().getHours()>=slot.hour;
   }
- }
- if(!document.getElementById("consent").checked)throw new Error("個人情報のお取り扱いへの同意をお願いします。");
- return {...utmParameters,last_name:lastName,first_name:firstName,phone_number:phone,email_address:email,
-  annual_income:[...selections.annual_income][0],theme:[...selections.theme][0],
-  investment:[...selections.investment].join(";"),age_group:[...selections.age_group][0]};
+  return false;
 }
-function setPage(id) {
- for(const el of document.querySelectorAll(".page-view"))el.hidden=el.id!==id;
- scrollToFormTop();
- if(id==="appointmentStep")trackEvent("form_appointment_view");
- if(id==="completeStep")trackEvent("form_details_review_complete");
-}
-function installTimeSlots(){
- for(const id of ["time1","time2"]){
-  const select=document.getElementById(id);
-  select.add(new Option("時間帯を選択してください",""));
-  TIME_SLOTS.forEach(([label,value])=>select.add(new Option(label,value)));
-  select.addEventListener("change",()=>{
-   const other=document.getElementById(id==="time1"?"timeOther1":"timeOther2");
-   other.hidden=select.value!=="その他の時間";
-   other.required=!other.hidden;
-   if(other.hidden)other.value="";
+function renderTimeTable(choice){
+  const q=QUESTIONS.appointments.find(x=>x.id===choice);
+  const container=document.getElementById(q.tableId);
+  container.replaceChildren();
+  const start=appointmentStart[choice];
+  const nav=document.createElement("div");nav.className="time-table-header";
+  const prev=document.createElement("button");prev.type="button";prev.className="time-table-nav";
+  prev.textContent="‹";prev.disabled=start<=todayMidnight();
+  prev.setAttribute("aria-label","前の7日間");
+  prev.addEventListener("click",()=>changeStartDate(choice,-7));
+  const heading=document.createElement("span");heading.className="time-table-month";
+  const end=new Date(start);end.setDate(end.getDate()+6);
+  heading.textContent=(start.getMonth()===end.getMonth()
+    ?start.getFullYear()+"年 "+(start.getMonth()+1)+"月"
+    :String(start.getMonth()+1)+"月 ～ "+String(end.getMonth()+1)+"月");
+  const next=document.createElement("button");next.type="button";next.className="time-table-nav";
+  next.textContent="›";next.setAttribute("aria-label","次の7日間");
+  next.addEventListener("click",()=>changeStartDate(choice,7));
+  nav.append(prev,heading,next);
+
+  const scroll=document.createElement("div");scroll.className="time-table-scroll";
+  const table=document.createElement("table");table.className="time-table";
+  const thead=table.createTHead(),tr=thead.insertRow();
+  const corner=document.createElement("th");corner.scope="col";corner.textContent="時間";tr.append(corner);
+  const dates=Array.from({length:7},(_,i)=>{
+    const d=new Date(start);d.setDate(d.getDate()+i);return d;
   });
- }
- // 日付は既存コードと同様、当日から14日先までを想定した入力UI。
- const now=new Date();
- const local=new Date(now.getTime()-now.getTimezoneOffset()*60000);
- const min=local.toISOString().slice(0,10);
- const future=new Date(local);future.setDate(future.getDate()+14);
- const max=future.toISOString().slice(0,10);
- for(const id of ["date1","date2"]){const input=document.getElementById(id);input.min=min;input.max=max;}
+  for(const date of dates){
+    const th=document.createElement("th");th.scope="col";
+    if(date.getDay()===0)th.classList.add("sunday");
+    if(date.getDay()===6)th.classList.add("saturday");
+    th.append(document.createTextNode(String(date.getDate())));
+    const weekday=document.createElement("span");weekday.textContent="("+WEEKDAYS[date.getDay()]+")";
+    th.append(weekday);tr.append(th);
+  }
+  const tbody=table.createTBody();
+  for(const slot of QUESTIONS.timeSlots){
+    const row=tbody.insertRow();
+    const label=document.createElement("th");label.scope="row";label.className="time-label";label.textContent=slot.label;
+    row.append(label);
+    for(const date of dates){
+      const cell=row.insertCell();cell.className="time-slot-cell";
+      const button=document.createElement("button");button.type="button";button.className="time-slot-button";
+      const disabled=isUnavailable(date,slot);
+      button.disabled=disabled;
+      button.textContent=disabled?"×":"○";
+      button.setAttribute("aria-label",date.getMonth()+1+"月"+date.getDate()+"日("+WEEKDAYS[date.getDay()]+") "+slot.label);
+      const chosen=appointmentSelections[choice];
+      const pressed=chosen && chosen.date===dateKey(date) && chosen.time===slot.value;
+      button.setAttribute("aria-pressed",String(!!pressed));
+      if(pressed)button.classList.add("selected");
+      button.addEventListener("click",()=>{
+        appointmentSelections[choice]={date:dateKey(date),time:slot.value};
+        const other=document.getElementById(q.otherId);
+        other.hidden=slot.value!=="その他の時間";
+        if(other.hidden)other.value="";
+        other.required=!other.hidden;
+        document.getElementById("appointmentError").textContent="";
+        renderTimeTable(choice);
+      });
+      cell.append(button);
+    }
+  }
+  scroll.append(table);container.append(nav,scroll);
+  if(appointmentSelections[choice]){
+    const info=document.createElement("p");info.className="time-table-picked";
+    info.textContent="選択中："+appointmentSelections[choice].date+" "+QUESTIONS.timeSlots.find(s=>s.value===appointmentSelections[choice].time).label;
+    container.append(info);
+  }
 }
-function appointmentPayload(){
- const d1=document.getElementById("date1").value,t1=document.getElementById("time1").value;
- const d2=document.getElementById("date2").value,t2=document.getElementById("time2").value;
- if(!d1||!t1||!d2||!t2)throw new Error("第1希望・第2希望の日時を選択してください。");
- const dateInputs=["date1","date2"];
- for(const id of dateInputs){const el=document.getElementById(id);if(!el.checkValidity())throw new Error("面談希望日は本日から14日以内で選択してください。");}
- const extra1=document.getElementById("timeOther1").value.trim();
- const extra2=document.getElementById("timeOther2").value.trim();
- if(t1==="その他の時間"&&!extra1)throw new Error("第1希望の時間を入力してください。");
- if(t2==="その他の時間"&&!extra2)throw new Error("第2希望の時間を入力してください。");
- if(d1===d2&&t1===t2&&(t1!=="その他の時間"||extra1===extra2))throw new Error("第1希望・第2希望は異なる日時を選択してください。");
- return {first_choice_date:d1.replaceAll("-","/"),first_choice_time:t1,
-  ...(t1==="その他の時間"?{first_choice_time_other:extra1}:{}),
-  second_choice_date:d2.replaceAll("-","/"),second_choice_time:t2,
-  ...(t2==="その他の時間"?{second_choice_time_other:extra2}:{})};
+function collectAppointment(){
+  const data={};
+  const selected=[];
+  for(const q of QUESTIONS.appointments){
+    const current=appointmentSelections[q.id];
+    if(!current)throw new Error(q.label+"の日時を選択してください。");
+    const otherInput=document.getElementById(q.otherId);
+    const otherValue=current.time==="その他の時間"?otherInput.value.trim():"";
+    if(current.time==="その他の時間"&&!otherValue)throw new Error(q.label+"の希望時間を入力してください。");
+    data[q.dateKey]=current.date;data[q.timeKey]=current.time;
+    if(current.time==="その他の時間")data[q.otherKey]=otherValue;
+    selected.push({date:current.date,time:current.time,other:otherValue});
+  }
+  if(selected[0].date===selected[1].date&&selected[0].time===selected[1].time&&selected[0].other===selected[1].other)
+    throw new Error("第1希望・第2希望は異なる日時を選択してください。");
+  return data;
 }
-document.getElementById("nextTo2").addEventListener("click",()=>advanceStep(1,2));
-document.getElementById("nextTo3").addEventListener("click",()=>advanceStep(2,3));
-document.querySelectorAll("[data-back-step]").forEach(button=>{
- button.addEventListener("click",()=>{
-  const target=Number(button.dataset.backStep);
-  setStepError(activeStep,"");
-  showFormStep(target);
- });
-});
-document.getElementById("leadForm").addEventListener("submit",(event)=>{
- event.preventDefault();
- if(activeStep!==3 || stepTransitioning)return;
- setStepError(3,"");
- try{
-  validateFormStep(3);
-  leadData=collectLead();
-  trackStepComplete(3);
-  // 個人情報はブラウザ内のみで扱い、GASやdataLayerへ送信しない。
-  setPage("appointmentStep");
- }catch(err){setStepError(3,err.message);}
-});
-document.getElementById("appointmentForm").addEventListener("submit",(event)=>{
- event.preventDefault();
- const error=document.getElementById("appointmentError");error.textContent="";
- try{
-  const dateData=appointmentPayload();
-  // 設定済みのGTMへはステップイベントのみ送信。GASリード送信は行わない。
-  void {...leadData,...dateData,"Session ID":sessionId};
-  setPage("completeStep");
- }catch(err){error.textContent=err.message;}
-});
-document.getElementById("backButton").addEventListener("click",()=>setPage("initialStep"));
-document.getElementById("restartButton").addEventListener("click",()=>location.reload());
-addOptionButtons();installTimeSlots();updateProgress();trackStepView(1);
+function init(){
+  renderQuestions();
+  for(const q of QUESTIONS.appointments)renderTimeTable(q.id);
+  updateProgress();trackStepView(1);
+  document.getElementById("nextTo2").addEventListener("click",()=>advanceStep(1,2));
+  document.getElementById("nextTo3").addEventListener("click",()=>advanceStep(2,3));
+  document.querySelectorAll("[data-back-step]").forEach(button=>button.addEventListener("click",()=>{
+    const from=activeStep;setStepError(from,"");
+    showFormStep(Number(button.dataset.backStep));
+  }));
+  document.getElementById("leadForm").addEventListener("submit",async event=>{
+    event.preventDefault();
+    if(stepTransitioning||leadSending)return;
+    if(activeStep!==3){advanceStep(activeStep,activeStep+1);return;}
+    setStepError(3,"");
+    try{
+      leadData=collectLead();
+      if(leadSubmitted){setPage("appointmentStep");return;}
+      leadSending=true;
+      const button=event.submitter||document.querySelector('#leadForm button[type="submit"]');
+      setBusy(button,true,"送信しています…");
+      try{
+        await sendToGas(leadData,false);
+        leadSubmitted=true;
+        trackStepComplete(3);
+        publishLeadTracking(leadData);
+        setPage("appointmentStep");
+      }catch(err){
+        console.error("Lead submission failed",err);
+        setStepError(3,"通信エラーが発生しました。時間をおいて再度お試しください。");
+      }finally{
+        leadSending=false;setBusy(button,false);
+      }
+    }catch(err){setStepError(3,err.message);}
+  });
+  document.getElementById("appointmentForm").addEventListener("submit",async event=>{
+    event.preventDefault();
+    if(appointmentSending||appointmentSubmitted)return;
+    const error=document.getElementById("appointmentError");error.textContent="";
+    try{
+      const payload=collectAppointment();
+      appointmentSending=true;
+      const button=event.submitter||document.querySelector('#appointmentForm button[type="submit"]');
+      setBusy(button,true,"送信しています…");
+      try{
+        await sendToGas(payload,true);
+        appointmentSubmitted=true;
+        setPage("completeStep");
+      }catch(err){
+        console.error("Appointment submission failed",err);
+        error.textContent="通信エラーが発生しました。時間をおいて再度お試しください。";
+        trackEvent("form_appointment_submission_error");
+      }finally{
+        appointmentSending=false;setBusy(button,false);
+      }
+    }catch(err){error.textContent=err.message;}
+  });
+  document.getElementById("backButton").addEventListener("click",()=>setPage("initialStep"));
+  document.getElementById("restartButton").addEventListener("click",()=>location.reload());
+}
+init();
