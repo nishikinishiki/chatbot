@@ -43,7 +43,7 @@ window.FORM_QUESTIONS = Object.freeze({
     privacy: {
       before: "",
       linkText: "個人情報のお取り扱い",
-      linkUrl: "/privacypolicy",
+      linkUrl: "https://chatbot.jpreturns.com/privacypolicy",
       after: "を確認し、同意します。"
     },
     appointment: {

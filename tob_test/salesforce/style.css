@@ -40,9 +40,9 @@
   /* B. FONT / フォント */
   --font-family: 'Noto Sans JP',system-ui,-apple-system,sans-serif;
   --font-size-caption: 10px;
-  --font-size-xs: 11px;
-  --font-size-sm: 12px;
-  --font-size-md: 14px;
+  --font-size-xs: 12px;
+  --font-size-sm: 14px;
+  --font-size-md: 16px;
 
   /* C. LAYOUT / PCの表示比率・最大幅 */
   --layout-visual-width: 65%;
@@ -179,7 +179,7 @@ a {
 }
 
 .page-view {
-  margin-top: clamp(26px,4vh,48px);
+  margin-top: 30px;
   width: 100%;
 }
 
@@ -440,7 +440,7 @@ input:focus,select:focus {
   background: var(--color-white);
   color: #314443;
   text-align: center;
-  font-size: var(--font-size-xs);
+  font-size: var(--font-size-sm);
   font-weight: 600;
   min-height: var(--choice-min-height);
   padding: 10px 7px;
