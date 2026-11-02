@@ -48,35 +48,14 @@
             <div class="panel-stage" id="panelStage">
               <section class="form-panel is-active" data-form-step="1" aria-labelledby="stepTitle1">
                 <div class="section-label"><span>01</span><h2 id="stepTitle1" tabindex="-1">お客様情報</h2></div>
-                <div class="field">
-                  <label class="field-label" for="familyName">お名前 <span class="required">必須</span></label>
-                  <div class="two-fields">
-                    <input id="familyName" name="family-name" type="text" autocomplete="family-name" placeholder="姓　山田" required maxlength="100">
-                    <input id="givenName" name="given-name" type="text" autocomplete="given-name" placeholder="名　太郎" required maxlength="100">
-                  </div>
-                </div>
-                <div class="field">
-                  <label class="field-label" for="phone">電話番号 <span class="required">必須</span></label>
-                  <input id="phone" name="tel" type="tel" inputmode="tel" autocomplete="tel" placeholder="09012345678" required>
-                </div>
-                <div class="field">
-                  <label class="field-label" for="email">メールアドレス <span class="required">必須</span></label>
-                  <input id="email" name="email" type="email" inputmode="email" autocomplete="email" placeholder="example@email.com" required>
-                </div>
+                <div id="stepFields1"></div>
                 <p id="stepError1" class="error-message" role="alert" aria-live="polite"></p>
                 <button type="button" id="nextTo2" class="primary-button">次へ進む <span aria-hidden="true">→</span></button>
               </section>
 
               <section class="form-panel" data-form-step="2" aria-labelledby="stepTitle2" hidden>
                 <div class="section-label"><span>02</span><h2 id="stepTitle2" tabindex="-1">年収・年齢について</h2></div>
-                <div id="annualIncome" class="choice-field" data-group="annual_income">
-                  <div class="field-label" id="incomeLabel">ご年収 <span class="required">必須</span></div>
-                  <div class="choices income-choices" role="group" aria-labelledby="incomeLabel"></div>
-                </div>
-                <div id="ageGroup" class="choice-field" data-group="age_group">
-                  <div class="field-label" id="ageLabel">ご年齢 <span class="required">必須</span></div>
-                  <div class="choices age-choices" role="group" aria-labelledby="ageLabel"></div>
-                </div>
+                <div id="stepFields2"></div>
                 <p id="stepError2" class="error-message" role="alert" aria-live="polite"></p>
                 <button type="button" id="nextTo3" class="primary-button">次へ進む <span aria-hidden="true">→</span></button>
                 <button type="button" class="secondary-button" data-back-step="1">前の画面に戻る</button>
@@ -84,15 +63,8 @@
 
               <section class="form-panel" data-form-step="3" aria-labelledby="stepTitle3" hidden>
                 <div class="section-label"><span>03</span><h2 id="stepTitle3" tabindex="-1">関心・投資経験について</h2></div>
-                <div id="theme" class="choice-field" data-group="theme">
-                  <div class="field-label" id="themeLabel">関心のあるテーマ <span class="required">必須</span></div>
-                  <div class="choices" role="group" aria-labelledby="themeLabel"></div>
-                </div>
-                <div id="investment" class="choice-field" data-group="investment">
-                  <div class="field-label" id="investmentLabel">ご経験のある投資 <span class="required">必須</span><small>複数選択可</small></div>
-                  <div class="choices" role="group" aria-labelledby="investmentLabel"></div>
-                </div>
-                <label class="consent"><input type="checkbox" id="consent" required><span><a href="/privacypolicy" target="_blank" rel="noopener noreferrer">個人情報のお取り扱い</a>を確認し、同意します。</span></label>
+                <div id="stepFields3"></div>
+                <p class="consent-notice"><a href="/privacypolicy" target="_blank" rel="noopener noreferrer">個人情報のお取り扱い</a>を確認し、同意します。</p>
                 <p id="stepError3" class="error-message" role="alert" aria-live="polite"></p>
                 <button type="submit" class="primary-button">次へ進む <span aria-hidden="true">→</span></button>
                 <button type="button" class="secondary-button" data-back-step="2">前の画面に戻る</button>
@@ -106,23 +78,17 @@
           <h1>ご面談の希望日時</h1>
           <p class="intro">ご希望の日時をお選びください。<br>面談日程はお電話での事前確認後に確定します。</p>
           <form id="appointmentForm" novalidate>
-            <div class="field">
-              <label class="field-label" for="date1">第1希望日 <span class="required">必須</span></label>
-              <input type="date" id="date1" required>
+            <div class="appointment-section">
+              <div class="section-label"><span>01</span><h2>第1希望日時</h2></div>
+              <p class="appointment-note">ご希望の日付と時間帯をお選びください。</p>
+              <div id="timeTable1" class="time-table-container" aria-label="第1希望日時"></div>
+              <input id="timeOther1" class="other-time" type="text" maxlength="120" placeholder="ご希望の時間帯をご入力ください" aria-label="第1希望 その他の時間" hidden>
             </div>
-            <div class="field">
-              <label class="field-label" for="time1">第1希望時間 <span class="required">必須</span></label>
-              <select id="time1" required></select>
-              <input id="timeOther1" class="other-time" type="text" placeholder="希望時間をご入力ください" aria-label="第1希望 その他の時間" hidden>
-            </div>
-            <div class="field">
-              <label class="field-label" for="date2">第2希望日 <span class="required">必須</span></label>
-              <input type="date" id="date2" required>
-            </div>
-            <div class="field">
-              <label class="field-label" for="time2">第2希望時間 <span class="required">必須</span></label>
-              <select id="time2" required></select>
-              <input id="timeOther2" class="other-time" type="text" placeholder="希望時間をご入力ください" aria-label="第2希望 その他の時間" hidden>
+            <div class="appointment-section">
+              <div class="section-label"><span>02</span><h2>第2希望日時</h2></div>
+              <p class="appointment-note">第1希望と異なる日時をご選択ください。</p>
+              <div id="timeTable2" class="time-table-container" aria-label="第2希望日時"></div>
+              <input id="timeOther2" class="other-time" type="text" maxlength="120" placeholder="ご希望の時間帯をご入力ください" aria-label="第2希望 その他の時間" hidden>
             </div>
             <p id="appointmentError" class="error-message" role="alert" aria-live="polite"></p>
             <button type="submit" class="primary-button">入力内容を確認する <span aria-hidden="true">→</span></button>
@@ -133,7 +99,7 @@
         <section id="completeStep" class="page-view" hidden>
           <div class="complete-icon" aria-hidden="true">✓</div>
           <h1>ご入力ありがとうございます</h1>
-          <p class="intro">入力内容の確認が完了しました。現時点では情報の送信・予約は行われていません。</p>
+          <p class="intro">入力いただいた内容を承りました。面談日程は現時点では仮予約です。担当者からの事前確認のお電話をもって確定となります。</p>
           <a class="primary-button as-link" href="https://library.jpreturns.com/" target="_blank" rel="noopener noreferrer">資産形成のeBookを見る <span aria-hidden="true">↗</span></a>
           <button type="button" id="restartButton" class="secondary-button">最初から入力する</button>
         </section>
@@ -142,6 +108,7 @@
       </div>
     </section>
   </main>
+  <script src="./question.js" defer></script>
   <script src="./app.js" defer></script>
 </body>
 </html>
