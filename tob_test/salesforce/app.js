@@ -5,7 +5,7 @@ const QUESTIONS = window.FORM_QUESTIONS;
 if (!QUESTIONS) throw new Error("question.js を読み込めませんでした。");
 const GAS_WEB_APP_URL = "https://script.google.com/macros/s/AKfycbxFiCz5dYlDo2c-JXyB6oogZfy6x7qiVYaiBF2-hnHdW_rCFAD4XFyeQ4xP28CRxm2F/exec";
 const FORM_VARIANT = location.pathname;
-const STEP_LABELS = {1:"basic_info",2:"income_age",3:"interest_investment"};
+const STEP_LABELS = {1:"basic_info",2:"income_age"};
 const URL_PARAMS = new URLSearchParams(location.search);
 const UTM_KEYS = ["utm_source","utm_medium","utm_campaign","utm_term","utm_content","gclid","yclid","fbclid"];
 const utmParameters = Object.fromEntries(UTM_KEYS.filter(k=>URL_PARAMS.has(k)).map(k=>[k,URL_PARAMS.get(k)]));
@@ -158,9 +158,7 @@ function collectLead(){
     phone_number:normalizePhone(document.getElementById("phone").value),
     email_address:document.getElementById("email").value.trim(),
     annual_income:[...selections.annual_income][0],
-    age_group:[...selections.age_group][0],
-    theme:[...selections.theme][0],
-    investment:[...selections.investment].join(";")
+    age_group:[...selections.age_group][0]
   };
 }
 function scrollToFormTop(){
@@ -170,7 +168,7 @@ function scrollToFormTop(){
   else pane.scrollTo({top:0,behavior:"smooth"});
 }
 function updateProgress(){
-  document.getElementById("progressFill").style.width=(((activeStep-1)/2)*100)+"%";
+  document.getElementById("progressFill").style.width=(((activeStep-1)/(QUESTIONS.steps.length-1))*100)+"%";
   document.querySelectorAll("[data-progress-step]").forEach(node=>{
     const n=Number(node.dataset.progressStep);
     node.classList.toggle("is-done",n<activeStep);
@@ -179,7 +177,7 @@ function updateProgress(){
   });
 }
 function showFormStep(nextNumber){
-  if(stepTransitioning||nextNumber===activeStep||nextNumber<1||nextNumber>3)return;
+  if(stepTransitioning||nextNumber===activeStep||nextNumber<1||nextNumber>QUESTIONS.steps.length)return;
   stepTransitioning=true;
   const old=document.querySelector('[data-form-step="'+activeStep+'"]');
   const next=document.querySelector('[data-form-step="'+nextNumber+'"]');
@@ -363,7 +361,6 @@ function init(){
   for(const q of QUESTIONS.appointments)renderTimeTable(q.id);
   updateProgress();trackStepView(1);
   document.getElementById("nextTo2").addEventListener("click",()=>advanceStep(1,2));
-  document.getElementById("nextTo3").addEventListener("click",()=>advanceStep(2,3));
   document.querySelectorAll("[data-back-step]").forEach(button=>button.addEventListener("click",()=>{
     const from=activeStep;setStepError(from,"");
     showFormStep(Number(button.dataset.backStep));
@@ -371,8 +368,8 @@ function init(){
   document.getElementById("leadForm").addEventListener("submit",async event=>{
     event.preventDefault();
     if(stepTransitioning||leadSending)return;
-    if(activeStep!==3){advanceStep(activeStep,activeStep+1);return;}
-    setStepError(3,"");
+    if(activeStep!==QUESTIONS.steps.length)return;
+    setStepError(2,"");
     try{
       leadData=collectLead();
       if(leadSubmitted){setPage("appointmentStep");return;}
@@ -382,16 +379,16 @@ function init(){
       try{
         await sendToGas(leadData,false);
         leadSubmitted=true;
-        trackStepComplete(3);
+        trackStepComplete(2);
         publishLeadTracking(leadData);
         setPage("appointmentStep");
       }catch(err){
         console.error("Lead submission failed",err);
-        setStepError(3,"通信エラーが発生しました。時間をおいて再度お試しください。");
+        setStepError(2,"通信エラーが発生しました。時間をおいて再度お試しください。");
       }finally{
         leadSending=false;setBusy(button,false);
       }
-    }catch(err){setStepError(3,err.message);}
+    }catch(err){setStepError(2,err.message);}
   });
   document.getElementById("appointmentForm").addEventListener("submit",async event=>{
     event.preventDefault();
