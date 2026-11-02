@@ -1,35 +1,50 @@
 # tob_test/salesforce
 
-`tob/salesforce` の本番HTML/JS/CSSは変更せず、独立したディレクトリで実装しています。
+既存の `tob/salesforce` は変更せず、独立したディレクトリで実装しています。
 
-## フロントエンド
-- PCは左65%画像・右35%フォーム。左のみ独立スクロール。狭い画面では画像の下にフォーム。
-- 画像: `/common/images/test.jpg`
-- 2ステップの横スライド式入力
-  1. 氏名・電話番号・メールアドレス
-  2. 年収・年齢
-- 「個人情報のお取り扱いを確認し、同意します。」の文言とリンクは残し、チェックボックスだけを撤去。
-- お名前・電話・メールはブラウザのオートコンプリートに対応。
-- 質問・選択肢・日時テーブルのラベルや送信キーは `question.js` で一元管理。表示と送信処理は `app.js`。
-- 面談希望日時は旧UIと同じ7日×時間帯の表（○で選択）。前後7日の切り替え、過去日時の無効化、第一・第二希望の選択、「その他」自由入力に対応。
+## フォルダ複製によるフォーム運用
 
-## GAS連携
-- `tob/salesforce/js/config.js` に設定されている既存のGAS WebアプリURLを使います。
-- 第1送信: 年収・年齢・氏名・電話・メール・UTM・`Session ID` をJSON POST（`theme` と `investment` は送信しない）。
-- 第2送信: `first_choice_date` / `first_choice_time` / `second_choice_date` / `second_choice_time`、必要なら `*_time_other`、同じ `Session ID`、`isAdditionalData: true` をPOST。
-- 送信方式は本番コードと同じ `fetch(mode:'no-cors', method:'POST', Content-Type:'text/plain;charset=utf-8')`。
-- 送信中の多重押下を抑止し、ブラウザが検出可能な通信エラー時は再送できるようにします。
-- **重要：** `no-cors` の応答はopaqueなので、ブラウザだけではGASが受領・保存したかを確認できません。送信完了UIとGTM送信イベントは「fetchがrejectしなかった」ことを基準に動作します。厳密な保存成功判定が必要ならGAS側に応答可能なAPIを設け、CORS/認証を含めて改修してください。
+1. `tob_test/salesforce/` をフォルダごと複製し、複製先のディレクトリ名を変更します。
+2. **複製先の `question.js` のみ**編集し、見出し・質問・選択肢・各画面の文言や画像・リンクを変更します。
+3. 複製先のURLを開き、表示とGASの受信結果を検証します。
 
-## GTM
-- 既存コンテナ：`GTM-TCL9ZH6`
-- フォーム操作：`form_step_view`、`form_step_complete`、`form_step_validation_error`、`form_appointment_view`、`form_appointment_complete`、`form_appointment_submission_error`
-- 第1送信がresolveした時点で、旧コードに合わせた `lead_attributes_ready` と `chat_form_submission_success` を発火。
-- 送信後の追加データは既存と同じく `isAdditionalData` で送信し、リードCVの二重発火を避けます。
-- `chat_form_submission_success` の `user_data` には既存仕様に合わせた氏名・電話・メールが入ります。GTM側のタグ設定と個人情報の送信先を確認してください。
+`index.html` は表示枠のみのテンプレートです。ユーザーに表示する見出し・案内文・設問・CTA・エラー文などを直接記述していません。これらは `question.js` から `app.js` が描画します。
+
+### question.js 内の設定
+
+| 設定 | 管理項目 |
+| --- | --- |
+| `page` | ページタイトル、description、画像URL、画像alt、favicon |
+| `copy.accessibility` | エリア・ステップのアクセシビリティ用名称 |
+| `copy.branding` | ブランド表記、右上の「無料個別相談」 |
+| `copy.lead` | 初期画面の見出し、導入文 |
+| `copy.privacy` | 個人情報取扱いの案内文とリンク |
+| `copy.appointment` | 面談希望日時画面の見出し、説明、CTA |
+| `copy.completion` | 完了画面の見出し、説明、リンク、やり直しボタン |
+| `copy.footer` | コピーライト、問い合わせ電話番号 |
+| `copy.common`, `copy.calendar`, `copy.errors` | 必須ラベル、ナビゲーション、カレンダー、エラー文 |
+| `steps` | 各ステップの名称、質問、選択肢、表示文言、CTA |
+| `appointments`, `timeSlots` | 第1・第2希望の見出し・注意文・時間帯 |
+
+### 注意：GASとGTM
+
+- フォルダを複製しても、現状では同じGAS URLへ送信されます。送信先を変更するときは `app.js` 側のURLも確認してください。
+- GTMコンテナ `GTM-TCL9ZH6` はHTMLで読み込みます。複製したURLごとの区別には `form_variant`（ページパス）を使っています。
+- GASの入力キーや選択肢の `value` はサーバー側と整合させてください。表示用の `label` は自由に調整できます。
+- 第1送信は氏名・電話番号・メール・年収・年齢等、第2送信は希望日時と `isAdditionalData: true` です。同じ `Session ID` で追送信します。
+- 送信は従来の `fetch(mode:'no-cors')` 方式です。ブラウザでの送信処理完了はGAS側の保存成功を保証しません。受信先で確認してください。
+
+## 現在の画面構成
+
+- PC：左65%画像、右35%フォーム。スマートフォンは縦並び。
+- ステップ1：基本情報、ステップ2：年収・年齢。横スライド移動。
+- ステップ2：チェックボックスなしの個人情報取扱い案内と「同意して送信」。
+- 続いて、日付×時間帯の表から第1・第2希望日時を選択。
+- デザイン・余白・GAS・GTMの送信方式は維持。
 
 ## ファイル
-- `index.html`：表示枠とフォーム各ステップ
-- `question.js`：すべての質問データと日時テーブルの選択肢
-- `app.js`：UI生成・バリデーション・ステップ遷移・GAS・GTM送信
-- `style.css`：レイアウト・アニメーション・日時テーブル
+
+- `index.html`：文言を持たない汎用表示テンプレート
+- `question.js`：画面文言・質問・選択肢・画像URL・リンクの設定
+- `app.js`：画面生成、検証、ステップ遷移、送信処理
+- `style.css`：レイアウト・アニメーション
