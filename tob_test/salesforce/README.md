@@ -42,6 +42,49 @@
 - 続いて、日付×時間帯の表から第1・第2希望日時を選択。
 - デザイン・余白・GAS・GTMの送信方式は維持。
 
+## CSSの編集方法（style.css）
+
+CSSをメンテナンスしやすいよう、**1つの `style.css` にデザイントークンと用途別スタイルを整理**しています。HTML・JavaScriptの参照先は変更していません。複製するときもCSSをそのままコピーできます。
+
+### よく変更する値は先頭の :root
+
+| 変更する内容 | 編集する変数 |
+| --- | --- |
+| ボタン、選択状態などのメインカラー | `--color-primary` |
+| 見出し文字の色 | `--color-heading` |
+| 背景の淡いグリーン | `--color-primary-soft` |
+| 本文・補助テキスト・枠線 | `--color-text` / `--color-muted` / `--color-border` |
+| 左側画像・右側フォームの幅 | `--layout-visual-width` / `--layout-form-width` |
+| やや狭いPC（901〜1130px）の左右比率 | `--layout-visual-medium` / `--layout-form-medium` |
+| 右側のフォーム最大幅 | `--layout-form-max` |
+| 入力欄・選択ボタン・CTAの高さ | `--input-min-height` / `--choice-min-height` / `--button-min-height` |
+| 角丸 | `--radius-input` / `--radius-button` |
+| ステップのスライド距離・時間 | `--slide-distance` / `--slide-duration` |
+
+例えば、左側を70％・右側を30％にしたい場合は `:root` の以下の2行を変更します。
+
+```css
+--layout-visual-width: 70%;
+--layout-form-width: 30%;
+```
+
+### CSSの見出しと階層
+
+1. BASE：共通リセット・本文
+2. LAYOUT：2カラム・画像とフォーム
+3. HEADERS：ロゴ・見出し
+4. STEPS：ステップの進捗表示
+5. FORM：入力欄・選択肢・スライドアニメーション
+6. MESSAGES：個人情報の案内・エラー
+7. ACTIONS：CTA・完了画面
+8. FOOTER：フッター
+9. APPOINTMENT：日付×時間帯の選択表
+10. RESPONSIVE：画面幅ごとの上書き・動きを減らす設定
+
+**画面幅の区切り（1130px・900px・520px）** はCSS仕様上 `:root` の変数を `@media` の条件に利用できないため、末尾のRESPONSIVE内で管理しています。
+
+なお、`question.js` は表示文言・設問の変更、`style.css` はデザインの変更に使います。通常の取引先別フォームの複製では、`question.js` だけを変更する運用で問題ありません。
+
 ## ファイル
 
 - `index.html`：文言を持たない汎用表示テンプレート
