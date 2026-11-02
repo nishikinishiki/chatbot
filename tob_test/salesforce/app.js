@@ -412,7 +412,6 @@ function init(){
       }
     }catch(err){error.textContent=err.message;}
   });
-  document.getElementById("backButton").addEventListener("click",()=>setPage("initialStep"));
   document.getElementById("restartButton").addEventListener("click",()=>location.reload());
 }
 init();
