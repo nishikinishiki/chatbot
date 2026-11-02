@@ -271,6 +271,8 @@ function isUnavailable(date,slot){
 function renderTimeTable(choice){
   const q=QUESTIONS.appointments.find(x=>x.id===choice);
   const container=document.getElementById(q.tableId);
+  const priorScroll=container.querySelector(".time-table-scroll");
+  const savedScrollLeft=priorScroll?priorScroll.scrollLeft:0;
   container.replaceChildren();
   const start=appointmentStart[choice];
   const nav=document.createElement("div");nav.className="time-table-header";
@@ -332,6 +334,7 @@ function renderTimeTable(choice){
     }
   }
   scroll.append(table);container.append(nav,scroll);
+  scroll.scrollLeft=savedScrollLeft;
   if(appointmentSelections[choice]){
     const info=document.createElement("p");info.className="time-table-picked";
     info.textContent="選択中："+appointmentSelections[choice].date+" "+QUESTIONS.timeSlots.find(s=>s.value===appointmentSelections[choice].time).label;
