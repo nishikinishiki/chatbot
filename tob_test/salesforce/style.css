@@ -29,39 +29,11 @@ button{cursor:pointer}
 }
 .brand{
   display:flex;align-items:center;gap:7px;white-space:nowrap;
-  padding-bottom:17px;border-bottom:1px solid #e4eeeb;
   font-size:clamp(14px,1.3vw,18px);letter-spacing:.03em;color:var(--dark);font-weight:800;
 }
 .brand-mark{color:var(--teal)}
-.page-view{margin-top:clamp(18px,3vh,30px);width:100%}
-.form-heading{
-  position:relative;overflow:hidden;
-  border:1px solid #dcebe7;border-radius:15px;
-  background:linear-gradient(125deg,#edf9f6 0%,#f5fbf9 50%,#ffffff 100%);
-  box-shadow:0 8px 22px rgba(24,85,76,.045);
-  padding:clamp(20px,2.3vw,27px) clamp(18px,2.2vw,27px) clamp(21px,2.3vw,27px);
-  margin-bottom:26px;
-}
-.form-heading::before{
-  content:"";position:absolute;inset:0 auto 0 0;width:4px;
-  background:linear-gradient(180deg,var(--teal) 0%,#91d9ca 100%);
-}
-.partner-badge{
-  display:inline-flex;align-items:center;flex-wrap:wrap;gap:2px;
-  max-width:100%;padding:7px 13px;border:1px solid #bfe3dc;
-  background:#ffffff;color:#127c70;
-  border-radius:999px;font-size:11px;font-weight:800;
-  line-height:1.45;letter-spacing:.035em;overflow-wrap:anywhere;
-}
-.partner-badge-mark{
-  width:7px;height:7px;border-radius:50%;background:var(--gold);
-  flex-shrink:0;margin-right:6px;box-shadow:0 0 0 3px #f8f0e7;
-}
-.form-heading h1{
-  margin:15px 0 0;color:var(--dark);
-  font-size:clamp(21px,1.8vw,27px);line-height:1.48;letter-spacing:-.035em;
-}
-
+.brand-caption{margin-left:auto;font-size:10px;color:var(--muted);font-weight:600;letter-spacing:0}
+.page-view{margin-top:clamp(26px,4vh,48px);width:100%}
 .eyebrow{
   color:var(--teal);font-size:10px;letter-spacing:.19em;font-weight:800;
   margin:0 0 9px;
@@ -146,14 +118,10 @@ a{color:#098d7f}
  .visual-image{max-width:720px;margin:0 auto}
  .form-pane{height:auto;overflow:visible}
  .form-shell{max-width:620px;min-height:550px;padding:24px 22px 28px}
- .page-view{margin-top:23px}
- .form-heading{margin-bottom:23px}
+ .page-view{margin-top:30px}
 }
 @media(max-width:520px){
  .brand{font-size:15px}
- .form-heading{padding:21px 20px 23px;border-radius:13px}
- .form-heading h1{font-size:23px}
- .partner-badge{font-size:11px}
  .brand-caption{font-size:10px}
  .visual-image{width:100%}
  .choices{gap:7px}
