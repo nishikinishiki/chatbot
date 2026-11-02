@@ -103,6 +103,12 @@ function installTimeSlots(){
   const select=document.getElementById(id);
   select.add(new Option("時間帯を選択してください",""));
   TIME_SLOTS.forEach(([label,value])=>select.add(new Option(label,value)));
+  select.addEventListener("change",()=>{
+   const other=document.getElementById(id==="time1"?"timeOther1":"timeOther2");
+   other.hidden=select.value!=="その他の時間";
+   other.required=!other.hidden;
+   if(other.hidden)other.value="";
+  });
  }
  // 日付は既存コードと同様、当日から14日先までを想定した入力UI。
  const now=new Date();
@@ -118,8 +124,15 @@ function appointmentPayload(){
  if(!d1||!t1||!d2||!t2)throw new Error("第1希望・第2希望の日時を選択してください。");
  const dateInputs=["date1","date2"];
  for(const id of dateInputs){const el=document.getElementById(id);if(!el.checkValidity())throw new Error("面談希望日は本日から14日以内で選択してください。");}
- if(d1===d2&&t1===t2)throw new Error("第1希望・第2希望は異なる日時を選択してください。");
- return {first_choice_date:d1.replaceAll("-","/"),first_choice_time:t1,second_choice_date:d2.replaceAll("-","/"),second_choice_time:t2};
+ const extra1=document.getElementById("timeOther1").value.trim();
+ const extra2=document.getElementById("timeOther2").value.trim();
+ if(t1==="その他の時間"&&!extra1)throw new Error("第1希望の時間を入力してください。");
+ if(t2==="その他の時間"&&!extra2)throw new Error("第2希望の時間を入力してください。");
+ if(d1===d2&&t1===t2&&(t1!=="その他の時間"||extra1===extra2))throw new Error("第1希望・第2希望は異なる日時を選択してください。");
+ return {first_choice_date:d1.replaceAll("-","/"),first_choice_time:t1,
+  ...(t1==="その他の時間"?{first_choice_time_other:extra1}:{}),
+  second_choice_date:d2.replaceAll("-","/"),second_choice_time:t2,
+  ...(t2==="その他の時間"?{second_choice_time_other:extra2}:{})};
 }
 document.getElementById("leadForm").addEventListener("submit",(event)=>{
  event.preventDefault();
