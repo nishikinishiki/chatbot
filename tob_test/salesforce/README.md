@@ -5,10 +5,9 @@
 ## フロントエンド
 - PCは左65%画像・右35%フォーム。左のみ独立スクロール。狭い画面では画像の下にフォーム。
 - 画像: `/common/images/test.jpg`
-- 3ステップの横スライド式入力
+- 2ステップの横スライド式入力
   1. 氏名・電話番号・メールアドレス
   2. 年収・年齢
-  3. 関心テーマ・投資経験
 - 「個人情報のお取り扱いを確認し、同意します。」の文言とリンクは残し、チェックボックスだけを撤去。
 - お名前・電話・メールはブラウザのオートコンプリートに対応。
 - 質問・選択肢・日時テーブルのラベルや送信キーは `question.js` で一元管理。表示と送信処理は `app.js`。
@@ -16,7 +15,7 @@
 
 ## GAS連携
 - `tob/salesforce/js/config.js` に設定されている既存のGAS WebアプリURLを使います。
-- 第1送信: 年収・年齢・関心・投資経験・氏名・電話・メール・UTM・`Session ID` をJSON POST。
+- 第1送信: 年収・年齢・氏名・電話・メール・UTM・`Session ID` をJSON POST（`theme` と `investment` は送信しない）。
 - 第2送信: `first_choice_date` / `first_choice_time` / `second_choice_date` / `second_choice_time`、必要なら `*_time_other`、同じ `Session ID`、`isAdditionalData: true` をPOST。
 - 送信方式は本番コードと同じ `fetch(mode:'no-cors', method:'POST', Content-Type:'text/plain;charset=utf-8')`。
 - 送信中の多重押下を抑止し、ブラウザが検出可能な通信エラー時は再送できるようにします。
