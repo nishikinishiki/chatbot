@@ -16,14 +16,12 @@ const BANNER_DEFAULT = [
 ];
 const BANNER_CAMPAIGN = {
     //HP
-    'hp_gift_consultation': '/common/images/banner_consultation_gift.webp',
-    'wk_gift_': '/common/images/banner_consultation_gift.webp',
     'hp_gift_ebook': '/common/images/banner_ebook_propertylist.png',
+    'hp_gift_': '/common/images/banner_consultation_gift.webp',
+    'wk_gift_': '/common/images/banner_consultation_gift.webp',
 
     //アフィリエイト広告
-    'gift_up_campaign': '/common/images/banner_ebook_AmaG.jpg',
     'ALA_gift_ebook_4362': '/common/images/banner_buzz_260512.webp',
-    'ALA_gift_ebook_2529': '/common/images/banner_chotoshin_260625.webp',
     'ALA_gift_ebook_87234174': '/common/images/banner_700.jpg',
     'ALA_gift_ebook_90002343': '/common/images/banner_700.jpg',
     'ALA_gift_ebook_13247489': '/common/images/banner_700.jpg',
@@ -85,7 +83,4 @@ const BANNER_CAMPAIGN = {
 const STYLE_DEFAULT = '/common/css/style.css';
 const STYLE_CAMPAIGN = {
     'fbtrg': '/common/css/style-2.css',
-    'wk_gift_ebook': '/common/css/style-2.css',
-    'wk_gift_consultation': '/common/css/style-2.css',
-    'wk_gift_movie': '/common/css/style-2.css',
 };
