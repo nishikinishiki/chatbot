@@ -42,7 +42,7 @@ const initialQuestions = [
     options: [
       { label: "株式・投資信託", value: "株式・投資信託" },
       { label: "新NISA", value: "新NISA" },
-      { label: "iDECO・企業型DC", value: "iDECO・企業型DC" },
+      { label: "iDeCo・企業型DC", value: "iDeCo・企業型DC" },
       { label: "外貨預金", value: "外貨預金" },
       { label: "不動産投資", value: "不動産投資" },
       { label: "その他", value: "その他" },

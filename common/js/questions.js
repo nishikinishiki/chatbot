@@ -16,6 +16,7 @@ const UTM_RULES = {
     'BKR_gift_',
     'GMO_gift_',
     'CRS_gift_',
+    'fbtrg_anax',
     'google',
     'yahoo'
   ],
