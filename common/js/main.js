@@ -63,10 +63,23 @@ async function showSystemMessages(messageArray) {
 function getDynamicAssetUrl(defaultUrl, assetMap) {
     if (!assetMap) return defaultUrl || null;
 
+    // ① URLパスによる判定（完全一致）
+    const path = window.location.pathname
+        .replace(/\/index\.html$/i, '')
+        .replace(/\/+$/, '') || '/';
+
+    if (Object.prototype.hasOwnProperty.call(assetMap, path)) {
+        return assetMap[path];
+    }
+
+    // ② 既存のUTMパラメータによる判定
     const source = state.utmParameters['utm_source'] || '';
     const campaign = state.utmParameters['utm_campaign'] || '';
 
     for (const key in assetMap) {
+        // URLパス用の設定はUTM判定の対象外
+        if (key.startsWith('/')) continue;
+
         if (key.includes('&&')) {
             const [sourceKey, campaignKey] = key.split('&&').map(s => s.trim());
             if (source.includes(sourceKey) && campaign.includes(campaignKey)) {
@@ -84,6 +97,7 @@ function getDynamicAssetUrl(defaultUrl, assetMap) {
         }
     }
 
+    // ③ デフォルト
     return defaultUrl || null;
 }
 
