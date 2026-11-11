@@ -7,7 +7,9 @@ const FAVICON_URL = '/common/images/favicon.png';
 // 3. 質問者アイコン
 const ICON_DEFAULT = '/common/images/icon_jp.png';
 const ICON_CAMPAIGN = {
-    'fbtrg': '/common/images/icon_woman.png'
+    'fbtrg': '/common/images/icon_woman.png',
+    '/tob/casm': '/common/images/icon_woman.png',
+    '/tob/salesforce': '/common/images/icon_woman.png'
 };
 
 // 4. バナー
@@ -15,7 +17,7 @@ const BANNER_DEFAULT = [
     '/common/images/banner_tosin_ekichika.webp',
 ];
 const BANNER_CAMPAIGN = {
-    // URLパス（UTMパラメータより優先）
+    // URLパス
     '/tob/casm': '/common/images/banner_casm.jpg',
     '/tob/salesforce': '/common/images/banner_salesforce.jpg',
 
