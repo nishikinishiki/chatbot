@@ -1,8 +1,9 @@
 // 1. GAS
 const GAS_WEB_APP_URL_DEFAULT = 'https://script.google.com/macros/s/AKfycbw34NMk9KeS7ZF6LGJqXXl1by6fgUeZV6CKPuMWv1Bvlm5TYp3sbIK-I5TV-V567LeTzg/exec';
 const GAS_WEB_APP_URL_CAMPAIGN = {
-    '/tob/casm': 'https://script.google.com/macros/s/AKfycbxFiCz5dYlDo2c-JXyB6oogZfy6x7qiVYaiBF2-hnHdW_rCFAD4XFyeQ4xP28CRxm2F/exec',
-    '/tob/salesforce': 'https://script.google.com/macros/s/AKfycbxFiCz5dYlDo2c-JXyB6oogZfy6x7qiVYaiBF2-hnHdW_rCFAD4XFyeQ4xP28CRxm2F/exec'
+    '/tob/salesforce': 'https://script.google.com/macros/s/AKfycbxFiCz5dYlDo2c-JXyB6oogZfy6x7qiVYaiBF2-hnHdW_rCFAD4XFyeQ4xP28CRxm2F/exec',
+    '/tob/cyberace':   'https://script.google.com/macros/s/AKfycbxFiCz5dYlDo2c-JXyB6oogZfy6x7qiVYaiBF2-hnHdW_rCFAD4XFyeQ4xP28CRxm2F/exec',
+    '/tob/casm':       'https://script.google.com/macros/s/AKfycbxFiCz5dYlDo2c-JXyB6oogZfy6x7qiVYaiBF2-hnHdW_rCFAD4XFyeQ4xP28CRxm2F/exec'
 };
 
 // 2. ファビコン
@@ -12,8 +13,9 @@ const FAVICON_URL = '/common/images/favicon.png';
 const ICON_DEFAULT = '/common/images/icon_jp.png';
 const ICON_CAMPAIGN = {
     'fbtrg': '/common/images/icon_woman.png',
-    '/tob/casm': '/common/images/icon_woman.png',
-    '/tob/salesforce': '/common/images/icon_woman.png'
+    '/tob/salesforce': '/common/images/icon_woman.png',
+    '/tob/cyberace': '/common/images/icon_woman.png',
+    '/tob/casm': '/common/images/icon_woman.png'
 };
 
 // 4. バナー
@@ -22,8 +24,9 @@ const BANNER_DEFAULT = [
 ];
 const BANNER_CAMPAIGN = {
     // URLパス
-    '/tob/casm': '/common/images/banner_casm.jpg',
     '/tob/salesforce': '/common/images/banner_salesforce.jpg',
+    '/tob/cyberace': '/common/images/banner_cyberace.jpg',
+    '/tob/casm': '/common/images/banner_casm.jpg',
 
     //HP
     'hp_gift_ebook': '/common/images/banner_ebook_propertylist.png',
