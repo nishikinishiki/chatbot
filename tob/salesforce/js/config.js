@@ -12,7 +12,7 @@ const ICON_CAMPAIGN = {
 
 // 4. バナー
 const BANNER_DEFAULT = [
-    '/common/images/Salesforce_BN.jpg',
+    '/common/images/banner_salesforce.jpg',
 ];
 const BANNER_CAMPAIGN = {
     //HP
