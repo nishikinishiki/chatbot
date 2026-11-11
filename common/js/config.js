@@ -15,6 +15,10 @@ const BANNER_DEFAULT = [
     '/common/images/banner_tosin_ekichika.webp',
 ];
 const BANNER_CAMPAIGN = {
+    // URLパス（UTMパラメータより優先）
+    '/tob/casm': '/common/images/banner_casm.jpg',
+    '/tob/salesforce': '/common/images/banner_salesforce.jpg',
+
     //HP
     'hp_gift_ebook': '/common/images/banner_ebook_propertylist.png',
     'hp_gift_': '/common/images/banner_consultation_gift.webp',
