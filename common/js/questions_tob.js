@@ -3,7 +3,8 @@
 const SYSTEM_MESSAGES = {
   // ウェルカムメッセージ
   welcome: [
-    { text: "【Salesforce様限定】ご面談フォームです！<br>30秒程度の簡単な質問をさせてください。", isHtml: true }
+    { text: "こちらは【Salesforce様限定】ご面談フォームです！<br>ご興味を持っていただきありがとうございます。", isHtml: true },
+    { text: "ご資産について、30秒程度の簡単な質問をさせてください。", isHtml: true }
   ],
   // 前半フロー完了メッセージ
   initial_complete: [
