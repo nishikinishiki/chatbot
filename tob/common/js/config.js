@@ -1,0 +1,92 @@
+// 1. GAS
+const GAS_WEB_APP_URL = 'https://script.google.com/macros/s/AKfycbxFiCz5dYlDo2c-JXyB6oogZfy6x7qiVYaiBF2-hnHdW_rCFAD4XFyeQ4xP28CRxm2F/exec';
+
+// 2. ファビコン
+const FAVICON_URL = '/common/images/favicon.png';
+
+// 3. 質問者アイコン
+const ICON_DEFAULT = '/common/images/icon_jp.png';
+const ICON_CAMPAIGN = {
+    'fbtrg': '/common/images/icon_woman.png',
+    '/tob/casm': '/common/images/icon_woman.png',
+    '/tob/salesforce': '/common/images/icon_woman.png'
+};
+
+// 4. バナー
+const BANNER_DEFAULT = [
+    '/common/images/banner_tosin_ekichika.webp',
+];
+const BANNER_CAMPAIGN = {
+    // URLパス
+    '/tob/casm': '/common/images/banner_casm.jpg',
+    '/tob/salesforce': '/common/images/banner_salesforce.jpg',
+
+    //HP
+    'hp_gift_ebook': '/common/images/banner_ebook_propertylist.png',
+    'hp_gift_': '/common/images/banner_consultation_gift.webp',
+    'wk_gift_': '/common/images/banner_consultation_gift.webp',
+
+    //アフィリエイト広告
+    'ALA_gift_ebook_4362': '/common/images/banner_buzz_260512.webp',
+    'ALA_gift_ebook_87234174': '/common/images/banner_700.jpg',
+    'ALA_gift_ebook_90002343': '/common/images/banner_700.jpg',
+    'ALA_gift_ebook_13247489': '/common/images/banner_700.jpg',
+    'ALA_gift_': '/common/images/banner_no1_appeal.jpg',
+    'BKR_gift_': '/common/images/banner_no1_appeal.jpg',
+    'GMO_gift_': '/common/images/banner_no1_appeal.jpg',
+    'CRS_gift_': '/common/images/banner_no1_appeal.jpg',
+
+    //meta広告
+    'like_dining_b': '/common/images/banner_ebook_like-dining_b.jpg',
+    'like_dining_c': '/common/images/banner_ebook_like-dining_c.jpg',
+    'like_dining': '/common/images/banner_ebook_like-dining.jpg',
+    'fbtrg_anax&&like_suv': '/common/images/banner_ebook_like-suv_anax.webp',
+    'like_suv_b': '/common/images/banner_ebook_like-suv_b.jpg',
+    'like_suv_c': [
+        '/common/images/banner_no1.mp4',
+        '/common/images/banner_gift.webp'
+    ],
+    'like_suv': '/common/images/banner_ebook_like-suv.jpg',
+    'fbtrg_anax&&like_watch': '/common/images/banner_ebook_like-watch_anax.webp',
+    'like_watch_b': [
+        '/common/images/banner_no1.mp4',
+        '/common/images/banner_gift.webp'
+    ],
+    'like_watch': '/common/images/banner_ebook_like-watch.jpg',
+    'like_wine': [
+        '/common/images/banner_no1.mp4',
+        '/common/images/banner_gift.webp'
+    ],
+    'no1_': [
+        '/common/images/banner_no1.mp4',
+        '/common/images/banner_gift.webp'
+    ],
+    '1500over': [
+        '/common/images/banner_1500over.mp4',
+        '/common/images/banner_gift.webp'
+    ],
+    'area_': [
+        '/common/images/banner_no1.mp4',
+        '/common/images/banner_gift.webp'
+    ],
+    'renova_': [
+        '/common/images/banner_no1.mp4',
+        '/common/images/banner_gift.webp'
+    ],
+    'osaka': [
+        '/common/images/banner_no1.mp4',
+        '/common/images/banner_gift.webp'
+    ],
+    'ebook_': '/common/images/banner_ebook.webp',
+    'JprBN_a_gift': '/common/images/banner_ebook_meta.webp',
+    'JprBN_b_gift': '/common/images/banner_ebook_meta.webp',
+    'JprBN_g_gift': '/common/images/banner_woman_g.webp',
+    'JprBN_h_gift': '/common/images/banner_woman_h.webp',
+    'fbtrg': '/common/images/banner_no1_appeal.jpg'
+};
+
+// 5. CSS
+const STYLE_DEFAULT = '/common/css/style.css';
+const STYLE_CAMPAIGN = {
+    'fbtrg': '/common/css/style-2.css',
+};
