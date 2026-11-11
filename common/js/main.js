@@ -342,7 +342,13 @@ async function submitDataToGAS(dataToSend, isAdditional) {
     const payload = { ...dataToSend, "Session ID": state.currentSessionId };
     if (isAdditional) payload.isAdditionalData = true;
     try {
-        await fetch(GAS_WEB_APP_URL, {
+        // URLパス・UTMに応じてGAS送信先を取得
+        const gasUrl = getDynamicAssetUrl(
+            GAS_WEB_APP_URL_DEFAULT,
+            GAS_WEB_APP_URL_CAMPAIGN
+        );
+
+        await fetch(gasUrl, {
             method: 'POST', mode: 'no-cors', cache: 'no-cache',
             headers: { 'Content-Type': 'text/plain;charset=utf-8' },
             body: JSON.stringify(payload)
