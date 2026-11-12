@@ -234,11 +234,6 @@ function setupInputEvents({ inputs, btn, errorMsg, validationFn, formatConfigs, 
             }
         });
 
-        input.addEventListener('change', () => {
-            input.value = formatInputValue(input.value, conf.type, conf.key);
-            checkValidation();
-        });
-
         input.addEventListener('blur', () => {
             if (idx === inputs.length - 1) hasInteractedLast = true;
             input.value = formatInputValue(input.value, conf.type, conf.key);
