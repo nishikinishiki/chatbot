@@ -447,7 +447,7 @@ const initialQuestions = [
     },
     {
         id: 'name_kanji', item: "お名前（漢字）", pre_message: "ありがとうございます！", answer_method: "text-pair",
-        prompt: "お名前を入力してください。",
+        question: "お名前を入力してください。",
         inputs: [
             { label: "姓", key: "last_name", placeholder: "山田", type: "text" },
             { label: "名", key: "first_name", placeholder: "太郎", type: "text" }
@@ -458,7 +458,7 @@ const initialQuestions = [
     },
     {
         id: 'name_kana', item: "お名前（フリガナ）", answer_method: "text-pair",
-        prompt: "続いて、フリガナを入力してください。（全角カタカナ）",
+        question: "続いて、フリガナを入力してください。（全角カタカナ）",
         inputs: [
             { label: "セイ", key: "last_name_kana", placeholder: "ヤマダ", type: "text" },
             { label: "メイ", key: "first_name_kana", placeholder: "タロウ", type: "text" }

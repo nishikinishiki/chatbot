@@ -81,8 +81,7 @@ const initialQuestions = [
     key: "age_group", validation: (v) => !!v, errorMessage: "選択してください。"
   },
   {
-    id: 'name_kanji', item: "お名前（漢字）", pre_message: "ありがとうございます！", answer_method: "text-pair",
-    prompt: "お名前を入力してください。",
+    id: 'name_kanji', item: "お名前（漢字）", question: "お名前を入力してください。", answer_method: "text-pair",
     inputs: [
       { label: "姓", key: "last_name", placeholder: "山田", type: "text" },
       { label: "名", key: "first_name", placeholder: "太郎", type: "text" }

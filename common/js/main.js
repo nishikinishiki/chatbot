@@ -6,7 +6,6 @@ const state = {
     currentSessionId: '',
     currentFlow: 'initial',
     currentStep: 0,
-    subStep: 0,
     userResponses: {},
     additionalUserResponses: {},
     utmParameters: {},
@@ -180,7 +179,7 @@ async function askQuestion() {
             state.waitingForInput = true;
             break;
         case 'text-pair':
-            handlePairedQuestion(currentQuestion, wasWaiting);
+            handlePairedQuestion(currentQuestion);
             break;
         case 'time-table':
             displayTimeTable(currentQuestion, (value, container) => handleTimeTableInput(currentQuestion, value, container));
@@ -225,8 +224,6 @@ function handleFlowCompletion() {
 function proceedToNextStep() {
     state.completedEffectiveQuestions++;
     state.currentStep++;
-    state.subStep = 0;
-
     setTimeout(askQuestion, 150);
 }
 
@@ -257,10 +254,7 @@ function handleTextInput(question, value, container) {
     saveAndProceed(question, trimmedValue, trimmedValue, container, gaAnswerValue);
 }
 
-async function handlePairedQuestion(question, wasWaiting) {
-    if (!wasWaiting) {
-        await addBotMessage(question.prompt);
-    }
+async function handlePairedQuestion(question) {
     displayPairedInputs(question, (values, container) => {
         if (container) disableInputs(container);
         state.waitingForInput = false;
@@ -292,16 +286,14 @@ function calculateProgress() {
     let totalEffectiveQuestions = 0;
     for (const q of questionsArray) {
         if (q.condition && responseSet[q.condition.key] !== q.condition.value) continue;
-        // ★スキップされる質問は「有効な質問数（分母）」にカウントしない
         if (typeof q.shouldSkip === 'function' && q.shouldSkip(state.utmParameters)) continue;
-        if (q.answer_method === 'text-pair' || (q.answer_method !== 'final-consent')) totalEffectiveQuestions++;
+        if (q.answer_method !== 'final-consent') totalEffectiveQuestions++;
     }
     if (totalEffectiveQuestions === 0) { updateProgressBar(0); return; }
     updateProgressBar((state.completedEffectiveQuestions / totalEffectiveQuestions) * 100);
 }
 
 function getUtmParameters(urlParams) {
-    // gclid, yclid, fbclid を配列に追加
     const utmKeys = ['utm_source', 'utm_medium', 'utm_campaign', 'utm_term', 'utm_content', 'gclid', 'yclid', 'fbclid'];
     utmKeys.forEach(key => {
         if (urlParams.has(key)) state.utmParameters[key] = urlParams.get(key);
@@ -317,7 +309,6 @@ async function submitDataToGAS(dataToSend, isAdditional) {
     const payload = { ...dataToSend, "Session ID": state.currentSessionId };
     if (isAdditional) payload.isAdditionalData = true;
     try {
-        // URLパス・UTMに応じてGAS送信先を取得
         const gasUrl = getDynamicAssetUrl(
             GAS_WEB_APP_URL_DEFAULT,
             GAS_WEB_APP_URL_CAMPAIGN
@@ -345,12 +336,9 @@ async function submitDataToGAS(dataToSend, isAdditional) {
                 const firstName = state.userResponses.first_name;
 
                 let modifiedPhoneNumber = '';
-                if (phoneNumber && typeof phoneNumber === 'string') {
-                    modifiedPhoneNumber = phoneNumber.substring(3);
-                }
-
                 let formattedPhoneNumber = '';
                 if (phoneNumber && typeof phoneNumber === 'string') {
+                    modifiedPhoneNumber = phoneNumber.substring(3);
                     formattedPhoneNumber = phoneNumber.startsWith('0')
                         ? '+81' + phoneNumber.substring(1)
                         : '+81' + phoneNumber;
@@ -391,6 +379,5 @@ function startAdditionalQuestionsFlow() {
     state.currentStep = 0;
     state.completedEffectiveQuestions = 0;
 
-    if (typeof updateProgressBar === 'function') updateProgressBar(0);
     askQuestion();
 }
