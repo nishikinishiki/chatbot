@@ -1,6 +1,6 @@
 // --- UTM条件定義 ---
 const UTM_RULES = {
-  //utm_sourceで指定
+  //共通
   hideKeywords: [
     'ALA_gift_',
     'BKR_gift_',
@@ -10,7 +10,7 @@ const UTM_RULES = {
     'google',
     'yahoo'
   ],
-  //utm_sourceで指定
+  //60歳
   hideAgeKeywords_60: [
     'ALA_gift_',
     'BKR_gift_',
@@ -20,7 +20,7 @@ const UTM_RULES = {
     'google',
     'yahoo'
   ],
-  //utm_campaignで指定「進呈条件」
+  //進呈条件
   customGiftTermsKeywordsAff: [
     'gift_up_campaign'
   ]
