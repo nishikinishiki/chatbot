@@ -157,8 +157,7 @@ async function askQuestion() {
             await addBotMessage(preMsgText, isHtml);
         }
 
-        // question の処理
-        if (currentQuestion.question && currentQuestion.answer_method !== 'text-pair') {
+        if (currentQuestion.question) {
             const questionText = typeof currentQuestion.question === 'function'
                 ? currentQuestion.question(state.utmParameters)
                 : currentQuestion.question;
@@ -260,7 +259,6 @@ function handleTextInput(question, value, container) {
 
 async function handlePairedQuestion(question, wasWaiting) {
     if (!wasWaiting) {
-        if (state.subStep === 0 && question.question) await addBotMessage(question.question);
         await addBotMessage(question.prompt);
     }
     displayPairedInputs(question, (values, container) => {
@@ -270,12 +268,7 @@ async function handlePairedQuestion(question, wasWaiting) {
         question.inputs.forEach((inputConfig, index) => { responseSet[inputConfig.key] = values[index]; });
         addUserMessage(values.join(' '));
         sendGaEvent(question, '[REDACTED]');
-        state.currentStep++;
-        state.subStep = 0;
-        state.completedEffectiveQuestions++;
-
-        calculateProgress();
-        setTimeout(askQuestion, 150);
+        proceedToNextStep();
     });
     state.waitingForInput = true;
 }
