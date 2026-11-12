@@ -13,7 +13,6 @@ const dom = {
     chatMessages: null,
     progressBar: null,
     giftTermsModal: null,
-    modalTitle: null,
     modalBody: null,
     modalCloseButton: null,
 };
@@ -27,7 +26,6 @@ function initializeUI() {
     dom.chatMessages = document.getElementById('chatMessages');
     dom.progressBar = document.getElementById('progressBar');
     dom.giftTermsModal = document.getElementById('giftTermsModal');
-    dom.modalTitle = document.getElementById('modalTitle');
     dom.modalBody = document.getElementById('modalBody');
     dom.modalCloseButton = document.getElementById('modalCloseButton');
 
@@ -606,8 +604,7 @@ function hideLoadingMessage() {
     if (loadingMessageElement) { loadingMessageElement.remove(); loadingMessageElement = null; }
 }
 
-function showModal(title, content) {
-    dom.modalTitle.textContent = title;
+function showModal(content) {
     dom.modalBody.innerHTML = content;
     dom.giftTermsModal.classList.add('show');
 }
@@ -659,7 +656,7 @@ function displayBannerImage(urlOrUrls) {
 
         termsText.querySelector('#bannerGiftLink').onclick = (e) => {
             e.preventDefault();
-            showModal(GIFT_TERMS_CONFIG.popup_title, GIFT_TERMS_CONFIG.popup_content);
+            showModal(GIFT_TERMS_CONFIG.popup_content);
         };
         wrapper.appendChild(termsText);
     }

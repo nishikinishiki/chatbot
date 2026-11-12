@@ -337,7 +337,7 @@ async function submitDataToGAS(dataToSend, isAdditional) {
         });
         hideLoadingMessage();
         if (!isAdditional) {
-            if (!state.isTestMode && window.LeadAnalytics) {
+            if (window.LeadAnalytics) {
                 window.LeadAnalytics.pushLeadAttributes({
                     userResponses: state.userResponses,
                     utmParameters: state.utmParameters,
@@ -345,7 +345,7 @@ async function submitDataToGAS(dataToSend, isAdditional) {
                 });
             }
 
-            if (window.dataLayer && !state.isTestMode) {
+            if (window.dataLayer) {
                 const email = state.userResponses.email_address;
                 const phoneNumber = state.userResponses.phone_number;
                 const lastName = state.userResponses.last_name;
