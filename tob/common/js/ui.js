@@ -523,7 +523,7 @@ function displayFinalConsentScreen(question, userResponses, initialQuestions, on
     const btn = document.createElement('button');
     btn.className = 'choice-button final-consent-submit-button';
     btn.innerHTML = `<span>${question.submit_button_text}</span>${ICONS.SEND}`;
-    btn.onclick = () => { btn.disabled = true; onSubmit(wrapper); };
+    btn.onclick = () => onSubmit(wrapper);
 
     wrapper.appendChild(btn);
     mountInputWrapper(wrapper);
