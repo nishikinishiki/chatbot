@@ -16,24 +16,6 @@ const state = {
     waitingForInput: false // 増殖バグ防止用フラグ
 };
 
-// URLパラメータからutm_sourceを取得
-const urlParams = new URLSearchParams(window.location.search);
-const utmSource = urlParams.get('utm_source');
-
-let styleUrl = STYLE_DEFAULT;
-
-// ★ 変更: 部分一致で判定
-if (utmSource && typeof STYLE_CAMPAIGN !== 'undefined') {
-    for (const key in STYLE_CAMPAIGN) {
-        if (utmSource.includes(key)) {
-            styleUrl = STYLE_CAMPAIGN[key];
-            break; // 最初に見つかった時点でループを抜ける
-        }
-    }
-}
-
-// linkタグのhrefを書き換え
-document.getElementById('main-stylesheet').href = styleUrl;
 
 // --- GAイベント送信 ---
 function sendGaEvent(question, answerValue) {
