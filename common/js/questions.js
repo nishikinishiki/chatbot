@@ -417,15 +417,8 @@ const initialQuestions = [
     autocomplete: "tel",
     key: "phone_number",
     validation: (v) => {
-      let digits = v.replace(/[ー－‐\-\s]/g, "").trim();
-      if (digits.startsWith('+81')) {
-        digits = '0' + digits.slice(3);
-      } else if (digits.startsWith('81') && digits.length >= 12) {
-        digits = '0' + digits.slice(2);
-      }
-      const isValidLength = /^0\d{9,10}$/.test(digits);
-      const isNotRepeated = !/^(.)\1+$/.test(digits);
-
+      const isValidLength = /^0\d{9,10}$/.test(v);
+      const isNotRepeated = !/^(.)\1+$/.test(v);
       return isValidLength && isNotRepeated;
     },
     errorMessage: "有効な電話番号をハイフンなし半角数字で入力してください。"
@@ -442,7 +435,6 @@ const initialQuestions = [
     validation: (v) => {
       const email = v.trim();
       const emailRegex = /^[a-zA-Z0-9._%+-]+@[a-zA-Z0-9]+(?:-[a-zA-Z0-9]+)*(?:\.[a-zA-Z0-9]+(?:-[a-zA-Z0-9]+)*)*\.[a-zA-Z]{2,}$/;
-
       return emailRegex.test(email) && !/@\./.test(email) && !/\.\./.test(email);
     },
     errorMessage: "有効なメールアドレスを入力してください。"

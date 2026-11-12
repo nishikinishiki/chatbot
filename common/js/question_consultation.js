@@ -467,8 +467,36 @@ const initialQuestions = [
         combinedErrorMessage: "セイとメイの両方を全角カタカナで入力してください。",
         key_group: "name_details"
     },
-    { id: 'phone_number', item: "電話番号", pre_message: "ありがとうございます。残り3問です！", question: "電話番号を入力してください。", placeholder: "09012345678", answer_method: "text", type: "tel", key: "phone_number", validation: (v) => /^[0-9]{10,11}$/.test(v.replace(/-/g, "")), errorMessage: "有効な電話番号をハイフンなし半角数字で入力してください。" },
-    { id: 'email_address', item: "メールアドレス", question: "次に、メールアドレスを入力してください！", placeholder: "user@example.com", answer_method: "text", type: "email", key: "email_address", validation: (v) => /^[^\s@]+@[^\s@]+\.[^\s@]+$/.test(v), errorMessage: "有効なメールアドレスを入力してください。" },
+    { 
+        id: 'phone_number',
+        item: "電話番号",
+        pre_message: "ありがとうございます。残り3問です！", 
+        question: "電話番号を入力してください。", 
+        placeholder: "09012345678", 
+        answer_method: "text", type: "tel", 
+        key: "phone_number", 
+        validation: (v) => {
+            const isValidLength = /^0\d{9,10}$/.test(v);
+            const isNotRepeated = !/^(.)\1+$/.test(v);
+            return isValidLength && isNotRepeated;
+        },
+        errorMessage: "有効な電話番号をハイフンなし半角数字で入力してください。" 
+    },
+    { 
+        id: 'email_address', 
+        item: "メールアドレス", 
+        question: "次に、メールアドレスを入力してください！", 
+        placeholder: "user@example.com", 
+        answer_method: "text", 
+        type: "email", 
+        key: "email_address",
+        validation: (v) => {
+            const email = v.trim();
+            const emailRegex = /^[a-zA-Z0-9._%+-]+@[a-zA-Z0-9]+(?:-[a-zA-Z0-9]+)*(?:\.[a-zA-Z0-9]+(?:-[a-zA-Z0-9]+)*)*\.[a-zA-Z]{2,}$/;
+            return emailRegex.test(email) && !/@\./.test(email) && !/\.\./.test(email);
+        },
+        errorMessage: "有効なメールアドレスを入力してください。"
+     },
     {
         id: 'digital_gift_choice',
         item: "希望デジタルギフト",

@@ -101,20 +101,8 @@ const initialQuestions = [
     autocomplete: "tel",
     key: "phone_number",
     validation: (v) => {
-      let digits = v.replace(/[ー－‐\-\s]/g, "").trim();
-
-      // +81 を 0 に変換してから判定
-      if (digits.startsWith('+81')) {
-        digits = '0' + digits.slice(3);
-      } else if (digits.startsWith('81') && digits.length >= 12) {
-        digits = '0' + digits.slice(2);
-      }
-
-      // 1. 先頭が0で始まる10〜11桁の数字
-      const isValidLength = /^0\d{9,10}$/.test(digits);
-      // 2. 全て同じ数字の繰り返しを禁止
-      const isNotRepeated = !/^(.)\1+$/.test(digits);
-
+      const isValidLength = /^0\d{9,10}$/.test(v);
+      const isNotRepeated = !/^(.)\1+$/.test(v);
       return isValidLength && isNotRepeated;
     },
     errorMessage: "有効な電話番号をハイフンなし半角数字で入力してください。"
@@ -130,11 +118,7 @@ const initialQuestions = [
     key: "email_address",
     validation: (v) => {
       const email = v.trim();
-      // 1. @の直後にドットを禁止
-      // 2. 連続ドットを禁止
-      // 3. 英数字・各種記号@ドメイン名.2文字以上
       const emailRegex = /^[a-zA-Z0-9._%+-]+@[a-zA-Z0-9]+(?:-[a-zA-Z0-9]+)*(?:\.[a-zA-Z0-9]+(?:-[a-zA-Z0-9]+)*)*\.[a-zA-Z]{2,}$/;
-
       return emailRegex.test(email) && !/@\./.test(email) && !/\.\./.test(email);
     },
     errorMessage: "有効なメールアドレスを入力してください。"
