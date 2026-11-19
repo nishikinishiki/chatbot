@@ -19,7 +19,7 @@ window.FORM_QUESTIONS = Object.freeze({
     title: "無料個別相談｜J.P.RETURNS",
     description: "マンション投資・資産形成に関する無料個別相談のお申し込み",
     favicon: "/common/images/favicon.png",
-    heroImage: "/common/images/test.jpg",
+    heroImage: "/common/images/banner_salesforce.jpg",
     heroAlt: "J.P.RETURNS マンション投資のご案内"
   },
 
