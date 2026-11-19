@@ -3,7 +3,8 @@ const GAS_WEB_APP_URL_DEFAULT = 'https://script.google.com/macros/s/AKfycbw34NMk
 const GAS_WEB_APP_URL_CAMPAIGN = {
     '/tob/salesforce': 'https://script.google.com/macros/s/AKfycbxFiCz5dYlDo2c-JXyB6oogZfy6x7qiVYaiBF2-hnHdW_rCFAD4XFyeQ4xP28CRxm2F/exec',
     '/tob/cyberace':   'https://script.google.com/macros/s/AKfycbxFiCz5dYlDo2c-JXyB6oogZfy6x7qiVYaiBF2-hnHdW_rCFAD4XFyeQ4xP28CRxm2F/exec',
-    '/tob/casm':       'https://script.google.com/macros/s/AKfycbxFiCz5dYlDo2c-JXyB6oogZfy6x7qiVYaiBF2-hnHdW_rCFAD4XFyeQ4xP28CRxm2F/exec'
+    '/tob/casm': 'https://script.google.com/macros/s/AKfycbxFiCz5dYlDo2c-JXyB6oogZfy6x7qiVYaiBF2-hnHdW_rCFAD4XFyeQ4xP28CRxm2F/exec',
+    '/tob/google': 'https://script.google.com/macros/s/AKfycbxFiCz5dYlDo2c-JXyB6oogZfy6x7qiVYaiBF2-hnHdW_rCFAD4XFyeQ4xP28CRxm2F/exec'
 };
 
 // 2. ファビコン
@@ -15,7 +16,8 @@ const ICON_CAMPAIGN = {
     'fbtrg': '/common/images/icon_woman.png',
     '/tob/salesforce': '/common/images/icon_woman.png',
     '/tob/cyberace': '/common/images/icon_woman.png',
-    '/tob/casm': '/common/images/icon_woman.png'
+    '/tob/casm': '/common/images/icon_woman.png',
+    '/tob/google': '/common/images/icon_woman.png'
 };
 
 // 4. バナー
@@ -27,6 +29,7 @@ const BANNER_CAMPAIGN = {
     '/tob/salesforce': '/common/images/banner_salesforce.jpg',
     '/tob/cyberace': '/common/images/banner_cyberace.jpg',
     '/tob/casm': '/common/images/banner_casm.jpg',
+    '/tob/google': '/common/images/banner_google.jpg',
 
     //HP
     'hp_gift_ebook': '/common/images/banner_ebook_propertylist.png',
