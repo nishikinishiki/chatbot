@@ -307,6 +307,13 @@ function generateSessionId() {
 async function submitDataToGAS(dataToSend, isAdditional) {
     showLoadingMessage();
     const payload = { ...dataToSend, "Session ID": state.currentSessionId };
+
+    // tob配下の対象フォームでは、送信元フォルダ名をGAS送信用utm_sourceに設定
+    const sourceMatch = window.location.pathname.match(
+        /^\/tob\/(casm|cyberace|google|salesforce)(?:\/|$)/
+    );
+    if (sourceMatch) payload.utm_source = sourceMatch[1];
+
     if (isAdditional) payload.isAdditionalData = true;
     try {
         const gasUrl = getDynamicAssetUrl(
