@@ -1,10 +1,10 @@
 // 1. GAS
 const GAS_WEB_APP_URL_DEFAULT = 'https://script.google.com/macros/s/AKfycbw34NMk9KeS7ZF6LGJqXXl1by6fgUeZV6CKPuMWv1Bvlm5TYp3sbIK-I5TV-V567LeTzg/exec';
 const GAS_WEB_APP_URL_CAMPAIGN = {
-    '/tob/salesforce': 'https://script.google.com/macros/s/AKfycbxFiCz5dYlDo2c-JXyB6oogZfy6x7qiVYaiBF2-hnHdW_rCFAD4XFyeQ4xP28CRxm2F/exec',
-    '/tob/cyberace':   'https://script.google.com/macros/s/AKfycbxFiCz5dYlDo2c-JXyB6oogZfy6x7qiVYaiBF2-hnHdW_rCFAD4XFyeQ4xP28CRxm2F/exec',
-    '/tob/casm': 'https://script.google.com/macros/s/AKfycbxFiCz5dYlDo2c-JXyB6oogZfy6x7qiVYaiBF2-hnHdW_rCFAD4XFyeQ4xP28CRxm2F/exec',
-    '/tob/google': 'https://script.google.com/macros/s/AKfycbxFiCz5dYlDo2c-JXyB6oogZfy6x7qiVYaiBF2-hnHdW_rCFAD4XFyeQ4xP28CRxm2F/exec'
+    '/tob/salesforce': 'https://script.google.com/macros/s/AKfycbweN_fLMgYzpcmgjaxOyiFCyOzlc7lwaLWSeCrNH0juLHR4WADrRyN1iRV2G0NK-WRy/exec',
+    '/tob/cyberace':   'https://script.google.com/macros/s/AKfycbweN_fLMgYzpcmgjaxOyiFCyOzlc7lwaLWSeCrNH0juLHR4WADrRyN1iRV2G0NK-WRy/exec',
+    '/tob/casm': 'https://script.google.com/macros/s/AKfycbweN_fLMgYzpcmgjaxOyiFCyOzlc7lwaLWSeCrNH0juLHR4WADrRyN1iRV2G0NK-WRy/exec',
+    '/tob/google': 'https://script.google.com/macros/s/AKfycbweN_fLMgYzpcmgjaxOyiFCyOzlc7lwaLWSeCrNH0juLHR4WADrRyN1iRV2G0NK-WRy/exec'
 };
 
 // 2. ファビコン
