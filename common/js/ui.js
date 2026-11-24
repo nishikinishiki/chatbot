@@ -164,9 +164,12 @@ function formatInputValue(value, type, key) {
         }
     }
 
-    // 3. ひらがなを全角カタカナに変換 (フリガナ)
+    // 3. 半角カナ・ひらがな・半角スペースを全角に揃える (フリガナ)
+    //    NFKC は全角スペースを半角に戻してしまうので、スペースの全角化は最後に行う
     if (key && key.includes('kana')) {
-        val = val.replace(/[ぁ-ん]/g, s => String.fromCharCode(s.charCodeAt(0) + 0x60));
+        val = val.normalize('NFKC')
+            .replace(/[ぁ-ん]/g, s => String.fromCharCode(s.charCodeAt(0) + 0x60))
+            .replace(/ /g, '　');
     }
 
     return val;
