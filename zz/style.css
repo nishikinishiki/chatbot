@@ -11,7 +11,8 @@
     --next-btn-shadow-color: #960811;
     --text-dark: #222222;
     --text-muted: #666666;
-    --bg-light: #f7f9fb;
+    --bg-light: #eaf3fc;
+    --form-bg-light: #f8f9fb;
     --bg-white: #ffffff;
     --bg-grey: #f3f3f3;
     --border-color: #dddddd;
@@ -78,7 +79,7 @@ body.modal-open {
     max-width: 640px;
     width: 100%;
     margin: 30px auto 60px;
-    background-color: var(--bg-white);
+    background-color: var(--form-bg-light);
     border-radius: var(--radius-md);
     box-shadow: 0 4px 12px rgba(0, 0, 0, 0.05);
     padding: 40px 30px;
@@ -476,7 +477,7 @@ input.is-error,
 }
 
 .btn-secondary {
-    background-color: transparent;
+    background-color: var(--bg-white);
     color: var(--text-dark);
     border: 1px solid var(--border-color);
 }
