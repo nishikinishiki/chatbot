@@ -88,15 +88,6 @@ body.modal-open {
     flex: 1;
 }
 
-.site-footer {
-    background-color: var(--bg-white);
-    border-top: 1px solid var(--border-color);
-    text-align: center;
-    padding: 12px 20px;
-    font-size: 11px;
-    color: var(--text-muted);
-}
-
 .page-lead {
     font-size: 13px;
     color: var(--text-muted);
@@ -406,10 +397,11 @@ input.is-error,
    ========================================================================== */
 .step-nav-btns {
     margin-top: 16px;
+    margin-bottom: 16px;
 }
 
 .form-step:not([data-step="5"]) .step-nav-btns {
-    margin-top: 28px;
+    margin-top: 36px;
 }
 
 .step-nav-btns.dual {
@@ -692,9 +684,5 @@ input.is-error,
 
     .step-nav-btns.dual .btn-prev {
         flex: 0 0 28%;
-    }
-
-    .site-footer {
-        padding: 8px 14px;
     }
 }
