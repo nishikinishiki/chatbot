@@ -38,7 +38,7 @@
 body {
     font-family: var(--font-base);
     color: var(--text-dark);
-    background-color: var(--bg-light);
+    background-color: var(--bg-white);
     line-height: 1.6;
     -webkit-font-smoothing: antialiased;
     display: flex;
@@ -58,7 +58,7 @@ body.modal-open {
 .site-header {
     background-color: var(--bg-white);
     border-bottom: 1px solid var(--border-color);
-    padding: 10px 20px;
+    padding: 10px 30px;
     position: sticky;
     top: 0;
     z-index: 100;
@@ -67,6 +67,8 @@ body.modal-open {
 .header-container {
     max-width: 640px;
     margin: 0 auto;
+    display: flex;
+    align-items: center;
 }
 
 .brand-logo {
@@ -78,7 +80,7 @@ body.modal-open {
 .form-wrapper {
     max-width: 640px;
     width: 100%;
-    margin: 30px auto 60px;
+    margin: 0 auto;
     background-color: var(--form-bg-light);
     border-radius: var(--radius-md);
     box-shadow: 0 4px 12px rgba(0, 0, 0, 0.05);
@@ -90,7 +92,7 @@ body.modal-open {
     background-color: var(--bg-white);
     border-top: 1px solid var(--border-color);
     text-align: center;
-    padding: 9px 16px;
+    padding: 12px 20px;
     font-size: 11px;
     color: var(--text-muted);
 }
@@ -241,9 +243,9 @@ body.modal-open {
    フォーム部品（入力欄周り・回答ボタン・バナー）
    ========================================================================== */
 .banner-wrapper {
-    margin: 0 -30px 24px;
+    margin: -40px -30px 24px;
+    overflow: hidden;
 }
-
 .eye-catch-img {
     width: 100%;
     height: auto;
@@ -629,7 +631,7 @@ input.is-error,
 
 @media (max-width: 560px) {
     .site-header {
-        padding: 8px 16px;
+        padding: 8px 20px;
     }
 
     .brand-logo {
@@ -639,11 +641,13 @@ input.is-error,
     .form-wrapper {
         margin: 0 auto;
         padding: 0 20px 20px;
+        border-radius: 0;
+        box-shadow: none;
     }
 
     .banner-wrapper {
-        width: 100vw;
-        margin: 0 calc(50% - 50vw) 20px;
+        width: auto;
+        margin: 0 -20px 20px;
     }
 
     .step-bar {
