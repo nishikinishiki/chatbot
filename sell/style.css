@@ -1,0 +1,697 @@
+@charset "UTF-8";
+
+/* ==========================================================================
+   共通定義 & CSS変数設定
+   ========================================================================== */
+:root {
+    --primary-color: #42BEAD;
+    --primary-hover-color: #329588;
+    --text-dark: #222222;
+    --text-muted: #666666;
+    --bg-light: #f7f9fb;
+    --bg-white: #ffffff;
+    --bg-grey: #f3f3f3;
+    --border-color: #dddddd;
+    --disabled: #b3b3b3;
+    --error-color: #ff0008;
+    --error-bg: #fff5f5;
+    --link: #184cdb;
+
+    --font-base: "Noto Sans JP", sans-serif;
+    --radius-md: 4px;
+    --radius-lg: 15px;
+    --transition-fast: opacity 0.3s ease, transform 0.3s ease, border-color 0.2s;
+}
+
+*,
+*::before,
+*::after {
+    box-sizing: border-box;
+    margin: 0;
+    padding: 0;
+}
+
+body {
+    font-family: var(--font-base);
+    color: var(--text-dark);
+    background-color: var(--bg-light);
+    line-height: 1.6;
+    -webkit-font-smoothing: antialiased;
+    display: flex;
+    flex-direction: column;
+    min-height: 100vh;
+    overflow-y: scroll;
+}
+
+/* ==========================================================================
+   レイアウト（ヘッダー・フッター・メイン）
+   ========================================================================== */
+.site-header {
+    background-color: var(--bg-white);
+    border-bottom: 1px solid var(--border-color);
+    padding: 15px 20px;
+    position: sticky;
+    top: 0;
+    z-index: 100;
+}
+
+.header-container {
+    max-width: 640px;
+    margin: 0 auto;
+}
+
+.brand-logo {
+    display: block;
+    height: 18px;
+    width: auto;
+}
+
+.form-wrapper {
+    max-width: 640px;
+    width: 100%;
+    margin: 30px auto 60px;
+    background-color: var(--bg-white);
+    border-radius: var(--radius-md);
+    box-shadow: 0 4px 12px rgba(0, 0, 0, 0.05);
+    padding: 40px 30px;
+    flex: 1;
+    /* フッターを下部に押し下げる */
+}
+
+.site-footer {
+    background-color: var(--bg-white);
+    border-top: 1px solid var(--border-color);
+    text-align: center;
+    padding: 24px 20px;
+    font-size: 12px;
+    color: var(--text-muted);
+}
+
+/* ==========================================================================
+   見出し・テキスト
+   ========================================================================== */
+.page-title {
+    font-size: 22px;
+    font-weight: 700;
+    margin-bottom: 20px;
+}
+
+.page-lead {
+    font-size: 14px;
+    color: var(--text-muted);
+    margin-bottom: 30px;
+}
+
+/* ==========================================================================
+   ステップバーUI (入力 > 確認 > 完了)
+   ========================================================================== */
+.step-bar {
+    display: flex;
+    width: 100%;
+    list-style: none;
+    margin: 0 0 30px;
+    border-radius: var(--radius-md);
+    overflow: hidden;
+}
+
+.step-item {
+    flex: 1;
+    text-align: center;
+    height: 44px;
+    line-height: 44px;
+    font-size: 14px;
+    font-weight: 700;
+    color: var(--text-muted);
+    background-color: var(--bg-grey);
+    /* 1. ベースの形：左がえぐれて、右が出っ張る矢印の形に切り抜く */
+    clip-path: polygon(0% 0%,
+            calc(100% - 8px) 0%,
+            100% 50%,
+            calc(100% - 8px) 100%,
+            0% 100%,
+            8px 50%);
+}
+
+.step-item.active {
+    background-color: var(--primary-color);
+    color: var(--bg-white);
+}
+
+/* 2. 最初の要素：左側はまっすぐ平らにする */
+.step-item:first-child {
+    clip-path: polygon(0% 0%,
+            calc(100% - 8px) 0%,
+            100% 50%,
+            calc(100% - 8px) 100%,
+            0% 100%);
+}
+
+/* 3. 最後の要素：右側はまっすぐ平らにする */
+.step-item:last-child {
+    clip-path: polygon(0% 0%,
+            100% 0%,
+            100% 100%,
+            0% 100%,
+            8px 50%);
+}
+
+/* 4. テキストが常に図形のド真ん中に来るように微調整 */
+.step-item:not(:first-child) {
+    padding-left: 6px;
+}
+
+.step-item:not(:last-child) {
+    padding-right: 6px;
+}
+
+/* ==========================================================================
+   ページ・ステップ制御
+   ========================================================================== */
+.form-page {
+    display: none;
+}
+
+.form-page.active {
+    display: block;
+}
+
+.form-step {
+    display: none;
+    opacity: 0;
+    transform: translateY(10px);
+    transition: var(--transition-fast);
+}
+
+.form-step.active {
+    display: block;
+    opacity: 1;
+    transform: translateY(0);
+}
+
+/* 入力中のステップや項目を最前面に（サジェストの被り防止） */
+.form-step:focus-within {
+    position: relative;
+    z-index: 10;
+}
+
+.step-title {
+    font-size: 16px;
+    font-weight: 700;
+    margin-bottom: 20px;
+    padding-left: 10px;
+    border-left: 4px solid var(--primary-color);
+}
+
+.form-step:not(:last-of-type) {
+    margin-bottom: 50px;
+}
+
+/* ==========================================================================
+   フォーム部品（入力欄周り）
+   ========================================================================== */
+.banner-wrapper {
+    margin-bottom: 25px;
+    text-align: center;
+}
+
+.eye-catch-img {
+    max-width: 100%;
+    height: auto;
+    border-radius: var(--radius-md);
+    display: block;
+}
+
+.form-group {
+    margin-bottom: 30px;
+}
+
+.form-group:focus-within {
+    position: relative;
+    z-index: 20;
+}
+
+.form-group label {
+    display: block;
+    font-size: 14px;
+    font-weight: 700;
+    margin-bottom: 8px;
+}
+
+.form-group label.required::after {
+    content: "必須";
+    background-color: var(--text-muted);
+    color: var(--bg-white);
+    font-size: 11px;
+    padding: 2px 4px;
+    border-radius: 2px;
+    margin-left: 6px;
+}
+
+.input-note {
+    font-size: 12px;
+    color: var(--text-muted);
+    margin-top: 4px;
+    margin-bottom: 8px;
+}
+
+.form-row {
+    display: flex;
+    gap: 15px;
+}
+
+.form-row .form-group {
+    flex: 1;
+    min-width: 0;
+}
+
+input[type="text"],
+input[type="number"],
+input[type="email"],
+input[type="tel"],
+select,
+textarea {
+    width: 100%;
+    padding: 16px;
+    font-size: 15px;
+    border: 1px solid var(--border-color);
+    border-radius: var(--radius-md);
+    background-color: var(--bg-white);
+    outline: none;
+    transition: border-color 0.2s;
+}
+
+input:focus,
+select:focus,
+textarea:focus {
+    border-color: var(--primary-color);
+}
+
+::placeholder {
+    color: var(--disabled);
+    opacity: 1;
+}
+
+textarea {
+    resize: vertical;
+    min-height: 100px;
+    font-family: inherit;
+}
+
+/* ==========================================================================
+   プルダウン（セレクトボックス）の矢印と右側余白の個別カスタマイズ
+   ========================================================================== */
+select {
+    /* 1. ブラウザ標準の矢印をすべてのブラウザで完全に消す */
+    -webkit-appearance: none !important;
+    -moz-appearance: none !important;
+    appearance: none !important;
+
+    /* 2. すっきりしたカスタム矢印（SVG）を背景として設定（色は全体の--text-mutedに統一） */
+    background-image: url('data:image/svg+xml;charset=UTF-8,<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="none" stroke="%23666666" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><polyline points="6 9 12 15 18 9"></polyline></svg>') !important;
+    background-repeat: no-repeat !important;
+    background-position: right 10px center !important;
+    background-size: 14px !important;
+}
+
+/* Internet Explorer用の矢印消去（念のため） */
+select::-ms-expand {
+    display: none;
+}
+
+.input-unit-wrapper {
+    position: relative;
+    display: flex;
+    align-items: center;
+}
+
+.input-unit-wrapper input {
+    padding-right: 50px;
+}
+
+.input-unit-wrapper .unit {
+    position: absolute;
+    right: 16px;
+    font-size: 14px;
+    color: var(--text-muted);
+}
+
+.nested-group {
+    display: none;
+    padding: 15px;
+    background-color: var(--bg-light);
+    border-radius: var(--radius-md);
+    margin-top: -15px;
+    margin-bottom: 25px;
+}
+
+.nested-group.active {
+    display: block;
+}
+
+/* ==========================================================================
+   サジェスト（オートコンプリート）UI
+   ========================================================================== */
+.suggest-wrapper {
+    position: relative;
+}
+
+.suggest-list {
+    position: absolute;
+    top: 100%;
+    left: 0;
+    width: 100%;
+    background: var(--bg-white);
+    border: 1px solid var(--border-color);
+    border-top: none;
+    max-height: 320px;
+    overflow-y: auto;
+    z-index: 100 !important;
+    display: none;
+    box-shadow: 0 4px 12px rgba(0, 0, 0, 0.1);
+}
+
+.suggest-item {
+    padding: 14px 16px;
+    cursor: pointer;
+    border-bottom: 1px solid #eeeeee;
+    transition: background-color 0.2s;
+}
+
+.suggest-item:last-child {
+    border-bottom: none;
+}
+
+.suggest-item:hover {
+    background-color: var(--bg-light);
+}
+
+.suggest-name {
+    font-size: 15px;
+    color: var(--text-dark);
+    margin-bottom: 4px;
+}
+
+.suggest-address {
+    font-size: 12px;
+    color: var(--text-muted);
+}
+
+/* ==========================================================================
+   ローディングスピナー（通信中アニメーション）
+   ========================================================================== */
+.loading-spinner {
+    display: none;
+    /* 初期状態は非表示 */
+    position: absolute;
+    right: 16px;
+    top: calc(50% - 10px);
+    /* 縦中央寄せ */
+    width: 20px;
+    height: 20px;
+    border: 2px solid var(--border-color);
+    border-top-color: var(--primary-color);
+    border-radius: 50%;
+    animation: spin 0.8s linear infinite;
+    z-index: 5;
+}
+
+@keyframes spin {
+    0% {
+        transform: rotate(0deg);
+    }
+
+    100% {
+        transform: rotate(360deg);
+    }
+}
+
+/* エラーバルーン */
+.error-balloon {
+    display: none;
+    position: absolute;
+    top: calc(100% + 12px);
+    left: 0;
+    width: 100%;
+    background: var(--bg-white);
+    border: 1px solid var(--border-color);
+    box-shadow: 0 4px 12px rgba(0, 0, 0, 0.05);
+    padding: 24px 20px;
+    z-index: 10;
+}
+
+.error-balloon::before {
+    content: "";
+    position: absolute;
+    top: -8px;
+    left: 30px;
+    width: 14px;
+    height: 14px;
+    background: var(--bg-white);
+    border-left: 1px solid var(--border-color);
+    border-top: 1px solid var(--border-color);
+    transform: rotate(45deg);
+}
+
+.error-balloon-header {
+    display: flex;
+    align-items: center;
+    margin-bottom: 16px;
+    position: relative;
+    z-index: 1;
+}
+
+.error-icon-wrapper {
+    position: relative;
+    width: 32px;
+    height: 32px;
+    margin-right: 12px;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+}
+
+.error-icon-wrapper::before {
+    content: "";
+    position: absolute;
+    top: 0;
+    left: 0;
+    width: 100%;
+    height: 100%;
+    background-color: var(--error-bg);
+    border-radius: 50%;
+    z-index: -1;
+}
+
+.error-icon-wrapper svg {
+    width: 20px;
+    height: 20px;
+}
+
+.error-title {
+    font-size: 16px;
+    font-weight: 700;
+    color: var(--text-dark);
+}
+
+.error-balloon-body {
+    position: relative;
+    z-index: 1;
+}
+
+.error-balloon-body p {
+    font-size: 13px;
+    color: var(--text-dark);
+    line-height: 1.6;
+    margin-bottom: 12px;
+}
+
+.error-balloon-body a {
+    color: var(--link);
+    text-decoration: underline;
+}
+
+.error-balloon-body a:hover {
+    text-decoration: none;
+}
+
+/* ==========================================================================
+   ステータス・エラー表示
+   ========================================================================== */
+.status-message,
+.error-text-message {
+    display: none;
+    font-size: 13px;
+    font-weight: 700;
+    margin-top: 8px;
+}
+
+.error-text-message,
+.status-message.is-error {
+    color: var(--error-color);
+}
+
+input.is-error,
+select.is-error {
+    border-color: var(--error-color) !important;
+    background-color: var(--error-bg) !important;
+}
+
+/* ==========================================================================
+   フォームフッター・ボタン周り
+   ========================================================================== */
+.form-footer-section {
+    margin-top: 40px;
+    padding-top: 30px;
+    border-top: 1px solid var(--border-color);
+}
+
+.terms-links {
+    font-size: 13px;
+    margin-bottom: 25px;
+}
+
+.company-text {
+    color: var(--text-muted);
+    margin-bottom: 8px;
+}
+
+.link-group a {
+    color: var(--link);
+    text-decoration: underline;
+}
+
+.link-group a:hover {
+    text-decoration: none;
+}
+
+.service-note {
+    margin-top: 35px;
+    font-size: 12px;
+    color: var(--text-muted);
+}
+
+.service-note h4 {
+    font-size: 13px;
+    font-weight: 700;
+    color: var(--text-dark);
+    margin-bottom: 6px;
+}
+
+.btn-container {
+    margin-top: 20px;
+}
+
+.btn-container.vertical {
+    display: flex;
+    flex-direction: column;
+    gap: 15px;
+}
+
+.btn {
+    display: block;
+    width: 100%;
+    padding: 18px;
+    font-size: 16px;
+    font-weight: 700;
+    text-align: center;
+    border: none;
+    border-radius: var(--radius-lg);
+    cursor: pointer;
+    transition: var(--transition-fast);
+}
+
+.btn-primary {
+    background-color: var(--primary-color);
+    color: var(--bg-white);
+}
+
+.btn-primary:hover:not(:disabled) {
+    background-color: var(--primary-hover-color);
+}
+
+.btn-primary:disabled {
+    background-color: var(--bg-grey);
+    color: var(--disabled);
+    cursor: not-allowed;
+}
+
+.btn-secondary {
+    background-color: transparent;
+    color: var(--text-dark);
+    border: 1px solid var(--border-color);
+}
+
+.btn-secondary:hover {
+    background-color: var(--bg-light);
+}
+
+/* ==========================================================================
+   確認画面・サンクス画面
+   ========================================================================== */
+.confirm-block {
+    margin-bottom: 35px;
+}
+
+.confirm-block h3 {
+    font-size: 16px;
+    font-weight: 700;
+    margin-bottom: 15px;
+    color: var(--text-dark);
+}
+
+.confirm-list {
+    border-top: 1px solid var(--border-color);
+}
+
+.confirm-row {
+    display: flex;
+    justify-content: space-between;
+    padding: 14px 0;
+    border-bottom: 1px solid rgba(0, 0, 0, 0.05);
+    font-size: 14px;
+}
+
+.confirm-label {
+    color: var(--text-muted);
+    width: 40%;
+}
+
+.confirm-value {
+    font-weight: 500;
+    width: 60%;
+    text-align: right;
+    word-break: break-all;
+}
+
+.text-center {
+    text-align: center;
+}
+
+.thanks-icon {
+    width: 80px;
+    height: 80px;
+    background-color: var(--primary-color);
+    color: var(--bg-white);
+    font-size: 40px;
+    line-height: 75px;
+    border-radius: 50%;
+    margin: 30px auto;
+    font-weight: bold;
+}
+
+#page-thanks h2 {
+    font-size: 24px;
+    margin-bottom: 15px;
+}
+
+#page-thanks p {
+    color: var(--text-muted);
+    font-size: 15px;
+}
+
+@media (max-width: 560px) {
+    .form-wrapper {
+        margin: 0px auto;
+        padding: 20px;
+    }
+}

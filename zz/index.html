@@ -1,0 +1,237 @@
+<!DOCTYPE html>
+<html lang="ja">
+
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>資産運用・不動産投資 資料請求フォーム | 【JPリターンズ】</title>
+    <meta name="description" content="資産形成や不動産投資をご検討中の個人向け資料請求フォームです。ご希望に合わせた投資ガイド・資料をお送りします。">
+    <meta property="og:image" content="https://chatbot.jpreturns.com/common/images/ogp.webp">
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <link href="https://fonts.googleapis.com/css2?family=Noto+Sans+JP:wght@400;500;700&display=swap" rel="stylesheet">
+    <link rel="icon" href="/common/images/favicon.png">
+    <link rel="stylesheet" href="style.css">
+</head>
+
+<body>
+
+    <header class="site-header">
+        <div class="header-container">
+            <img src="/common/images/logo.png" alt="J.P.Returns株式会社" class="brand-logo">
+        </div>
+    </header>
+
+    <main class="form-wrapper">
+        <div class="banner-wrapper">
+            <img id="banner-img" src="/common/images/banner_no1_appeal.jpg" alt="都心・駅近の資産形成・投資用不動産のご案内" class="eye-catch-img">
+        </div>
+
+        <ol class="step-bar" aria-label="フォームの進行ステップ">
+            <li class="step-item active" id="indicator-1">
+                <span class="step-circle" data-step-num="1">1</span>
+                <span class="step-label">投資状況</span>
+            </li>
+            <li class="step-item" id="indicator-2">
+                <span class="step-circle" data-step-num="2">2</span>
+                <span class="step-label">ご年収</span>
+            </li>
+            <li class="step-item" id="indicator-3">
+                <span class="step-circle" data-step-num="3">3</span>
+                <span class="step-label">資産・職業</span>
+            </li>
+            <li class="step-item" id="indicator-4">
+                <span class="step-circle" data-step-num="4">4</span>
+                <span class="step-label">ご年齢</span>
+            </li>
+            <li class="step-item" id="indicator-5">
+                <span class="step-circle" data-step-num="5">5</span>
+                <span class="step-label">ご連絡先</span>
+            </li>
+        </ol>
+
+        <section id="page-input" class="form-page active">
+            <form id="investment-form" novalidate>
+
+                <!-- STEP 1: 現在の投資状況 -->
+                <div class="form-step active" data-step="1">
+                    <div class="form-group">
+                        <label>現在、投資は行っていますか？</label>
+                        <input type="hidden" id="has_investment" name="has_investment" required>
+                        <div class="choice-btn-group row-2" role="group" aria-label="現在、投資は行っていますか？">
+                            <button type="button" class="choice-btn choice-btn--card" data-target="has_investment" data-value="まだ投資をしていない" data-auto-next="2">
+                                <span class="choice-icon" aria-hidden="true">
+                                    <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+                                        <path d="M12 22v-9"></path>
+                                        <path d="M12 13C12 8.5 8.5 5 4 5c0 4.5 3.5 8 8 8Z"></path>
+                                        <path d="M12 15c0-3.5 3.5-7 8-7 0 3.5-3.5 7-8 7Z"></path>
+                                    </svg>
+                                </span>
+                                <span class="choice-text">まだ投資をしていない</span>
+                            </button>
+                            <button type="button" class="choice-btn choice-btn--card" data-target="has_investment" data-value="既に投資を始めている" data-auto-next="2">
+                                <span class="choice-icon" aria-hidden="true">
+                                    <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+                                        <polyline points="22 7 13.5 15.5 8.5 10.5 2 17"></polyline>
+                                        <polyline points="16 7 22 7 22 13"></polyline>
+                                    </svg>
+                                </span>
+                                <span class="choice-text">既に投資を始めている</span>
+                            </button>
+                        </div>
+                    </div>
+                </div>
+
+                <!-- STEP 2: ご年収 -->
+                <div class="form-step" data-step="2">
+                    <div class="form-group">
+                        <label>ご年収は？</label>
+                        <input type="hidden" id="annual_income" name="annual_income" required>
+                        <div class="choice-btn-group cols-2" role="group" aria-label="年収">
+                            <button type="button" class="choice-btn" data-target="annual_income" data-value="500万円未満">500万円未満</button>
+                            <button type="button" class="choice-btn" data-target="annual_income" data-value="500万円〜">500万円〜</button>
+                            <button type="button" class="choice-btn" data-target="annual_income" data-value="700万円〜">700万円〜</button>
+                            <button type="button" class="choice-btn" data-target="annual_income" data-value="1,000万円〜">1,000万円〜</button>
+                            <button type="button" class="choice-btn" data-target="annual_income" data-value="1,500万円〜">1,500万円〜</button>
+                            <button type="button" class="choice-btn" data-target="annual_income" data-value="2,000万円～">2,000万円～</button>
+                        </div>
+                    </div>
+
+                    <div class="step-nav-btns dual">
+                        <button type="button" class="btn btn-secondary btn-prev" data-prev="1">戻る</button>
+                        <button type="button" class="btn btn-primary btn-next" data-next="3">次の質問へ進む</button>
+                    </div>
+                </div>
+
+                <!-- STEP 3: 保有資産・職業 -->
+                <div class="form-step" data-step="3">
+                    <div class="form-group">
+                        <label>ご保有金融資産は？</label>
+                        <input type="hidden" id="assets" name="assets" required>
+                        <div class="choice-btn-group cols-2" role="group" aria-label="保有資産">
+                            <button type="button" class="choice-btn" data-target="assets" data-value="500万円未満">500万円未満</button>
+                            <button type="button" class="choice-btn" data-target="assets" data-value="500万円〜">500万円〜</button>
+                            <button type="button" class="choice-btn" data-target="assets" data-value="1,000万円〜">1,000万円〜</button>
+                            <button type="button" class="choice-btn" data-target="assets" data-value="3,000万円〜">3,000万円〜</button>
+                            <button type="button" class="choice-btn" data-target="assets" data-value="5,000万円〜">5,000万円〜</button>
+                            <button type="button" class="choice-btn" data-target="assets" data-value="1億円～">1億円～</button>
+                        </div>
+                    </div>
+
+                    <div class="form-group">
+                        <label>ご職業は？</label>
+                        <input type="hidden" id="occupation" name="occupation" required>
+                        <div class="choice-btn-group cols-2" role="group" aria-label="職業">
+                            <button type="button" class="choice-btn" data-target="occupation" data-value="会社員（上場企業）">会社員（上場企業）</button>
+                            <button type="button" class="choice-btn" data-target="occupation" data-value="会社員（その他）">会社員（その他）</button>
+                            <button type="button" class="choice-btn" data-target="occupation" data-value="公務員">公務員</button>
+                            <button type="button" class="choice-btn" data-target="occupation" data-value="医師">医師</button>
+                            <button type="button" class="choice-btn" data-target="occupation" data-value="士業（弁護士、会計士等）">士業（弁護士、会計士等）</button>
+                            <button type="button" class="choice-btn" data-target="occupation" data-value="その他">その他</button>
+                        </div>
+                    </div>
+
+                    <div class="step-nav-btns dual">
+                        <button type="button" class="btn btn-secondary btn-prev" data-prev="2">戻る</button>
+                        <button type="button" class="btn btn-primary btn-next" data-next="4">次の質問へ進む</button>
+                    </div>
+                </div>
+
+                <!-- STEP 4: 年齢 -->
+                <div class="form-step" data-step="4">
+                    <div class="form-group">
+                        <label>ご年齢は？</label>
+                        <input type="hidden" id="age" name="age" required>
+                        <div class="choice-btn-group cols-2" role="group" aria-label="年齢">
+                            <button type="button" class="choice-btn" data-target="age" data-value="20～24歳">20～24歳</button>
+                            <button type="button" class="choice-btn" data-target="age" data-value="25～29歳">25～29歳</button>
+                            <button type="button" class="choice-btn" data-target="age" data-value="30～34歳">30～34歳</button>
+                            <button type="button" class="choice-btn" data-target="age" data-value="35～39歳">35～39歳</button>
+                            <button type="button" class="choice-btn" data-target="age" data-value="40～44歳">40～44歳</button>
+                            <button type="button" class="choice-btn" data-target="age" data-value="45～49歳">45～49歳</button>
+                            <button type="button" class="choice-btn" data-target="age" data-value="50～54歳">50～54歳</button>
+                            <button type="button" class="choice-btn" data-target="age" data-value="55～59歳">55～59歳</button>
+                            <button type="button" class="choice-btn" data-target="age" data-value="60歳～">60歳～</button>
+                        </div>
+                    </div>
+
+                    <div class="step-nav-btns dual">
+                        <button type="button" class="btn btn-secondary btn-prev" data-prev="3">戻る</button>
+                        <button type="button" class="btn btn-primary btn-next" data-next="5">次の質問へ進む</button>
+                    </div>
+                </div>
+
+                <!-- STEP 5: お名前・メールアドレス・電話番号・デジタルギフト（最終ステップ） -->
+                <div class="form-step" data-step="5">
+                    <div class="form-group name-group">
+                        <label>お名前</label>
+                        <div class="form-row">
+                            <div class="form-group">
+                                <input type="text" id="last_name" name="last_name" aria-label="姓" placeholder="例: 山田" required>
+                            </div>
+
+                            <div class="form-group">
+                                <input type="text" id="first_name" name="first_name" aria-label="名" placeholder="例: 太郎" required>
+                            </div>
+                        </div>
+                    </div>
+
+                    <div class="form-group contact-field">
+                        <label for="user_email">メールアドレス</label>
+                        <input type="email" id="user_email" name="user_email" placeholder="例: example@jpreturns.com" required>
+                    </div>
+
+                    <div class="form-group contact-field">
+                        <label for="user_tel">電話番号</label>
+                        <input type="tel" id="user_tel" name="user_tel" placeholder="例: 09012345678（ハイフン無し）" required>
+                    </div>
+
+                    <div class="form-group gift-group">
+                        <label>ご希望の選べるデジタルギフト</label>
+                        <input type="hidden" id="digital_gift" name="digital_gift" required>
+                        <div class="choice-btn-group" role="group" aria-label="ご希望の選べるデジタルギフト">
+                            <button type="button" class="choice-btn" data-target="digital_gift" data-value="Amazonギフトカード">Amazonギフトカード</button>
+                            <button type="button" class="choice-btn" data-target="digital_gift" data-value="PayPayマネーライト">PayPayマネーライト</button>
+                            <button type="button" class="choice-btn" data-target="digital_gift" data-value="楽天ポイント">楽天ポイント</button>
+                        </div>
+                    </div>
+
+                    <p class="page-lead step-submit-lead">ご入力内容・<a href="https://chatbot.jpreturns.com/privacypolicy" target="_blank" rel="noopener noreferrer">個人情報のお取り扱い</a>・<button type="button" id="open-gift-terms-modal" class="inline-link-btn">進呈条件の詳細</button>をご確認のうえ、「資料請求する」を押してください。</p>
+
+                    <div class="step-nav-btns dual">
+                        <button type="button" class="btn btn-secondary btn-prev" data-prev="4">戻る</button>
+                        <button type="button" id="btn-submit" class="btn btn-primary">資料請求する</button>
+                    </div>
+                </div>
+            </form>
+        </section>
+
+        <section id="page-thanks" class="form-page text-center">
+            <div class="thanks-icon">✔</div>
+            <h2>資料請求が完了しました</h2>
+            <p>お問い合わせ・資料請求ありがとうございました。<br>ご入力いただいた連絡先宛に資料のご案内をお送りいたしますので、今しばらくお待ちください。</p>
+        </section>
+    </main>
+
+    <!-- 進呈条件の詳細ポップアップ -->
+    <div id="gift-terms-modal" class="modal-backdrop" role="dialog" aria-modal="true" aria-labelledby="gift-terms-title" aria-hidden="true">
+        <div class="modal-dialog">
+            <div class="modal-header">
+                <h2 id="gift-terms-title" class="modal-title">進呈条件の詳細</h2>
+                <button type="button" id="close-gift-terms-modal" class="modal-close-btn" aria-label="閉じる">×</button>
+            </div>
+            <div id="gift-terms-body" class="modal-body"></div>
+            <div class="modal-footer">
+                <button type="button" id="ok-gift-terms-modal" class="btn btn-primary modal-ok-btn">閉じる</button>
+            </div>
+        </div>
+    </div>
+
+    <footer class="site-footer">
+        <p>&copy; J.P.Returns株式会社 All Rights Reserved.</p>
+    </footer>
+
+    <script type="module" src="script.js"></script>
+</body>
+
+</html>
