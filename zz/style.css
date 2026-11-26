@@ -105,7 +105,7 @@ body.modal-open {
 
 .page-lead a,
 .inline-link-btn {
-    color: var(--link);
+    color: var(--text-dark);
     text-decoration: underline;
 }
 
