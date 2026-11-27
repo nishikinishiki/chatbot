@@ -53,6 +53,7 @@ const initialQuestions = [
   {
     id: 'annual_income', item: "年収", question: "現在のご年収を教えてください。", answer_method: "single-choice",
     options: [
+      { label: "500万～", value: "500～599万" },
       { label: "600万～", value: "600～699万" },
       { label: "700万～", value: "700～799万" },
       { label: "800万～", value: "800～899万" },
