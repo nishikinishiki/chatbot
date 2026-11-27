@@ -310,7 +310,7 @@ async function submitDataToGAS(dataToSend, isAdditional) {
 
     // tob配下の対象フォームでは、送信元フォルダ名をGAS送信用utm_sourceに設定
     const sourceMatch = window.location.pathname.match(
-        /^\/tob\/(casm|cyberace|google|salesforce)(?:\/|$)/
+        /^\/tob\/(casm|cyberace|google|salesforce|docusign|quanz|cybozu)(?:\/|$)/
     );
     if (sourceMatch) payload.utm_source = sourceMatch[1];
 
