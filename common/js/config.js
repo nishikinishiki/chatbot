@@ -2,9 +2,12 @@
 const GAS_WEB_APP_URL_DEFAULT = 'https://script.google.com/macros/s/AKfycbw34NMk9KeS7ZF6LGJqXXl1by6fgUeZV6CKPuMWv1Bvlm5TYp3sbIK-I5TV-V567LeTzg/exec';
 const GAS_WEB_APP_URL_CAMPAIGN = {
     '/tob/salesforce': 'https://script.google.com/macros/s/AKfycbweN_fLMgYzpcmgjaxOyiFCyOzlc7lwaLWSeCrNH0juLHR4WADrRyN1iRV2G0NK-WRy/exec',
-    '/tob/cyberace':   'https://script.google.com/macros/s/AKfycbweN_fLMgYzpcmgjaxOyiFCyOzlc7lwaLWSeCrNH0juLHR4WADrRyN1iRV2G0NK-WRy/exec',
-    '/tob/casm': 'https://script.google.com/macros/s/AKfycbweN_fLMgYzpcmgjaxOyiFCyOzlc7lwaLWSeCrNH0juLHR4WADrRyN1iRV2G0NK-WRy/exec',
-    '/tob/google': 'https://script.google.com/macros/s/AKfycbweN_fLMgYzpcmgjaxOyiFCyOzlc7lwaLWSeCrNH0juLHR4WADrRyN1iRV2G0NK-WRy/exec'
+    '/tob/cyberace'  : 'https://script.google.com/macros/s/AKfycbweN_fLMgYzpcmgjaxOyiFCyOzlc7lwaLWSeCrNH0juLHR4WADrRyN1iRV2G0NK-WRy/exec',
+    '/tob/casm'      : 'https://script.google.com/macros/s/AKfycbweN_fLMgYzpcmgjaxOyiFCyOzlc7lwaLWSeCrNH0juLHR4WADrRyN1iRV2G0NK-WRy/exec',
+    '/tob/google'    : 'https://script.google.com/macros/s/AKfycbweN_fLMgYzpcmgjaxOyiFCyOzlc7lwaLWSeCrNH0juLHR4WADrRyN1iRV2G0NK-WRy/exec',
+    '/tob/docusign'  : 'https://script.google.com/macros/s/AKfycbweN_fLMgYzpcmgjaxOyiFCyOzlc7lwaLWSeCrNH0juLHR4WADrRyN1iRV2G0NK-WRy/exec',
+    '/tob/quanz'     : 'https://script.google.com/macros/s/AKfycbweN_fLMgYzpcmgjaxOyiFCyOzlc7lwaLWSeCrNH0juLHR4WADrRyN1iRV2G0NK-WRy/exec',
+    '/tob/cybozu'    : 'https://script.google.com/macros/s/AKfycbweN_fLMgYzpcmgjaxOyiFCyOzlc7lwaLWSeCrNH0juLHR4WADrRyN1iRV2G0NK-WRy/exec'
 };
 
 // 2. ファビコン
@@ -15,9 +18,12 @@ const ICON_DEFAULT = '/common/images/icon_jp.png';
 const ICON_CAMPAIGN = {
     'fbtrg': '/common/images/icon_woman.png',
     '/tob/salesforce': '/common/images/icon_woman.png',
-    '/tob/cyberace': '/common/images/icon_woman.png',
-    '/tob/casm': '/common/images/icon_woman.png',
-    '/tob/google': '/common/images/icon_woman.png'
+    '/tob/cyberace'  : '/common/images/icon_woman.png',
+    '/tob/casm'      : '/common/images/icon_woman.png',
+    '/tob/google'    : '/common/images/icon_woman.png',
+    '/tob/docusign'  : '/common/images/icon_woman.png',
+    '/tob/quanz'     : '/common/images/icon_woman.png',
+    '/tob/cybozu'    : '/common/images/icon_woman.png'
 };
 
 // 4. バナー
@@ -25,11 +31,14 @@ const BANNER_DEFAULT = [
     '/common/images/banner_tosin_ekichika.webp',
 ];
 const BANNER_CAMPAIGN = {
-    // URLパス
+    // tob
     '/tob/salesforce': '/common/images/banner_salesforce.jpg',
-    '/tob/cyberace': '/common/images/banner_cyberace.jpg',
-    '/tob/casm': '/common/images/banner_casm.jpg',
-    '/tob/google': '/common/images/banner_google.jpg',
+    '/tob/cyberace'  : '/common/images/banner_cyberace.jpg',
+    '/tob/casm'      : '/common/images/banner_casm.jpg',
+    '/tob/google'    : '/common/images/banner_google.jpg',
+    '/tob/docusign'  : '/common/images/banner_docusign.jpg',
+    '/tob/quanz'     : '/common/images/banner_quanz.jpg',
+    '/tob/cybozu'    : '/common/images/banner_cybozu.jpg',
 
     //HP
     'hp_gift_ebook': '/common/images/banner_ebook_propertylist.png',

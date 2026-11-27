@@ -61,7 +61,6 @@ document.addEventListener('DOMContentLoaded', () => {
     const giftTermsModal = document.getElementById('gift-terms-modal');
     const giftTermsTitle = document.getElementById('gift-terms-title');
     const giftTermsBody = document.getElementById('gift-terms-body');
-    const closeGiftTermsBtn = document.getElementById('close-gift-terms-modal');
     const okGiftTermsBtn = document.getElementById('ok-gift-terms-modal');
 
     let currentStepNum = 1;
@@ -128,9 +127,9 @@ document.addEventListener('DOMContentLoaded', () => {
         giftTermsModal.classList.add('is-open');
         giftTermsModal.setAttribute('aria-hidden', 'false');
         document.body.classList.add('modal-open');
-        closeGiftTermsBtn?.focus();
+        okGiftTermsBtn?.focus();
     }
-
+    
     function closeGiftTermsModal() {
         if (!giftTermsModal || !giftTermsModal.classList.contains('is-open')) return;
         giftTermsModal.classList.remove('is-open');
@@ -300,7 +299,7 @@ document.addEventListener('DOMContentLoaded', () => {
             el.classList.toggle('completed', isCompleted && !isActive);
 
             if (circle) {
-                circle.textContent = isCompleted ? '✓' : String(circle.dataset.stepNum || itemStep);
+                circle.textContent = isCompleted ? '✓' : '';
             }
         });
     }
@@ -322,7 +321,6 @@ document.addEventListener('DOMContentLoaded', () => {
     // イベント登録
     // ========================================================
     openGiftTermsBtn?.addEventListener('click', openGiftTermsModal);
-    closeGiftTermsBtn?.addEventListener('click', closeGiftTermsModal);
     okGiftTermsBtn?.addEventListener('click', closeGiftTermsModal);
 
     giftTermsModal?.addEventListener('click', (e) => {
